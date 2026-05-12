@@ -1,0 +1,280 @@
+[
+  {
+    "id": "1778216541791",
+    "activo": true,
+    "nombre": "Yo",
+    "telefono": "573006197897",
+    "tipo": "personalizado",
+    "hora_envio": "19:11",
+    "dia_pago": 10,
+    "estado_pago": "vencido",
+    "perfil": {
+      "fecha_inicio": "2026-05-09",
+      "sexo": "M",
+      "edad": "30",
+      "altura": "172.5",
+      "objetivo": "",
+      "etiqueta": "perdida",
+      "notas": "Todo"
+    },
+    "tipo_pago": "mensual",
+    "dia_pago2": null,
+    "sesiones_total": 11,
+    "sesiones_ciclo": 11,
+    "ciclo_inicio": "2026-05-08",
+    "msg_pago": "Pague ",
+    "msg_q1": "",
+    "msg_q2": ""
+  },
+  {
+    "id": "1778272241158",
+    "activo": true,
+    "nombre": "Morza",
+    "telefono": "573185663001",
+    "tipo": "personalizado",
+    "hora_envio": "15:35",
+    "dia_pago": 8,
+    "estado_pago": "vencido",
+    "perfil": {
+      "fecha_inicio": "",
+      "sexo": "M",
+      "edad": "30",
+      "altura": "160",
+      "objetivo": "",
+      "etiqueta": "rehabilitacion",
+      "notas": ""
+    },
+    "tipo_pago": "mensual",
+    "dia_pago2": null,
+    "sesiones_total": 8,
+    "sesiones_ciclo": 8,
+    "ciclo_inicio": "2026-05-08"
+  },
+  {
+    "id": "1778354312296",
+    "activo": true,
+    "nombre": "Manuela guarin",
+    "telefono": "573212155809",
+    "tipo": "personalizado",
+    "hora_envio": "13:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "msg_pago": "Pague ",
+    "msg_q1": "",
+    "msg_q2": "",
+    "perfil": {
+      "fecha_inicio": "2026-05-11",
+      "sexo": "F",
+      "edad": "25",
+      "altura": "168",
+      "etiqueta": "hipertrofia",
+      "notas": "Lesión en ligamento cruzado rodilla izquierda \n\nLumbalgia "
+    }
+  },
+  {
+    "id": "1778376855974",
+    "activo": true,
+    "nombre": "Ana guarin",
+    "telefono": "573107223603",
+    "tipo": "personalizado",
+    "hora_envio": "07:00",
+    "tipo_pago": "mensual",
+    "dia_pago": 20,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-05-11",
+      "sexo": "F",
+      "edad": "21",
+      "altura": "165",
+      "etiqueta": "perdida",
+      "notas": ""
+    }
+  },
+  {
+    "id": "1778377049231",
+    "activo": true,
+    "nombre": "Mafe",
+    "telefono": "573113084297",
+    "tipo": "personalizado",
+    "hora_envio": "12:05",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-05-11",
+      "sexo": "F",
+      "edad": "25",
+      "altura": "155",
+      "etiqueta": "hipertrofia",
+      "notas": ""
+    }
+  },
+  {
+    "id": "1778377208321",
+    "activo": true,
+    "nombre": "María sabel Almeida",
+    "telefono": "573156634805",
+    "tipo": "asesorado",
+    "hora_envio": "07:00",
+    "tipo_pago": "mensual",
+    "dia_pago": 1,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-05-11",
+      "sexo": "F",
+      "edad": "54",
+      "altura": "168",
+      "etiqueta": "perdida",
+      "notas": ""
+    }
+  },
+  {
+    "id": "1778377380425",
+    "activo": true,
+    "nombre": "Ariana Chirinno",
+    "telefono": "573042059960",
+    "tipo": "personalizado",
+    "hora_envio": "12:05",
+    "tipo_pago": "mensual",
+    "dia_pago": 15,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-05-09",
+      "sexo": "F",
+      "edad": "21",
+      "altura": "156",
+      "etiqueta": "hipertrofia",
+      "notas": ""
+    }
+  },
+  {
+    "id": "1778377616786",
+    "activo": true,
+    "nombre": "Manuela Gaviria",
+    "telefono": "573002210635",
+    "tipo": "personalizado",
+    "hora_envio": "14:08",
+    "tipo_pago": "mensual",
+    "dia_pago": 16,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-05-09",
+      "sexo": "F",
+      "edad": "20",
+      "altura": "163",
+      "etiqueta": "perdida",
+      "notas": ""
+    }
+  },
+  {
+    "id": "1778378152347",
+    "activo": false,
+    "nombre": "Isabela guarin",
+    "telefono": "573116780764",
+    "tipo": "personalizado",
+    "hora_envio": "14:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "proximo",
+    "perfil": {
+      "fecha_inicio": "2026-05-11",
+      "sexo": "",
+      "edad": "22",
+      "altura": "160",
+      "etiqueta": "hipertrofia",
+      "notas": "Rino plastia \nMamoplastia "
+    }
+  },
+  {
+    "id": "1778379130440",
+    "activo": false,
+    "nombre": "Valentina ruiz",
+    "telefono": "573013510474",
+    "tipo": "personalizado",
+    "hora_envio": "07:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "proximo",
+    "perfil": {
+      "fecha_inicio": "2026-05-09",
+      "sexo": "F",
+      "edad": "25",
+      "altura": "165",
+      "etiqueta": "rehabilitacion",
+      "notas": "De todo y mala suerte "
+    }
+  },
+  {
+    "id": "1778379342983",
+    "activo": false,
+    "nombre": "Alejandro lagueigth",
+    "telefono": "573045354969",
+    "tipo": "personalizado",
+    "hora_envio": "14:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-01-15",
+      "sexo": "M",
+      "edad": "32",
+      "altura": "172",
+      "etiqueta": "hipertrofia",
+      "notas": ""
+    }
+  },
+  {
+    "id": "1778379484797",
+    "activo": true,
+    "nombre": "David gomez",
+    "telefono": "573186837646",
+    "tipo": "personalizado",
+    "hora_envio": "19:00",
+    "tipo_pago": "mensual",
+    "dia_pago": 15,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-04-15",
+      "sexo": "",
+      "edad": "20",
+      "altura": "185",
+      "etiqueta": "hipertrofia",
+      "notas": ""
+    }
+  },
+  {
+    "id": "1778379762356",
+    "activo": true,
+    "nombre": "Valentina Alvarez",
+    "telefono": "573186662323",
+    "tipo": "asesorado",
+    "hora_envio": "16:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia"
+  },
+  {
+    "id": "1778389775722",
+    "activo": true,
+    "nombre": "Nando",
+    "telefono": "573136665467",
+    "tipo": "personalizado",
+    "hora_envio": "08:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia"
+  }
+]

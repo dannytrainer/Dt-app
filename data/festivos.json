@@ -1,0 +1,74 @@
+[
+  {
+    "fecha": "2026-01-01",
+    "nombre": "Año Nuevo"
+  },
+  {
+    "fecha": "2026-01-12",
+    "nombre": "Día de los Reyes Magos"
+  },
+  {
+    "fecha": "2026-03-23",
+    "nombre": "Día de San José"
+  },
+  {
+    "fecha": "2026-04-02",
+    "nombre": "Jueves Santo"
+  },
+  {
+    "fecha": "2026-04-03",
+    "nombre": "Viernes Santo"
+  },
+  {
+    "fecha": "2026-05-01",
+    "nombre": "Primero de Mayo"
+  },
+  {
+    "fecha": "2026-05-18",
+    "nombre": "Ascensión del señor"
+  },
+  {
+    "fecha": "2026-06-08",
+    "nombre": "Corpus Christi"
+  },
+  {
+    "fecha": "2026-06-15",
+    "nombre": "Sagrado Corazón"
+  },
+  {
+    "fecha": "2026-06-29",
+    "nombre": "San Pedro y San Pablo"
+  },
+  {
+    "fecha": "2026-07-20",
+    "nombre": "Declaracion de la Independencia de Colombia"
+  },
+  {
+    "fecha": "2026-08-07",
+    "nombre": "Batalla de Boyacá"
+  },
+  {
+    "fecha": "2026-08-17",
+    "nombre": "La Asunción"
+  },
+  {
+    "fecha": "2026-10-12",
+    "nombre": "Día de la Raza"
+  },
+  {
+    "fecha": "2026-11-02",
+    "nombre": "Dia de los Santos"
+  },
+  {
+    "fecha": "2026-11-16",
+    "nombre": "Independencia de Cartagena"
+  },
+  {
+    "fecha": "2026-12-08",
+    "nombre": "La Inmaculada Concepción"
+  },
+  {
+    "fecha": "2026-12-25",
+    "nombre": "Navidad"
+  }
+]

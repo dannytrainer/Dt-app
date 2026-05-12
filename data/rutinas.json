@@ -1,0 +1,140 @@
+{
+  "1778206334876": {
+    "lunes": {
+      "recordatorio": "",
+      "rutina": ""
+    },
+    "miercoles": {
+      "recordatorio": "Prueba programada ",
+      "rutina": "Ver "
+    },
+    "jueves": {
+      "recordatorio": "Prba ",
+      "rutina": "Programada "
+    },
+    "viernes": {
+      "recordatorio": "Si ves esto es pq funciona automáticamente ",
+      "rutina": "\n\nY yo soy muy teso pq aunq todo lo haga el app  issss máquina yo sin saber nada acomodar todo "
+    }
+  },
+  "1778216541791": {
+    "lunes": {
+      "recordatorio": "Está es la rutina d pecho ",
+      "rutina": "Recuerda calentar los hombros \nVariaciones :\nV0= 15 /12/10/8/8\nV1= última serie en dropset de 3 \nV2= última serie en rest países al fallo \nV3= biserie",
+      "ejercicios": [
+        {
+          "nombre": "Haz clavicular ",
+          "series": "5",
+          "reps": "8",
+          "rir": "1-2",
+          "desc": "60",
+          "var": "V0"
+        },
+        {
+          "nombre": "Pres pecho  plano ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Remo  t (supino)",
+          "series": "3",
+          "reps": "8",
+          "rir": "1-2",
+          "desc": "240",
+          "var": "V1"
+        },
+        {
+          "nombre": "Jalón abierto ",
+          "series": "4",
+          "reps": "8",
+          "rir": "1",
+          "desc": "60",
+          "var": "V2"
+        },
+        {
+          "nombre": "Pull over ",
+          "series": "3",
+          "reps": "15",
+          "rir": "0",
+          "desc": "30",
+          "var": "V3"
+        },
+        {
+          "nombre": "Vuelos de pecho ",
+          "series": "3",
+          "reps": "15",
+          "rir": "0",
+          "desc": "30",
+          "var": "V3"
+        }
+      ]
+    },
+    "viernes": {
+      "recordatorio": "Hoy toca pierna ",
+      "rutina": "Prueba sentadilla x10\nPara 4 x 10"
+    },
+    "martes": {
+      "recordatorio": "B",
+      "rutina": "B"
+    },
+    "miercoles": {
+      "recordatorio": "C",
+      "rutina": "C"
+    },
+    "jueves": {
+      "recordatorio": "D",
+      "rutina": "D"
+    },
+    "sabado": {
+      "recordatorio": "B",
+      "rutina": "C"
+    },
+    "domingo": {
+      "recordatorio": "",
+      "rutina": ""
+    }
+  },
+  "1778272241158": {
+    "lunes": {
+      "recordatorio": "",
+      "rutina": ""
+    },
+    "viernes": {
+      "recordatorio": "Prueba ",
+      "rutina": "Sentadilla gey en Chimbo de hielo "
+    }
+  },
+  "1778389775722": {
+    "lunes": {
+      "recordatorio": "Nando hoy toca pecho/espalda ",
+      "rutina": "1. *Press inclinado mancuernas*\n    - Series: 5\n    - Reps: 15 / 12 / 8-10 / 8-10/ 8-10\n    - RIR: 1-2\n\n2. *Press plano*\n    - Series: 4\n    - Reps: 6-8 / 8-10\n    - RIR: 1-2\n\n3. *Remo pesado (neutro cerrado)*\n    - Series: 3+DS\n    - Reps: 8-10\n    - RIR: 1-2\n\n4. *Jalón (neutro amplitud)*\n    - Series: 4+DS\n    - Reps: 8-12\n    - RIR: 1-2\n\n5. *Pullover + vuelos*\n    - Series: 3\n    - Reps: 12-15\n    - RIR: 0-1"
+    },
+    "martes": {
+      "recordatorio": "Nando hoy toca pata enfocado en femoral",
+      "rutina": "1. *Aducción + abducción*\n    - Series: 3\n    - Reps: 15-20\n    - RIR: 2\n\n2. *Peso muerto*\n    - Series: 3\n    - Reps: 6-10\n    - RIR: 1-2\n\n3. *Curl femoral acostado*\n    - Series: 4\n    - Reps: 10-12\n    - RIR: 1-2\n\n4. *Curl femoral unilateral*\n    - Series: 3\n    - Reps: 12-15\n    - RIR: 1\n\n5. *Femoral sentado *\n    - Series: 2-3\n    - Reps: 12-15\n    - RIR: 1\n\n6. *Extensión rodilla*\n    - Series: 3-4\n    - Reps: 10-12\n    - RIR: 1\n\n7. *Pantorrilla*\n    - Series: 4\n    - Reps: 12-20\n    - RIR: 1-2 "
+    },
+    "miercoles": {
+      "recordatorio": "Nando. Hombro y brazo ",
+      "rutina": "*Circuito de Hombros (3 circuitos)*\n\n*Circuito 1: Anterior*\n1. *Elevaciones frontales*\n    - Series: 3\n    - Reps: 6-15\n    - RIR: 1-2\n2. *Press frontal con mancuernas*\n    - Series: 3\n    - Reps: 6-15\n    - RIR: 1-2\n3. *Elevaciones frontales con barra*\n    - Series: 3\n    - Reps: 6-15\n    - RIR: 1-2\n\n*Circuito 2: Posterior*\n1. *Elevaciones posteriores*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n2. *Remo con mancuernas*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n3. *Elevaciones posteriores inclinadas*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n\n*Circuito 3: Lateral*\n1. *Elevaciones laterales*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n2. *Elevaciones laterales inclinadas*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n3. *Elevaciones laterales con mancuernas*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n\n*Biseries: Bíceps + Tríceps*\n\n1. *Curl con barra + Extensión de tríceps con barra*\n    - Series: 3\n    - Reps: 8-12\n    - RIR: 1-2\n\n2. *Curl con mancuernas alternado + Tríceps francés*\n    - Series: 3\n    - Reps: 10-15\n    - RIR: 1-2\n\n*Ejercicios individuales*\n\n1. *Bíceps: Curl con cable*\n    - Series: 3\n    - Reps: 10-15\n    - RIR: 1-2\n\n2. *Tríceps: Extensión de tríceps con cuerda*\n    - Series: 3\n    - Reps: 10-15\n    - RIR: 1-2"
+    },
+    "jueves": {
+      "recordatorio": "Nando otra vez pecho espalda pero suave ",
+      "rutina": "\n\n1. *Press inclinado*\n    - Series: 4\n    - Reps: 10-12\n    - RIR: 2\n\n2. *Press plano*\n    - Series: 3\n    - Reps: 8-10\n    - RIR: 2\n\n3. *Remo (neutro)*\n    - Series: 3\n    - Reps: 10-12\n    - RIR: 2\n\n4. *Jalón (controlado)*\n    - Series: 4\n    - Reps: 10-12\n    - RIR: 1-2\n\n5. *Pullover + vuelos*\n    - Series: 2-3\n    - Reps: 12-15\n    - RIR: 1"
+    },
+    "viernes": {
+      "recordatorio": "Nando pata ero énfasis  cuádriceps ",
+      "rutina": "\n\n1. *Aducción + abducción*\n    - Series: 3\n    - Reps: 15-20\n    - RIR: 2\n\n2. *Hack squat*\n    - Series: 3\n    - Reps: 8-10\n    - RIR: 1\n\n3. *Prensa*\n    - Series: 3\n    - Reps: 8-10\n    - RIR: 1\n\n4. *Tijera cajón*\n    - Series: 3\n    - Reps: 10-12\n    - RIR: 1\n\n5. *Extensión bilateral*\n    - Series: 3\n    - Reps: 10-12\n    - RIR: 0-1\n\n6. *Extensión unilateral*\n    - Series: 2\n    - Reps: 12-15\n    - RIR: 0-1\n\n7. *Curl femoral*\n    - Series: 3\n    - Reps: 12-15\n    - RIR: 1\n\n8. *Pantorrilla*\n    - Series: 6-8\n    - Reps: 12-20\n    - RIR: 1-2"
+    },
+    "sabado": {
+      "recordatorio": "Nando ultimo día de brazo ",
+      "rutina": "*Circuito de Hombros (3 circuitos)*\n\n*Circuito 1: Anterior*\n1. *Elevaciones frontales*\n    - Series: 3\n    - Reps: 6-15\n    - RIR: 1-2\n2. *Press frontal con mancuernas*\n    - Series: 3\n    - Reps: 6-15\n    - RIR: 1-2\n3. *Elevaciones frontales con barra*\n    - Series: 3\n    - Reps: 6-15\n    - RIR: 1-2\n\n*Circuito 2: Posterior*\n1. *Elevaciones posteriores*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n2. *Remo con mancuernas*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n3. *Elevaciones posteriores inclinadas*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n\n*Circuito 3: Lateral*\n1. *Elevaciones laterales*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n2. *Elevaciones laterales inclinadas*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n3. *Elevaciones laterales con mancuernas*\n    - Series: 3\n    - Reps: 10-20\n    - RIR: 0-1\n\n*Biseries: Bíceps + Tríceps*\n\n1. *Curl con barra + Extensión de tríceps con barra*\n    - Series: 3\n    - Reps: 8-12\n    - RIR: 1-2\n\n2. *Curl con mancuernas alternado + Tríceps francés*\n    - Series: 3\n    - Reps: 10-15\n    - RIR: 1-2\n\n*Ejercicios individuales*\n\n1. *Bíceps: Curl con cable*\n    - Series: 3\n    - Reps: 10-15\n    - RIR: 1-2\n\n2. *Tríceps: Extensión de tríceps con cuerda*\n    - Series: 3\n    - Reps: 10-15\n    - RIR: 1-2"
+    },
+    "domingo": {
+      "recordatorio": "M",
+      "rutina": ""
+    }
+  }
+}
