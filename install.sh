@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Iniciando instalación segura de GymBot..."
+echo "🚀 Iniciando instalación segura de Dt-app..."
 
 # =========================
 # 1. DEPENDENCIAS BASE
@@ -17,7 +17,7 @@ pkg install nodejs git -y
 # =========================
 echo "📁 Verificando proyecto..."
 
-cd ~/gymbot || {
+cd " $HOME/Dt-app" || {
   echo "❌ Carpeta gymbot no existe"
   exit 1
 }
@@ -28,9 +28,9 @@ cd ~/gymbot || {
 if [ ! -d ".git" ]; then
   echo "⚠️ No hay repo git, clonando desde GitHub..."
   cd ~
-  rm -rf gymbot
+  rm -rf "$HOME/Dt-app"
   git clone https://github.com/dannytrainer/Dt-app.git
-  cd gymbot
+  cd "HOME/Dt-app"
 else
   echo "✔ Git detectado"
 fi
@@ -57,7 +57,7 @@ fi
 echo "🔧 Configurando alias dt..."
 
 if ! grep -q "alias dt=" ~/.bashrc; then
-  echo 'alias dt="cd ~/gymbot && node index.js"' >> ~/.bashrc
+  echo 'alias dt="cd ""HOME/Dt-app && node index.js"' >> ~/.bashrc
 fi
 
 source ~/.bashrc
