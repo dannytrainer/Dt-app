@@ -189,8 +189,22 @@ app.post('/api/enviar-rutina/:id', async (req, res) => {
   const dias = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
   let texto = 'Rutina completa de ' + usuario.nombre + ':\n\n';
   for (const dia of dias) {
-    if (rutina[dia] && rutina[dia].rutina) texto += dia.toUpperCase() + '\n' + rutina[dia].rutina + '\n\n';
+    if (rutina[dia]) {
+
+  texto += dia.toUpperCase() + '\n';
+
+  if (rutina[dia].rutina) {
+    texto += rutina[dia].rutina + '\n';
   }
+
+  if (rutina[dia].ejercicios && rutina[dia].ejercicios.length > 0) {
+    rutina[dia].ejercicios.forEach(e => {
+      texto += `- ${e.nombre || ''} ${e.series || ''} ${e.reps || ''} ${e.rir || ''}\n`;
+    });
+  }
+
+  texto += '\n';
+}  }
   const resultado = await enviarMensaje(usuario.telefono, texto);
   res.json({ ok: resultado });
 });
