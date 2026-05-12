@@ -5,7 +5,7 @@
     "nombre": "Yo",
     "telefono": "573006197897",
     "tipo": "personalizado",
-    "hora_envio": "19:11",
+    "hora_envio": "10:04",
     "dia_pago": 10,
     "estado_pago": "vencido",
     "perfil": {
@@ -276,5 +276,17 @@
     "dia_pago": null,
     "dia_pago2": null,
     "estado_pago": "aldia"
+  },
+  {
+    "id": "1778599936061",
+    "activo": true,
+    "nombre": "Mariana",
+    "telefono": "573046061176",
+    "tipo": "personalizado",
+    "hora_envio": "08:00",
+    "tipo_pago": "quincenal",
+    "dia_pago": 15,
+    "dia_pago2": 30,
+    "estado_pago": "proximo"
   }
 ]

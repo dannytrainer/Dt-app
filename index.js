@@ -187,24 +187,41 @@ app.post('/api/enviar-rutina/:id', async (req, res) => {
   const rutina = rutinas[req.params.id];
   if (!rutina) return res.status(404).json({ error: 'Sin rutina' });
   const dias = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
-  let texto = 'Rutina completa de ' + usuario.nombre + ':\n\n';
+  const emojis = {lunes:'🔥',martes:'⚡',miercoles:'💪',jueves:'🔥',viernes:'⚡',sabado:'💪',domingo:'🌟'};
+  let lineas = ['*Rutina de ' + usuario.nombre + '*', ''];
   for (const dia of dias) {
-    if (rutina[dia]) {
-
-  texto += dia.toUpperCase() + '\n';
-
-  if (rutina[dia].rutina) {
-    texto += rutina[dia].rutina + '\n';
+    const d = rutina[dia];
+    if (!d) continue;
+    const ejs = d.ejercicios && d.ejercicios.filter(e=>e.nombre).length > 0 ? d.ejercicios : null;
+    if (!ejs && !d.rutina) continue;
+    const tit = dia.charAt(0).toUpperCase()+dia.slice(1);
+    lineas.push('╔════════════════════╗');
+    lineas.push('║ ' + emojis[dia] + ' ' + tit.toUpperCase().padEnd(18) + '║');
+    lineas.push('╚════════════════════╝');
+    if (d.recordatorio) {
+      lineas.push('📝 ' + d.recordatorio);
+    }
+    if (ejs && ejs.length > 0) {
+      ejs.forEach((e) => {
+        if (e.nombre) {
+          lineas.push('┌───────────────────┐');
+          lineas.push('│ ' + e.nombre.substring(0,17).padEnd(17) + '│');
+          lineas.push('├───────────────────┤');
+          lineas.push('│ S: ' + (e.series || '').padEnd(14) + '│');
+          lineas.push('│ R: ' + (e.reps || '').padEnd(14) + '│');
+          lineas.push('│ RIR: ' + (e.rir || '').padEnd(12) + '│');
+          lineas.push('│ DESC: ' + (e.desc || '').padEnd(11) + '│');
+          lineas.push('│ VB: ' + (e.var || '').padEnd(13) + '│');
+          lineas.push('└───────────────────┘');
+        }
+      });
+    }
+    if (d.rutina) {
+      lineas.push('📌 ' + d.rutina);
+    }
+    lineas.push('');
   }
-
-  if (rutina[dia].ejercicios && rutina[dia].ejercicios.length > 0) {
-    rutina[dia].ejercicios.forEach(e => {
-      texto += `- ${e.nombre || ''} ${e.series || ''} ${e.reps || ''} ${e.rir || ''}\n`;
-    });
-  }
-
-  texto += '\n';
-}  }
+  let texto = lineas.join('\n');
   const resultado = await enviarMensaje(usuario.telefono, texto);
   res.json({ ok: resultado });
 });

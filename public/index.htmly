@@ -410,7 +410,6 @@ function seleccionarDia(dia){
   renderDiasTabs();
   renderRutinaForm();
 }
-
 function renderRutinaForm(){
 const d=rutinaActual[diaSeleccionado]||{recordatorio:'',rutina:'',ejercicios:[]};
 const ejs=d.ejercicios||[];
