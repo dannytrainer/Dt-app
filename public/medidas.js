@@ -257,12 +257,10 @@ async function verHistorialMedidas(id) {
   document.getElementById('historial-contenido').innerHTML = '<div style="font-weight:700;color:#e31e24;margin-bottom:12px">📋 Historial de medidas</div>'+html;
   document.getElementById('modal-historial').classList.add('open');
 }
-
 async function compartirProgreso(id, nombre) {
   const u = await fetch('/api/usuarios').then(r=>r.json());
   const usuario = u.find(x=>x.id===id);
   const hist = await fetch('/api/historial/'+id).then(r=>r.json());
-  const calc = await fetch('/api/calculos/'+id).then(r=>r.json());
   const pesos = hist.peso||[];
   const medidas = hist.medidas||[];
   const perfil = usuario.perfil||{};
@@ -270,49 +268,84 @@ async function compartirProgreso(id, nombre) {
   const pesoInicial = pesos.length ? pesos[0].valor : null;
   const medActual = medidas.length ? medidas[medidas.length-1] : null;
   const medInicial = medidas.length ? medidas[0] : null;
+  const soloPrimera = medidas.length < 2;
 
   let msg = '💪 *Progreso de ' + nombre + '*\n\n';
+
   if (perfil.fecha_inicio) {
     const semanas = Math.floor((new Date()-new Date(perfil.fecha_inicio))/(1000*60*60*24*7));
     msg += '⏱️ Tiempo: ' + semanas + ' semanas\n';
   }
   msg += '🏋️ Sesiones totales: ' + (usuario.sesiones_total||0) + '\n\n';
-  if (pesoInicial && pesoActual) {
-    const cambio = (parseFloat(pesoActual)-parseFloat(pesoInicial)).toFixed(1);
-    msg += '⚖️ *Peso*\nInicial: '+pesoInicial+' kg\nActual: '+pesoActual+' kg\nCambio: '+(parseFloat(cambio)>0?'+':'')+cambio+' kg\n\n';
-  }
-  if (medActual && medInicial) {
-    const campos = ['cintura','cadera','pecho','brazo','pierna'];
-    const labels = ['Cintura','Cadera','Pecho','Brazo','Pierna'];
-    msg += '📏 *Medidas*\n';
-    campos.forEach((c,i)=>{
-      if(medActual[c]&&medInicial[c]){
-        const d=(parseFloat(medActual[c])-parseFloat(medInicial[c])).toFixed(1);
-        msg+=labels[i]+': '+(parseFloat(d)>0?'+':'')+d+' cm\n';
-      }
-    });
-    msg+='\n';
-  }
-  if (calc.pctGrasa) msg += '📊 % Grasa: '+calc.pctGrasa+'%\n📊 % Masa magra: '+calc.pctMagra+'%\n';
-  const histShare = await fetch('/api/historial/'+id).then(r=>r.json());
-  const medidasShare = histShare.medidas || [];
-  if (medidasShare.length >= 2) {
-    const actShare = medidasShare[medidasShare.length-1].analisis || {};
-    const antShare = medidasShare[medidasShare.length-2].analisis || {};
-    if (actShare.kgGrasa && antShare.kgGrasa) {
-      const dg = (parseFloat(actShare.kgGrasa)-parseFloat(antShare.kgGrasa)).toFixed(1);
-      const dm = (parseFloat(actShare.kgMusculo)-parseFloat(antShare.kgMusculo)).toFixed(1);
-      msg += '\n📈 *Última medición*\n';
-      msg += 'Grasa: '+(parseFloat(dg)>0?'+':'')+dg+' kg\n';
-      msg += 'Músculo: '+(parseFloat(dm)>0?'+':'')+dm+' kg\n';
+
+  // PESO
+  if (pesoActual) {
+    msg += '⚖️ *Peso*\n';
+    msg += 'Actual: ' + pesoActual + ' kg';
+    if (!soloPrimera && pesoInicial && pesoInicial !== pesoActual) {
+      const cambio = (parseFloat(pesoActual)-parseFloat(pesoInicial)).toFixed(1);
+      if (parseFloat(cambio)!==0) msg += ' (' + (parseFloat(cambio)>0?'+':'') + cambio + ' kg)';
     }
+    msg += '\n\n';
+  }
+
+  // PERÍMETROS
+  const camposPerim = ['cintura','cadera','pecho','brazo','pierna','hombros','pantorrilla'];
+  const labelsPerim = ['Cintura','Cadera','Pecho','Brazo','Pierna','Hombros','Pantorrilla'];
+  if (medActual) {
+    let lineasPerim = '';
+    camposPerim.forEach((c,i)=>{
+      const val = parseFloat(medActual[c]);
+      if (!val || val===0) return;
+      let linea = labelsPerim[i] + ': ' + val + ' cm';
+      if (!soloPrimera && medInicial) {
+        const ant = parseFloat(medInicial[c]);
+        if (ant && ant!==0) {
+          const d = (val - ant).toFixed(1);
+          if (parseFloat(d)!==0) linea += ' (' + (parseFloat(d)>0?'+':'') + d + ' cm)';
+        }
+      }
+      lineasPerim += linea + '\n';
+    });
+    if (lineasPerim) msg += '📏 *Perímetros*\n' + lineasPerim + '\n';
+  }
+
+  // PLIEGUES
+  const camposPlieg = ['triceps','subescapular','abdominal','suprailiaco'];
+  const labelsPlieg = ['Tríceps','Subescapular','Abdominal','Suprailiaco'];
+  if (medActual) {
+    let lineasPlieg = '';
+    camposPlieg.forEach((c,i)=>{
+      const val = parseFloat(medActual[c]);
+      if (!val || val===0) return;
+      let linea = labelsPlieg[i] + ': ' + val + ' mm';
+      if (!soloPrimera && medInicial) {
+        const ant = parseFloat(medInicial[c]);
+        if (ant && ant!==0) {
+          const d = (val - ant).toFixed(1);
+          if (parseFloat(d)!==0) linea += ' (' + (parseFloat(d)>0?'+':'') + d + ' mm)';
+        }
+      }
+      lineasPlieg += linea + '\n';
+    });
+    if (lineasPlieg) msg += '📐 *Pliegues*\n' + lineasPlieg + '\n';
+  }
+
+  // COMPOSICIÓN CORPORAL
+  const analisis = medActual && medActual.analisis ? medActual.analisis : null;
+  if (analisis && analisis.pctGrasa) {
+    msg += '📊 *Composición corporal*\n';
+    msg += '% Grasa: ' + analisis.pctGrasa + '%\n';
+    const pctMagra = (100 - analisis.pctGrasa).toFixed(1);
+    msg += '% Masa magra: ' + pctMagra + '%\n';
+    if (analisis.kgGrasa) msg += 'Kg grasa: ' + analisis.kgGrasa + ' kg\n';
+    if (analisis.kgMusculo) msg += 'Kg músculo estimado: ' + analisis.kgMusculo + ' kg\n';
   }
 
   const res = await fetch('/api/enviar', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telefono:usuario.telefono,mensaje:msg})});
   const data = await res.json();
   toast(data.ok ? '✅ Progreso enviado' : '❌ Error', data.ok);
 }
-
 async function renderPerfil(id) {
   const u = await fetch('/api/usuarios').then(r=>r.json());
   const usuario = u.find(x=>x.id===id);

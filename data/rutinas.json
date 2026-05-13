@@ -50,7 +50,17 @@
     },
     "miercoles": {
       "recordatorio": "C",
-      "rutina": "C"
+      "rutina": "C",
+      "ejercicios": [
+        {
+          "nombre": "Pres hombro ",
+          "series": "5",
+          "reps": "58",
+          "rir": "7",
+          "desc": "7",
+          "var": "V0"
+        }
+      ]
     },
     "jueves": {
       "recordatorio": "D",

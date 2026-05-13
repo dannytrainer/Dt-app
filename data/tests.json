@@ -442,5 +442,45 @@
         "scoreTotal": 74
       }
     ]
+  },
+  "1778687454932": {
+    "registros": [
+      {
+        "fecha": "2026-05-13",
+        "tipo": "fuerza",
+        "peso": 56,
+        "espalda": {
+          "kg": 34,
+          "reps": 5,
+          "rm": 40,
+          "score": 40
+        },
+        "scoreTotal": 40
+      },
+      {
+        "fecha": "2026-05-13",
+        "tipo": "fuerza",
+        "peso": 56,
+        "espalda": {
+          "kg": 34,
+          "reps": 5,
+          "rm": 40,
+          "score": 40
+        },
+        "biceps": {
+          "kg": 10,
+          "reps": 11,
+          "rm": 14,
+          "score": 40
+        },
+        "triceps": {
+          "kg": -25,
+          "reps": 10,
+          "rm": -33,
+          "score": 20
+        },
+        "scoreTotal": 33
+      }
+    ]
   }
 }

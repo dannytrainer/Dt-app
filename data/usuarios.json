@@ -277,5 +277,26 @@
     "dia_pago": null,
     "dia_pago2": null,
     "estado_pago": "aldia"
+  },
+  {
+    "id": "1778687454932",
+    "activo": true,
+    "nombre": "Mariana",
+    "telefono": "573046061176",
+    "tipo": "personalizado",
+    "hora_envio": "09:00",
+    "tipo_pago": "mensual",
+    "dia_pago": 20,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "msg_pago": "Pague",
+    "perfil": {
+      "fecha_inicio": "2026-05-01",
+      "sexo": "F",
+      "edad": "20",
+      "altura": "170",
+      "etiqueta": "hipertrofia",
+      "notas": ""
+    }
   }
 ]
