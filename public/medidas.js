@@ -1,5 +1,5 @@
 function showMTab(t) {
-  ['perfil','peso','medidas','analisis','tests'].forEach(x => {
+  ['perfil','peso','medidas','analisis'].forEach(x => {
     const el=document.getElementById('msec-'+x);
     if(el) el.style.display = x===t ? 'block' : 'none';
     const btn = document.getElementById('mtab-'+x);
@@ -14,7 +14,6 @@ async function showMTabLoad(t, id) {
   if (t === 'perfil') await renderPerfil(id);
   if (t === 'medidas') await renderMedidas(id);
   if (t === 'analisis') await renderAnalisis(id);
-  if (t === 'tests') await renderTests(id);
 }
 
 async function abrirMedidas(id, nombre) {

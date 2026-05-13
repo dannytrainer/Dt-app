@@ -91,7 +91,7 @@ function getScore(categoria, key, valor, sexo, peso) {
   const escala = ESCALAS[categoria]?.[key];
   if (!escala) return { label: '-', icon: '-', score: 0 };
   const tabla = escala[sexo] || escala.M;
-  const ratio = (categoria === 'fuerza') ? valor / peso : valor;
+const ratio = (categoria === 'fuerza') ? (key === 'triceps' ? (valor + peso) / peso : valor / peso) : valor;
   for (const nivel of tabla) {
     if (nivel.max !== undefined) {
       if (ratio <= nivel.max) return nivel;
