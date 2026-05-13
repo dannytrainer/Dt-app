@@ -69,6 +69,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 .eb.sve{background:#3a0000;color:#e31e24;border-color:#e31e24}
 .sec-title{font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:12px 0 8px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="header">
@@ -284,6 +285,7 @@ ${epBadge(ep)}
 <div style="display:flex;gap:6px">
 <button class="btn bg" style="flex:1;font-size:12px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
 <button class="btn bg" style="flex:1;font-size:12px" onclick="abrirMedidas('${u.id}','${u.nombre}')">📊 Medidas</button>
+<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirTests('${u.id}','${u.nombre}')">🏋️ Tests</button>
 <button class="btn bp" style="font-size:12px;padding:10px 12px" onclick="eliminarCliente('${u.id}')">🗑️</button>
 </div>
 </div>`;
@@ -301,6 +303,12 @@ if(x==='vencido'&&e==='vencido')b.className='eb sve';
 });
 }
 
+async function abrirTests(id,nombre){
+  window.clienteTestsId=id;
+  document.getElementById("modal-tests-titulo").textContent="🏋️ Tests - "+nombre;
+  document.getElementById("modal-tests").classList.add("open");
+await renderTests(id);
+}
 function abrirModalCliente(){
 document.getElementById('cliente-id').value='';
 document.getElementById('cliente-nombre').value='';
@@ -569,5 +577,16 @@ function filtrarRutinas(){
 }
 </script>
 <script src="/medidas.js"></script>
+<!-- MODAL TESTS -->
+<div class="modal" id="modal-tests">
+<div class="mc" style="padding-bottom:40px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<div class="mt" id="modal-tests-titulo">🏋️ Tests</div>
+<button class="btn bg" style="padding:6px 14px" onclick="document.getElementById('modal-tests').classList.remove('open')">✕</button>
+</div>
+<div id="msec-tests"></div>
+</div>
+</div>
+<script src="/tests.js"></script>
 </body>
 </html>
