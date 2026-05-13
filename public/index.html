@@ -86,7 +86,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <button class="active" onclick="showPage('clientes')">👥 Clientes</button>
 <button onclick="showPage('rutinas')">📋 Rutinas</button>
 <button onclick="showPage('festivos')">🗓️ Festivos</button>
-<button onclick="showPage('logs')">📊 Historial</button>
+<button onclick="showPage('logs')">⏱️ Tools</button>
 <button onclick="showPage('enviar')">📤 Enviar</button>
 </div>
 <div id="page-clientes" class="page active">
@@ -111,8 +111,44 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 </div>
 </div>
 <div id="page-logs" class="page">
-<p class="st">Historial de envíos</p>
-<div id="lista-logs"></div>
+<p class="st">Herramientas del entrenador</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+<div class="card" onclick="showHerramienta('cronometros')" style="cursor:pointer;text-align:center;padding:20px 10px">
+<div style="font-size:32px;margin-bottom:8px">⏱️</div>
+<div style="font-size:13px;font-weight:700;color:#fff">Cronómetros</div>
+<div style="font-size:10px;color:#666;margin-top:4px">Individual y múltiple</div>
+</div>
+<div class="card" onclick="showHerramienta('temporizadores')" style="cursor:pointer;text-align:center;padding:20px 10px">
+<div style="font-size:32px;margin-bottom:8px">⏳</div>
+<div style="font-size:13px;font-weight:700;color:#fff">Temporizadores</div>
+<div style="font-size:10px;color:#666;margin-top:4px">Individual y múltiple</div>
+</div>
+<div class="card" onclick="showHerramienta('hiit')" style="cursor:pointer;text-align:center;padding:20px 10px">
+<div style="font-size:32px;margin-bottom:8px">🔥</div>
+<div style="font-size:13px;font-weight:700;color:#fff">HIIT / Circuitos</div>
+<div style="font-size:10px;color:#666;margin-top:4px">Tabata, circuitos, intervalos</div>
+</div>
+<div class="card" onclick="showHerramienta('calculadoras')" style="cursor:pointer;text-align:center;padding:20px 10px">
+<div style="font-size:32px;margin-bottom:8px">🧮</div>
+<div style="font-size:13px;font-weight:700;color:#fff">Calculadoras</div>
+<div style="font-size:10px;color:#666;margin-top:4px">IMC, FFMI, RM</div>
+</div>
+<div class="card" onclick="showHerramienta('conversores')" style="cursor:pointer;text-align:center;padding:20px 10px">
+<div style="font-size:32px;margin-bottom:8px">📊</div>
+<div style="font-size:13px;font-weight:700;color:#fff">Conversores</div>
+<div style="font-size:10px;color:#666;margin-top:4px">kg↔lb, cm↔in</div>
+</div>
+<div class="card" onclick="showHerramienta('competencias')" style="cursor:pointer;text-align:center;padding:20px 10px">
+<div style="font-size:32px;margin-bottom:8px">🏆</div>
+<div style="font-size:13px;font-weight:700;color:#fff">Competencias</div>
+<div style="font-size:10px;color:#666;margin-top:4px">Rankings y comparativas</div>
+</div>
+</div>
+<div id="herramienta-panel" style="display:none;margin-top:12px">
+<button onclick="volverHerramientas()" style="background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px">← Volver</button>
+<div id="herramienta-contenido"></div>
+</div>
+<div id="lista-logs" style="display:none"></div>
 </div>
 <div id="page-enviar" class="page">
 <p class="st">Envío manual</p>
@@ -568,6 +604,191 @@ await fetch('/api/festivos/'+fecha,{method:'DELETE'});
 toast('🗑️ Eliminado');cargarFestivos();
 }
 
+function showHerramienta(nombre){
+  document.getElementById('herramienta-panel').style.display='block';
+  document.querySelector('#page-logs .st').style.display='none';
+  document.querySelector('#page-logs .st').nextElementSibling.style.display='none';
+  const c=document.getElementById('herramienta-contenido');
+  if(nombre==='cronometros') renderCronometros(c);
+  else c.innerHTML='<p style="color:#666;text-align:center;padding:40px">🚧 Próximamente: '+nombre+'</p>';
+}
+
+// ═══════════════════════════════
+// CRONÓMETROS
+// ═══════════════════════════════
+let _cronoTab='individual';
+let _cronoIndividual={ms:0,running:false,interval:null,sonido:false};
+let _cronoMulti=[];
+
+function renderCronometros(c){
+  c.innerHTML=`
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button id="ctab-individual" onclick="switchCronoTab('individual')" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e31e24;background:#e31e24;color:#fff;font-weight:700;font-size:13px;cursor:pointer">⏱️ Individual</button>
+    <button id="ctab-multi" onclick="switchCronoTab('multi')" style="flex:1;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#666;font-weight:700;font-size:13px;cursor:pointer">👥 Múltiple</button>
+  </div>
+  <div id="crono-individual-panel"></div>
+  <div id="crono-multi-panel" style="display:none"></div>`;
+  renderCronoIndividual();
+  renderCronoMultiPanel();
+}
+
+function switchCronoTab(tab){
+  _cronoTab=tab;
+  document.getElementById('ctab-individual').style.background=tab==='individual'?'#e31e24':'#111';
+  document.getElementById('ctab-individual').style.color=tab==='individual'?'#fff':'#666';
+  document.getElementById('ctab-individual').style.borderColor=tab==='individual'?'#e31e24':'#333';
+  document.getElementById('ctab-multi').style.background=tab==='multi'?'#e31e24':'#111';
+  document.getElementById('ctab-multi').style.color=tab==='multi'?'#fff':'#666';
+  document.getElementById('ctab-multi').style.borderColor=tab==='multi'?'#e31e24':'#333';
+  document.getElementById('crono-individual-panel').style.display=tab==='individual'?'block':'none';
+  document.getElementById('crono-multi-panel').style.display=tab==='multi'?'block':'none';
+}
+
+function fmtCrono(ms){
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  const s=Math.floor((ms%60000)/1000);
+  const cs=Math.floor((ms%1000)/10);
+  return (h>0?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(cs).padStart(2,'0');
+}
+
+function renderCronoIndividual(){
+  const p=document.getElementById('crono-individual-panel');
+  if(!p)return;
+  p.innerHTML=`
+  <div style="text-align:center;padding:30px 0 20px">
+    <div id="crono-display" style="font-size:52px;font-weight:700;color:#fff;font-family:monospace;letter-spacing:2px;text-shadow:0 0 20px rgba(227,30,36,0.3)">${fmtCrono(_cronoIndividual.ms)}</div>
+    <div style="display:flex;justify-content:center;gap:12px;margin-top:24px">
+      <button id="crono-btn-start" onclick="cronoStart()" style="background:#e31e24;color:#fff;border:none;border-radius:50%;width:64px;height:64px;font-size:24px;cursor:pointer;box-shadow:0 0 15px rgba(227,30,36,0.4)">▶️</button>
+      <button onclick="cronoReset()" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:50%;width:64px;height:64px;font-size:24px;cursor:pointer">🔄</button>
+    </div>
+    <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:8px">
+      <span style="font-size:12px;color:#666">Sonido</span>
+      <div onclick="cronoToggleSonido()" id="crono-sonido-btn" style="width:44px;height:24px;background:${_cronoIndividual.sonido?'#e31e24':'#333'};border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s">
+        <div style="position:absolute;top:2px;left:${_cronoIndividual.sonido?'22':'2'}px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left 0.2s"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function cronoStart(){
+  if(_cronoIndividual.running){
+    clearInterval(_cronoIndividual.interval);
+    _cronoIndividual.running=false;
+    document.getElementById('crono-btn-start').textContent='▶️';
+    document.getElementById('crono-btn-start').style.boxShadow='none';
+  } else {
+    const start=Date.now()-_cronoIndividual.ms;
+    _cronoIndividual.interval=setInterval(()=>{
+      _cronoIndividual.ms=Date.now()-start;
+      const d=document.getElementById('crono-display');
+      if(d)d.textContent=fmtCrono(_cronoIndividual.ms);
+    },50);
+    _cronoIndividual.running=true;
+    document.getElementById('crono-btn-start').textContent='⏸️';
+    document.getElementById('crono-btn-start').style.boxShadow='0 0 15px rgba(227,30,36,0.4)';
+  }
+}
+
+function cronoReset(){
+  clearInterval(_cronoIndividual.interval);
+  _cronoIndividual.ms=0;
+  _cronoIndividual.running=false;
+  const d=document.getElementById('crono-display');
+  if(d)d.textContent=fmtCrono(0);
+  const b=document.getElementById('crono-btn-start');
+  if(b){b.textContent='▶️';b.style.boxShadow='none';}
+}
+
+function cronoToggleSonido(){
+  _cronoIndividual.sonido=!_cronoIndividual.sonido;
+  renderCronoIndividual();
+}
+
+// MULTI CRONÓMETRO
+function renderCronoMultiPanel(){
+  const p=document.getElementById('crono-multi-panel');
+  if(!p)return;
+  const grid=_cronoMulti.map((c,i)=>`
+  <div style="background:#111;border:1px solid ${c.running?'#e31e24':'#222'};border-radius:10px;padding:12px;position:relative;transition:border-color 0.3s">
+    <button onclick="cronoMultiEliminar(${i})" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#444;font-size:16px;cursor:pointer">✖</button>
+    <input value="${c.nombre}" onchange="_cronoMulti[${i}].nombre=this.value" style="background:none;border:none;border-bottom:1px solid #333;color:#e31e24;font-size:11px;font-weight:700;text-transform:uppercase;width:80%;outline:none;margin-bottom:8px">
+    <div style="font-size:28px;font-weight:700;color:#fff;font-family:monospace;text-align:center;margin:8px 0" id="cm-display-${i}">${fmtCrono(c.ms)}</div>
+    <div style="display:flex;justify-content:center;gap:8px">
+      <button onclick="cronoMultiToggle(${i})" style="background:${c.running?'#3a0000':'#1a1a1a'};color:${c.running?'#e31e24':'#fff'};border:1px solid ${c.running?'#e31e24':'#333'};border-radius:6px;padding:8px 14px;cursor:pointer;font-size:16px">${c.running?'⏸️':'▶️'}</button>
+      <button onclick="cronoMultiReset(${i})" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:16px">🔄</button>
+    </div>
+  </div>`).join('');
+  p.innerHTML=`
+  <div style="display:flex;gap:6px;margin-bottom:12px">
+    <button onclick="cronoMultiTodos('start')" style="flex:1;background:#1a1a1a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">▶️ Todos</button>
+    <button onclick="cronoMultiTodos('pause')" style="flex:1;background:#1a1a1a;color:#ff9800;border:1px solid #ff9800;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">⏸️ Todos</button>
+    <button onclick="cronoMultiTodos('reset')" style="flex:1;background:#1a1a1a;color:#666;border:1px solid #333;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">🔄 Todos</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px" id="crono-multi-grid">${grid}</div>
+  <button onclick="cronoMultiAgregar()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:12px;font-weight:700;font-size:13px;cursor:pointer;margin-top:12px">➕ Añadir cronómetro</button>`;
+}
+
+function cronoMultiAgregar(){
+  _cronoMulti.push({nombre:'Cronómetro '+(+_cronoMulti.length+1),ms:0,running:false,interval:null});
+  renderCronoMultiPanel();
+}
+
+function cronoMultiEliminar(i){
+  clearInterval(_cronoMulti[i].interval);
+  _cronoMulti.splice(i,1);
+  renderCronoMultiPanel();
+}
+
+function cronoMultiToggle(i){
+  const c=_cronoMulti[i];
+  if(c.running){
+    clearInterval(c.interval);
+    c.running=false;
+  } else {
+    const start=Date.now()-c.ms;
+    c.interval=setInterval(()=>{
+      c.ms=Date.now()-start;
+      const d=document.getElementById('cm-display-'+i);
+      if(d)d.textContent=fmtCrono(c.ms);
+    },50);
+    c.running=true;
+  }
+  renderCronoMultiPanel();
+}
+
+function cronoMultiReset(i){
+  clearInterval(_cronoMulti[i].interval);
+  _cronoMulti[i].ms=0;
+  _cronoMulti[i].running=false;
+  renderCronoMultiPanel();
+}
+
+function cronoMultiTodos(accion){
+  _cronoMulti.forEach((c,i)=>{
+    if(accion==='start'&&!c.running){
+      const start=Date.now()-c.ms;
+      c.interval=setInterval(()=>{
+        c.ms=Date.now()-start;
+        const d=document.getElementById('cm-display-'+i);
+        if(d)d.textContent=fmtCrono(c.ms);
+      },50);
+      c.running=true;
+    } else if(accion==='pause'&&c.running){
+      clearInterval(c.interval);
+      c.running=false;
+    } else if(accion==='reset'){
+      clearInterval(c.interval);
+      c.ms=0;c.running=false;
+    }
+  });
+  renderCronoMultiPanel();
+}
+function volverHerramientas(){
+  document.getElementById('herramienta-panel').style.display='none';
+  document.querySelector('#page-logs .st').style.display='block';
+  document.querySelector('#page-logs .st').nextElementSibling.style.display='grid';
+}
 async function cargarLogs(){
 const res=await fetch('/api/logs');
 const logs=await res.json();
