@@ -135,9 +135,14 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <button class="btn br" style="width:100%" onclick="enviarDiaRutina()">📤 Enviar día de rutina</button>
 </div>
 <div class="card" style="margin-top:8px">
-<div class="ig"><label>Enviar mensaje a</label><select id="enviar-cliente2"></select></div>
-<div class="ig"><label>Mensaje</label><textarea id="mensaje-custom" placeholder="Escribe el mensaje personalizado..."></textarea></div>
-<button class="btn br" style="width:100%" onclick="enviarMensajeCustom()">📤 Enviar mensaje</button>
+  <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px">📢 Difusión</div>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <button class="btn" style="flex:1;font-size:12px;padding:8px" onclick="difusionSelTodos()">✅ Todos</button>
+    <button class="btn" style="flex:1;font-size:12px;padding:8px" onclick="difusionDeselTodos()">⬜ Ninguno</button>
+  </div>
+  <div id="difusion-lista" style="max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:6px"></div>
+  <div class="ig"><label>Mensaje</label><textarea id="mensaje-custom" placeholder="Escribe el mensaje para enviar..."></textarea></div>
+  <button class="btn br" style="width:100%" onclick="enviarDifusion()">📤 Enviar difusión</button>
 </div>
 </div>
 <button class="fab" onclick="abrirModalCliente()" id="fab-btn">+</button>
@@ -238,7 +243,7 @@ if(p==='clientes')cargarClientes();
 if(p==='rutinas')cargarRutinasClientes();
 if(p==='festivos')cargarFestivos();
 if(p==='logs')cargarLogs();
-if(p==='enviar')cargarSelectEnviar();
+if(p==='enviar'){cargarSelectEnviar();cargarDifusion();}
 }
 
 function toast(msg,ok=true){
@@ -545,18 +550,45 @@ const data=await res.json();
 toast(data.ok?'✅ Rutina enviada':'❌ Error',data.ok);
 }
 
-async function enviarMensajeCustom(){
-const sel=document.getElementById('enviar-cliente2');
-const telefono=sel.options[sel.selectedIndex].getAttribute('data-tel');
-const mensaje=document.getElementById('mensaje-custom').value.trim();
-if(!mensaje){toast('Escribe un mensaje',false);return;}
-const res=await fetch('/api/enviar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telefono,mensaje})});
-const data=await res.json();
-toast(data.ok?'✅ Enviado':'❌ Error',data.ok);
-if(data.ok)document.getElementById('mensaje-custom').value='';
+function cargarDifusion(){
+  const lista = document.getElementById('difusion-lista');
+  if(!lista) return;
+  fetch('/api/usuarios').then(r=>r.json()).then(usuarios=>{
+    const activos = usuarios.filter(u=>u.activo);
+    lista.innerHTML = activos.map(u=>`
+      <label style="display:flex;align-items:center;gap:8px;background:#111;border:1px solid #222;border-radius:8px;padding:8px;cursor:pointer">
+        <input type="checkbox" class="difusion-check" data-tel="${u.telefono}" data-nombre="${u.nombre}" checked style="accent-color:#e31e24;width:16px;height:16px">
+        <span style="font-size:13px;color:#fff">${u.nombre}</span>
+      </label>
+    `).join('');
+  });
 }
-
+function difusionSelTodos(){
+  document.querySelectorAll('.difusion-check').forEach(c=>c.checked=true);
+}
+function difusionDeselTodos(){
+  document.querySelectorAll('.difusion-check').forEach(c=>c.checked=false);
+}
+async function enviarDifusion(){
+  const mensaje = document.getElementById('mensaje-custom').value.trim();
+  if(!mensaje){toast('Escribe un mensaje',false);return;}
+  const seleccionados = [...document.querySelectorAll('.difusion-check:checked')];
+  if(!seleccionados.length){toast('Selecciona al menos un cliente',false);return;}
+  let ok=0, fail=0;
+  for(const ch of seleccionados){
+    const telefono = ch.getAttribute('data-tel');
+    const nombre = ch.getAttribute('data-nombre');
+    try{
+      const res = await fetch('/api/enviar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telefono,mensaje})});
+      const data = await res.json();
+      if(data.ok) ok++; else fail++;
+    }catch(e){ fail++; }
+  }
+  toast('✅ Enviados: '+ok+(fail?' | ❌ Fallidos: '+fail:''), ok>0);
+  if(ok>0) document.getElementById('mensaje-custom').value='';
+}
 cargarClientes();
+cargarDifusion();
 setInterval(async()=>{
 try{
 const r=await fetch('/api/status');
