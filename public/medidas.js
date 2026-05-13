@@ -45,13 +45,12 @@ async function renderPeso(id) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
       <div style="background:#111;border:1px solid #222;border-radius:10px;padding:14px;text-align:center">
         <div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:6px">Peso actual</div>
-        <div style="font-size:26px;font-weight:700;color:#fff">${pesoActual||'-'}<span style="font-size:12px;color:#555"> kg</span></div>
-        <div style="font-size:12px;font-weight:700;margin-top:6px;color:${cambio<0?'#4caf50':cambio>0?'#e31e24':'#555'}">${cambio!==null?(parseFloat(cambio)>0?'▲ +':'▼ ')+cambio+' kg':'-'}</div>
+<div style="font-size:26px;font-weight:700;color:#fff">${UNIDADES.mostrarPeso(pesoActual)||'-'}<span style="font-size:12px;color:#555"> ${UNIDADES.pesoLabel()}</span></div>
+<div style="font-size:12px;font-weight:700;margin-top:6px;color:${cambio<0?'#4caf50':cambio>0?'#e31e24':'#555'}">${cambio!==null?(parseFloat(cambio)>0?'▲ +':'▼ ')+UNIDADES.mostrarPeso(Math.abs(cambio))+' '+UNIDADES.pesoLabel():'-'}</div>
       </div>
       <div style="background:#111;border:1px solid #222;border-radius:10px;padding:14px;text-align:center">
         <div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:6px">Peso inicial</div>
-        <div style="font-size:26px;font-weight:700;color:#fff">${pesoInicial||'-'}<span style="font-size:12px;color:#555"> kg</span></div>
-        <div style="font-size:12px;color:#555;margin-top:6px">${pesos.length ? pesos[0].fecha : '-'}</div>
+<div style="font-size:26px;font-weight:700;color:#fff">${UNIDADES.mostrarPeso(pesoInicial)||'-'}<span style="font-size:12px;color:#555"> ${UNIDADES.pesoLabel()}</span></div>
       </div>
     </div>
     <div style="background:#111;border:1px solid #222;border-radius:10px;padding:14px;margin-bottom:12px">

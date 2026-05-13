@@ -79,6 +79,8 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <p>ASISTENTE DE ENTRENAMIENTO</p>
 </div>
 <span class="sdot soff" id="statusWA">⚫ Offline</span>
+<button class="btn bg btn-unidades" style="font-size:11px;padding:7px 10px" onclick="UNIDADES.toggle()">⚖️ KG / CM</button>
+
 </div>
 <div class="nav">
 <button class="active" onclick="showPage('clientes')">👥 Clientes</button>
@@ -577,6 +579,7 @@ function filtrarRutinas(){
   });
 }
 </script>
+<script src="/unidades.js"></script>
 <script src="/medidas.js"></script>
 <!-- MODAL TESTS -->
 <div class="modal" id="modal-tests">

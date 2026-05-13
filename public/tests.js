@@ -151,7 +151,7 @@ async function renderTests(id) {
   window._ultimoEspecif = ultimoEspecif;
 
   document.getElementById('msec-tests').innerHTML = `
-    <div style="font-size:10px;color:#888;margin-bottom:10px">Peso corporal: <span style="color:#e31e24;font-weight:700">${pesoCorporal} kg</span> · <span style="color:#e31e24;font-weight:700">${sexo === 'M' ? 'Masculino' : 'Femenino'}</span></div>
+<div style="font-size:10px;color:#888;margin-bottom:10px">Peso corporal: <span style="color:#e31e24;font-weight:700">${UNIDADES.mostrarPeso(pesoCorporal)} ${UNIDADES.pesoLabel()}</span> · <span style="color:#e31e24;font-weight:700">${sexo === 'M' ? 'Masculino' : 'Femenino'}</span></div>
     <div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto">
       <button id="ttab-fuerza" class="btn br" style="flex:1;font-size:11px;padding:8px 4px;white-space:nowrap" onclick="showTTab('fuerza')">🏋️ Fuerza</button>
       <button id="ttab-resist" class="btn bg" style="flex:1;font-size:11px;padding:8px 4px;white-space:nowrap" onclick="showTTab('resist')">💪🏻 Resist.</button>
@@ -191,10 +191,10 @@ function filaFuerza(nombre, musculo, key, nota) {
         <div style="flex:1">
           <div style="font-size:12px;color:#fff;font-weight:700">${nombre}</div>
           <div style="font-size:10px;color:#555">${musculo}${nota ? ' · ' + nota : ''}</div>
-          <div id="${key}-rm-label" style="font-size:11px;color:#888;margin-top:2px">${rm ? '1RM est: <span style="color:#e31e24;font-weight:700">' + rm + ' kg</span>' : ''}</div>
+<div id="${key}-rm-label" style="font-size:11px;color:#888;margin-top:2px">${rm ? '1RM est: <span style=\\"color:#e31e24;font-weight:700\\">' + UNIDADES.mostrarPeso(rm) + ' ' + UNIDADES.pesoLabel() + '</span>' : ''}</div>
         </div>
         <div style="display:flex;gap:4px">
-<div><div style="font-size:9px;color:#555;text-align:center">${key === 'triceps' ? (valKg < 0 ? 'asist' : 'lastre') : 'kg'}</div>
+<div><div style="font-size:9px;color:#555;text-align:center">${key === 'triceps' ? (valKg < 0 ? 'asist' : 'lastre') : UNIDADES.pesoLabel()}</div>
           <input type="number" id="f-${key}-kg" value="${valKg}" placeholder="-" step="0.5" style="width:52px;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;text-align:center;outline:none" oninput="actualizarFuerza('${key}')"></div>
           <div><div style="font-size:9px;color:#555;text-align:center">reps</div>
           <input type="number" id="f-${key}-reps" value="${valReps}" placeholder="-" style="width:44px;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;text-align:center;outline:none" oninput="actualizarFuerza('${key}')"></div>
@@ -213,7 +213,7 @@ function actualizarFuerza(key) {
   if (kg && reps) {
 const rm = epley(kg, reps);
 const rmReal = key === 'triceps' ? rm + window._testsPeso : rm;
-if (rmLabel) rmLabel.innerHTML = (key === 'triceps' ? '1RM real: ' : '1RM est: ') + '<span style="color:#e31e24;font-weight:700">' + rmReal + ' kg</span>';
+if (rmLabel) rmLabel.innerHTML = '1RM est: <span style="color:#e31e24;font-weight:700">' + UNIDADES.mostrarPeso(rmReal) + ' ' + UNIDADES.pesoLabel() + '</span>';
     const s = getScore('fuerza', key, rm, window._testsSexo, window._testsPeso);
     scoreEl.textContent = s.icon + ' ' + s.label;
     scoreEl.style.cssText = 'display:inline-block;padding:3px 7px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;' + badgeStyle(s.icon);
