@@ -194,7 +194,7 @@ function filaFuerza(nombre, musculo, key, nota) {
           <div id="${key}-rm-label" style="font-size:11px;color:#888;margin-top:2px">${rm ? '1RM est: <span style="color:#e31e24;font-weight:700">' + rm + ' kg</span>' : ''}</div>
         </div>
         <div style="display:flex;gap:4px">
-          <div><div style="font-size:9px;color:#555;text-align:center">${key === 'triceps' ? 'lastre' : 'kg'}</div>
+<div><div style="font-size:9px;color:#555;text-align:center">${key === 'triceps' ? (valKg < 0 ? 'asist' : 'lastre') : 'kg'}</div>
           <input type="number" id="f-${key}-kg" value="${valKg}" placeholder="-" step="0.5" style="width:52px;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;text-align:center;outline:none" oninput="actualizarFuerza('${key}')"></div>
           <div><div style="font-size:9px;color:#555;text-align:center">reps</div>
           <input type="number" id="f-${key}-reps" value="${valReps}" placeholder="-" style="width:44px;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;text-align:center;outline:none" oninput="actualizarFuerza('${key}')"></div>
@@ -211,8 +211,9 @@ function actualizarFuerza(key) {
   const rmLabel = document.getElementById(key + '-rm-label');
   if (!scoreEl) return;
   if (kg && reps) {
-    const rm = epley(kg, reps);
-    if (rmLabel) rmLabel.innerHTML = '1RM est: <span style="color:#e31e24;font-weight:700">' + rm + ' kg</span>';
+const rm = epley(kg, reps);
+const rmReal = key === 'triceps' ? rm + window._testsPeso : rm;
+if (rmLabel) rmLabel.innerHTML = (key === 'triceps' ? '1RM real: ' : '1RM est: ') + '<span style="color:#e31e24;font-weight:700">' + rmReal + ' kg</span>';
     const s = getScore('fuerza', key, rm, window._testsSexo, window._testsPeso);
     scoreEl.textContent = s.icon + ' ' + s.label;
     scoreEl.style.cssText = 'display:inline-block;padding:3px 7px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;' + badgeStyle(s.icon);

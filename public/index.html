@@ -359,7 +359,8 @@ hora_envio:document.getElementById('cliente-hora').value,
 tipo_pago:document.getElementById('cliente-tipo-pago').value,
 dia_pago:parseInt(document.getElementById('cliente-pago').value)||null,
 dia_pago2:parseInt(document.getElementById('cliente-pago2').value)||null,
-estado_pago:document.getElementById('cliente-estado-pago').value
+estado_pago:document.getElementById('cliente-estado-pago').value,
+msg_pago:document.getElementById('cliente-msg-pago').value.trim()
 };
 if(!datos.nombre||!datos.telefono){toast('Completa nombre y teléfono',false);return;}
 if(id){
