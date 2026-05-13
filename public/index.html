@@ -117,11 +117,11 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div id="page-enviar" class="page">
 <p class="st">Envío manual</p>
 <div class="card">
-<div class="ig"><label>Cliente</label><select id="enviar-cliente"></select></div>
+<div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar1" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar1()" onfocus="mostrarDrop1()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#f0f0f0;font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar1" style="display:none;position:absolute;top:40px;left:0;right:0;background:#1a1a1a;border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente"></div>
 <button class="btn br" style="width:100%" onclick="enviarRutinaCompleta()">💪 Enviar rutina completa</button>
 </div>
 <div class="card" style="margin-top:8px">
-<div class="ig"><label>Cliente</label><select id="enviar-cliente-dia"></select></div>
+<div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar2" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar2()" onfocus="mostrarDrop2()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#f0f0f0;font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar2" style="display:none;position:absolute;top:40px;left:0;right:0;background:#1a1a1a;border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente-dia"></div>
 <div class="ig"><label>Día</label>
 <select id="enviar-dia-select" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:11px;color:#f0f0f0;font-size:14px;outline:none">
 <option value="lunes">Lunes</option>
@@ -136,6 +136,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 </div>
 <div class="card" style="margin-top:8px">
   <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px">📢 Difusión</div>
+  <input type="text" id="buscar-difusion" placeholder="🔍 Filtrar clientes..." oninput="cargarDifusion()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:9px;color:#f0f0f0;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px">
   <div style="display:flex;gap:8px;margin-bottom:10px">
     <button class="btn" style="flex:1;font-size:12px;padding:8px" onclick="difusionSelTodos()">✅ Todos</button>
     <button class="btn" style="flex:1;font-size:12px;padding:8px" onclick="difusionDeselTodos()">⬜ Ninguno</button>
@@ -524,14 +525,34 @@ ${Object.entries(logs[f]).map(([n,e])=>`
 </div>`).join(''):'<p style="color:#555;text-align:center;padding:20px">Sin historial</p>';
 }
 
-async function cargarSelectEnviar(){
-const res=await fetch('/api/usuarios');
-const usuarios=await res.json();
-const opts=usuarios.map(u=>`<option value="${u.id}" data-tel="${u.telefono}">${u.nombre}</option>`).join('');
-document.getElementById('enviar-cliente').innerHTML=opts;
-document.getElementById('enviar-cliente-dia').innerHTML=opts;
-document.getElementById('enviar-cliente2').innerHTML=opts;
+let _usuariosEnviar=[];
+function cargarSelectEnviar(){
+  fetch('/api/usuarios').then(r=>r.json()).then(u=>{
+    _usuariosEnviar=u.filter(x=>x.activo);
+    _difusionSeleccionados=new Set();
+    _difusionIniciado=false;
+    cargarDifusion();
+  });
 }
+function _renderDrop(dropId,hiddenId,inputId,q){
+  const drop=document.getElementById(dropId);
+  const f=_usuariosEnviar.filter(u=>u.nombre.toLowerCase().includes(q.toLowerCase()));
+  drop.innerHTML=f.map(u=>`<div onclick="seleccionarEnviar('${dropId}','${hiddenId}','${inputId}','${u.nombre}','${u.id}')" style="padding:10px 12px;font-size:13px;color:#fff;cursor:pointer;border-bottom:1px solid #222">${u.nombre}</div>`).join('');
+  drop.style.display=f.length?'block':'none';
+}
+function seleccionarEnviar(dropId,hiddenId,inputId,nombre,id){
+  document.getElementById(hiddenId).value=id;
+  document.getElementById(inputId).value=nombre;
+  document.getElementById(dropId).style.display='none';
+}
+function mostrarDrop1(){_renderDrop('drop-enviar1','enviar-cliente','buscar-enviar1',document.getElementById('buscar-enviar1').value);}
+function filtrarEnviar1(){mostrarDrop1();}
+function mostrarDrop2(){_renderDrop('drop-enviar2','enviar-cliente-dia','buscar-enviar2',document.getElementById('buscar-enviar2').value);}
+function filtrarEnviar2(){mostrarDrop2();}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#buscar-enviar1')&&!e.target.closest('#drop-enviar1'))document.getElementById('drop-enviar1').style.display='none';
+  if(!e.target.closest('#buscar-enviar2')&&!e.target.closest('#drop-enviar2'))document.getElementById('drop-enviar2').style.display='none';
+});
 
 async function enviarDiaRutina(){
 const id=document.getElementById('enviar-cliente-dia').value;
@@ -550,24 +571,34 @@ const data=await res.json();
 toast(data.ok?'✅ Rutina enviada':'❌ Error',data.ok);
 }
 
+let _difusionSeleccionados=new Set();
+let _difusionIniciado=false;
 function cargarDifusion(){
-  const lista = document.getElementById('difusion-lista');
-  if(!lista) return;
-  fetch('/api/usuarios').then(r=>r.json()).then(usuarios=>{
-    const activos = usuarios.filter(u=>u.activo);
-    lista.innerHTML = activos.map(u=>`
-      <label style="display:flex;align-items:center;gap:8px;background:#111;border:1px solid #222;border-radius:8px;padding:8px;cursor:pointer">
-        <input type="checkbox" class="difusion-check" data-tel="${u.telefono}" data-nombre="${u.nombre}" checked style="accent-color:#e31e24;width:16px;height:16px">
-        <span style="font-size:13px;color:#fff">${u.nombre}</span>
-      </label>
-    `).join('');
-  });
+  const lista=document.getElementById('difusion-lista');
+  const buscar=document.getElementById('buscar-difusion');
+  if(!lista)return;
+  if(!_difusionIniciado && _usuariosEnviar.length>0){
+    _usuariosEnviar.forEach(u=>_difusionSeleccionados.add(u.telefono));
+    _difusionIniciado=true;
+  }
+  const q=buscar?buscar.value.toLowerCase():'';
+  const filtrados=_usuariosEnviar.filter(u=>u.nombre.toLowerCase().includes(q));
+  lista.innerHTML=filtrados.map(u=>{
+    const sel=_difusionSeleccionados.has(u.telefono)?'checked':'';
+    return `<label style="display:flex;align-items:center;gap:8px;background:#111;border:1px solid #222;border-radius:8px;padding:8px;cursor:pointer"><input type="checkbox" class="difusion-check" data-tel="${u.telefono}" data-nombre="${u.nombre}" ${sel} onchange="toggleDifusion(this)" style="accent-color:#e31e24;width:16px;height:16px"><span style="font-size:13px;color:#fff">${u.nombre}</span></label>`;
+  }).join('');
+}
+function toggleDifusion(el){
+  if(el.checked) _difusionSeleccionados.add(el.getAttribute('data-tel'));
+  else _difusionSeleccionados.delete(el.getAttribute('data-tel'));
 }
 function difusionSelTodos(){
-  document.querySelectorAll('.difusion-check').forEach(c=>c.checked=true);
+  _usuariosEnviar.forEach(u=>_difusionSeleccionados.add(u.telefono));
+  cargarDifusion();
 }
 function difusionDeselTodos(){
-  document.querySelectorAll('.difusion-check').forEach(c=>c.checked=false);
+  _difusionSeleccionados.clear();
+  cargarDifusion();
 }
 async function enviarDifusion(){
   const mensaje = document.getElementById('mensaje-custom').value.trim();
