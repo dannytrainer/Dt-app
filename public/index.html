@@ -90,7 +90,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <button onclick="showPage('enviar')">📤 Enviar</button>
 </div>
 <div id="page-clientes" class="page active">
-<input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:11px;color:#f0f0f0;font-size:14px;outline:none;margin-bottom:12px"><p class="st">Clientes registrados</p>
+<input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:11px;color:#f0f0f0;font-size:14px;outline:none;margin-bottom:12px"><div id="stats-clientes" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px"><div style="background:#111;border:1px solid #1a3a1a;border-radius:8px;padding:8px;text-align:center"><div id="stat-activos" style="font-size:20px;font-weight:700;color:#4caf50">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">🟢 Activos</div></div><div style="background:#111;border:1px solid #3a0000;border-radius:8px;padding:8px;text-align:center"><div id="stat-personalizados" style="font-size:20px;font-weight:700;color:#e31e24">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">💪 Person.</div></div><div style="background:#111;border:1px solid #1a2a3a;border-radius:8px;padding:8px;text-align:center"><div id="stat-asesorados" style="font-size:20px;font-weight:700;color:#4a9eff">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">📋 Asesor.</div></div><div style="background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:8px;text-align:center"><div id="stat-pausados" style="font-size:20px;font-weight:700;color:#666">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">⏸️ Pausados</div></div></div><p class="st">Clientes registrados</p>
 <div id="lista-clientes"></div>
 <div id="empty-clientes" style="display:none;text-align:center;padding:40px;color:#444">
 <p style="font-size:40px">👥</p>
@@ -273,6 +273,14 @@ const lista=document.getElementById('lista-clientes');
 const empty=document.getElementById('empty-clientes');
 if(!usuarios.length){lista.innerHTML='';empty.style.display='block';return;}
 empty.style.display='none';
+const sActivos=usuarios.filter(u=>u.activo).length;
+const sPersonalizados=usuarios.filter(u=>u.activo&&u.tipo==='personalizado').length;
+const sAsesorados=usuarios.filter(u=>u.activo&&u.tipo==='asesorado').length;
+const sPausados=usuarios.filter(u=>!u.activo).length;
+document.getElementById('stat-activos').textContent=sActivos;
+document.getElementById('stat-personalizados').textContent=sPersonalizados;
+document.getElementById('stat-asesorados').textContent=sAsesorados;
+document.getElementById('stat-pausados').textContent=sPausados;
 lista.innerHTML=usuarios.map(u=>{
 const ep=u.estado_pago||'aldia';
 const cc=ep==='vencido'?'card vencido':ep==='proximo'?'card proximo':'card';

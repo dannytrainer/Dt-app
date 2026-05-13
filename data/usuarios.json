@@ -4,7 +4,7 @@
     "activo": true,
     "nombre": "Yo",
     "telefono": "573006197897",
-    "tipo": "personalizado",
+    "tipo": "asesorado",
     "hora_envio": "19:11",
     "dia_pago": 10,
     "estado_pago": "vencido",
@@ -22,16 +22,16 @@
     "sesiones_total": 12,
     "sesiones_ciclo": 12,
     "ciclo_inicio": "2026-05-08",
-    "msg_pago": "Pague ",
+    "msg_pago": "Pague",
     "msg_q1": "",
     "msg_q2": ""
   },
   {
     "id": "1778272241158",
-    "activo": true,
+    "activo": false,
     "nombre": "Morza",
     "telefono": "573185663001",
-    "tipo": "personalizado",
+    "tipo": "asesorado",
     "hora_envio": "15:35",
     "dia_pago": 8,
     "estado_pago": "vencido",
@@ -48,7 +48,8 @@
     "dia_pago2": null,
     "sesiones_total": 8,
     "sesiones_ciclo": 8,
-    "ciclo_inicio": "2026-05-08"
+    "ciclo_inicio": "2026-05-08",
+    "msg_pago": ""
   },
   {
     "id": "1778354312296",
