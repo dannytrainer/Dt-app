@@ -219,6 +219,15 @@ app.post('/api/enviar-rutina/:id', async (req, res) => {
     if (d.rutina) {
       lineas.push('📌 ' + d.rutina);
     }
+    if (d.cardio && (d.cardio.ejercicio || d.cardio.momento || d.cardio.tiempo)) {
+      lineas.push('╔════════════════════╗');
+      lineas.push('║ 🏃 CARDIO          ║');
+      lineas.push('╚════════════════════╝');
+      if (d.cardio.momento) lineas.push('│ Momento: ' + d.cardio.momento);
+      if (d.cardio.ejercicio) lineas.push('│ Ejercicio: ' + d.cardio.ejercicio);
+      if (d.cardio.tiempo) lineas.push('│ Tiempo: ' + d.cardio.tiempo + ' min');
+      if (d.cardio.notas) lineas.push('│ Notas: ' + d.cardio.notas);
+    }
     lineas.push('');
   }
   let texto = lineas.join('\n');
@@ -277,6 +286,17 @@ lineas.push('');    });
 
   if (d.rutina) {
     lineas.push(`📌 ${d.rutina}`);
+  }
+
+  if (d.cardio && (d.cardio.ejercicio || d.cardio.momento || d.cardio.tiempo)) {
+    lineas.push('');
+    lineas.push('╔════════════════════╗');
+    lineas.push('║ 🏃 CARDIO          ║');
+    lineas.push('╚════════════════════╝');
+    if (d.cardio.momento) lineas.push('│ Momento: ' + d.cardio.momento);
+    if (d.cardio.ejercicio) lineas.push('│ Ejercicio: ' + d.cardio.ejercicio);
+    if (d.cardio.tiempo) lineas.push('│ Tiempo: ' + d.cardio.tiempo + ' min');
+    if (d.cardio.notas) lineas.push('│ Notas: ' + d.cardio.notas);
   }
 
   const texto = lineas.join('\n');

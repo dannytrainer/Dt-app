@@ -20,7 +20,14 @@
   "1778216541791": {
     "lunes": {
       "recordatorio": "Está es la rutina d pecho ",
-      "rutina": "Recuerda calentar los hombros \nVariaciones :\nV0= 15 /12/10/8/8\nV1= última serie en dropset de 3 \nV2= última serie en rest países al fallo \nV3= biserie"
+      "rutina": "Recuerda calentar los hombros \nVariaciones :\nV0= 15 /12/10/8/8\nV1= última serie en dropset de 3 \nV2= última serie en rest países al fallo \nV3= biserie",
+      "ejercicios": [],
+      "cardio": {
+        "momento": "Calentamiento/cómo descanso de cada circuito/final ",
+        "ejercicio": "Banda/elíptica /bici ",
+        "tiempo": "10",
+        "notas": " Jgdlyfkydkydkydlydkydkydkydkydkyskydktskyskyskydkydkydlydlydlydkydkyd"
+      }
     },
     "viernes": {
       "recordatorio": "Hoy toca pierna ",
@@ -60,7 +67,13 @@
           "desc": "7",
           "var": "V0"
         }
-      ]
+      ],
+      "cardio": {
+        "momento": "Calentamiento/cómo descanso de cada circuito/final ",
+        "ejercicio": "Banda/elíptica /bici ",
+        "tiempo": "",
+        "notas": "Inició progresivo/ medio intevalos 10×10 final intervalos 10x30 "
+      }
     },
     "jueves": {
       "recordatorio": "D",
