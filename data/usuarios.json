@@ -5,7 +5,7 @@
     "nombre": "Yo",
     "telefono": "573006197897",
     "tipo": "personalizado",
-    "hora_envio": "10:04",
+    "hora_envio": "19:11",
     "dia_pago": 10,
     "estado_pago": "vencido",
     "perfil": {
@@ -136,7 +136,7 @@
   {
     "id": "1778377380425",
     "activo": true,
-    "nombre": "Ariana Chirinno",
+    "nombre": "Arianna Chirino",
     "telefono": "573042059960",
     "tipo": "personalizado",
     "hora_envio": "12:05",
@@ -237,9 +237,9 @@
     "id": "1778379484797",
     "activo": true,
     "nombre": "David gomez",
-    "telefono": "573186837646",
+    "telefono": "573189742665",
     "tipo": "personalizado",
-    "hora_envio": "19:00",
+    "hora_envio": "20:07",
     "tipo_pago": "mensual",
     "dia_pago": 15,
     "dia_pago2": null,
@@ -276,17 +276,5 @@
     "dia_pago": null,
     "dia_pago2": null,
     "estado_pago": "aldia"
-  },
-  {
-    "id": "1778599936061",
-    "activo": true,
-    "nombre": "Mariana",
-    "telefono": "573046061176",
-    "tipo": "personalizado",
-    "hora_envio": "08:00",
-    "tipo_pago": "quincenal",
-    "dia_pago": 15,
-    "dia_pago2": 30,
-    "estado_pago": "proximo"
   }
 ]

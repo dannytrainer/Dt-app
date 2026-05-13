@@ -405,10 +405,10 @@ document.getElementById('dias-tabs').innerHTML=DIAS.map(d=>
 }
 
 function seleccionarDia(dia){
-  guardarEjsActuales();
-  diaSeleccionado=dia;
-  renderDiasTabs();
-  renderRutinaForm();
+const rec=document.getElementById('rec-'+diaSeleccionado);
+const rut=document.getElementById('rut-'+diaSeleccionado);
+if(rec)rutinaActual[diaSeleccionado]={recordatorio:rec.value,rutina:rut.value};
+diaSeleccionado=dia;renderDiasTabs();renderRutinaForm();
 }
 
 function renderRutinaForm(){
@@ -521,7 +521,7 @@ async function enviarDiaRutina(){
 const id=document.getElementById('enviar-cliente-dia').value;
 const dia=document.getElementById('enviar-dia-select').value;
 if(!id){toast('Selecciona un cliente',false);return;}
-const res=await fetch('/api/enviar-dia/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dia})});
+const res=await fetch('/api/enviar-dia/'+id+'/'+dia,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
 const data=await res.json();
 toast(data.ok?'✅ Día enviado':'❌ Error',data.ok);
 }

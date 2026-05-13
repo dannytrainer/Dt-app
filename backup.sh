@@ -56,7 +56,7 @@ echo "TESTSJS" >> $ARCHIVO
 echo "# ===public/logo.svg===" >> $ARCHIVO
 echo "cat > ~/gymbot/public/logo.svg << 'LOGOSVG'" >> $ARCHIVO
 cat public/logo.svg >> $ARCHIVO
-echo "LOGOSVG" >> $ARCHIVO
+echo "LOGOSVG" >> $ARQUIVO
 
 echo "# ===public/manifest.json===" >> $ARCHIVO
 echo "cat > ~/gymbot/public/manifest.json << 'MANIFESTJSON'" >> $ARCHIVO
@@ -94,19 +94,8 @@ echo "🌐 Luego abre: localhost:3000"
 echo "📷 Escanea el QR con WhatsApp"
 FINAL_SCRIPT
 
-
-# === FINALIZACIÓN DEL ARCHIVO ===
 chmod +x $ARCHIVO
-
 SIZE=$(wc -c < $ARCHIVO)
-
-# === MENSAJE BACKUP ===
 echo "✅ Backup restaurable: v_$FECHA.sh ($SIZE bytes)"
+(echo "Subject: DT App Backup RESTAURABLE $FECHA"; echo "Ejecuta este archivo en Termux para restaurar todo."; echo ""; cat $ARCHIVO) | msmtp danielgaviriabotero@gmail.com
 echo "📧 Enviado a tu correo"
-
-# === GIT SYNC DENTRO DEL RESTORE SCRIPT ===
-echo "" >> $ARCHIVO
-echo "# === GIT SYNC ===" >> $ARCHIVO
-echo "echo \"🔄 Sincronizando con GitHub...\"" >> $ARCHIVO
-echo "cd ~/gymbot && git add . && git commit -m \"auto backup $FECHA\" && git push origin main && echo \"✅ Subido a GitHub con éxito\"" >> $ARCHIVO
-
