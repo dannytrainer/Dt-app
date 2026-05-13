@@ -21,37 +21,55 @@
     "lunes": {
       "recordatorio": "Está es la rutina d pecho ",
       "rutina": "Recuerda calentar los hombros \nVariaciones :\nV0= 15 /12/10/8/8\nV1= última serie en dropset de 3 \nV2= última serie en rest países al fallo \nV3= biserie",
-      "ejercicios": [],
-      "cardio": {
-        "momento": "Calentamiento/cómo descanso de cada circuito/final ",
-        "ejercicio": "Banda/elíptica /bici ",
-        "tiempo": "10",
-        "notas": " Jgdlyfkydkydkydlydkydkydkydkydkyskydktskyskyskydkydkydlydlydlydkydkyd"
-      }
+      "ejercicios": [
+        {
+          "nombre": "Hh",
+          "series": "5",
+          "reps": "3",
+          "rir": "3",
+          "desc": "3",
+          "var": "3"
+        },
+        {
+          "nombre": "Mf",
+          "series": "2",
+          "reps": "3",
+          "rir": "45",
+          "desc": "5",
+          "var": "4"
+        }
+      ],
+      "cardio": [
+        {
+          "momento": "W",
+          "ejercicio": "W",
+          "tiempo": "1",
+          "notas": "W\n"
+        }
+      ]
     },
     "viernes": {
       "recordatorio": "Hoy toca pierna ",
-      "rutina": "Prueba sentadilla x10\nPara 4 x 10"
+      "rutina": "Prueba sentadilla x10\nPara 4 x 10",
+      "ejercicios": [],
+      "cardio": []
     },
     "martes": {
       "recordatorio": "B",
       "rutina": "B",
-      "ejercicios": [
+      "ejercicios": [],
+      "cardio": [
         {
-          "nombre": "Haz clavicular ",
-          "series": "2",
-          "reps": "4",
-          "rir": "5",
-          "desc": "6",
-          "var": "7"
+          "momento": "Calentamiento ",
+          "ejercicio": "Bici",
+          "tiempo": "6",
+          "notas": "Nd"
         },
         {
-          "nombre": "Abd",
-          "series": "4",
-          "reps": "5",
-          "rir": "5",
-          "desc": "6",
-          "var": "6"
+          "momento": "",
+          "ejercicio": "",
+          "tiempo": "",
+          "notas": ""
         }
       ]
     },
@@ -60,24 +78,42 @@
       "rutina": "C",
       "ejercicios": [
         {
-          "nombre": "Pres hombro ",
-          "series": "5",
-          "reps": "58",
-          "rir": "7",
-          "desc": "7",
-          "var": "V0"
+          "nombre": "3",
+          "series": "34",
+          "reps": "5",
+          "rir": "5",
+          "desc": "2",
+          "var": "3"
+        },
+        {
+          "nombre": "N",
+          "series": "3",
+          "reps": "3",
+          "rir": "4",
+          "desc": "4",
+          "var": "4"
         }
       ],
-      "cardio": {
-        "momento": "Calentamiento/cómo descanso de cada circuito/final ",
-        "ejercicio": "Banda/elíptica /bici ",
-        "tiempo": "",
-        "notas": "Inició progresivo/ medio intevalos 10×10 final intervalos 10x30 "
-      }
+      "cardio": [
+        {
+          "momento": "2",
+          "ejercicio": "2",
+          "tiempo": "1",
+          "notas": "W\n"
+        },
+        {
+          "momento": "E",
+          "ejercicio": "E",
+          "tiempo": "4",
+          "notas": "D\n"
+        }
+      ]
     },
     "jueves": {
       "recordatorio": "D",
-      "rutina": "D"
+      "rutina": "D",
+      "ejercicios": [],
+      "cardio": []
     },
     "sabado": {
       "recordatorio": "B",

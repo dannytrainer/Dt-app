@@ -219,14 +219,20 @@ app.post('/api/enviar-rutina/:id', async (req, res) => {
     if (d.rutina) {
       lineas.push('📌 ' + d.rutina);
     }
-    if (d.cardio && (d.cardio.ejercicio || d.cardio.momento || d.cardio.tiempo)) {
+    if (Array.isArray(d.cardio) && d.cardio.length > 0) {
       lineas.push('╔════════════════════╗');
       lineas.push('║ 🏃 CARDIO          ║');
       lineas.push('╚════════════════════╝');
-      if (d.cardio.momento) lineas.push('│ Momento: ' + d.cardio.momento);
-      if (d.cardio.ejercicio) lineas.push('│ Ejercicio: ' + d.cardio.ejercicio);
-      if (d.cardio.tiempo) lineas.push('│ Tiempo: ' + d.cardio.tiempo + ' min');
-      if (d.cardio.notas) lineas.push('│ Notas: ' + d.cardio.notas);
+      d.cardio.forEach(c => {
+        if (c.momento || c.ejercicio || c.tiempo) {
+          lineas.push('┌───────────────────┐');
+          if (c.momento) lineas.push('│ Momento: ' + c.momento);
+          if (c.ejercicio) lineas.push('│ Ejercicio: ' + c.ejercicio);
+          if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo + ' min');
+          if (c.notas) lineas.push('│ Notas: ' + c.notas);
+          lineas.push('└───────────────────┘');
+        }
+      });
     }
     lineas.push('');
   }
@@ -288,15 +294,21 @@ lineas.push('');    });
     lineas.push(`📌 ${d.rutina}`);
   }
 
-  if (d.cardio && (d.cardio.ejercicio || d.cardio.momento || d.cardio.tiempo)) {
+  if (Array.isArray(d.cardio) && d.cardio.length > 0) {
     lineas.push('');
     lineas.push('╔════════════════════╗');
     lineas.push('║ 🏃 CARDIO          ║');
     lineas.push('╚════════════════════╝');
-    if (d.cardio.momento) lineas.push('│ Momento: ' + d.cardio.momento);
-    if (d.cardio.ejercicio) lineas.push('│ Ejercicio: ' + d.cardio.ejercicio);
-    if (d.cardio.tiempo) lineas.push('│ Tiempo: ' + d.cardio.tiempo + ' min');
-    if (d.cardio.notas) lineas.push('│ Notas: ' + d.cardio.notas);
+    d.cardio.forEach(c => {
+      if (c.momento || c.ejercicio || c.tiempo) {
+        lineas.push('┌───────────────────┐');
+        if (c.momento) lineas.push('│ Momento: ' + c.momento);
+        if (c.ejercicio) lineas.push('│ Ejercicio: ' + c.ejercicio);
+        if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo + ' min');
+        if (c.notas) lineas.push('│ Notas: ' + c.notas);
+        lineas.push('└───────────────────┘');
+      }
+    });
   }
 
   const texto = lineas.join('\n');

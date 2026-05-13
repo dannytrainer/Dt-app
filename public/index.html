@@ -425,30 +425,23 @@ function seleccionarDia(dia){
 const rec=document.getElementById('rec-'+diaSeleccionado);
 const rut=document.getElementById('rut-'+diaSeleccionado);
 if(rec)rutinaActual[diaSeleccionado]={recordatorio:rec.value,rutina:rut.value};
-diaSeleccionado=dia;renderDiasTabs();renderRutinaForm();
+guardarEjsActuales();diaSeleccionado=dia;renderDiasTabs();renderRutinaForm();
 }
 
 function renderRutinaForm(){
 const d=rutinaActual[diaSeleccionado]||{recordatorio:'',rutina:'',ejercicios:[]};
-const cardio=d.cardio||{};
+const cardios=Array.isArray(d.cardio)&&d.cardio.length>0?d.cardio:[];
 setTimeout(()=>{
-  if(cardio.momento||cardio.ejercicio||cardio.tiempo||cardio.notas){
+  if(cardios.length>0){
     const p=document.getElementById('panel-cardio');
     if(p) p.style.display='block';
   }
-  const cm=document.getElementById('cardio-momento');
-  const ce=document.getElementById('cardio-ejercicio');
-  const ct=document.getElementById('cardio-tiempo');
-  const cn=document.getElementById('cardio-notas');
-  if(cm) cm.value=cardio.momento||'';
-  if(ce) ce.value=cardio.ejercicio||'';
-  if(ct) ct.value=cardio.tiempo||'';
-  if(cn) cn.value=cardio.notas||'';
+  renderCardios(cardios);
 },50);
 const ejs=d.ejercicios||[];
 let h='';
 ejs.forEach((e,i)=>{h+=`<div style="background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;margin-bottom:6px"><div style="display:flex;gap:6px;margin-bottom:6px"><input type="text" value="${e.nombre||''}" placeholder="Ejercicio" id="ej-${i}-n" style="flex:1;background:#111;border:1px solid #333;border-radius:6px;padding:8px;color:#fff;font-size:13px;outline:none"><button onclick="eliminarEjercicio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button></div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">${[['series','S','4'],['reps','Reps','8-10'],['rir','RIR','1-2'],['desc','DESC','60s'],['var','VAR','V1']].map(([f,label,ph])=>`<div><div style="font-size:9px;color:#555;text-align:center;margin-bottom:2px">${label}</div><input type="text" id="ej-${i}-${f}" value="${e[f]||''}" placeholder="${ph}" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:6px;color:#fff;font-size:12px;text-align:center;outline:none"></div>`).join('')}</div></div>`;});
-document.getElementById('rutina-form').innerHTML=`<div class="ig"><label>💬 Recordatorio</label><textarea id="rec-${diaSeleccionado}" placeholder="Escribe el recordatorio...">${d.recordatorio||''}</textarea></div><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:10px 0 8px">📋 Ejercicios</div><div id="lista-ejs">${h}</div><button onclick="agregarEjercicio()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar ejercicio</button><div style="margin-top:10px"><button onclick="toggleCardio()" style="width:100%;background:#0a0a0a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer">🏃 Cardio</button><div id="panel-cardio" style="display:none;background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;margin-top:6px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:8px">🏃 CARDIO</div><div style="margin-bottom:8px"><div style="font-size:10px;color:#888;margin-bottom:4px">Momento</div><input type="text" id="cardio-momento" placeholder="Ej: Al finalizar, Entre series..." style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:8px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:8px"><div style="font-size:10px;color:#888;margin-bottom:4px">Ejercicio</div><input type="text" id="cardio-ejercicio" placeholder="Ej: Caminadora, Bici..." style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:8px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:8px"><div style="font-size:10px;color:#888;margin-bottom:4px">Tiempo (min)</div><input type="number" id="cardio-tiempo" placeholder="Ej: 20" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:8px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:8px"><div style="font-size:10px;color:#888;margin-bottom:4px">Notas</div><textarea id="cardio-notas" placeholder="Observaciones del cardio..." style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:8px;color:#fff;font-size:13px;outline:none;min-height:60px;box-sizing:border-box"></textarea></div></div></div><div style="margin-top:10px"><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">📝 Notas</div><textarea id="rut-${diaSeleccionado}" placeholder="Notas adicionales..." style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;min-height:80px">${d.rutina||''}</textarea></div>`;
+document.getElementById('rutina-form').innerHTML=`<div class="ig"><label>💬 Recordatorio</label><textarea id="rec-${diaSeleccionado}" placeholder="Escribe el recordatorio...">${d.recordatorio||''}</textarea></div><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:10px 0 8px">📋 Ejercicios</div><div id="lista-ejs">${h}</div><button onclick="agregarEjercicio()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar ejercicio</button><div style="margin-top:10px"><button onclick="toggleCardio()" style="width:100%;background:#0a0a0a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer">🏃 Cardio</button><div id="panel-cardio" style="display:none;background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;margin-top:6px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:8px">🏃 CARDIO</div><div id="lista-cardio"></div><button onclick="agregarCardio()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar momento de cardio</button></div></div><div style="margin-top:10px"><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">📝 Notas</div><textarea id="rut-${diaSeleccionado}" placeholder="Notas adicionales..." style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;min-height:80px">${d.rutina||''}</textarea></div>`;
 }
 
 function guardarEjsActuales(){
@@ -473,12 +466,20 @@ var:document.getElementById('ej-'+i+'-var')?.value||''
 });
 }
 rutinaActual[dia].ejercicios=ejs;
-  rutinaActual[dia].cardio={
-    momento:document.getElementById('cardio-momento')?.value||'',
-    ejercicio:document.getElementById('cardio-ejercicio')?.value||'',
-    tiempo:document.getElementById('cardio-tiempo')?.value||'',
-    notas:document.getElementById('cardio-notas')?.value||''
-  };
+  const listaCardio=document.getElementById('lista-cardio');
+  if(listaCardio){
+    const n=listaCardio.querySelectorAll('[id$="-cm"]').length;
+    const cardios=[];
+    for(let i=0;i<n;i++){
+      cardios.push({
+        momento:document.getElementById('c-'+i+'-cm')?.value||'',
+        ejercicio:document.getElementById('c-'+i+'-ce')?.value||'',
+        tiempo:document.getElementById('c-'+i+'-ct')?.value||'',
+        notas:document.getElementById('c-'+i+'-cn')?.value||''
+      });
+    }
+    rutinaActual[dia].cardio=cardios;
+  }
 }
 
 function agregarEjercicio(){
@@ -495,21 +496,33 @@ rutinaActual[diaSeleccionado].ejercicios.splice(idx,1);
 renderRutinaForm();
 }
 function toggleCardio(){
+  guardarEjsActuales();
   const p=document.getElementById('panel-cardio');
   p.style.display=p.style.display==='none'?'block':'none';
 }
-function guardarCardio(){
+function renderCardios(arr){
+  const lista=document.getElementById('lista-cardio');
+  if(!lista)return;
+  lista.innerHTML=arr.map((c,i)=>`<div style="background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:11px;color:#e31e24;font-weight:700">MOMENTO ${i+1}</span><button onclick="eliminarCardio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">🗑️</button></div><div style="margin-bottom:6px"><div style="font-size:10px;color:#888;margin-bottom:3px">Momento</div><input type="text" id="c-${i}-cm" value="${c.momento||''}" placeholder="Ej: Calentamiento, Final..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:6px"><div style="font-size:10px;color:#888;margin-bottom:3px">Ejercicio</div><input type="text" id="c-${i}-ce" value="${c.ejercicio||''}" placeholder="Ej: Bici, Elíptica..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:6px"><div style="font-size:10px;color:#888;margin-bottom:3px">Tiempo (min)</div><input type="number" id="c-${i}-ct" value="${c.tiempo||''}" placeholder="Ej: 20" style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div><div style="font-size:10px;color:#888;margin-bottom:3px">Notas</div><textarea id="c-${i}-cn" placeholder="Observaciones..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;min-height:55px;box-sizing:border-box">${c.notas||''}</textarea></div></div>`).join('');
+}
+function agregarCardio(){
+  guardarEjsActuales();
   const dia=diaSeleccionado;
-  if(!rutinaActual[dia]) rutinaActual[dia]={};
-  rutinaActual[dia].cardio={
-    momento:document.getElementById('cardio-momento')?.value||'',
-    ejercicio:document.getElementById('cardio-ejercicio')?.value||'',
-    tiempo:document.getElementById('cardio-tiempo')?.value||'',
-    notas:document.getElementById('cardio-notas')?.value||''
-  };
+  if(!Array.isArray(rutinaActual[dia].cardio)) rutinaActual[dia].cardio=[];
+  rutinaActual[dia].cardio.push({momento:'',ejercicio:'',tiempo:'',notas:''});
+  renderCardios(rutinaActual[dia].cardio);
+  const p=document.getElementById('panel-cardio');
+  if(p) p.style.display='block';
+}
+function eliminarCardio(idx){
+  guardarEjsActuales();
+  if(Array.isArray(rutinaActual[diaSeleccionado].cardio)){
+    rutinaActual[diaSeleccionado].cardio.splice(idx,1);
+    renderCardios(rutinaActual[diaSeleccionado].cardio);
+  }
 }
 
-function cerrarModalRutina(){document.getElementById('modal-rutina').classList.remove('open');}
+function cerrarModalRutina(){guardarEjsActuales();document.getElementById('modal-rutina').classList.remove('open');}
 
 async function guardarRutina(){
 guardarEjsActuales();
