@@ -635,9 +635,11 @@ const _dtSonidosDisponibles={
   'gym':        {label:'Potente Gym',  fn:()=>{dtSonidoRaw([{f:80,t:0,d:0.3,tipo:'sawtooth',v:1.0},{f:1200,t:0.05,d:0.15,v:1.5},{f:1400,t:0.2,d:0.1,v:0.8}])}}
 };
 
-function dtSonidoRaw(pips){
-  const c=_dtAudioCtx||(window._dtAudioCtx=new(window.AudioContext||window.webkitAudioContext)());
-  if(c.state==='suspended')c.resume();
+async function dtSonidoRaw(pips){
+  if(_dtSonando)return;
+  _dtSonando=true;
+  setTimeout(()=>{_dtSonando=false;},400);
+  const c=await _dtGetCtx();
   pips.forEach(p=>{
     const o=c.createOscillator(),g=c.createGain();
     o.connect(g);g.connect(c.destination);
@@ -647,9 +649,8 @@ function dtSonidoRaw(pips){
     o.start(c.currentTime+p.t);o.stop(c.currentTime+p.t+p.d+0.05);
   });
 }
-function dtSonidoRawAlt(){
-  const c=_dtAudioCtx||(window._dtAudioCtx=new(window.AudioContext||window.webkitAudioContext)());
-  if(c.state==='suspended')c.resume();
+async function dtSonidoRawAlt(){
+  const c=await _dtGetCtx();
   for(let i=0;i<4;i++){
     const o=c.createOscillator(),g=c.createGain();
     o.connect(g);g.connect(c.destination);
@@ -659,9 +660,8 @@ function dtSonidoRawAlt(){
     o.start(c.currentTime+i*0.18);o.stop(c.currentTime+i*0.18+0.19);
   }
 }
-function dtSonidoSlide(f1,f2,inicio,dur){
-  const c=_dtAudioCtx||(window._dtAudioCtx=new(window.AudioContext||window.webkitAudioContext)());
-  if(c.state==='suspended')c.resume();
+async function dtSonidoSlide(f1,f2,inicio,dur){
+  const c=await _dtGetCtx();
   const o=c.createOscillator(),g=c.createGain();
   o.connect(g);g.connect(c.destination);o.type='sine';
   o.frequency.setValueAtTime(f1,c.currentTime+inicio);
@@ -670,9 +670,8 @@ function dtSonidoSlide(f1,f2,inicio,dur){
   g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+inicio+dur);
   o.start(c.currentTime+inicio);o.stop(c.currentTime+inicio+dur+0.05);
 }
-function dtSonidoSilbato(){
-  const c=_dtAudioCtx||(window._dtAudioCtx=new(window.AudioContext||window.webkitAudioContext)());
-  if(c.state==='suspended')c.resume();
+async function dtSonidoSilbato(){
+  const c=await _dtGetCtx();
   [0,0.35].forEach(t=>{
     const o=c.createOscillator(),g=c.createGain();
     o.connect(g);g.connect(c.destination);o.type='sine';
@@ -685,9 +684,8 @@ function dtSonidoSilbato(){
   });
 }
 
-function dtSonido(tipo){
-  if(!_dtAudioCtx)_dtAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  if(_dtAudioCtx.state==='suspended')_dtAudioCtx.resume();
+async function dtSonido(tipo){
+  await _dtGetCtx();
   const key=tipo==='inicio'?'pip':tipo==='descanso'?'doble_pip':'triple_pip';
   if(_dtSonidosDisponibles[key])_dtSonidosDisponibles[key].fn();
 }
@@ -730,6 +728,12 @@ function renderSonidos(c){
 // SISTEMA DE SONIDO GLOBAL
 // ═══════════════════════════════
 let _dtAudioCtx=null;
+let _dtSonando=false;
+async function _dtGetCtx(){
+  if(!_dtAudioCtx)_dtAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(_dtAudioCtx.state==='suspended')await _dtAudioCtx.resume();
+  return _dtAudioCtx;
+}
 function dtSonido(tipo){
   if(!_dtAudioCtx)_dtAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
   const ctx=_dtAudioCtx;
@@ -818,7 +822,7 @@ function cronoStart(){
       const d=document.getElementById('crono-display');
       if(d)d.textContent=fmtCrono(_cronoIndividual.ms);
     },50);
-    if(_cronoIndividual.sonido)dtSonido('inicio');
+    if(_cronoIndividual.sonido)dtSonarEvento('crono','inicio');
     _cronoIndividual.running=true;
     document.getElementById('crono-btn-start').textContent='⏸️';
     document.getElementById('crono-btn-start').style.boxShadow='0 0 15px rgba(227,30,36,0.4)';
@@ -887,7 +891,7 @@ function cronoMultiToggle(i){
       const d=document.getElementById('cm-display-'+i);
       if(d)d.textContent=fmtCrono(c.ms);
     },50);
-    dtSonido('inicio');
+    dtSonarEvento('crono','inicio');
     c.running=true;
   }
   renderCronoMultiPanel();
@@ -903,7 +907,7 @@ function cronoMultiReset(i){
 function cronoMultiTodos(accion){
   _cronoMulti.forEach((c,i)=>{
     if(accion==='start'&&!c.running){
-      dtSonido('inicio');
+      dtSonarEvento('crono','inicio');
       const start=Date.now()-c.ms;
       c.interval=setInterval(()=>{
         c.ms=Date.now()-start;
