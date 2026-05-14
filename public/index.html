@@ -616,6 +616,7 @@ function showHerramienta(nombre){
   const c=document.getElementById('herramienta-contenido');
   if(nombre==='cronometros') renderCronometros(c);
   else if(nombre==='temporizadores') renderTemporizadores(c);
+  else if(nombre==='hiit') renderHiit(c);
   else if(nombre==='sonidos') renderSonidos(c);
   else c.innerHTML='<p style="color:#666;text-align:center;padding:40px">🚧 Próximamente: '+nombre+'</p>';
 }
@@ -831,6 +832,227 @@ function timerMultiReset(i){
   t.resto=t.h*3600+t.m*60+t.s;
   t.total=t.resto;
   renderTimerMultiPanel();
+}
+
+
+// ═══════════════════════════════
+// HIIT / CIRCUITOS
+// ═══════════════════════════════
+let _hiitCircuitos=[];
+let _hiitActual=null;
+let _hiitEjecutando=null;
+
+function renderHiit(c){
+  c.innerHTML=`
+  <div id="hiit-panel">
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button onclick="hiitMostrar('lista')" id="hiit-btn-lista" style="flex:1;background:#e31e24;color:#fff;border:1px solid #e31e24;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">📋 Mis circuitos</button>
+      <button onclick="hiitMostrar('nuevo')" style="flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">➕ Nuevo</button>
+    </div>
+    <div id="hiit-contenido"></div>
+  </div>`;
+  hiitMostrar('lista');
+}
+
+function hiitMostrar(vista){
+  const c=document.getElementById('hiit-contenido');
+  if(!c)return;
+  if(vista==='lista') hiitRenderLista(c);
+  else if(vista==='nuevo'){_hiitActual=hiitNuevoCircuito();hiitRenderEditor(c);}
+  else if(vista==='editor') hiitRenderEditor(c);
+  else if(vista==='ejecutar') hiitRenderEjecucion(c);
+}
+
+function hiitNuevoCircuito(){
+  return {
+    id:Date.now(),
+    nombre:'Nuevo circuito',
+    series:3,
+    preparacion:5,
+    bloques:[
+      {tipo:'ejercicio',nombre:'Ejercicio 1',tiempo:60},
+      {tipo:'descanso',nombre:'Descanso',tiempo:15}
+    ],
+    descFinSerie:60,
+    descFinCircuito:600
+  };
+}
+
+function hiitRenderLista(c){
+  if(_hiitCircuitos.length===0){
+    c.innerHTML=`<div style="text-align:center;padding:40px 0;color:#444">
+      <div style="font-size:40px;margin-bottom:12px">🔥</div>
+      <div style="font-size:14px">No tienes circuitos guardados</div>
+      <div style="font-size:12px;margin-top:6px">Toca ➕ Nuevo para crear uno</div>
+    </div>`;
+    return;
+  }
+  c.innerHTML=_hiitCircuitos.map((ci,i)=>`
+  <div style="background:#111;border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
+    <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px">${ci.nombre}</div>
+    <div style="font-size:11px;color:#666;margin-bottom:10px">${ci.series} series · ${ci.bloques.length} bloques · Prep: ${ci.preparacion}s</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="_hiitActual=JSON.parse(JSON.stringify(_hiitCircuitos[${i}]));hiitMostrar('editor')" style="flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>
+      <button onclick="hiitIniciar(${i})" style="flex:1;background:#e31e24;color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">▶️ Iniciar</button>
+      <button onclick="hiitEliminar(${i})" style="background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>
+    </div>
+  </div>`).join('');
+}
+
+function hiitRenderEditor(c){
+  const ci=_hiitActual;
+  let html=`
+  <div style="margin-bottom:12px">
+    <div style="font-size:11px;color:#666;margin-bottom:4px">Nombre del circuito</div>
+    <input value="${ci.nombre}" onchange="_hiitActual.nombre=this.value" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:14px;font-weight:700">
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    <div>
+      <div style="font-size:11px;color:#666;margin-bottom:4px">Series</div>
+      <input type="number" min="1" value="${ci.series}" onchange="_hiitActual.series=parseInt(this.value)||1" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+    </div>
+    <div>
+      <div style="font-size:11px;color:#666;margin-bottom:4px">Preparación (s)</div>
+      <input type="number" min="0" value="${ci.preparacion}" onchange="_hiitActual.preparacion=parseInt(this.value)||0" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+    </div>
+  </div>
+  <div style="background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:12px;margin-bottom:12px">
+    <div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:10px">📋 Bloques</div>
+    ${ci.bloques.map((b,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:#1a1a1a;border-radius:8px;padding:8px">
+      <div style="font-size:18px">${b.tipo==='ejercicio'?'💪':'😮‍💨'}</div>
+      <input value="${b.nombre}" onchange="_hiitActual.bloques[${i}].nombre=this.value" style="flex:1;background:none;border:none;border-bottom:1px solid #333;color:#fff;font-size:12px;outline:none;padding:2px">
+      <input type="number" min="1" value="${b.tiempo}" onchange="_hiitActual.bloques[${i}].tiempo=parseInt(this.value)||1" style="width:52px;background:#111;color:#fff;border:1px solid #333;border-radius:6px;padding:4px;font-size:13px;text-align:center;font-family:monospace">
+      <span style="font-size:10px;color:#444">s</span>
+      <button onclick="_hiitActual.bloques.splice(${i},1);hiitMostrar('editor')" style="background:none;border:none;color:#444;font-size:16px;cursor:pointer">✖</button>
+    </div>`).join('')}
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button onclick="_hiitActual.bloques.push({tipo:'ejercicio',nombre:'Ejercicio',tiempo:60});hiitMostrar('editor')" style="flex:1;background:#1a1a1a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">➕ 💪 Ejercicio</button>
+      <button onclick="_hiitActual.bloques.push({tipo:'descanso',nombre:'Descanso',tiempo:15});hiitMostrar('editor')" style="flex:1;background:#1a1a1a;color:#ff9800;border:1px solid #ff9800;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">➕ 😮‍💨 Descanso</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div>
+      <div style="font-size:11px;color:#666;margin-bottom:4px">🔚 Desc. fin de serie (s)</div>
+      <input type="number" min="0" value="${ci.descFinSerie}" onchange="_hiitActual.descFinSerie=parseInt(this.value)||0" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+    </div>
+    <div>
+      <div style="font-size:11px;color:#666;margin-bottom:4px">🏁 Desc. fin circuito (s)</div>
+      <input type="number" min="0" value="${ci.descFinCircuito}" onchange="_hiitActual.descFinCircuito=parseInt(this.value)||0" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button onclick="hiitGuardar()" style="flex:1;background:#e31e24;color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">💾 Guardar</button>
+    <button onclick="hiitIniciarActual()" style="flex:1;background:#4caf50;color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">▶️ Iniciar</button>
+    <button onclick="hiitMostrar('lista')" style="background:#1a1a1a;color:#666;border:1px solid #333;border-radius:8px;padding:12px;font-size:13px;cursor:pointer">✖</button>
+  </div>`;
+  c.innerHTML=html;
+}
+
+function hiitGuardar(){
+  const idx=_hiitCircuitos.findIndex(c=>c.id===_hiitActual.id);
+  if(idx>=0)_hiitCircuitos[idx]=JSON.parse(JSON.stringify(_hiitActual));
+  else _hiitCircuitos.push(JSON.parse(JSON.stringify(_hiitActual)));
+  toast('💾 Circuito guardado');
+  hiitMostrar('lista');
+}
+
+function hiitEliminar(i){
+  _hiitCircuitos.splice(i,1);
+  hiitRenderLista(document.getElementById('hiit-contenido'));
+  toast('🗑️ Eliminado');
+}
+
+function hiitIniciar(i){
+  _hiitActual=JSON.parse(JSON.stringify(_hiitCircuitos[i]));
+  hiitIniciarActual();
+}
+
+function hiitIniciarActual(){
+  // Construir secuencia de bloques
+  const ci=_hiitActual;
+  const seq=[];
+  for(let s=0;s<ci.series;s++){
+    if(ci.preparacion>0) seq.push({tipo:'preparacion',nombre:'⚡ Preparación',tiempo:ci.preparacion,serie:s+1});
+    ci.bloques.forEach(b=>seq.push({...b,serie:s+1}));
+    if(s<ci.series-1&&ci.descFinSerie>0) seq.push({tipo:'descFinSerie',nombre:'🔚 Descanso fin de serie',tiempo:ci.descFinSerie,serie:s+1});
+  }
+  if(ci.descFinCircuito>0) seq.push({tipo:'descFinCircuito',nombre:'🏁 Descanso final',tiempo:ci.descFinCircuito,serie:ci.series});
+  _hiitEjecutando={ci,seq,idx:0,resto:seq[0].tiempo,total:seq[0].tiempo,running:false,interval:null};
+  hiitMostrar('ejecutar');
+}
+
+function hiitRenderEjecucion(c){
+  if(!_hiitEjecutando){hiitMostrar('lista');return;}
+  const e=_hiitEjecutando;
+  const bloque=e.seq[e.idx];
+  const siguiente=e.seq[e.idx+1];
+  const pct=e.total>0?Math.round((e.resto/e.total)*100):0;
+  const colores={ejercicio:'#e31e24',descanso:'#ff9800',preparacion:'#2196f3',descFinSerie:'#9c27b0',descFinCircuito:'#4caf50'};
+  const color=colores[bloque.tipo]||'#fff';
+  c.innerHTML=`
+  <div style="text-align:center;padding:10px 0">
+    <div style="font-size:11px;color:#666;margin-bottom:4px">Serie ${bloque.serie} de ${e.ci.series} · Bloque ${e.idx+1} de ${e.seq.length}</div>
+    <div style="font-size:22px;font-weight:700;color:${color};margin-bottom:8px;letter-spacing:1px">${bloque.nombre}</div>
+    <div style="font-size:80px;font-weight:700;color:#fff;font-family:monospace;text-shadow:0 0 30px ${color}66;line-height:1">${fmtTimer(e.resto)}</div>
+    <div style="margin:12px auto;width:90%;height:8px;background:#222;border-radius:4px">
+      <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;transition:width 1s linear"></div>
+    </div>
+    ${siguiente?`<div style="font-size:22px;font-weight:700;margin-bottom:16px;padding:12px;background:#111;border-radius:10px;border-left:4px solid ${colores[siguiente.tipo]||'#444'};color:${colores[siguiente.tipo]||'#aaa'}">➡️ ${siguiente.nombre}<br><span style="font-size:16px;opacity:0.8">${fmtTimer(siguiente.tiempo)}</span></div>`:'<div style="font-size:22px;font-weight:700;color:#4caf50;margin-bottom:16px;padding:12px;background:#111;border-radius:10px">🏁 Último bloque</div>'}
+    <div style="display:flex;justify-content:center;gap:12px">
+      <button onclick="hiitToggle()" style="background:${e.running?'#333':'#e31e24'};color:#fff;border:none;border-radius:50%;width:64px;height:64px;font-size:24px;cursor:pointer">${e.running?'⏸️':'▶️'}</button>
+      <button onclick="hiitDetener()" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:50%;width:64px;height:64px;font-size:20px;cursor:pointer">⏹️</button>
+    </div>
+  </div>`;
+}
+
+function hiitToggle(){
+  const e=_hiitEjecutando;
+  if(!e)return;
+  if(e.running){
+    clearInterval(e.interval);
+    e.running=false;
+    hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+  } else {
+    e.running=true;
+    hiitSonarBloque(e.seq[e.idx].tipo);
+    e.interval=setInterval(()=>{
+      e.resto--;
+      if(e.resto<=0){
+        e.idx++;
+        if(e.idx>=e.seq.length){
+          clearInterval(e.interval);
+          e.running=false;
+          _hiitEjecutando=null;
+          dtSonarEvento('hiit','final');
+          toast('🏁 ¡Circuito completado!');
+          hiitMostrar('lista');
+          return;
+        }
+        const sig=e.seq[e.idx];
+        e.resto=sig.tiempo;
+        e.total=sig.tiempo;
+        hiitSonarBloque(sig.tipo);
+      }
+      hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+    },1000);
+    hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+  }
+}
+
+function hiitSonarBloque(tipo){
+  if(tipo==='preparacion') dtSonarEvento('hiit','preparacion');
+  else if(tipo==='ejercicio') dtSonarEvento('hiit','inicio');
+  else if(tipo==='descanso'||tipo==='descFinSerie') dtSonarEvento('hiit','descanso');
+  else if(tipo==='descFinCircuito') dtSonarEvento('hiit','final');
+}
+
+function hiitDetener(){
+  if(_hiitEjecutando){
+    clearInterval(_hiitEjecutando.interval);
+    _hiitEjecutando=null;
+  }
+  hiitMostrar('lista');
 }
 
 // ═══════════════════════════════
