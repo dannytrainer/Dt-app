@@ -839,6 +839,10 @@ function timerMultiReset(i){
 // HIIT / CIRCUITOS
 // ═══════════════════════════════
 let _hiitCircuitos=[];
+async function hiitCargar(){
+  try{const r=await fetch('/api/hiit');_hiitCircuitos=await r.json();}catch(e){}
+}
+hiitCargar();
 let _hiitActual=null;
 let _hiitEjecutando=null;
 
@@ -919,7 +923,8 @@ function hiitRenderEditor(c){
   <div style="background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:12px;margin-bottom:12px">
     <div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:10px">📋 Bloques</div>
     ${ci.bloques.map((b,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:#1a1a1a;border-radius:8px;padding:8px">
+    <div draggable="true" ondragstart="hiitDragStart(event,${i})" ondragover="hiitDragOver(event,${i})" ondrop="hiitDrop(event,${i})" ondragend="hiitDragEnd()" id="hiit-bloque-${i}" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:#1a1a1a;border-radius:8px;padding:8px;cursor:grab">
+      <div style="font-size:16px;color:#444;cursor:grab">☰</div>
       <div style="font-size:18px">${b.tipo==='ejercicio'?'💪':'😮‍💨'}</div>
       <input value="${b.nombre}" onchange="_hiitActual.bloques[${i}].nombre=this.value" style="flex:1;background:none;border:none;border-bottom:1px solid #333;color:#fff;font-size:12px;outline:none;padding:2px">
       <input type="number" min="1" value="${b.tiempo}" onchange="_hiitActual.bloques[${i}].tiempo=parseInt(this.value)||1" style="width:52px;background:#111;color:#fff;border:1px solid #333;border-radius:6px;padding:4px;font-size:13px;text-align:center;font-family:monospace">
@@ -949,16 +954,45 @@ function hiitRenderEditor(c){
   c.innerHTML=html;
 }
 
-function hiitGuardar(){
-  const idx=_hiitCircuitos.findIndex(c=>c.id===_hiitActual.id);
-  if(idx>=0)_hiitCircuitos[idx]=JSON.parse(JSON.stringify(_hiitActual));
-  else _hiitCircuitos.push(JSON.parse(JSON.stringify(_hiitActual)));
+let _hiitDragIdx=null;
+function hiitDragStart(e,i){
+  _hiitDragIdx=i;
+  e.target.style.opacity='0.4';
+}
+function hiitDragOver(e,i){
+  e.preventDefault();
+  document.querySelectorAll('[id^="hiit-bloque-"]').forEach(el=>el.style.borderTop='');
+  const el=document.getElementById('hiit-bloque-'+i);
+  if(el)el.style.borderTop='2px solid #e31e24';
+}
+function hiitDrop(e,i){
+  e.preventDefault();
+  if(_hiitDragIdx===null||_hiitDragIdx===i)return;
+  const bloques=_hiitActual.bloques;
+  const item=bloques.splice(_hiitDragIdx,1)[0];
+  bloques.splice(i,0,item);
+  _hiitDragIdx=null;
+  hiitMostrar('editor');
+}
+function hiitDragEnd(){
+  _hiitDragIdx=null;
+  document.querySelectorAll('[id^="hiit-bloque-"]').forEach(el=>{
+    el.style.opacity='1';
+    el.style.borderTop='';
+  });
+}
+
+async function hiitGuardar(){
+  await fetch('/api/hiit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_hiitActual)});
+  await hiitCargar();
   toast('💾 Circuito guardado');
   hiitMostrar('lista');
 }
 
-function hiitEliminar(i){
-  _hiitCircuitos.splice(i,1);
+async function hiitEliminar(i){
+  const id=_hiitCircuitos[i].id;
+  await fetch('/api/hiit/'+id,{method:'DELETE'});
+  await hiitCargar();
   hiitRenderLista(document.getElementById('hiit-contenido'));
   toast('🗑️ Eliminado');
 }

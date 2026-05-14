@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1778768133262,
+    "nombre": "Nuevo circuito",
+    "series": 3,
+    "preparacion": 5,
+    "bloques": [
+      {
+        "tipo": "ejercicio",
+        "nombre": "Ejercicio 1",
+        "tiempo": 60
+      },
+      {
+        "tipo": "descanso",
+        "nombre": "Descanso",
+        "tiempo": 15
+      },
+      {
+        "tipo": "ejercicio",
+        "nombre": "Ejercicio",
+        "tiempo": 60
+      },
+      {
+        "tipo": "descanso",
+        "nombre": "Descanso",
+        "tiempo": 15
+      },
+      {
+        "tipo": "descanso",
+        "nombre": "Descanso",
+        "tiempo": 15
+      },
+      {
+        "tipo": "ejercicio",
+        "nombre": "Ejercicio",
+        "tiempo": 360
+      }
+    ],
+    "descFinSerie": 60,
+    "descFinCircuito": 600
+  },
+  {
+    "id": 1778768183768,
+    "nombre": "Nuevo circuito",
+    "series": 3,
+    "preparacion": 5,
+    "bloques": [
+      {
+        "tipo": "ejercicio",
+        "nombre": "Ejercicio 1",
+        "tiempo": 60
+      },
+      {
+        "tipo": "ejercicio",
+        "nombre": "Ejercicio",
+        "tiempo": 60
+      },
+      {
+        "tipo": "descanso",
+        "nombre": "Descanso",
+        "tiempo": 15
+      },
+      {
+        "tipo": "descanso",
+        "nombre": "Descanso",
+        "tiempo": 15
+      }
+    ],
+    "descFinSerie": 60,
+    "descFinCircuito": 600
+  }
+]

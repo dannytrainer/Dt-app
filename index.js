@@ -172,6 +172,23 @@ app.delete('/api/festivos/:fecha', (req, res) => {
   guardarJSON('festivos.json', festivos);
   res.json({ ok: true });
 });
+app.get('/api/hiit', (req, res) => res.json(cargarJSON('hiit.json')));
+app.post('/api/hiit', (req, res) => {
+  const data = cargarJSON('hiit.json');
+  const circuito = req.body;
+  if(!circuito.id) circuito.id = Date.now();
+  const idx = data.findIndex(c => c.id === circuito.id);
+  if(idx >= 0) data[idx] = circuito;
+  else data.push(circuito);
+  guardarJSON('hiit.json', data);
+  res.json({ok:true});
+});
+app.delete('/api/hiit/:id', (req, res) => {
+  let data = cargarJSON('hiit.json');
+  data = data.filter(c => String(c.id) !== req.params.id);
+  guardarJSON('hiit.json', data);
+  res.json({ok:true});
+});
 app.get('/api/status',(req,res)=>res.json({conectado:global.waConectado||false}));
 app.get('/api/logs', (req, res) => res.json(cargarJSON('logs.json')));
 app.post('/api/enviar', async (req, res) => {
