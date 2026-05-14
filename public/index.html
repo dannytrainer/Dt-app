@@ -838,25 +838,36 @@ function timerMultiReset(i){
 let _calcTab='composicion';
 
 function renderCalculadoras(c){
-  c.innerHTML=`
-  <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-    <button onclick="calcTab('composicion')" style="flex:1;min-width:80px;background:${_calcTab==='composicion'?'#e31e24':'#1a1a1a'};color:#fff;border:1px solid ${_calcTab==='composicion'?'#e31e24':'#333'};border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">💪 Composición</button>
-    <button onclick="calcTab('rendimiento')" style="flex:1;min-width:80px;background:${_calcTab==='rendimiento'?'#e31e24':'#1a1a1a'};color:#fff;border:1px solid ${_calcTab==='rendimiento'?'#e31e24':'#333'};border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🏃 Rendimiento</button>
-    <button onclick="calcTab('energia')" style="flex:1;min-width:80px;background:${_calcTab==='energia'?'#e31e24':'#1a1a1a'};color:#fff;border:1px solid ${_calcTab==='energia'?'#e31e24':'#333'};border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🔥 Energía</button>
-    <button onclick="calcTab('conversores')" style="flex:1;min-width:80px;background:${_calcTab==='conversores'?'#e31e24':'#1a1a1a'};color:#fff;border:1px solid ${_calcTab==='conversores'?'#e31e24':'#333'};border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">⚖️ Conversores</button>
-  </div>
-  <div id="calc-contenido"></div>`;
-  calcTab(_calcTab);
+  var btnSt="flex:1;min-width:80px;color:#fff;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer";
+  var actSt="background:#e31e24;border:1px solid #e31e24;";
+  var inaSt="background:#1a1a1a;border:1px solid #333;";
+  var tabs=[["composicion","composicion","Composicion"],["rendimiento","rendimiento","Rendimiento"],["energia","energia","Energia"],["conversores","conversores","Conversores"]];
+  var labels={"composicion":"Composición","rendimiento":"Rendimiento","energia":"Energía","conversores":"Conversores"};
+  var emojis={"composicion":"💪","rendimiento":"🏃","energia":"🔥","conversores":"⚖️"};
+  var html="<div style='display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap'>";
+  tabs.forEach(function(t){
+    var act=_calcTab===t[0];
+    html+="<button id='calc-btn-"+t[0]+"' onclick='calcTab("+'"'+t[0]+'"'+")' style='"+btnSt+";"+(act?actSt:inaSt)+"'>"+emojis[t[0]]+" "+labels[t[0]]+"</button>";
+  });
+  html+="</div>";
+  tabs.forEach(function(t){
+    html+="<div id='calc-tab-"+t[0]+"' style='display:"+(_calcTab===t[0]?"block":"none")+"'></div>";
+  });
+  c.innerHTML=html;
+  calcRenderComposicion(document.getElementById("calc-tab-composicion"));
+  calcRenderRendimiento(document.getElementById("calc-tab-rendimiento"));
+  calcRenderEnergia(document.getElementById("calc-tab-energia"));
+  calcRenderConversores(document.getElementById("calc-tab-conversores"));
 }
 
 function calcTab(tab){
   _calcTab=tab;
-  const c=document.getElementById('calc-contenido');
-  if(!c)return;
-  if(tab==='composicion') calcRenderComposicion(c);
-  else if(tab==='rendimiento') calcRenderRendimiento(c);
-  else if(tab==='energia') calcRenderEnergia(c);
-  else if(tab==='conversores') calcRenderConversores(c);
+  ["composicion","rendimiento","energia","conversores"].forEach(function(t){
+    var panel=document.getElementById("calc-tab-"+t);
+    var btn=document.getElementById("calc-btn-"+t);
+    if(panel)panel.style.display=t===tab?"block":"none";
+    if(btn){btn.style.background=t===tab?"#e31e24":"#1a1a1a";btn.style.borderColor=t===tab?"#e31e24":"#333";}
+  });
 }
 
 let _calcAbierto={};
