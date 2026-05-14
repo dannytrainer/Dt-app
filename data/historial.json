@@ -308,11 +308,28 @@
       {
         "fecha": "2026-05-10",
         "valor": 82
+      },
+      {
+        "fecha": "2026-05-14",
+        "valor": 71
       }
     ],
     "medidas": [
       {
         "fecha": "2026-05-10",
+        "cintura": 82,
+        "cadera": 114,
+        "brazo": 36,
+        "pierna": 64,
+        "hombros": 103,
+        "analisis": {
+          "pctGrasa": null,
+          "kgGrasa": null,
+          "kgMusculo": null
+        }
+      },
+      {
+        "fecha": "2026-05-14",
         "cintura": 82,
         "cadera": 114,
         "brazo": 36,
