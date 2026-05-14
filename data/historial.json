@@ -176,6 +176,10 @@
       {
         "fecha": "2026-05-10",
         "valor": 67
+      },
+      {
+        "fecha": "2026-05-14",
+        "valor": 72
       }
     ],
     "medidas": [
@@ -189,6 +193,25 @@
           "pctGrasa": null,
           "kgGrasa": null,
           "kgMusculo": null
+        }
+      },
+      {
+        "fecha": "2026-05-14",
+        "cintura": 76,
+        "cadera": 110,
+        "pecho": 96.5,
+        "brazo": 32.5,
+        "pierna": 62.5,
+        "hombros": 109,
+        "pantorrilla": 40,
+        "triceps": 22,
+        "subescapular": 15,
+        "abdominal": 22,
+        "suprailiaco": 16,
+        "analisis": {
+          "pctGrasa": 31.6,
+          "kgGrasa": 22.8,
+          "kgMusculo": 49.2
         }
       }
     ]
@@ -246,6 +269,10 @@
       {
         "fecha": "2026-05-10",
         "valor": 46
+      },
+      {
+        "fecha": "2026-05-14",
+        "valor": 48
       }
     ],
     "medidas": [
@@ -275,6 +302,25 @@
           "pctGrasa": null,
           "kgGrasa": null,
           "kgMusculo": null
+        }
+      },
+      {
+        "fecha": "2026-05-14",
+        "cintura": 68,
+        "cadera": 87.5,
+        "pecho": 81,
+        "brazo": 28.5,
+        "pierna": 50,
+        "hombros": 102,
+        "pantorrilla": 33,
+        "triceps": 12,
+        "subescapular": 17.5,
+        "abdominal": 16,
+        "suprailiaco": 10,
+        "analisis": {
+          "pctGrasa": 27.5,
+          "kgGrasa": 13.2,
+          "kgMusculo": 34.8
         }
       }
     ]

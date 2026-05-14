@@ -90,8 +90,8 @@
     "perfil": {
       "fecha_inicio": "2026-05-11",
       "sexo": "F",
-      "edad": "21",
-      "altura": "165",
+      "edad": "22",
+      "altura": "163",
       "etiqueta": "perdida",
       "notas": ""
     }
@@ -155,7 +155,9 @@
       "etiqueta": "hipertrofia",
       "notas": ""
     },
-    "msg_pago": "Cobro robot 🤖"
+    "msg_pago": "Cobro robot 🤖",
+    "sesiones_total": 1,
+    "sesiones_ciclo": 1
   },
   {
     "id": "1778377616786",

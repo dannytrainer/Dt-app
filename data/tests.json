@@ -482,5 +482,133 @@
         "scoreTotal": 33
       }
     ]
+  },
+  "1778376855974": {
+    "registros": [
+      {
+        "fecha": "2026-05-14",
+        "tipo": "resist",
+        "peso": 72,
+        "sentadilla": {
+          "valor": 41,
+          "score": 60
+        },
+        "scoreTotal": 60
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 72,
+        "cuad": {
+          "kg": 60,
+          "reps": 8,
+          "rm": 76,
+          "score": 40
+        },
+        "scoreTotal": 40
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 72,
+        "femoral": {
+          "kg": 62,
+          "reps": 8,
+          "rm": 79,
+          "score": 40
+        },
+        "cuad": {
+          "kg": 60,
+          "reps": 8,
+          "rm": 76,
+          "score": 40
+        },
+        "scoreTotal": 40
+      }
+    ]
+  },
+  "1778377380425": {
+    "registros": [
+      {
+        "fecha": "2026-05-14",
+        "tipo": "resist",
+        "peso": 48,
+        "sentadilla": {
+          "valor": 39,
+          "score": 60
+        },
+        "scoreTotal": 60
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 48,
+        "cuad": {
+          "kg": 20,
+          "reps": 11,
+          "rm": 27,
+          "score": 20
+        },
+        "scoreTotal": 20
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 48,
+        "cuad": {
+          "kg": 20,
+          "reps": 14,
+          "rm": 29,
+          "score": 20
+        },
+        "scoreTotal": 20
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 48,
+        "cuad": {
+          "kg": 20,
+          "reps": 14,
+          "rm": 29,
+          "score": 20
+        },
+        "scoreTotal": 20
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 48,
+        "femoral": {
+          "kg": 49,
+          "reps": 8,
+          "rm": 62,
+          "score": 40
+        },
+        "cuad": {
+          "kg": 20,
+          "reps": 14,
+          "rm": 29,
+          "score": 20
+        },
+        "scoreTotal": 30
+      }
+    ]
+  },
+  "1778379484797": {
+    "registros": [
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 98,
+        "pecho": {
+          "kg": 29,
+          "reps": 8,
+          "rm": 37,
+          "score": 20
+        },
+        "scoreTotal": 20
+      }
+    ]
   }
 }
