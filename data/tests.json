@@ -440,6 +440,118 @@
           "score": 100
         },
         "scoreTotal": 74
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 72,
+        "pecho": {
+          "kg": 95,
+          "reps": 5,
+          "rm": 111,
+          "score": 80
+        },
+        "espalda": {
+          "kg": 80,
+          "reps": 3,
+          "rm": 88,
+          "score": 60
+        },
+        "biceps": {
+          "kg": 40,
+          "reps": 2,
+          "rm": 43,
+          "score": 60
+        },
+        "triceps": {
+          "kg": 40,
+          "reps": 10,
+          "rm": 53,
+          "score": 80
+        },
+        "femoral": {
+          "kg": 150,
+          "reps": 1,
+          "rm": 150,
+          "score": 60
+        },
+        "cuad": {
+          "kg": 130,
+          "reps": 6,
+          "rm": 156,
+          "score": 80
+        },
+        "gluteo": {
+          "kg": 200,
+          "reps": 2,
+          "rm": 213,
+          "score": 80
+        },
+        "scoreTotal": 71
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "resist",
+        "peso": 72,
+        "pushups": {
+          "valor": 31,
+          "score": 60
+        },
+        "dominadas": {
+          "valor": 17,
+          "score": 80
+        },
+        "fondos": {
+          "valor": 10,
+          "score": 40
+        },
+        "sentadilla": {
+          "valor": 30,
+          "score": 40
+        },
+        "plancha": {
+          "valor": 10,
+          "score": 20
+        },
+        "burpees": {
+          "valor": 10,
+          "score": 40
+        },
+        "scoreTotal": 47
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "especif",
+        "peso": 72,
+        "cooper": {
+          "valor": 2800,
+          "score": 80
+        },
+        "leger": {
+          "valor": 10,
+          "score": 60
+        },
+        "sitreach": {
+          "valor": 20,
+          "score": 80
+        },
+        "hombro": {
+          "valor": 0,
+          "score": 60
+        },
+        "saltoL": {
+          "valor": 200,
+          "score": 80
+        },
+        "saltoV": {
+          "valor": 35,
+          "score": 60
+        },
+        "vel30": {
+          "valor": 2,
+          "score": 100
+        },
+        "scoreTotal": 74
       }
     ]
   },
@@ -608,6 +720,40 @@
           "score": 20
         },
         "scoreTotal": 20
+      }
+    ]
+  },
+  "1778787317520": {
+    "registros": [
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 70,
+        "pecho": {
+          "kg": 10000,
+          "reps": 10,
+          "rm": 13333,
+          "score": 100
+        },
+        "scoreTotal": 100
+      },
+      {
+        "fecha": "2026-05-14",
+        "tipo": "fuerza",
+        "peso": 70,
+        "pecho": {
+          "kg": 10000,
+          "reps": 10,
+          "rm": 13333,
+          "score": 100
+        },
+        "espalda": {
+          "kg": 10000,
+          "reps": 10,
+          "rm": 13333,
+          "score": 100
+        },
+        "scoreTotal": 100
       }
     ]
   }
