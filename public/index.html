@@ -131,12 +131,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div class="card" onclick="showHerramienta('calculadoras')" style="cursor:pointer;text-align:center;padding:20px 10px">
 <div style="font-size:32px;margin-bottom:8px">🧮</div>
 <div style="font-size:13px;font-weight:700;color:#fff">Calculadoras</div>
-<div style="font-size:10px;color:#666;margin-top:4px">IMC, FFMI, RM</div>
-</div>
-<div class="card" onclick="showHerramienta('conversores')" style="cursor:pointer;text-align:center;padding:20px 10px">
-<div style="font-size:32px;margin-bottom:8px">📊</div>
-<div style="font-size:13px;font-weight:700;color:#fff">Conversores</div>
-<div style="font-size:10px;color:#666;margin-top:4px">kg↔lb, cm↔in</div>
+<div style="font-size:10px;color:#666;margin-top:4px">IMC, RM, pliegues, conversores</div>
 </div>
 <div class="card" onclick="showHerramienta('competencias')" style="cursor:pointer;text-align:center;padding:20px 10px">
 <div style="font-size:32px;margin-bottom:8px">🏆</div>
@@ -617,6 +612,7 @@ function showHerramienta(nombre){
   if(nombre==='cronometros') renderCronometros(c);
   else if(nombre==='temporizadores') renderTemporizadores(c);
   else if(nombre==='hiit') renderHiit(c);
+  else if(nombre==='calculadoras') renderCalculadoras(c);
   else if(nombre==='sonidos') renderSonidos(c);
   else c.innerHTML='<p style="color:#666;text-align:center;padding:40px">🚧 Próximamente: '+nombre+'</p>';
 }
@@ -834,6 +830,448 @@ function timerMultiReset(i){
   renderTimerMultiPanel();
 }
 
+
+
+// ═══════════════════════════════
+// CALCULADORAS
+// ═══════════════════════════════
+let _calcTab='composicion';
+
+function renderCalculadoras(c){
+  c.innerHTML=`
+  <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+    <button onclick="calcTab('composicion')" style="flex:1;min-width:80px;background:${_calcTab==='composicion'?'#e31e24':'#1a1a1a'};color:#fff;border:1px solid ${_calcTab==='composicion'?'#e31e24':'#333'};border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">💪 Composición</button>
+    <button onclick="calcTab('rendimiento')" style="flex:1;min-width:80px;background:${_calcTab==='rendimiento'?'#e31e24':'#1a1a1a'};color:#fff;border:1px solid ${_calcTab==='rendimiento'?'#e31e24':'#333'};border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🏃 Rendimiento</button>
+    <button onclick="calcTab('energia')" style="flex:1;min-width:80px;background:${_calcTab==='energia'?'#e31e24':'#1a1a1a'};color:#fff;border:1px solid ${_calcTab==='energia'?'#e31e24':'#333'};border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🔥 Energía</button>
+    <button onclick="calcTab('conversores')" style="flex:1;min-width:80px;background:${_calcTab==='conversores'?'#e31e24':'#1a1a1a'};color:#fff;border:1px solid ${_calcTab==='conversores'?'#e31e24':'#333'};border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">⚖️ Conversores</button>
+  </div>
+  <div id="calc-contenido"></div>`;
+  calcTab(_calcTab);
+}
+
+function calcTab(tab){
+  _calcTab=tab;
+  const c=document.getElementById('calc-contenido');
+  if(!c)return;
+  if(tab==='composicion') calcRenderComposicion(c);
+  else if(tab==='rendimiento') calcRenderRendimiento(c);
+  else if(tab==='energia') calcRenderEnergia(c);
+  else if(tab==='conversores') calcRenderConversores(c);
+}
+
+let _calcAbierto={};
+function calcToggle(key){
+  _calcAbierto[key]=!_calcAbierto[key];
+  var b=document.getElementById('cb-'+key);
+  var a=document.getElementById('ca-'+key);
+  if(b){b.style.maxHeight=_calcAbierto[key]?'2000px':'0';b.style.padding=_calcAbierto[key]?'0 14px 14px':'0';}
+  if(a)a.textContent=_calcAbierto[key]?'▲':'▼';
+}
+function calcCard(titulo,contenido){
+  var key=titulo.replace(/[^a-z0-9]/gi,'');
+  if(_calcAbierto[key]===undefined)_calcAbierto[key]=false;
+  var ab=_calcAbierto[key];
+  var h='<div style="background:#111;border:1px solid #1e1e1e;border-radius:12px;margin-bottom:10px;overflow:hidden">';
+  h+='<div onclick="calcToggle(\'' +key+ '\')" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer">';
+  h+='<div style="font-size:13px;font-weight:700;color:#e31e24">'+titulo+'</div>';
+  h+='<div id="ca-'+key+'" style="color:#666">'+(ab?'▲':'▼')+'</div></div>';
+  h+='<div id="cb-'+key+'" style="max-height:'+(ab?'2000px':'0')+';overflow:hidden;transition:max-height 0.3s;padding:'+(ab?'0 14px 14px':'0')+'">'+contenido+'</div>';
+  h+='</div>';
+  return h;
+}
+
+function calcInput(label,id,val,tipo,min,max,step){
+  return '<div style="margin-bottom:10px">'+
+    '<div style="font-size:11px;color:#666;margin-bottom:4px">'+label+'</div>'+
+    '<input type="'+(tipo||'number')+'" id="'+id+'" value="'+(val||'')+'" '+(min!==undefined?'min="'+min+'"':'')+' '+(max!==undefined?'max="'+max+'"':'')+' '+(step?'step="'+step+'"':'')+
+    ' style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;font-family:monospace;text-align:center"></div>';
+}
+
+function calcSelect(label,id,opciones){
+  return '<div style="margin-bottom:10px">'+
+    '<div style="font-size:11px;color:#666;margin-bottom:4px">'+label+'</div>'+
+    '<select id="'+id+'" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px">'+
+    opciones.map(o=>'<option value="'+o.v+'">'+o.l+'</option>').join('')+'</select></div>';
+}
+
+function calcBtn(label,fn){
+  return '<button onclick="'+fn+'" style="width:100%;background:#e31e24;color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px">'+label+'</button>';
+}
+
+function calcResultado(id){
+  return '<div id="'+id+'" style="margin-top:10px;padding:12px;background:#0a0a0a;border-radius:8px;font-size:14px;color:#fff;display:none;line-height:1.8"></div>';
+}
+
+function mostrarResultado(id,html){
+  const el=document.getElementById(id);
+  if(el){el.innerHTML=html;el.style.display='block';}
+}
+
+function calcRenderComposicion(c){
+  c.innerHTML=
+    calcCard('📏 IMC — Índice de Masa Corporal',
+      calcInput('Peso (kg)','imc-peso',70,'number',10,300)+
+      calcInput('Altura (cm)','imc-altura',170,'number',100,250)+
+      calcBtn('Calcular IMC','calcIMC()')+
+      calcResultado('imc-res'))+
+
+    calcCard('💪 FFMI — Índice de Masa Libre de Grasa',
+      calcInput('Peso (kg)','ffmi-peso',75,'number',30,200)+
+      calcInput('Altura (cm)','ffmi-altura',175,'number',100,250)+
+      calcInput('% Grasa corporal','ffmi-grasa',15,'number',3,60)+
+      calcBtn('Calcular FFMI','calcFFMI()')+
+      calcResultado('ffmi-res'))+
+
+    calcCard('⚖️ Peso ideal',
+      calcInput('Altura (cm)','pi-altura',170,'number',100,250)+
+      calcSelect('Sexo','pi-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcBtn('Calcular','calcPesoIdeal()')+
+      calcResultado('pi-res'))+
+
+    calcCard('📐 % Grasa — Jackson-Pollock 3 pliegues',
+      calcSelect('Sexo','jp3-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcInput('Edad (años)','jp3-edad',30,'number',10,100)+
+      calcInput('Pliegue pectoral / tríceps (mm)','jp3-p1',15,'number',1,100)+
+      calcInput('Pliegue abdominal / suprailíaco (mm)','jp3-p2',20,'number',1,100)+
+      calcInput('Pliegue muslo (mm)','jp3-p3',18,'number',1,100)+
+      calcBtn('Calcular % grasa','calcJP3()')+
+      calcResultado('jp3-res'))+
+
+    calcCard('📐 % Grasa — Jackson-Pollock 7 pliegues',
+      calcSelect('Sexo','jp7-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcInput('Edad (años)','jp7-edad',30,'number',10,100)+
+      calcInput('Pectoral (mm)','jp7-p1',15,'number',1,100)+
+      calcInput('Axilar medio (mm)','jp7-p2',12,'number',1,100)+
+      calcInput('Tríceps (mm)','jp7-p3',14,'number',1,100)+
+      calcInput('Subescapular (mm)','jp7-p4',16,'number',1,100)+
+      calcInput('Abdominal (mm)','jp7-p5',22,'number',1,100)+
+      calcInput('Suprailíaco (mm)','jp7-p6',18,'number',1,100)+
+      calcInput('Muslo (mm)','jp7-p7',20,'number',1,100)+
+      calcBtn('Calcular % grasa','calcJP7()')+
+      calcResultado('jp7-res'))+
+
+    calcCard('📐 % Grasa — Durnin-Womersley 4 pliegues',
+      calcSelect('Sexo','dw-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcInput('Edad (años)','dw-edad',30,'number',10,100)+
+      calcInput('Bíceps (mm)','dw-p1',8,'number',1,100)+
+      calcInput('Tríceps (mm)','dw-p2',14,'number',1,100)+
+      calcInput('Subescapular (mm)','dw-p3',16,'number',1,100)+
+      calcInput('Suprailíaco (mm)','dw-p4',18,'number',1,100)+
+      calcBtn('Calcular % grasa','calcDW()')+
+      calcResultado('dw-res'));
+}
+
+function calcIMC(){
+  const p=parseFloat(document.getElementById('imc-peso').value);
+  const h=parseFloat(document.getElementById('imc-altura').value)/100;
+  if(!p||!h)return;
+  const imc=(p/(h*h)).toFixed(1);
+  let cat='',col='#fff';
+  if(imc<18.5){cat='Bajo peso';col='#2196f3';}
+  else if(imc<25){cat='Normal ✅';col='#4caf50';}
+  else if(imc<30){cat='Sobrepeso';col='#ff9800';}
+  else if(imc<35){cat='Obesidad I';col='#e31e24';}
+  else if(imc<40){cat='Obesidad II';col='#e31e24';}
+  else{cat='Obesidad III';col='#e31e24';}
+  mostrarResultado('imc-res','IMC: <b style="color:'+col+';font-size:24px">'+imc+'</b><br>Categoría: <b style="color:'+col+'">'+cat+'</b>');
+}
+
+function calcFFMI(){
+  const p=parseFloat(document.getElementById('ffmi-peso').value);
+  const h=parseFloat(document.getElementById('ffmi-altura').value)/100;
+  const g=parseFloat(document.getElementById('ffmi-grasa').value)/100;
+  if(!p||!h||g===undefined)return;
+  const mml=p*(1-g);
+  const ffmi=(mml/(h*h)).toFixed(1);
+  const ffmiN=(parseFloat(ffmi)+(6.1*(1.8-h))).toFixed(1);
+  let cat='';
+  if(ffmi<18)cat='Por debajo del promedio';
+  else if(ffmi<20)cat='Promedio';
+  else if(ffmi<22)cat='Por encima del promedio';
+  else if(ffmi<24)cat='Excelente 💪';
+  else if(ffmi<26)cat='Superior — posible límite natural';
+  else cat='Excepcional — muy difícil natural';
+  mostrarResultado('ffmi-res','Masa magra: <b>'+mml.toFixed(1)+' kg</b><br>FFMI: <b style="color:#e31e24;font-size:22px">'+ffmi+'</b><br>FFMI normalizado: <b>'+ffmiN+'</b><br>'+cat);
+}
+
+function calcPesoIdeal(){
+  const h=parseFloat(document.getElementById('pi-altura').value);
+  const s=document.getElementById('pi-sexo').value;
+  if(!h)return;
+  const hIn=(h-152.4)/2.54;
+  const devine=s==='h'?50+2.3*hIn:45.5+2.3*hIn;
+  const robinson=s==='h'?52+1.9*hIn:49+1.7*hIn;
+  const miller=s==='h'?56.2+1.41*hIn:53.1+1.36*hIn;
+  mostrarResultado('pi-res',
+    'Fórmula Devine: <b>'+devine.toFixed(1)+' kg</b><br>'+
+    'Fórmula Robinson: <b>'+robinson.toFixed(1)+' kg</b><br>'+
+    'Fórmula Miller: <b>'+miller.toFixed(1)+' kg</b>');
+}
+
+function calcJP3(){
+  const s=document.getElementById('jp3-sexo').value;
+  const edad=parseFloat(document.getElementById('jp3-edad').value);
+  const p1=parseFloat(document.getElementById('jp3-p1').value);
+  const p2=parseFloat(document.getElementById('jp3-p2').value);
+  const p3=parseFloat(document.getElementById('jp3-p3').value);
+  if(!edad||!p1||!p2||!p3)return;
+  const sum=p1+p2+p3;
+  let dc;
+  if(s==='h') dc=1.10938-(0.0008267*sum)+(0.0000016*sum*sum)-(0.0002574*edad);
+  else dc=1.0994921-(0.0009929*sum)+(0.0000023*sum*sum)-(0.0001392*edad);
+  const grasa=((4.95/dc)-4.50)*100;
+  calcMostrarGrasa('jp3-res',grasa,parseFloat(document.getElementById('jp3-p1').closest('[id]')?0:0));
+}
+
+function calcJP7(){
+  const s=document.getElementById('jp7-sexo').value;
+  const edad=parseFloat(document.getElementById('jp7-edad').value);
+  const sum=[1,2,3,4,5,6,7].reduce((a,i)=>a+parseFloat(document.getElementById('jp7-p'+i).value||0),0);
+  if(!edad||!sum)return;
+  let dc;
+  if(s==='h') dc=1.112-(0.00043499*sum)+(0.00000055*sum*sum)-(0.00028826*edad);
+  else dc=1.097-(0.00046971*sum)+(0.00000056*sum*sum)-(0.00012828*edad);
+  const grasa=((4.95/dc)-4.50)*100;
+  calcMostrarGrasa('jp7-res',grasa,0);
+}
+
+function calcDW(){
+  const s=document.getElementById('dw-sexo').value;
+  const edad=parseFloat(document.getElementById('dw-edad').value);
+  const sum=[1,2,3,4].reduce((a,i)=>a+parseFloat(document.getElementById('dw-p'+i).value||0),0);
+  if(!edad||!sum)return;
+  const logSum=Math.log10(sum);
+  let dc;
+  if(s==='h'){
+    if(edad<17) dc=1.1533-(0.0643*logSum);
+    else if(edad<20) dc=1.1620-(0.0630*logSum);
+    else if(edad<30) dc=1.1631-(0.0632*logSum);
+    else if(edad<40) dc=1.1422-(0.0544*logSum);
+    else if(edad<50) dc=1.1620-(0.0700*logSum);
+    else dc=1.1715-(0.0779*logSum);
+  } else {
+    if(edad<17) dc=1.1369-(0.0598*logSum);
+    else if(edad<20) dc=1.1549-(0.0678*logSum);
+    else if(edad<30) dc=1.1599-(0.0717*logSum);
+    else if(edad<40) dc=1.1423-(0.0632*logSum);
+    else if(edad<50) dc=1.1333-(0.0612*logSum);
+    else dc=1.1339-(0.0645*logSum);
+  }
+  const grasa=((4.95/dc)-4.50)*100;
+  calcMostrarGrasa('dw-res',grasa,0);
+}
+
+function calcMostrarGrasa(id,grasa,extra){
+  const g=grasa.toFixed(1);
+  let cat='',col='#fff';
+  if(grasa<10){cat='Muy bajo (atleta extremo)';col='#2196f3';}
+  else if(grasa<15){cat='Atlético 💪';col='#4caf50';}
+  else if(grasa<20){cat='Buena forma';col='#4caf50';}
+  else if(grasa<25){cat='Normal';col='#ff9800';}
+  else if(grasa<30){cat='Sobrepeso';col='#ff9800';}
+  else{cat='Obesidad';col='#e31e24';}
+  mostrarResultado(id,'% Grasa: <b style="color:'+col+';font-size:24px">'+g+'%</b><br>Categoría: <b style="color:'+col+'">'+cat+'</b>');
+}
+
+function calcRenderRendimiento(c){
+  c.innerHTML=
+    calcCard('🏋️ RM — Repetición Máxima',
+      calcInput('Peso levantado (kg)','rm-peso',80,'number',1,500)+
+      calcInput('Repeticiones realizadas','rm-reps',8,'number',1,30)+
+      calcBtn('Calcular RM','calcRM()')+
+      calcResultado('rm-res'))+
+
+    calcCard('❤️ Zonas de frecuencia cardíaca',
+      calcInput('Edad (años)','fc-edad',30,'number',10,100)+
+      calcInput('FC reposo (ppm) — opcional','fc-reposo',60,'number',30,100)+
+      calcBtn('Calcular zonas','calcFC()')+
+      calcResultado('fc-res'))+
+
+    calcCard('🏃 Ritmo de carrera',
+      calcInput('Velocidad (km/h)','pace-vel',10,'number',1,50,0.1)+
+      calcBtn('Convertir a min/km','calcPace()')+
+      calcResultado('pace-res'))+
+
+    calcCard('🫁 VO2max estimado',
+      calcInput('Distancia recorrida en 12 min (m)','vo2-dist',2400,'number',500,5000)+
+      calcBtn('Calcular VO2max','calcVO2()')+
+      calcResultado('vo2-res'));
+}
+
+function calcRM(){
+  const p=parseFloat(document.getElementById('rm-peso').value);
+  const r=parseFloat(document.getElementById('rm-reps').value);
+  if(!p||!r)return;
+  const epley=p*(1+r/30);
+  const brzycki=p*(36/(37-r));
+  const lander=p*100/(101.3-2.67123*r);
+  const prom=((epley+brzycki+lander)/3).toFixed(1);
+  mostrarResultado('rm-res',
+    'RM estimado: <b style="color:#e31e24;font-size:24px">'+prom+' kg</b><br>'+
+    '<br>Por fórmula:<br>'+
+    'Epley: <b>'+epley.toFixed(1)+' kg</b><br>'+
+    'Brzycki: <b>'+brzycki.toFixed(1)+' kg</b><br>'+
+    'Lander: <b>'+lander.toFixed(1)+' kg</b><br>'+
+    '<br>Porcentajes del RM:<br>'+
+    [100,95,90,85,80,75,70,65,60].map(p=>'<b>'+p+'%</b>: '+(parseFloat(prom)*p/100).toFixed(1)+' kg').join(' · '));
+}
+
+function calcFC(){
+  const edad=parseFloat(document.getElementById('fc-edad').value);
+  const reposo=parseFloat(document.getElementById('fc-reposo').value)||0;
+  if(!edad)return;
+  const max=220-edad;
+  const res=reposo>0?'(Karvonen)':'(% FC máx)';
+  const zonas=[
+    {n:'Z1 Recuperación',min:50,max:60,c:'#2196f3'},
+    {n:'Z2 Base aeróbica',min:60,max:70,c:'#4caf50'},
+    {n:'Z3 Aeróbico',min:70,max:80,c:'#ff9800'},
+    {n:'Z4 Umbral',min:80,max:90,c:'#ff5722'},
+    {n:'Z5 Máximo',min:90,max:100,c:'#e31e24'}
+  ];
+  let html='FC máxima: <b style="color:#e31e24">'+max+' ppm</b><br><br>';
+  zonas.forEach(z=>{
+    let fmin,fmax;
+    if(reposo>0){
+      fmin=Math.round(reposo+(max-reposo)*z.min/100);
+      fmax=Math.round(reposo+(max-reposo)*z.max/100);
+    } else {
+      fmin=Math.round(max*z.min/100);
+      fmax=Math.round(max*z.max/100);
+    }
+    html+='<span style="color:'+z.c+'">■</span> <b>'+z.n+'</b>: '+fmin+'-'+fmax+' ppm<br>';
+  });
+  mostrarResultado('fc-res',html);
+}
+
+function calcPace(){
+  const v=parseFloat(document.getElementById('pace-vel').value);
+  if(!v)return;
+  const minKm=60/v;
+  const min=Math.floor(minKm);
+  const seg=Math.round((minKm-min)*60);
+  mostrarResultado('pace-res',
+    'Ritmo: <b style="color:#e31e24;font-size:24px">'+min+"'"+String(seg).padStart(2,'0')+'" /km</b><br>'+
+    'Velocidad: <b>'+v+' km/h</b>');
+}
+
+function calcVO2(){
+  const d=parseFloat(document.getElementById('vo2-dist').value);
+  if(!d)return;
+  const vo2=((d-504.9)/44.73).toFixed(1);
+  let cat='';
+  if(vo2<35)cat='Muy bajo';
+  else if(vo2<42)cat='Bajo';
+  else if(vo2<46)cat='Regular';
+  else if(vo2<52)cat='Bueno';
+  else if(vo2<60)cat='Excelente';
+  else cat='Superior 🏆';
+  mostrarResultado('vo2-res','VO2max: <b style="color:#e31e24;font-size:24px">'+vo2+' ml/kg/min</b><br>Categoría: <b>'+cat+'</b>');
+}
+
+function calcRenderEnergia(c){
+  c.innerHTML=
+    calcCard('🔥 TMB y TDEE — Gasto calórico',
+      calcSelect('Sexo','tmb-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcInput('Edad (años)','tmb-edad',30,'number',10,100)+
+      calcInput('Peso (kg)','tmb-peso',75,'number',20,300)+
+      calcInput('Altura (cm)','tmb-altura',175,'number',100,250)+
+      calcSelect('Nivel de actividad','tmb-act',[
+        {v:'1.2',l:'Sedentario (sin ejercicio)'},
+        {v:'1.375',l:'Ligero (1-3 días/semana)'},
+        {v:'1.55',l:'Moderado (3-5 días/semana)'},
+        {v:'1.725',l:'Activo (6-7 días/semana)'},
+        {v:'1.9',l:'Muy activo (2x día / trabajo físico)'}
+      ])+
+      calcBtn('Calcular','calcTMB()')+
+      calcResultado('tmb-res'))+
+
+    calcCard('⚡ Calorías por ejercicio (MET)',
+      calcInput('Peso (kg)','met-peso',75,'number',20,300)+
+      calcInput('Duración (minutos)','met-min',45,'number',1,300)+
+      calcSelect('Actividad','met-act',[
+        {v:'3.5',l:'Caminar lento (3.5)'},
+        {v:'4.3',l:'Caminar rápido (4.3)'},
+        {v:'6',l:'Trotar suave (6.0)'},
+        {v:'8',l:'Correr moderado (8.0)'},
+        {v:'10',l:'Correr rápido (10.0)'},
+        {v:'4',l:'Ciclismo suave (4.0)'},
+        {v:'8',l:'Ciclismo moderado (8.0)'},
+        {v:'5',l:'Natación recreativa (5.0)'},
+        {v:'6',l:'Entrenamiento con pesas (6.0)'},
+        {v:'8',l:'HIIT / Circuitos (8.0)'},
+        {v:'10',l:'CrossFit (10.0)'},
+        {v:'4.5',l:'Yoga / Pilates (4.5)'},
+        {v:'7',l:'Fútbol (7.0)'},
+        {v:'8',l:'Baloncesto (8.0)'}
+      ])+
+      calcBtn('Calcular calorías','calcMET()')+
+      calcResultado('met-res'));
+}
+
+function calcTMB(){
+  const s=document.getElementById('tmb-sexo').value;
+  const edad=parseFloat(document.getElementById('tmb-edad').value);
+  const p=parseFloat(document.getElementById('tmb-peso').value);
+  const h=parseFloat(document.getElementById('tmb-altura').value);
+  const act=parseFloat(document.getElementById('tmb-act').value);
+  if(!edad||!p||!h)return;
+  let hb,ms;
+  if(s==='h'){hb=66.5+(13.75*p)+(5.003*h)-(6.75*edad);ms=10*p+6.25*h-5*edad+5;}
+  else{hb=655.1+(9.563*p)+(1.850*h)-(4.676*edad);ms=10*p+6.25*h-5*edad-161;}
+  mostrarResultado('tmb-res',
+    '<b>Harris-Benedict:</b><br>TMB: <b>'+Math.round(hb)+' kcal/día</b><br>TDEE: <b style="color:#e31e24;font-size:20px">'+Math.round(hb*act)+' kcal/día</b><br><br>'+
+    '<b>Mifflin-St Jeor:</b><br>TMB: <b>'+Math.round(ms)+' kcal/día</b><br>TDEE: <b style="color:#e31e24;font-size:20px">'+Math.round(ms*act)+' kcal/día</b><br><br>'+
+    'Déficit (-500): <b>'+Math.round(ms*act-500)+' kcal</b><br>'+
+    'Superávit (+500): <b>'+Math.round(ms*act+500)+' kcal</b>');
+}
+
+function calcMET(){
+  const p=parseFloat(document.getElementById('met-peso').value);
+  const min=parseFloat(document.getElementById('met-min').value);
+  const met=parseFloat(document.getElementById('met-act').value);
+  if(!p||!min||!met)return;
+  const cal=(met*p*3.5/200)*min;
+  mostrarResultado('met-res','Calorías quemadas: <b style="color:#e31e24;font-size:24px">'+Math.round(cal)+' kcal</b>');
+}
+
+function convConvert(fromId,toId,factor){
+  var v=parseFloat(document.getElementById(fromId).value);
+  document.getElementById(toId).value=isNaN(v)?'':(v*factor).toFixed(2);
+}
+function convConvertTemp(fromId,toId,inv){
+  var v=parseFloat(document.getElementById(fromId).value);
+  if(isNaN(v)){document.getElementById(toId).value='';return;}
+  document.getElementById(toId).value=inv?((v-32)*5/9).toFixed(1):(v*9/5+32).toFixed(1);
+}
+function convRow(id1,label1,id2,label2,factor1,factor2,tipo){
+  var st='width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:12px;font-size:22px;text-align:center;font-family:monospace';
+  var fn1=tipo==='temp'?'convConvertTemp(\''+id1+'\',\''+id2+'\',false)':'convConvert(\''+id1+'\',\''+id2+'\','+factor1+')';
+  var fn2=tipo==='temp'?'convConvertTemp(\''+id2+'\',\''+id1+'\',true)':'convConvert(\''+id2+'\',\''+id1+'\','+factor2+')';
+  return '<div style="display:grid;grid-template-columns:1fr 30px 1fr;gap:8px;align-items:end;margin-bottom:4px">'
+    +'<div><div style="font-size:11px;color:#666;text-align:center;margin-bottom:4px">'+label1+'</div>'
+    +'<input type="number" id="'+id1+'" placeholder="0" oninput="'+fn1+'" style="'+st+'"></div>'
+    +'<div style="color:#e31e24;font-size:22px;font-weight:700;text-align:center;padding-bottom:8px">⇄</div>'
+    +'<div><div style="font-size:11px;color:#666;text-align:center;margin-bottom:4px">'+label2+'</div>'
+    +'<input type="number" id="'+id2+'" placeholder="0" oninput="'+fn2+'" style="'+st+'"></div>'
+    +'</div>';
+}
+
+function calcRenderConversores(c){
+  c.innerHTML=
+    calcCard('⚖️ Peso',
+      convRow('conv-kg','kg','conv-lb','lb',2.20462,1/2.20462))+
+
+    calcCard('📏 Altura',
+      convRow('conv-cm','cm','conv-in','in',1/2.54,2.54)+
+      '<div id="conv-ft" style="text-align:center;color:#666;font-size:13px;margin-top:4px"></div>')+
+
+    calcCard('🏃 Distancia',
+      convRow('conv-km','km','conv-mi','mi',0.621371,1/0.621371))+
+
+    calcCard('🌡️ Temperatura',
+      convRow('conv-c','°C','conv-f','°F',null,null,'temp'));
+}
 
 // ═══════════════════════════════
 // HIIT / CIRCUITOS

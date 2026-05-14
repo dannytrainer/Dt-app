@@ -46,8 +46,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 8,
-    "sesiones_ciclo": 8,
+    "sesiones_total": 9,
+    "sesiones_ciclo": 9,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": ""
   },
