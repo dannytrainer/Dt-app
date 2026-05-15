@@ -21,6 +21,11 @@ async function abrirMedidas(id, nombre) {
     window.clienteMedidasId = id;
     window.clienteMedidasNombre = nombre;
     document.getElementById('modal-medidas-titulo').textContent = 'Medidas de ' + nombre;
+    // Cargar unidad del cliente
+    const u = await fetch('/api/usuarios').then(r=>r.json());
+    const usuario = u.find(x=>x.id===id);
+    window._clienteUnidad = (usuario.perfil||{}).unidades || 'kg';
+    window._perfilUnidad = window._clienteUnidad;
     showMTab('perfil');
     await renderPerfil(id);
     renderPeso(id);
@@ -45,12 +50,12 @@ async function renderPeso(id) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
       <div style="background:#111;border:1px solid #222;border-radius:10px;padding:14px;text-align:center">
         <div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:6px">Peso actual</div>
-<div style="font-size:26px;font-weight:700;color:#fff">${UNIDADES.mostrarPeso(pesoActual)||'-'}<span style="font-size:12px;color:#555"> ${UNIDADES.pesoLabel()}</span></div>
-<div style="font-size:12px;font-weight:700;margin-top:6px;color:${cambio<0?'#4caf50':cambio>0?'#e31e24':'#555'}">${cambio!==null?(parseFloat(cambio)>0?'▲ +':'▼ ')+UNIDADES.mostrarPeso(Math.abs(cambio))+' '+UNIDADES.pesoLabel():'-'}</div>
+<div style="font-size:26px;font-weight:700;color:#fff">${mostrarPesoCliente(pesoActual)||'-'}<span style="font-size:12px;color:#555"> ${pesoClienteLabel()}</span></div>
+<div style="font-size:12px;font-weight:700;margin-top:6px;color:${cambio<0?'#4caf50':cambio>0?'#e31e24':'#555'}">${cambio!==null?(parseFloat(cambio)>0?'▲ +':'▼ ')+mostrarPesoCliente(Math.abs(cambio))+' '+pesoClienteLabel():'-'}</div>
       </div>
       <div style="background:#111;border:1px solid #222;border-radius:10px;padding:14px;text-align:center">
         <div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:6px">Peso inicial</div>
-<div style="font-size:26px;font-weight:700;color:#fff">${UNIDADES.mostrarPeso(pesoInicial)||'-'}<span style="font-size:12px;color:#555"> ${UNIDADES.pesoLabel()}</span></div>
+<div style="font-size:26px;font-weight:700;color:#fff">${mostrarPesoCliente(pesoInicial)||'-'}<span style="font-size:12px;color:#555"> ${pesoClienteLabel()}</span></div>
       </div>
     </div>
     <div style="background:#111;border:1px solid #222;border-radius:10px;padding:14px;margin-bottom:12px">
@@ -67,9 +72,9 @@ async function renderPeso(id) {
       <button class="btn br" style="width:100%" onclick="sumarSesion('${id}')">+1 Sesión realizada</button>
     </div>
     <div style="background:#111;border:1px solid #222;border-radius:10px;padding:14px;margin-bottom:12px">
-      <div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:10px">Registrar nuevo peso</div>
+      <div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:10px">Registrar nuevo peso (${pesoClienteLabel()})</div>
       <div style="display:flex;gap:8px">
-        <input type="number" id="m-peso-nuevo" placeholder="Ej: 74.5" step="0.1" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none">
+        <input type="number" id="m-peso-nuevo" placeholder="Ej: ${pesoClienteLabel()==='lb'?'165':'74.5'}" step="0.1" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none">
         <button class="btn br" onclick="registrarPeso('${id}')">📥 Guardar</button>
       </div>
     </div>
@@ -85,12 +90,12 @@ async function renderMedidas(id) {
   const medInicial = medidas.length ? medidas[0] : {};
 
   const campos = [
-    {k:'cintura',l:'Cintura',s:'Perímetros (cm)'},
-    {k:'cadera',l:'Cadera'},
+    {k:'hombros',l:'Hombros',s:'Perímetros (cm)'},
     {k:'pecho',l:'Pecho'},
     {k:'brazo',l:'Brazo'},
+    {k:'cintura',l:'Cintura'},
+    {k:'cadera',l:'Cadera'},
     {k:'pierna',l:'Pierna'},
-    {k:'hombros',l:'Hombros'},
     {k:'pantorrilla',l:'Pantorrilla'},
     {k:'triceps',l:'Tríceps',s:'Pliegues (mm)'},
     {k:'subescapular',l:'Subescapular'},
@@ -213,7 +218,8 @@ async function sumarSesion(id) {
 async function registrarPeso(id) {
   const val = document.getElementById('m-peso-nuevo').value;
   if (!val) { toast('Escribe el peso', false); return; }
-  await fetch('/api/historial/'+id+'/peso', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({valor:parseFloat(val)})});
+  const valorKg = inputAPesoCliente(val);
+  await fetch('/api/historial/'+id+'/peso', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({valor:valorKg})});
   toast('✅ Peso registrado');
   await renderPeso(id);
 }
@@ -386,12 +392,47 @@ async function renderPerfil(id) {
         </select>
       </div>
       <div style="margin-bottom:12px">
+        <div style="font-size:10px;color:#888;text-transform:uppercase;margin-bottom:5px">Unidades</div>
+        <div style="display:flex;gap:8px">
+          <button id="p-unit-kg" onclick="seleccionarUnidad('kg','${id}')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;border:2px solid ${(perfil.unidades||'kg')==='kg'?'#e31e24':'#333'};background:${(perfil.unidades||'kg')==='kg'?'#e31e24':'#1a1a1a'};color:#fff">⚖️ KG</button>
+          <button id="p-unit-lb" onclick="seleccionarUnidad('lb','${id}')" style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;border:2px solid ${(perfil.unidades||'kg')==='lb'?'#e31e24':'#333'};background:${(perfil.unidades||'kg')==='lb'?'#e31e24':'#1a1a1a'};color:#fff">🇺🇸 LB</button>
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
         <div style="font-size:10px;color:#888;text-transform:uppercase;margin-bottom:5px">Notas / Lesiones</div>
         <textarea id="p-notas" placeholder="Observaciones, lesiones, limitaciones..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none;min-height:80px;resize:vertical">${perfil.notas||''}</textarea>
       </div>
       <button class="btn br" style="width:100%" onclick="guardarPerfil('${id}')">💾 Guardar perfil</button>
     </div>
   `;
+}
+
+function seleccionarUnidad(u, id) {
+  window._perfilUnidad = u;
+  const kgBtn = document.getElementById('p-unit-kg');
+  const lbBtn = document.getElementById('p-unit-lb');
+  if (kgBtn) { kgBtn.style.background = u==='kg'?'#e31e24':'#1a1a1a'; kgBtn.style.borderColor = u==='kg'?'#e31e24':'#333'; }
+  if (lbBtn) { lbBtn.style.background = u==='lb'?'#e31e24':'#1a1a1a'; lbBtn.style.borderColor = u==='lb'?'#e31e24':'#333'; }
+}
+
+function getUnidadCliente() {
+  return window._perfilUnidad || window._clienteUnidad || 'kg';
+}
+
+function pesoClienteLabel() {
+  return getUnidadCliente() === 'lb' ? 'lb' : 'kg';
+}
+
+function mostrarPesoCliente(kg) {
+  if (!kg && kg !== 0) return '-';
+  if (getUnidadCliente() === 'lb') return Math.round(parseFloat(kg) * 2.2046 * 10) / 10;
+  return kg;
+}
+
+function inputAPesoCliente(val) {
+  if (!val && val !== 0) return null;
+  if (getUnidadCliente() === 'lb') return Math.round(parseFloat(val) / 2.2046 * 100) / 100;
+  return parseFloat(val);
 }
 
 async function guardarPerfil(id) {
@@ -401,7 +442,8 @@ async function guardarPerfil(id) {
     edad: document.getElementById('p-edad').value,
     altura: document.getElementById('p-altura').value,
     etiqueta: document.getElementById('p-etiqueta').value,
-    notas: document.getElementById('p-notas').value
+    notas: document.getElementById('p-notas').value,
+    unidades: window._perfilUnidad || 'kg'
   };
   await fetch('/api/usuarios/'+id+'/perfil', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(datos)});
   toast('✅ Perfil guardado');

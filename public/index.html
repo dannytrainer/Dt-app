@@ -79,7 +79,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <p>ASISTENTE DE ENTRENAMIENTO</p>
 </div>
 <span class="sdot soff" id="statusWA">⚫ Offline</span>
-<button class="btn bg btn-unidades" style="font-size:11px;padding:7px 10px" onclick="UNIDADES.toggle()">⚖️ KG / CM</button>
+
 
 </div>
 <div class="nav">
@@ -241,7 +241,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div class="mc" style="padding-bottom:40px">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
 <div class="mt" id="modal-medidas-titulo">📊 Medidas</div>
-<button class="btn bg" style="padding:6px 14px" onclick="document.getElementById('modal-medidas').classList.remove('open')">✕</button>
+<button class="btn bg" style="padding:6px 14px" onclick="document.getElementById('modal-medidas').classList.remove('open');_reordenarLista();_renderListaLocal()">✕</button>
 </div>
 <div style="display:flex;gap:6px;margin-bottom:16px">
 <button id="mtab-perfil" class="btn bg" style="flex:1;font-size:12px" onclick="showMTabLoad('perfil',window.clienteMedidasId)">👤 Perfil</button>
@@ -309,6 +309,7 @@ const lista=document.getElementById('lista-clientes');
 const empty=document.getElementById('empty-clientes');
 if(!usuarios.length){lista.innerHTML='';empty.style.display='block';return;}
 empty.style.display='none';
+window._usuariosCargados=usuarios;
 const sActivos=usuarios.filter(u=>u.activo).length;
 const sPersonalizados=usuarios.filter(u=>u.activo&&u.tipo==='personalizado').length;
 const sAsesorados=usuarios.filter(u=>u.activo&&u.tipo==='asesorado').length;
@@ -334,11 +335,14 @@ return`<div class="${cc}">
 <span class="badge bti">${u.tipo}</span>
 ${epBadge(ep)}
 </div>
-<div style="display:flex;gap:6px">
+<div style="display:flex;gap:6px;margin-bottom:6px">
 <button class="btn bg" style="flex:1;font-size:12px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
-<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirMedidas('${u.id}','${u.nombre}')">📊 Medidas</button>
-<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirTests('${u.id}','${u.nombre}')">🏋️ Tests</button>
+<button class="btn bg" style="flex:1;font-size:12px" onclick="marcarSesionRapida('${u.id}',this)">+1 💪</button>
 <button class="btn bp" style="font-size:12px;padding:10px 12px" onclick="eliminarCliente('${u.id}')">🗑️</button>
+</div>
+<div style="display:flex;gap:6px">
+<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
+<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
 </div>
 </div>`;
 }).join('');
@@ -353,6 +357,76 @@ if(x==='aldia'&&e==='aldia')b.className='eb sal';
 if(x==='proximo'&&e==='proximo')b.className='eb spr';
 if(x==='vencido'&&e==='vencido')b.className='eb sve';
 });
+}
+
+var _ultimoClienteId=null;
+
+async function marcarSesionRapida(id,btn){
+  try{
+    const res=await fetch('/api/usuarios/'+id+'/sesion',{method:'POST'});
+    const data=await res.json();
+    btn.textContent='✅';
+    btn.style.background='#1a3a1a';
+    btn.style.color='#4caf50';
+    setTimeout(()=>{btn.textContent='+1 💪';btn.style.background='';btn.style.color='';},2000);
+    toast('💪 Sesión: Total '+data.sesiones_total+' | Ciclo '+data.sesiones_ciclo);
+    _ultimoClienteId=id;
+  }catch(e){toast('Error',false);}
+}
+
+async function abrirMedidasYSubir(id,nombre){
+  _ultimoClienteId=id;
+  _reordenarLista();
+  await abrirMedidas(id,nombre);
+}
+
+async function abrirTestsYSubir(id,nombre){
+  _ultimoClienteId=id;
+  _reordenarLista();
+  await abrirTests(id,nombre);
+}
+
+function _reordenarLista(){
+  if(!_ultimoClienteId||!window._usuariosCargados)return;
+  const idx=window._usuariosCargados.findIndex(u=>u.id===_ultimoClienteId);
+  if(idx>0){
+    const u=window._usuariosCargados.splice(idx,1)[0];
+    window._usuariosCargados.unshift(u);
+  }
+}
+
+function _renderListaLocal(){
+  if(!window._usuariosCargados)return;
+  const lista=document.getElementById('lista-clientes');
+  if(!lista)return;
+  lista.innerHTML=window._usuariosCargados.map(u=>{
+    const ep=u.estado_pago||'aldia';
+    const cc=ep==='vencido'?'card vencido':ep==='proximo'?'card proximo':'card';
+    return`<div class="${cc}">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+<div class="avatar">${u.nombre[0].toUpperCase()}</div>
+<div style="flex:1">
+<div style="font-size:16px;font-weight:700;color:#fff">${u.nombre}</div>
+<div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;⏰ ${u.hora_envio} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
+</div>
+<label class="toggle"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
+</div>
+<div style="margin-bottom:10px">
+<span class="badge ${u.activo?'ba':'bp2'}">${u.activo?'● Activo':'⏸ Pausado'}</span>
+<span class="badge bti">${u.tipo}</span>
+${epBadge(ep)}
+</div>
+<div style="display:flex;gap:6px;margin-bottom:6px">
+<button class="btn bg" style="flex:1;font-size:12px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
+<button class="btn bg" style="flex:1;font-size:12px" onclick="marcarSesionRapida('${u.id}',this)">+1 💪</button>
+<button class="btn bp" style="font-size:12px;padding:10px 12px" onclick="eliminarCliente('${u.id}')">🗑️</button>
+</div>
+<div style="display:flex;gap:6px">
+<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
+<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
+</div>
+</div>`;
+  }).join('');
 }
 
 async function abrirTests(id,nombre){
@@ -614,7 +688,393 @@ function showHerramienta(nombre){
   else if(nombre==='hiit') renderHiit(c);
   else if(nombre==='calculadoras') renderCalculadoras(c);
   else if(nombre==='sonidos') renderSonidos(c);
+  else if(nombre==='competencias') renderCompetencias(c);
   else c.innerHTML='<p style="color:#666;text-align:center;padding:40px">🚧 Próximamente: '+nombre+'</p>';
+}
+
+// ═══════════════════════════════════════════
+// 🏆 COMPETENCIAS
+// ═══════════════════════════════════════════
+
+function renderCompetencias(c) {
+  var cats = [
+    {cat:'atleta',  icon:'🏆', label:'Mejor Atleta',     sub:'Puntaje combinado'},
+    {cat:'fuerza',  icon:'💪', label:'El Más Fuerte',    sub:'Test de fuerza'},
+    {cat:'resist',  icon:'🫁', label:'Más Resistente',   sub:'Test de resistencia'},
+    {cat:'especif', icon:'⚡', label:'Más Completo',     sub:'Test específico'},
+    {cat:'grasa',   icon:'🔥', label:'Más Grasa Bajada', sub:'Reducción de grasa'},
+    {cat:'musculo', icon:'💚', label:'Más Músculo',      sub:'Ganancia muscular'},
+  ];
+  var cards = '';
+  for (var i=0; i<cats.length; i++) {
+    var x = cats[i];
+    cards += '<div onclick="verRankingCategoria(\'' + x.cat + '\')"' +
+      ' onmousedown="this.style.borderColor=\'#e31e24\';this.style.background=\'#1a0000\'"' +
+      ' onmouseup="this.style.borderColor=\'#2a0000\';this.style.background=\'#0d0d0d\'"' +
+      ' ontouchstart="this.style.borderColor=\'#e31e24\';this.style.background=\'#1a0000\'"' +
+      ' ontouchend="this.style.borderColor=\'#2a0000\';this.style.background=\'#0d0d0d\'"' +
+      ' style="background:#0d0d0d;border:1px solid #2a0000;border-radius:12px;padding:16px 10px;text-align:center;cursor:pointer">' +
+      '<div style="font-size:32px;margin-bottom:6px">' + x.icon + '</div>' +
+      '<div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px">' + x.label + '</div>' +
+      '<div style="font-size:10px;color:#666">' + x.sub + '</div>' +
+      '</div>';
+  }
+  c.innerHTML =
+    '<div style="margin-bottom:16px">' +
+      '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:12px">🏆 Categorías</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + cards + '</div>' +
+    '</div>' +
+    '<div style="margin-top:10px">' +
+      '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">🏅 Records Personales</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">' +
+        '<div onclick="verPRCategoria(\'fuerza\')" onmousedown="this.style.borderColor=\'#ff6b35\';this.style.background=\'#1a0a00\'" onmouseup="this.style.borderColor=\'#2a1500\';this.style.background=\'#0d0d0d\'" ontouchstart="this.style.borderColor=\'#ff6b35\';this.style.background=\'#1a0a00\'" ontouchend="this.style.borderColor=\'#2a1500\';this.style.background=\'#0d0d0d\'" style="background:#0d0d0d;border:1px solid #2a1500;border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer">' +
+          '<div style="font-size:26px;margin-bottom:4px">💪</div>' +
+          '<div style="font-size:10px;font-weight:700;color:#ff6b35">PR Fuerza</div>' +
+        '</div>' +
+        '<div onclick="verPRCategoria(\'resist\')" onmousedown="this.style.borderColor=\'#4a9eff\';this.style.background=\'#001020\'" onmouseup="this.style.borderColor=\'#001530\';this.style.background=\'#0d0d0d\'" ontouchstart="this.style.borderColor=\'#4a9eff\';this.style.background=\'#001020\'" ontouchend="this.style.borderColor=\'#001530\';this.style.background=\'#0d0d0d\'" style="background:#0d0d0d;border:1px solid #001530;border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer">' +
+          '<div style="font-size:26px;margin-bottom:4px">🫁</div>' +
+          '<div style="font-size:10px;font-weight:700;color:#4a9eff">PR Resist</div>' +
+        '</div>' +
+        '<div onclick="verPRCategoria(\'especif\')" onmousedown="this.style.borderColor=\'#ffd700\';this.style.background=\'#1a1500\'" onmouseup="this.style.borderColor=\'#2a2200\';this.style.background=\'#0d0d0d\'" ontouchstart="this.style.borderColor=\'#ffd700\';this.style.background=\'#1a1500\'" ontouchend="this.style.borderColor=\'#2a2200\';this.style.background=\'#0d0d0d\'" style="background:#0d0d0d;border:1px solid #2a2200;border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer">' +
+          '<div style="font-size:26px;margin-bottom:4px">⚡</div>' +
+          '<div style="font-size:10px;font-weight:700;color:#ffd700">PR Especif</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="margin-top:6px">' +
+      '<button onclick="verRankingPersonalizado()" style="width:100%;background:#1a0000;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer">✏️ Crear Competencia Personalizada</button>' +
+    '</div>';
+}
+
+async function verRankingCategoria(cat) {
+  var c = document.getElementById('herramienta-contenido');
+  c.innerHTML = '<div style="text-align:center;padding:40px;color:#666">⏳ Cargando ranking...</div>';
+  var cats = {
+    atleta:  {icon:'🏆', label:'Mejor Atleta',     color:'#e31e24'},
+    fuerza:  {icon:'💪', label:'El Más Fuerte',    color:'#ff6b35'},
+    resist:  {icon:'🫁', label:'Más Resistente',   color:'#4a9eff'},
+    especif: {icon:'⚡', label:'Más Completo',     color:'#ffd700'},
+    grasa:   {icon:'🔥', label:'Más Grasa Bajada', color:'#ff4500'},
+    musculo: {icon:'💚', label:'Más Músculo',      color:'#4caf50'},
+  };
+  var info = cats[cat];
+  var usuarios = (window._usuariosCargados || []).filter(function(u){return u.activo;});
+  if (!usuarios.length) {
+    c.innerHTML = '<div style="text-align:center;padding:40px;color:#666">Sin usuarios activos</div>';
+    return;
+  }
+  var ranking = [];
+  for (var i=0; i<usuarios.length; i++) {
+    var u = usuarios[i];
+    var score = 0;
+    var detalle = 'Sin datos';
+    try {
+      var results = await Promise.all([
+        fetch('/api/historial/'+u.id).then(function(r){return r.json();}).catch(function(){return {peso:[],medidas:[]};}),
+        fetch('/api/tests/'+u.id).then(function(r){return r.json();}).catch(function(){return {registros:[]};})
+      ]);
+      var hist = results[0];
+      var tests = results[1];
+      var registros = tests.registros || [];
+      var sexo = u.sexo || 'M';
+      var pesos = hist.peso || [];
+      var peso = pesos.length ? pesos[pesos.length-1].valor : 70;
+      if (cat === 'grasa') {
+        var medidas = hist.medidas || [];
+        if (medidas.length >= 2) {
+          var ini = medidas[0].kgGrasa;
+          var fin = medidas[medidas.length-1].kgGrasa;
+          if (ini != null && fin != null) {
+            score = Math.round((ini - fin) * 10) / 10;
+            detalle = score > 0 ? '-' + score + ' kg grasa' : 'Sin cambio';
+          }
+        }
+      } else if (cat === 'musculo') {
+        var medidas2 = hist.medidas || [];
+        if (medidas2.length >= 2) {
+          var ini2 = medidas2[0].kgMusculo;
+          var fin2 = medidas2[medidas2.length-1].kgMusculo;
+          if (ini2 != null && fin2 != null) {
+            score = Math.round((fin2 - ini2) * 10) / 10;
+            detalle = score > 0 ? '+' + score + ' kg músculo' : 'Sin cambio';
+          }
+        }
+      } else {
+        var tipos = cat === 'atleta' ? ['fuerza','resist','especif'] : [cat];
+        var total = 0, count = 0;
+        for (var t=0; t<tipos.length; t++) {
+          var tipo = tipos[t];
+          var regs = registros.filter(function(r){return r.tipo===tipo && r.scoreTotal != null;});
+          var ultimo = regs.length ? regs[regs.length-1] : null;
+          if (ultimo && ultimo.scoreTotal != null) {
+            total += ultimo.scoreTotal;
+            count++;
+          }
+        }
+        score = count ? Math.round(total / count) : 0;
+        detalle = score ? score + ' pts' : 'Sin datos';
+      }
+    } catch(e) { score = 0; detalle = 'Error'; }
+    ranking.push({nombre: u.nombre, score: score, detalle: detalle, id: u.id});
+  }
+  ranking.sort(function(a,b){return b.score - a.score;});
+
+  var medallas = ['🥇','🥈','🥉'];
+  var coloresPodio = ['#ffd700','#c0c0c0','#cd7f32'];
+  var top3 = ranking.slice(0,3);
+  var resto = ranking.slice(3);
+  var podioOrden = [top3[1], top3[0], top3[2]].filter(Boolean);
+  var alturasPodio = [75, 100, 60];
+
+  var htmlPodio = '';
+  for (var p=0; p<podioOrden.length; p++) {
+    var pu = podioOrden[p];
+    var posReal = top3.indexOf(pu);
+    var altura = alturasPodio[p] || 60;
+    var col = coloresPodio[posReal];
+    var initials = pu.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlPodio +=
+      '<div style="display:flex;flex-direction:column;align-items:center;flex:1">' +
+        '<div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:4px;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + pu.nombre.split(' ')[0] + '</div>' +
+        '<div style="width:52px;height:52px;border-radius:50%;background:' + col + '22;border:2px solid ' + col + ';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:' + col + ';margin-bottom:6px">' + initials + '</div>' +
+        '<div style="font-size:11px;color:#aaa;margin-bottom:6px">' + pu.detalle + '</div>' +
+        '<div style="width:100%;height:' + altura + 'px;background:linear-gradient(180deg,' + col + '44,' + col + '22);border:1px solid ' + col + '66;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center">' +
+          '<span style="font-size:24px">' + medallas[posReal] + '</span>' +
+        '</div>' +
+      '</div>';
+  }
+
+  var htmlResto = '';
+  for (var r=0; r<resto.length; r++) {
+    var ru = resto[r];
+    var pos = r + 4;
+    var ri = ru.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlResto +=
+      '<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #111">' +
+        '<div style="font-size:16px;font-weight:700;color:#555;width:24px;text-align:center">' + pos + '</div>' +
+        '<div style="width:38px;height:38px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#aaa">' + ri + '</div>' +
+        '<div style="flex:1">' +
+          '<div style="font-size:13px;font-weight:700;color:#fff">' + ru.nombre + '</div>' +
+          '<div style="font-size:11px;color:#666">' + ru.detalle + '</div>' +
+        '</div>' +
+        '<div style="font-size:14px;font-weight:700;color:' + info.color + '">' + (ru.score || 0) + '</div>' +
+      '</div>';
+  }
+
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="renderCompetencias(document.getElementById(\'herramienta-contenido\'))" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="font-size:14px;font-weight:700;color:#fff">' + info.icon + ' ' + info.label + '</div>' +
+    '</div>' +
+    '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;padding:20px 10px 10px;margin-bottom:14px">' +
+      '<div style="font-size:10px;color:#666;text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">Podio</div>' +
+      '<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px">' + htmlPodio + '</div>' +
+    '</div>' +
+    (resto.length ? '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;overflow:hidden">' + htmlResto + '</div>' : '') +
+    (ranking.length === 0 ? '<div style="text-align:center;padding:30px;color:#555">Sin datos suficientes</div>' : '');
+}
+
+function verRankingPersonalizado() {
+  var c = document.getElementById('herramienta-contenido');
+  var usuarios = (window._usuariosCargados || []).filter(function(u){return u.activo;});
+  var listaU = '';
+  for (var i=0; i<usuarios.length; i++) {
+    var u = usuarios[i];
+    listaU +=
+      '<label style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #111;cursor:pointer">' +
+        '<input type="checkbox" id="comp-u-' + u.id + '" value="' + u.id + '" checked style="accent-color:#e31e24;width:16px;height:16px">' +
+        '<span style="font-size:13px;color:#fff">' + u.nombre + '</span>' +
+      '</label>';
+  }
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="renderCompetencias(document.getElementById(\'herramienta-contenido\'))" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="font-size:14px;font-weight:700;color:#fff">✏️ Competencia personalizada</div>' +
+    '</div>' +
+    '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:14px;margin-bottom:12px">' +
+      '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">¿Qué se compite?</div>' +
+      '<select id="comp-metrica" style="width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;margin-bottom:12px">' +
+        '<option value="atleta">🏆 Mejor Atleta (combinado)</option>' +
+        '<option value="fuerza">💪 Más Fuerte</option>' +
+        '<option value="resist">🫁 Más Resistente</option>' +
+        '<option value="especif">⚡ Más Completo</option>' +
+        '<option value="grasa">🔥 Más Grasa Bajada</option>' +
+        '<option value="musculo">💚 Más Músculo Ganado</option>' +
+      '</select>' +
+      '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px">Participantes</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+        '<button onclick="_compSelAll(true)" style="flex:1;background:#1a1a1a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:7px;font-size:11px;cursor:pointer">✅ Todos</button>' +
+        '<button onclick="_compSelAll(false)" style="flex:1;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:7px;font-size:11px;cursor:pointer">❌ Ninguno</button>' +
+      '</div>' +
+      '<div id="comp-usuarios-lista" style="max-height:220px;overflow-y:auto">' + listaU + '</div>' +
+    '</div>' +
+    '<button onclick="_lanzarCompPersonalizada()" style="width:100%;background:#e31e24;color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer">🏆 Ver Ranking</button>';
+}
+
+function _compSelAll(sel) {
+  document.querySelectorAll('[id^="comp-u-"]').forEach(function(cb){cb.checked=sel;});
+}
+
+async function _lanzarCompPersonalizada() {
+  var metrica = document.getElementById('comp-metrica').value;
+  var ids = Array.from(document.querySelectorAll('[id^="comp-u-"]:checked')).map(function(cb){return cb.value;});
+  if (ids.length < 2) { alert('Selecciona al menos 2 participantes'); return; }
+  var backup = window._usuariosCargados;
+  window._usuariosCargados = (backup || []).filter(function(u){return ids.includes(u.id);});
+  await verRankingCategoria(metrica);
+  window._usuariosCargados = backup;
+}
+
+var _prMeta = {
+  fuerza:  {
+    pecho:   {label:'Press Pecho',   modo:'rm'},
+    espalda: {label:'Remo Jalon',    modo:'rm'},
+    biceps:  {label:'Biceps',        modo:'rm'},
+    triceps: {label:'Triceps',       modo:'rm'},
+    femoral: {label:'Femoral',       modo:'rm'},
+    cuad:    {label:'Cuadriceps',    modo:'rm'},
+    gluteo:  {label:'Gluteo',        modo:'rm'}
+  },
+  resist: {
+    pushups:    {label:'Flexiones',    modo:'max'},
+    dominadas:  {label:'Dominadas',    modo:'max'},
+    fondos:     {label:'Fondos',       modo:'max'},
+    sentadilla: {label:'Sentadilla',   modo:'max'},
+    plancha:    {label:'Plancha seg',  modo:'max'},
+    burpees:    {label:'Burpees',      modo:'max'}
+  },
+  especif: {
+    cooper:   {label:'Cooper m',       modo:'max'},
+    leger:    {label:'Leger nivel',    modo:'max'},
+    sitreach: {label:'Sit and Reach',  modo:'max'},
+    hombro:   {label:'Flex Hombro',    modo:'max'},
+    saltoL:   {label:'Salto Largo cm', modo:'max'},
+    saltoV:   {label:'Salto Vertical', modo:'max'},
+    vel30:    {label:'Vel 30m seg',    modo:'min'}
+  }
+};
+
+function _prContenedor() { return document.getElementById('herramienta-contenido'); }
+function _prTipoActual() { var s=document.getElementById('pr-ejercicio-sel'); return s?s.getAttribute('data-tipo'):''; }
+
+async function verPRCategoria(tipo) {
+  var c = _prContenedor();
+  var meta = _prMeta[tipo];
+  var keys = Object.keys(meta);
+  var infoMap = {
+    fuerza:  {icon:'💪', label:'PR Fuerza',      color:'#ff6b35'},
+    resist:  {icon:'🫁', label:'PR Resistencia', color:'#4a9eff'},
+    especif: {icon:'⚡', label:'PR Especifico',  color:'#ffd700'}
+  };
+  var inf = infoMap[tipo];
+  var opts = '';
+  for (var k=0; k<keys.length; k++) {
+    opts += '<option value="' + keys[k] + '">' + meta[keys[k]].label + '</option>';
+  }
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="_prContenedor() && renderCompetencias(_prContenedor())" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="font-size:14px;font-weight:700;color:#fff">' + inf.icon + ' ' + inf.label + '</div>' +
+    '</div>' +
+    '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:14px;margin-bottom:12px">' +
+      '<div style="font-size:10px;color:' + inf.color + ';text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px">Ejercicio</div>' +
+      '<select id="pr-ejercicio-sel" data-tipo="' + tipo + '" onchange="_renderPRRanking()" style="width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px">' + opts + '</select>' +
+    '</div>' +
+    '<div id="pr-ranking-contenido"><div style="text-align:center;padding:30px;color:#666">Cargando...</div></div>';
+  await _renderPRRanking();
+}
+
+async function _renderPRRanking() {
+  var sel = document.getElementById('pr-ejercicio-sel');
+  if (!sel) return;
+  var tipo = sel.getAttribute('data-tipo');
+  var ejercicio = sel.value;
+  var meta = _prMeta[tipo][ejercicio];
+  var contenido = document.getElementById('pr-ranking-contenido');
+  contenido.innerHTML = '<div style="text-align:center;padding:30px;color:#666">Calculando PRs...</div>';
+  var todos = window._usuariosCargados || [];
+  var ranking = [];
+  for (var i=0; i<todos.length; i++) {
+    var u = todos[i];
+    var pr = null;
+    var prFecha = '';
+    try {
+      var res = await fetch('/api/tests/'+u.id).then(function(r){return r.json();}).catch(function(){return {registros:[]};});
+      var regs = (res.registros||[]).filter(function(r){return r.tipo===tipo;});
+      for (var j=0; j<regs.length; j++) {
+        var reg = regs[j];
+        var campo = reg[ejercicio];
+        if (!campo && campo !== 0) continue;
+        var val = null;
+        if (tipo === 'fuerza' && campo.rm != null) val = campo.rm;
+        else if (campo.valor != null) val = campo.valor;
+        else if (typeof campo === 'number') val = campo;
+        if (val == null) continue;
+        if (pr === null) { pr = val; prFecha = reg.fecha; }
+        else if (meta.modo === 'min' && val < pr) { pr = val; prFecha = reg.fecha; }
+        else if (meta.modo === 'max' && val > pr) { pr = val; prFecha = reg.fecha; }
+      }
+    } catch(e) {}
+    if (pr !== null) {
+      var unidad = '';
+      if (tipo === 'fuerza') unidad = ' kg RM';
+      else if (ejercicio === 'plancha' || ejercicio === 'vel30') unidad = ' seg';
+      else if (ejercicio === 'cooper') unidad = ' m';
+      else if (ejercicio === 'saltoL' || ejercicio === 'saltoV') unidad = ' cm';
+      ranking.push({nombre:u.nombre, pr:pr, detalle:pr+unidad+(prFecha?' · '+prFecha:''), activo:u.activo});
+    }
+  }
+  if (meta.modo === 'min') ranking.sort(function(a,b){return a.pr-b.pr;});
+  else ranking.sort(function(a,b){return b.pr-a.pr;});
+  if (!ranking.length) {
+    contenido.innerHTML = '<div style="text-align:center;padding:30px;color:#555">Sin registros para este ejercicio</div>';
+    return;
+  }
+  var medallas = ['🥇','🥈','🥉'];
+  var coloresPodio = ['#ffd700','#c0c0c0','#cd7f32'];
+  var colorTipo = {fuerza:'#ff6b35',resist:'#4a9eff',especif:'#ffd700'};
+  var top3 = ranking.slice(0,3);
+  var resto = ranking.slice(3);
+  var podioOrden = [top3[1],top3[0],top3[2]].filter(Boolean);
+  var alturas = [75,100,60];
+  var htmlPodio = '';
+  for (var p=0; p<podioOrden.length; p++) {
+    var pu = podioOrden[p];
+    var posReal = top3.indexOf(pu);
+    var col = coloresPodio[posReal];
+    var alt = alturas[p]||60;
+    var ini = pu.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlPodio +=
+      '<div style="display:flex;flex-direction:column;align-items:center;flex:1">' +
+        '<div style="font-size:11px;font-weight:700;color:'+(pu.activo?'#fff':'#888')+';margin-bottom:4px;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+pu.nombre.split(' ')[0]+(pu.activo?'':' 💤')+'</div>' +
+        '<div style="width:52px;height:52px;border-radius:50%;background:'+col+'22;border:2px solid '+col+';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:'+col+';margin-bottom:6px">'+ini+'</div>' +
+        '<div style="font-size:11px;color:#aaa;margin-bottom:6px;text-align:center">'+pu.detalle+'</div>' +
+        '<div style="width:100%;height:'+alt+'px;background:linear-gradient(180deg,'+col+'44,'+col+'22);border:1px solid '+col+'66;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center">' +
+          '<span style="font-size:24px">'+medallas[posReal]+'</span>' +
+        '</div>' +
+      '</div>';
+  }
+  var htmlResto = '';
+  for (var r=0; r<resto.length; r++) {
+    var ru = resto[r];
+    var rini = ru.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlResto +=
+      '<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #111">' +
+        '<div style="font-size:16px;font-weight:700;color:#555;width:24px;text-align:center">'+(r+4)+'</div>' +
+        '<div style="width:38px;height:38px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#aaa">'+rini+'</div>' +
+        '<div style="flex:1">' +
+          '<div style="font-size:13px;font-weight:700;color:'+(ru.activo?'#fff':'#888')+'">'+ru.nombre+(ru.activo?'':' 💤')+'</div>' +
+          '<div style="font-size:11px;color:#666">'+ru.detalle+'</div>' +
+        '</div>' +
+        '<div style="font-size:14px;font-weight:700;color:'+colorTipo[tipo]+'">'+ru.pr+'</div>' +
+      '</div>';
+  }
+  contenido.innerHTML =
+    '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;padding:20px 10px 10px;margin-bottom:14px">' +
+      '<div style="font-size:10px;color:#666;text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">🏅 '+meta.label+' — Mejor de todos los tiempos</div>' +
+      '<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px">'+htmlPodio+'</div>' +
+    '</div>' +
+    (resto.length ? '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;overflow:hidden">'+htmlResto+'</div>' : '');
 }
 
 
@@ -2170,7 +2630,7 @@ function filtrarRutinas(){
 <div class="mc" style="padding-bottom:40px">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
 <div class="mt" id="modal-tests-titulo">🏋️ Tests</div>
-<button class="btn bg" style="padding:6px 14px" onclick="document.getElementById('modal-tests').classList.remove('open')">✕</button>
+<button class="btn bg" style="padding:6px 14px" onclick="document.getElementById('modal-tests').classList.remove('open');_reordenarLista();_renderListaLocal()">✕</button>
 </div>
 <div id="msec-tests"></div>
 </div>

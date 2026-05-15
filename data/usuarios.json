@@ -1,7 +1,7 @@
 [
   {
     "id": "1778216541791",
-    "activo": true,
+    "activo": false,
     "nombre": "Yo",
     "telefono": "573006197897",
     "tipo": "asesorado",
@@ -15,12 +15,13 @@
       "altura": "172.5",
       "objetivo": "",
       "etiqueta": "perdida",
-      "notas": "Todo"
+      "notas": "Todo",
+      "unidades": "kg"
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 12,
-    "sesiones_ciclo": 12,
+    "sesiones_total": 15,
+    "sesiones_ciclo": 15,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague",
     "msg_q1": "",
@@ -28,7 +29,7 @@
   },
   {
     "id": "1778272241158",
-    "activo": false,
+    "activo": true,
     "nombre": "Morza",
     "telefono": "573185663001",
     "tipo": "asesorado",
@@ -46,8 +47,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 9,
-    "sesiones_ciclo": 9,
+    "sesiones_total": 10,
+    "sesiones_ciclo": 10,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": ""
   },
@@ -93,7 +94,8 @@
       "edad": "22",
       "altura": "163",
       "etiqueta": "perdida",
-      "notas": ""
+      "notas": "",
+      "unidades": "kg"
     }
   },
   {
@@ -134,7 +136,9 @@
       "altura": "168",
       "etiqueta": "perdida",
       "notas": ""
-    }
+    },
+    "sesiones_total": 1,
+    "sesiones_ciclo": 1
   },
   {
     "id": "1778377380425",
@@ -146,7 +150,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 15,
     "dia_pago2": null,
-    "estado_pago": "proximo",
+    "estado_pago": "vencido",
     "perfil": {
       "fecha_inicio": "2026-05-09",
       "sexo": "F",
@@ -256,7 +260,8 @@
       "edad": "20",
       "altura": "185",
       "etiqueta": "hipertrofia",
-      "notas": ""
+      "notas": "",
+      "unidades": "kg"
     }
   },
   {

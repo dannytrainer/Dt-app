@@ -182,6 +182,7 @@ function showTTab(t) {
 function filaFuerza(nombre, musculo, key, nota) {
   const ult = window._ultimoFuerza[key];
   const valKg = ult?.kg || '';
+  const valKgDisplay = valKg ? mostrarPesoCliente(valKg) : '';
   const valReps = ult?.reps || '';
   const rm = ult?.rm || 0;
   const s = rm ? getScore('fuerza', key, rm, window._testsSexo, window._testsPeso) : null;
@@ -191,11 +192,11 @@ function filaFuerza(nombre, musculo, key, nota) {
         <div style="flex:1">
           <div style="font-size:12px;color:#fff;font-weight:700">${nombre}</div>
           <div style="font-size:10px;color:#555">${musculo}${nota ? ' · ' + nota : ''}</div>
-<div id="${key}-rm-label" style="font-size:11px;color:#888;margin-top:2px">${rm ? '1RM est: <span style=\\"color:#e31e24;font-weight:700\\">' + UNIDADES.mostrarPeso(rm) + ' ' + UNIDADES.pesoLabel() + '</span>' : ''}</div>
+<div id="${key}-rm-label" style="font-size:11px;color:#888;margin-top:2px">${rm ? '1RM est: <span style=\\"color:#e31e24;font-weight:700\\">' + mostrarPesoCliente(rm) + ' ' + pesoClienteLabel() + '</span>' : ''}</div>
         </div>
         <div style="display:flex;gap:4px">
-<div><div style="font-size:9px;color:#555;text-align:center">${key === 'triceps' ? (valKg < 0 ? 'asist' : 'lastre') : UNIDADES.pesoLabel()}</div>
-          <input type="number" id="f-${key}-kg" value="${valKg}" placeholder="-" step="0.5" style="width:52px;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;text-align:center;outline:none" oninput="actualizarFuerza('${key}')"></div>
+<div><div style="font-size:9px;color:#555;text-align:center">${key === 'triceps' ? (valKg < 0 ? 'asist' : 'lastre') : 'peso'}</div>
+          <input type="number" id="f-${key}-kg" value="${valKgDisplay}" placeholder="-" step="0.5" style="width:52px;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;text-align:center;outline:none" oninput="actualizarFuerza('${key}')"></div>
           <div><div style="font-size:9px;color:#555;text-align:center">reps</div>
           <input type="number" id="f-${key}-reps" value="${valReps}" placeholder="-" style="width:44px;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;text-align:center;outline:none" oninput="actualizarFuerza('${key}')"></div>
         </div>
@@ -224,7 +225,8 @@ if (rmLabel) rmLabel.innerHTML = '1RM est: <span style="color:#e31e24;font-weigh
 function getScoresFuerza() {
   const keys = ['pecho', 'espalda', 'biceps', 'triceps', 'femoral', 'cuad', 'gluteo'];
   return keys.map(k => {
-    const kg = parseFloat(document.getElementById('f-' + k + '-kg')?.value);
+    const kgRaw = parseFloat(document.getElementById('f-' + k + '-kg')?.value);
+    const kg = inputAPesoCliente(kgRaw);
     const reps = parseFloat(document.getElementById('f-' + k + '-reps')?.value);
     if (!kg || !reps) return 0;
     return getScore('fuerza', k, epley(kg, reps), window._testsSexo, window._testsPeso).score;
