@@ -1,1 +1,199 @@
-{"1778216541791": {"registros": []}, "1778687454932": {"registros": []}, "1778376855974": {"registros": []}, "1778377380425": {"registros": []}, "1778379484797": {"registros": []}, "1778787317520": {"registros": []}, "1778377616786": {"registros": []}, "1778354312296": {"registros": []}, "1778377049231": {"registros": []}}
+{
+  "1778216541791": {
+    "registros": [
+      {
+        "fecha": "2026-05-15",
+        "tipo": "fuerza",
+        "peso": 72,
+        "pecho": {
+          "kg": 95,
+          "reps": 5,
+          "rm": 111,
+          "score": 80
+        },
+        "espalda": {
+          "kg": 80,
+          "reps": 3,
+          "rm": 88,
+          "score": 60
+        },
+        "femoral": {
+          "kg": 150,
+          "reps": 1,
+          "rm": 150,
+          "score": 60
+        },
+        "cuad": {
+          "kg": 130,
+          "reps": 6,
+          "rm": 156,
+          "score": 80
+        },
+        "scoreTotal": 70
+      },
+      {
+        "fecha": "2026-05-15",
+        "tipo": "resist",
+        "peso": 72,
+        "pushups": {
+          "valor": 31,
+          "score": 60
+        },
+        "dominadas": {
+          "valor": 18,
+          "score": 80
+        },
+        "scoreTotal": 70
+      },
+      {
+        "fecha": "2026-05-15",
+        "tipo": "resist",
+        "peso": 72,
+        "pushups": {
+          "valor": 31,
+          "score": 60
+        },
+        "dominadas": {
+          "valor": 18,
+          "score": 80
+        },
+        "sentadilla": {
+          "valor": 63,
+          "score": 60
+        },
+        "scoreTotal": 67
+      }
+    ]
+  },
+  "1778687454932": {
+    "registros": []
+  },
+  "1778376855974": {
+    "registros": [
+      {
+        "fecha": "2026-05-15",
+        "tipo": "fuerza",
+        "peso": 70,
+        "scoreTotal": 0
+      }
+    ]
+  },
+  "1778377380425": {
+    "registros": [
+      {
+        "fecha": "2026-05-15",
+        "tipo": "fuerza",
+        "peso": 70,
+        "pecho": {
+          "kg": 24,
+          "reps": 3,
+          "rm": 26,
+          "score": 40
+        },
+        "espalda": {
+          "kg": 28,
+          "reps": 8,
+          "rm": 35,
+          "score": 40
+        },
+        "cuad": {
+          "kg": 29,
+          "reps": 14,
+          "rm": 43,
+          "score": 20
+        },
+        "scoreTotal": 33
+      },
+      {
+        "fecha": "2026-05-15",
+        "tipo": "resist",
+        "peso": 70,
+        "sentadilla": {
+          "valor": 39,
+          "score": 60
+        },
+        "plancha": {
+          "valor": 62,
+          "score": 60
+        },
+        "scoreTotal": 60
+      },
+      {
+        "fecha": "2026-05-15",
+        "tipo": "fuerza",
+        "peso": 70,
+        "pecho": {
+          "kg": 24,
+          "reps": 3,
+          "rm": 26,
+          "score": 40
+        },
+        "espalda": {
+          "kg": 28,
+          "reps": 8,
+          "rm": 35,
+          "score": 40
+        },
+        "cuad": {
+          "kg": 29,
+          "reps": 9,
+          "rm": 38,
+          "score": 20
+        },
+        "scoreTotal": 33
+      },
+      {
+        "fecha": "2026-05-15",
+        "tipo": "fuerza",
+        "peso": 70,
+        "pecho": {
+          "kg": 24,
+          "reps": 3,
+          "rm": 26,
+          "score": 40
+        },
+        "espalda": {
+          "kg": 28,
+          "reps": 8,
+          "rm": 35,
+          "score": 40
+        },
+        "cuad": {
+          "kg": 29,
+          "reps": 9,
+          "rm": 38,
+          "score": 20
+        },
+        "scoreTotal": 33
+      }
+    ]
+  },
+  "1778379484797": {
+    "registros": []
+  },
+  "1778787317520": {
+    "registros": []
+  },
+  "1778377616786": {
+    "registros": []
+  },
+  "1778354312296": {
+    "registros": [
+      {
+        "fecha": "2026-05-15",
+        "tipo": "fuerza",
+        "peso": 70,
+        "espalda": {
+          "kg": 22.5,
+          "reps": 8,
+          "rm": 29,
+          "score": 20
+        },
+        "scoreTotal": 20
+      }
+    ]
+  },
+  "1778377049231": {
+    "registros": []
+  }
+}

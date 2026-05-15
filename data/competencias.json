@@ -1,10 +1,139 @@
 [
   {
-    "nombre": "Peso muerto",
-    "metrica": "rm_femoral",
+    "nombre": "Prueba",
+    "categoria": "mixto",
+    "sistemaPuntos": "ranking",
+    "pruebas": [
+      {
+        "key": "sent_rel",
+        "label": "Sentadilla",
+        "unidad": "reps",
+        "modo": "max",
+        "pct": 130
+      },
+      {
+        "key": "pecho_rel",
+        "label": "Press Pecho",
+        "unidad": "reps",
+        "modo": "max",
+        "pct": 100
+      },
+      {
+        "key": "pmuerto_rel",
+        "label": "Peso Muerto",
+        "unidad": "reps",
+        "modo": "max",
+        "pct": 150
+      },
+      {
+        "key": "pushups",
+        "label": "Flexiones",
+        "unidad": "reps",
+        "modo": "max",
+        "pct": null
+      }
+    ],
+    "participantes": [
+      {
+        "nombre": "Yo",
+        "peso": 72,
+        "resultados": {
+          "sent_rel": 6,
+          "pecho_rel": 19,
+          "pmuerto_rel": 20,
+          "pushups": 20
+        },
+        "fecha": "2026-05-15",
+        "_puntos": 6,
+        "_detalle": {
+          "sent_rel": 1,
+          "pecho_rel": 1,
+          "pmuerto_rel": 2,
+          "pushups": 2
+        }
+      },
+      {
+        "nombre": "Otro",
+        "peso": 50,
+        "resultados": {
+          "sent_rel": 80,
+          "pecho_rel": 50,
+          "pmuerto_rel": 60,
+          "pushups": 90
+        },
+        "fecha": "2026-05-15",
+        "_puntos": 11,
+        "_detalle": {
+          "sent_rel": 3,
+          "pecho_rel": 2,
+          "pmuerto_rel": 3,
+          "pushups": 3
+        }
+      },
+      {
+        "nombre": "Nf",
+        "peso": 70,
+        "resultados": {
+          "sent_rel": 50,
+          "pecho_rel": 60,
+          "pmuerto_rel": 6,
+          "pushups": 8
+        },
+        "fecha": "2026-05-15",
+        "_puntos": 7,
+        "_detalle": {
+          "sent_rel": 2,
+          "pecho_rel": 3,
+          "pmuerto_rel": 1,
+          "pushups": 1
+        }
+      },
+      {
+        "nombre": "Db",
+        "peso": 65,
+        "resultados": {
+          "sent_rel": 98,
+          "pecho_rel": 680,
+          "pmuerto_rel": 8,
+          "pushups": 6
+        },
+        "fecha": "2026-05-15"
+      }
+    ],
     "estado": "activa",
-    "id": "1778864470051",
-    "creada": "2026-05-15",
-    "participantes": []
+    "id": "1778882564233",
+    "creada": "2026-05-15"
+  },
+  {
+    "nombre": "Prueba e",
+    "categoria": "mixto",
+    "sistemaPuntos": "ranking",
+    "pruebas": [
+      {
+        "key": "rm_militar",
+        "label": "Press Militar",
+        "unidad": "kg",
+        "modo": "max",
+        "pct": null
+      },
+      {
+        "key": "rm_sentadilla",
+        "label": "Sentadilla",
+        "unidad": "kg",
+        "modo": "max",
+        "pct": null
+      },
+      {
+        "key": "rm_femoral",
+        "label": "Femoral",
+        "unidad": "kg",
+        "modo": "max",
+        "pct": null
+      }
+    ],
+    "participantes": [],
+    "estado": "finalizada",
+    "id": "1778883040930",
+    "creada": "2026-05-15"
   }
 ]

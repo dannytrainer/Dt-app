@@ -1,7 +1,7 @@
 [
   {
     "id": "1778216541791",
-    "activo": false,
+    "activo": true,
     "nombre": "Yo",
     "telefono": "573006197897",
     "tipo": "asesorado",
@@ -72,7 +72,8 @@
       "edad": "25",
       "altura": "168",
       "etiqueta": "hipertrofia",
-      "notas": "Lesión en ligamento cruzado rodilla izquierda \n\nLumbalgia "
+      "notas": "Lesión en ligamento cruzado rodilla izquierda \n\nLumbalgia ",
+      "unidades": "kg"
     },
     "sesiones_total": 1,
     "sesiones_ciclo": 1
@@ -96,7 +97,10 @@
       "etiqueta": "perdida",
       "notas": "",
       "unidades": "kg"
-    }
+    },
+    "msg_pago": "",
+    "sesiones_total": 1,
+    "sesiones_ciclo": 1
   },
   {
     "id": "1778377049231",

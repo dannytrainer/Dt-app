@@ -50,8 +50,73 @@
     },
     "viernes": {
       "recordatorio": "Hoy toca pierna ",
-      "rutina": "Prueba sentadilla x10\nPara 4 x 10",
-      "ejercicios": [],
+      "rutina": "V1= pares ascendentes \nV2= biseries \nV3= dropset de 3 ",
+      "ejercicios": [
+        {
+          "nombre": "Add +abd cadera ",
+          "series": "3",
+          "reps": "15-20",
+          "rir": "3",
+          "desc": "",
+          "var": ""
+        },
+        {
+          "nombre": "Flexion rodilla sentado ",
+          "series": "5 ",
+          "reps": "12",
+          "rir": "2",
+          "desc": "",
+          "var": ""
+        },
+        {
+          "nombre": "Sentadilla ",
+          "series": "3",
+          "reps": "10",
+          "rir": "3",
+          "desc": "",
+          "var": ""
+        },
+        {
+          "nombre": "Prensa ",
+          "series": "3",
+          "reps": "8",
+          "rir": "0-1",
+          "desc": "",
+          "var": ""
+        },
+        {
+          "nombre": "Tijera en step",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "",
+          "var": "V1 v2"
+        },
+        {
+          "nombre": "Extensión rodilla individual ",
+          "series": "3",
+          "reps": "12",
+          "rir": "2",
+          "desc": "",
+          "var": "V2"
+        },
+        {
+          "nombre": "Extensión rodilla ",
+          "series": "3",
+          "reps": "10",
+          "rir": "0",
+          "desc": "",
+          "var": "V3"
+        },
+        {
+          "nombre": "Pantorrilla ",
+          "series": "10",
+          "reps": "10",
+          "rir": "",
+          "desc": "10",
+          "var": ""
+        }
+      ],
       "cardio": []
     },
     "martes": {
