@@ -75,6 +75,43 @@ app.get('/api/calculos/:id', (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ═══ COMPETENCIAS EXTERNAS ═══
+app.get('/api/competencias', (req, res) => {
+  try { res.json(JSON.parse(fs.readFileSync('data/competencias.json', 'utf8'))); }
+  catch { res.json([]); }
+});
+
+app.post('/api/competencias', (req, res) => {
+  try {
+    let data = [];
+    try { data = JSON.parse(fs.readFileSync('data/competencias.json', 'utf8')); } catch {}
+    const nueva = { ...req.body, id: Date.now().toString(), creada: new Date().toISOString().split('T')[0], participantes: [] };
+    data.push(nueva);
+    fs.writeFileSync('data/competencias.json', JSON.stringify(data, null, 2));
+    res.json({ ok: true, id: nueva.id });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+app.put('/api/competencias/:id', (req, res) => {
+  try {
+    let data = JSON.parse(fs.readFileSync('data/competencias.json', 'utf8'));
+    const idx = data.findIndex(c => c.id === req.params.id);
+    if (idx === -1) return res.json({ ok: false });
+    data[idx] = { ...data[idx], ...req.body };
+    fs.writeFileSync('data/competencias.json', JSON.stringify(data, null, 2));
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+app.delete('/api/competencias/:id', (req, res) => {
+  try {
+    let data = JSON.parse(fs.readFileSync('data/competencias.json', 'utf8'));
+    data = data.filter(c => c.id !== req.params.id);
+    fs.writeFileSync('data/competencias.json', JSON.stringify(data, null, 2));
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
 app.get('/api/tests/:id', (req, res) => {
   try {
     const h = JSON.parse(fs.readFileSync('data/tests.json', 'utf8'));

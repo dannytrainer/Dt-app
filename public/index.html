@@ -741,8 +741,9 @@ function renderCompetencias(c) {
         '</div>' +
       '</div>' +
     '</div>' +
-    '<div style="margin-top:6px">' +
-      '<button onclick="verRankingPersonalizado()" style="width:100%;background:#1a0000;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer">✏️ Crear Competencia Personalizada</button>' +
+    '<div style="margin-top:6px;display:flex;flex-direction:column;gap:8px">' +
+      '<button onclick="verRankingPersonalizado()" style="width:100%;background:#1a0000;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer">✏️ Competencia entre mis usuarios</button>' +
+      '<button onclick="verCompetenciasExternas()" style="width:100%;background:#0a0a1a;color:#4a9eff;border:1px solid #4a9eff;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer">🏟️ Tu Propia Competencia</button>' +
     '</div>';
 }
 
@@ -923,6 +924,310 @@ async function _lanzarCompPersonalizada() {
   window._usuariosCargados = (backup || []).filter(function(u){return ids.includes(u.id);});
   await verRankingCategoria(metrica);
   window._usuariosCargados = backup;
+}
+
+// ═══════════════════════════════════════════
+// 🏟️ COMPETENCIAS EXTERNAS
+// ═══════════════════════════════════════════
+
+var _compExt = [];
+var _compExtActual = null;
+
+var _compExtMetricas = {
+  rm_pecho:    {label:'RM Press Pecho',    unidad:'kg', modo:'max', grupo:'Fuerza'},
+  rm_espalda:  {label:'RM Remo/Jalon',     unidad:'kg', modo:'max', grupo:'Fuerza'},
+  rm_sentadilla:{label:'RM Sentadilla',    unidad:'kg', modo:'max', grupo:'Fuerza'},
+  rm_femoral:  {label:'RM Femoral',        unidad:'kg', modo:'max', grupo:'Fuerza'},
+  rm_gluteo:   {label:'RM Gluteo',         unidad:'kg', modo:'max', grupo:'Fuerza'},
+  rm_biceps:   {label:'RM Biceps',         unidad:'kg', modo:'max', grupo:'Fuerza'},
+  rm_triceps:  {label:'RM Triceps',        unidad:'kg', modo:'max', grupo:'Fuerza'},
+  pushups:     {label:'Flexiones',         unidad:'reps', modo:'max', grupo:'Resistencia'},
+  dominadas:   {label:'Dominadas',         unidad:'reps', modo:'max', grupo:'Resistencia'},
+  fondos:      {label:'Fondos',            unidad:'reps', modo:'max', grupo:'Resistencia'},
+  sentadilla_r:{label:'Sentadilla libre',  unidad:'reps', modo:'max', grupo:'Resistencia'},
+  plancha:     {label:'Plancha',           unidad:'seg',  modo:'max', grupo:'Resistencia'},
+  burpees:     {label:'Burpees',           unidad:'reps', modo:'max', grupo:'Resistencia'},
+  cooper:      {label:'Cooper',            unidad:'m',    modo:'max', grupo:'Especifico'},
+  leger:       {label:'Leger',             unidad:'nivel',modo:'max', grupo:'Especifico'},
+  sitreach:    {label:'Sit and Reach',     unidad:'cm',   modo:'max', grupo:'Especifico'},
+  saltoL:      {label:'Salto Largo',       unidad:'cm',   modo:'max', grupo:'Especifico'},
+  saltoV:      {label:'Salto Vertical',    unidad:'cm',   modo:'max', grupo:'Especifico'},
+  vel30:       {label:'Velocidad 30m',     unidad:'seg',  modo:'min', grupo:'Especifico'},
+  personalizada:{label:'Prueba personalizada', unidad:'pts', modo:'max', grupo:'Custom'}
+};
+
+async function verCompetenciasExternas() {
+  var c = document.getElementById('herramienta-contenido');
+  c.innerHTML = '<div style="text-align:center;padding:30px;color:#666">Cargando...</div>';
+  try {
+    var res = await fetch('/api/competencias');
+    _compExt = await res.json();
+  } catch(e) { _compExt = []; }
+  _renderListaCompExt();
+}
+
+function _renderListaCompExt() {
+  var c = document.getElementById('herramienta-contenido');
+  var activas = _compExt.filter(function(x){return x.estado !== 'finalizada';});
+  var finalizadas = _compExt.filter(function(x){return x.estado === 'finalizada';});
+
+  var htmlActivas = '';
+  for (var i=0; i<activas.length; i++) {
+    var comp = activas[i];
+    var metLabel = comp.metrica === 'personalizada' ? comp.metricaNombre : (_compExtMetricas[comp.metrica] ? _compExtMetricas[comp.metrica].label : comp.metrica);
+    htmlActivas +=
+      '<div onclick="_abrirCompExt(\'' + comp.id + '\')" style="background:#0d0d0d;border:1px solid #1a3a1a;border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<div>' +
+            '<div style="font-size:13px;font-weight:700;color:#fff">' + comp.nombre + '</div>' +
+            '<div style="font-size:11px;color:#666;margin-top:2px">' + metLabel + ' · ' + (comp.participantes||[]).length + ' participantes</div>' +
+          '</div>' +
+          '<div style="font-size:10px;color:#4caf50;font-weight:700">🟢 ACTIVA</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  var htmlFin = '';
+  for (var j=0; j<finalizadas.length; j++) {
+    var cf = finalizadas[j];
+    var mfLabel = cf.metrica === 'personalizada' ? cf.metricaNombre : (_compExtMetricas[cf.metrica] ? _compExtMetricas[cf.metrica].label : cf.metrica);
+    htmlFin +=
+      '<div onclick="_abrirCompExt(\'' + cf.id + '\')" style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer;opacity:0.7">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<div>' +
+            '<div style="font-size:13px;font-weight:700;color:#aaa">' + cf.nombre + '</div>' +
+            '<div style="font-size:11px;color:#555;margin-top:2px">' + mfLabel + ' · ' + (cf.participantes||[]).length + ' participantes</div>' +
+          '</div>' +
+          '<div style="font-size:10px;color:#555;font-weight:700">🏁 FIN</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="renderCompetencias(document.getElementById(\'herramienta-contenido\'))" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="font-size:14px;font-weight:700;color:#fff">🏟️ Mis Competencias</div>' +
+    '</div>' +
+    '<button onclick="_crearCompExt()" style="width:100%;background:#0a0a1a;color:#4a9eff;border:1px solid #4a9eff;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:14px">➕ Nueva Competencia</button>' +
+    (activas.length ? '<div style="font-size:10px;color:#4caf50;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px">Activas</div>' + htmlActivas : '') +
+    (finalizadas.length ? '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px;margin-top:8px">Finalizadas</div>' + htmlFin : '') +
+    (!_compExt.length ? '<div style="text-align:center;padding:40px;color:#555">Sin competencias aun.<br>Crea la primera 👆</div>' : '');
+}
+
+function _crearCompExt() {
+  var c = document.getElementById('herramienta-contenido');
+  var opts = '';
+  var grupos = {};
+  var keys = Object.keys(_compExtMetricas);
+  for (var i=0; i<keys.length; i++) {
+    var k = keys[i];
+    var m = _compExtMetricas[k];
+    if (!grupos[m.grupo]) grupos[m.grupo] = [];
+    grupos[m.grupo].push({key:k, label:m.label});
+  }
+  var gkeys = Object.keys(grupos);
+  for (var g=0; g<gkeys.length; g++) {
+    opts += '<optgroup label="' + gkeys[g] + '">';
+    for (var h=0; h<grupos[gkeys[g]].length; h++) {
+      var op = grupos[gkeys[g]][h];
+      opts += '<option value="' + op.key + '">' + op.label + '</option>';
+    }
+    opts += '</optgroup>';
+  }
+
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="verCompetenciasExternas()" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="font-size:14px;font-weight:700;color:#fff">➕ Nueva Competencia</div>' +
+    '</div>' +
+    '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px">' +
+      '<div>' +
+        '<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Nombre</div>' +
+        '<input id="cext-nombre" placeholder="Ej: Reto Semana 1" style="width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;box-sizing:border-box">' +
+      '</div>' +
+      '<div>' +
+        '<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Que se compite</div>' +
+        '<select id="cext-metrica" onchange="_cextTogglePersonalizada()" style="width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px">' + opts + '</select>' +
+      '</div>' +
+      '<div id="cext-personalizada-panel" style="display:none">' +
+        '<div style="font-size:10px;color:#ffd700;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Nombre de la prueba</div>' +
+        '<input id="cext-met-nombre" placeholder="Ej: Puntos Willoughby" style="width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;margin-bottom:8px;box-sizing:border-box">' +
+        '<div style="font-size:10px;color:#ffd700;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Unidad</div>' +
+        '<input id="cext-met-unidad" placeholder="Ej: pts, kg, seg, m" style="width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;margin-bottom:8px;box-sizing:border-box">' +
+        '<div style="font-size:10px;color:#ffd700;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Gana el</div>' +
+        '<select id="cext-met-modo" style="width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px">' +
+          '<option value="max">Mayor valor</option>' +
+          '<option value="min">Menor valor</option>' +
+        '</select>' +
+      '</div>' +
+    '</div>' +
+    '<button onclick="_guardarCompExt()" style="width:100%;background:#4a9eff;color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px">Crear Competencia →</button>';
+}
+
+function _cextTogglePersonalizada() {
+  var sel = document.getElementById('cext-metrica');
+  var panel = document.getElementById('cext-personalizada-panel');
+  if (sel && panel) panel.style.display = sel.value === 'personalizada' ? 'block' : 'none';
+}
+
+async function _guardarCompExt() {
+  var nombre = (document.getElementById('cext-nombre').value || '').trim();
+  var metrica = document.getElementById('cext-metrica').value;
+  if (!nombre) { alert('Ponle un nombre a la competencia'); return; }
+  var datos = {nombre:nombre, metrica:metrica, estado:'activa'};
+  if (metrica === 'personalizada') {
+    var mn = (document.getElementById('cext-met-nombre').value||'').trim();
+    var mu = (document.getElementById('cext-met-unidad').value||'').trim();
+    var mm = document.getElementById('cext-met-modo').value;
+    if (!mn) { alert('Define el nombre de la prueba'); return; }
+    datos.metricaNombre = mn;
+    datos.metricaUnidad = mu || 'pts';
+    datos.metricaModo = mm;
+  }
+  try {
+    var res = await fetch('/api/competencias', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(datos)});
+    var r = await res.json();
+    if (r.ok) { await verCompetenciasExternas(); _abrirCompExt(r.id); }
+  } catch(e) { alert('Error al guardar'); }
+}
+
+function _abrirCompExt(id) {
+  _compExtActual = _compExt.find(function(x){return x.id===id;}) || null;
+  if (!_compExtActual) return;
+  _renderCompExtDetalle();
+}
+
+function _renderCompExtDetalle() {
+  var comp = _compExtActual;
+  if (!comp) return;
+  var c = document.getElementById('herramienta-contenido');
+  var meta = comp.metrica === 'personalizada'
+    ? {label:comp.metricaNombre, unidad:comp.metricaUnidad, modo:comp.metricaModo}
+    : _compExtMetricas[comp.metrica];
+  var partic = comp.participantes || [];
+  partic = partic.slice().sort(function(a,b){ return meta.modo==='min' ? a.valor-b.valor : b.valor-a.valor; });
+
+  var medallas = ['🥇','🥈','🥉'];
+  var coloresPodio = ['#ffd700','#c0c0c0','#cd7f32'];
+  var top3 = partic.slice(0,3);
+  var resto = partic.slice(3);
+  var podioOrden = [top3[1],top3[0],top3[2]].filter(Boolean);
+  var alturas = [75,100,60];
+
+  var htmlPodio = '';
+  if (top3.length) {
+    for (var p=0; p<podioOrden.length; p++) {
+      var pu = podioOrden[p];
+      var posReal = top3.indexOf(pu);
+      var col = coloresPodio[posReal];
+      var alt = alturas[p]||60;
+      var ini = pu.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+      htmlPodio +=
+        '<div style="display:flex;flex-direction:column;align-items:center;flex:1">' +
+          '<div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:4px;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+pu.nombre.split(' ')[0]+'</div>' +
+          '<div style="width:52px;height:52px;border-radius:50%;background:'+col+'22;border:2px solid '+col+';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:'+col+';margin-bottom:6px">'+ini+'</div>' +
+          '<div style="font-size:11px;color:#aaa;margin-bottom:6px">'+pu.valor+' '+(meta.unidad||'')+'</div>' +
+          '<div style="width:100%;height:'+alt+'px;background:linear-gradient(180deg,'+col+'44,'+col+'22);border:1px solid '+col+'66;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center">' +
+            '<span style="font-size:24px">'+medallas[posReal]+'</span>' +
+          '</div>' +
+        '</div>';
+    }
+  }
+
+  var htmlResto = '';
+  for (var r=0; r<resto.length; r++) {
+    var ru = resto[r];
+    var ri = ru.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlResto +=
+      '<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #111">' +
+        '<div style="font-size:16px;font-weight:700;color:#555;width:24px;text-align:center">'+(r+4)+'</div>' +
+        '<div style="width:38px;height:38px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#aaa">'+ri+'</div>' +
+        '<div style="flex:1">' +
+          '<div style="font-size:13px;font-weight:700;color:#fff">'+ru.nombre+'</div>' +
+          '<div style="font-size:11px;color:#666">'+ru.valor+' '+(meta.unidad||'')+'</div>' +
+        '</div>' +
+        '<div style="font-size:14px;font-weight:700;color:#4a9eff">'+ru.valor+'</div>' +
+      '</div>';
+  }
+
+  var estadoBtn = comp.estado === 'finalizada'
+    ? '<button onclick="_toggleEstadoCompExt()" style="flex:1;background:#1a1a1a;color:#555;border:1px solid #333;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🔄 Reabrir</button>'
+    : '<button onclick="_toggleEstadoCompExt()" style="flex:1;background:#1a1a1a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🏁 Finalizar</button>';
+
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="verCompetenciasExternas()" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="flex:1;font-size:14px;font-weight:700;color:#fff">' + comp.nombre + '</div>' +
+      '<div style="font-size:10px;color:' + (comp.estado==='finalizada'?'#555':'#4caf50') + ';font-weight:700">' + (comp.estado==='finalizada'?'🏁 FIN':'🟢 ACTIVA') + '</div>' +
+    '</div>' +
+    '<div style="font-size:11px;color:#666;margin-bottom:12px">📊 ' + meta.label + ' · ' + (meta.modo==='min'?'Gana el menor':'Gana el mayor') + ' · ' + (meta.unidad||'') + '</div>' +
+    (partic.length >= 2 ?
+      '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;padding:20px 10px 10px;margin-bottom:14px">' +
+        '<div style="font-size:10px;color:#666;text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">🏅 Podio</div>' +
+        '<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px">' + htmlPodio + '</div>' +
+      '</div>'
+    : '<div style="text-align:center;padding:20px;color:#555;font-size:12px">Agrega al menos 2 participantes para ver el podio</div>') +
+    (resto.length ? '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;overflow:hidden;margin-bottom:14px">' + htmlResto + '</div>' : '') +
+    (comp.estado !== 'finalizada' ?
+      '<button onclick="_agregarParticipanteExt()" style="width:100%;background:#0a0a1a;color:#4a9eff;border:1px solid #4a9eff;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">➕ Agregar Participante</button>'
+    : '') +
+    '<div style="display:flex;gap:8px">' +
+      estadoBtn +
+      '<button onclick="_eliminarCompExt()" style="flex:1;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🗑️ Eliminar</button>' +
+    '</div>';
+}
+
+function _agregarParticipanteExt() {
+  var comp = _compExtActual;
+  if (!comp) return;
+  var meta = comp.metrica === 'personalizada'
+    ? {label:comp.metricaNombre, unidad:comp.metricaUnidad}
+    : _compExtMetricas[comp.metrica];
+  var c = document.getElementById('herramienta-contenido');
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="_renderCompExtDetalle()" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="font-size:14px;font-weight:700;color:#fff">➕ Participante</div>' +
+    '</div>' +
+    '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px">' +
+      '<div>' +
+        '<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Nombre</div>' +
+        '<input id="cext-p-nombre" placeholder="Nombre del participante" style="width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;box-sizing:border-box">' +
+      '</div>' +
+      '<div>' +
+        '<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">' + meta.label + ' (' + (meta.unidad||'') + ')</div>' +
+        '<input id="cext-p-valor" type="number" placeholder="Resultado" style="width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;box-sizing:border-box">' +
+      '</div>' +
+    '</div>' +
+    '<button onclick="_guardarParticipanteExt()" style="width:100%;background:#4a9eff;color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px">Guardar →</button>';
+}
+
+async function _guardarParticipanteExt() {
+  var nombre = (document.getElementById('cext-p-nombre').value||'').trim();
+  var valor = parseFloat(document.getElementById('cext-p-valor').value);
+  if (!nombre || isNaN(valor)) { alert('Completa nombre y resultado'); return; }
+  var comp = _compExtActual;
+  if (!comp.participantes) comp.participantes = [];
+  comp.participantes.push({nombre:nombre, valor:valor, fecha: new Date().toISOString().split('T')[0]});
+  try {
+    await fetch('/api/competencias/' + comp.id, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({participantes:comp.participantes})});
+    _renderCompExtDetalle();
+  } catch(e) { alert('Error al guardar'); }
+}
+
+async function _toggleEstadoCompExt() {
+  var comp = _compExtActual;
+  if (!comp) return;
+  comp.estado = comp.estado === 'finalizada' ? 'activa' : 'finalizada';
+  await fetch('/api/competencias/' + comp.id, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({estado:comp.estado})});
+  _renderCompExtDetalle();
+}
+
+async function _eliminarCompExt() {
+  if (!confirm('Eliminar esta competencia?')) return;
+  await fetch('/api/competencias/' + _compExtActual.id, {method:'DELETE'});
+  _compExtActual = null;
+  await verCompetenciasExternas();
 }
 
 var _prMeta = {
