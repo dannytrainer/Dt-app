@@ -3,11 +3,22 @@ function calcularPorcentajeGrasa(pliegues, sexo, edad) {
   if (!triceps || !subescapular || !abdominal || !suprailiaco) return null;
   const suma = parseFloat(triceps) + parseFloat(subescapular) + parseFloat(abdominal) + parseFloat(suprailiaco);
   const logSuma = Math.log10(suma);
+  const e = parseFloat(edad) || 25;
   let densidad;
   if (sexo === 'M') {
-    densidad = 1.1620 - (0.0630 * logSuma);
+    if (e < 17)      densidad = 1.1533 - (0.0643 * logSuma);
+    else if (e < 20) densidad = 1.1620 - (0.0630 * logSuma);
+    else if (e < 30) densidad = 1.1631 - (0.0632 * logSuma);
+    else if (e < 40) densidad = 1.1422 - (0.0544 * logSuma);
+    else if (e < 50) densidad = 1.1620 - (0.0700 * logSuma);
+    else             densidad = 1.1715 - (0.0779 * logSuma);
   } else {
-    densidad = 1.1549 - (0.0678 * logSuma);
+    if (e < 17)      densidad = 1.1369 - (0.0598 * logSuma);
+    else if (e < 20) densidad = 1.1549 - (0.0678 * logSuma);
+    else if (e < 30) densidad = 1.1599 - (0.0717 * logSuma);
+    else if (e < 40) densidad = 1.1423 - (0.0632 * logSuma);
+    else if (e < 50) densidad = 1.1333 - (0.0612 * logSuma);
+    else             densidad = 1.1339 - (0.0645 * logSuma);
   }
   const pctGrasa = ((4.95 / densidad) - 4.50) * 100;
   return Math.round(pctGrasa * 10) / 10;
