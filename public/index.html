@@ -9,7 +9,9 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a0a;color:#f0f0f0;font-family:'Segoe UI',sans-serif}
-:root{--rojo:#e31e24;--gris:#1a1a1a;--gris2:#2a2a2a}
+:root{--rojo:#e31e24;--gris:#1a1a1a;--gris2:#2a2a2a;--fondo:#0a0a0a;--card:#111;--chip-activos:#4caf50;--chip-person:#e31e24;--chip-asesor:#4a9eff;--chip-pausados:#666;--test-fuerza:#e31e24;--test-resist:#4a9eff;--test-especif:#9c27b0}
+body{background:var(--fondo);color:#fff}
+.card{background:var(--card)!important}
 .header{background:#111;border-bottom:3px solid var(--rojo);padding:10px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:100}
 .header h1{font-size:18px;font-weight:900;letter-spacing:2px;color:#fff}
 .header p{font-size:10px;color:var(--rojo);font-weight:600;letter-spacing:1px}
@@ -104,20 +106,20 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 </div>
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px">
   <div style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:12px;padding:12px 6px;text-align:center">
-    <div id="hi-stat-activos" style="font-size:22px;font-weight:800;color:#4caf50;font-family:monospace">0</div>
-    <div style="font-size:9px;color:#4caf50;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Activos</div>
+    <div id="hi-stat-activos" style="font-size:22px;font-weight:800;color:var(--chip-activos);font-family:monospace">0</div>
+    <div style="font-size:9px;color:var(--chip-activos);opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Activos</div>
   </div>
   <div style="background:#1a0a0a;border:1px solid #3a1010;border-radius:12px;padding:12px 6px;text-align:center">
-    <div id="hi-stat-person" style="font-size:22px;font-weight:800;color:#e31e24;font-family:monospace">0</div>
-    <div style="font-size:9px;color:#e31e24;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Person.</div>
+    <div id="hi-stat-person" style="font-size:22px;font-weight:800;color:var(--chip-person);font-family:monospace">0</div>
+    <div style="font-size:9px;color:var(--chip-person);opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Person.</div>
   </div>
   <div style="background:#0a0f1a;border:1px solid #10203a;border-radius:12px;padding:12px 6px;text-align:center">
-    <div id="hi-stat-asesor" style="font-size:22px;font-weight:800;color:#4a9eff;font-family:monospace">0</div>
-    <div style="font-size:9px;color:#4a9eff;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Asesor.</div>
+    <div id="hi-stat-asesor" style="font-size:22px;font-weight:800;color:var(--chip-asesor);font-family:monospace">0</div>
+    <div style="font-size:9px;color:var(--chip-asesor);opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Asesor.</div>
   </div>
   <div style="background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:12px 6px;text-align:center">
-    <div id="hi-stat-pausados" style="font-size:22px;font-weight:800;color:#666;font-family:monospace">0</div>
-    <div style="font-size:9px;color:#666;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Pausados</div>
+    <div id="hi-stat-pausados" style="font-size:22px;font-weight:800;color:var(--chip-pausados);font-family:monospace">0</div>
+    <div style="font-size:9px;color:var(--chip-pausados);opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Pausados</div>
   </div>
 </div>
 <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px">⚡ Resumen del día</div>
@@ -383,6 +385,75 @@ return '<span class="badge bal">✅ Al día</span>';
 
 
 
+
+// ═══════════════════════════════
+// COLORES PERSONALIZABLES
+// ═══════════════════════════════
+const _coloresConfig = {
+  general: [
+    {var:'--rojo', label:'Color acento', def:'#e31e24'},
+    {var:'--fondo', label:'Fondo app', def:'#0a0a0a'},
+    {var:'--card', label:'Fondo cards', def:'#111111'},
+    {var:'--gris', label:'Fondo inputs', def:'#1a1a1a'},
+  ],
+  chips: [
+    {var:'--chip-activos', label:'🟢 Activos', def:'#4caf50'},
+    {var:'--chip-person', label:'💪 Personalizados', def:'#e31e24'},
+    {var:'--chip-asesor', label:'📋 Asesorados', def:'#4a9eff'},
+    {var:'--chip-pausados', label:'⏸️ Pausados', def:'#666666'},
+  ],
+  tests: [
+    {var:'--test-fuerza', label:'💪 Fuerza', def:'#e31e24'},
+    {var:'--test-resist', label:'🫁 Resistencia', def:'#4a9eff'},
+    {var:'--test-especif', label:'⭐ Específico', def:'#9c27b0'},
+  ]
+};
+let _tabColoresActual = 'general';
+
+function mostrarTabColores(tab){
+  _tabColoresActual = tab;
+  ['general','chips','tests'].forEach(t=>{
+    const btn = document.getElementById('tab-col-'+t);
+    btn.style.background = t===tab ? 'var(--rojo)' : '#2a2a2a';
+    btn.style.color = t===tab ? '#fff' : '#888';
+  });
+  const root = getComputedStyle(document.documentElement);
+  const items = _coloresConfig[tab];
+  let html = '';
+  items.forEach(item=>{
+    const val = root.getPropertyValue(item.var).trim() || item.def;
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #222">';
+    html += '<span style="font-size:13px;color:#ccc">'+item.label+'</span>';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    html += '<span style="font-size:11px;color:#555">'+val+'</span>';
+    html += '<input type="color" value="'+val+'" data-var="'+item.var+'" onchange="aplicarColor(this)" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:0">';
+    html += '</div></div>';
+  });
+  document.getElementById('tab-colores-content').innerHTML = html;
+}
+
+function aplicarColor(input){
+  document.documentElement.style.setProperty(input.dataset.var, input.value);
+}
+
+async function guardarColores(){
+  const root = getComputedStyle(document.documentElement);
+  const colores = {};
+  ['general','chips','tests'].forEach(tab=>{
+    _coloresConfig[tab].forEach(item=>{
+      colores[item.var] = document.documentElement.style.getPropertyValue(item.var) || root.getPropertyValue(item.var).trim() || item.def;
+    });
+  });
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colores})});
+  toast('✅ Colores guardados');
+}
+
+function aplicarColoresGuardados(colores){
+  if(!colores) return;
+  Object.entries(colores).forEach(([key,val])=>{
+    document.documentElement.style.setProperty(key, val);
+  });
+}
 // ═══════════════════════════════
 // CONFIG BOTTOM SHEET
 // ═══════════════════════════════
@@ -413,6 +484,7 @@ async function guardarNombreEntrenador(){
 async function cargarNombreEntrenador(){
   try{
     const cfg=await fetch('/api/config').then(r=>r.json());
+    if(cfg.colores)aplicarColoresGuardados(cfg.colores);
     if(cfg.nombre_entrenador){
       document.getElementById('nombre-entrenador').textContent=cfg.nombre_entrenador;
       const inp=document.getElementById('cfg-nombre');
@@ -426,7 +498,7 @@ async function cargarNombreEntrenador(){
     }
   }catch(e){console.error('cargarNombreEntrenador',e);}
 }
-function abrirConfig(){
+function abrirConfig(){mostrarTabColores("general");
   const ov=document.getElementById('config-overlay');
   const sh=document.getElementById('config-sheet');
   ov.style.display='block';
@@ -3858,12 +3930,15 @@ function filtrarRutinas(){
         </div>
       </div>
     </div>
-    <div style="background:#1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <div>
-        <div style="font-size:14px;color:#fff;font-weight:600">Colores de la app</div>
-        <div style="font-size:11px;color:#555;margin-top:2px">Próximamente</div>
+    <div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:6px">
+      <div style="font-size:14px;color:#fff;font-weight:600;margin-bottom:12px">🎨 Colores de la app</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <button onclick="mostrarTabColores('general')" id="tab-col-general" style="flex:1;padding:7px;border-radius:8px;border:none;background:#e31e24;color:#fff;font-size:11px;font-weight:700;cursor:pointer">General</button>
+        <button onclick="mostrarTabColores('chips')" id="tab-col-chips" style="flex:1;padding:7px;border-radius:8px;border:none;background:#2a2a2a;color:#888;font-size:11px;font-weight:700;cursor:pointer">Chips</button>
+        <button onclick="mostrarTabColores('tests')" id="tab-col-tests" style="flex:1;padding:7px;border-radius:8px;border:none;background:#2a2a2a;color:#888;font-size:11px;font-weight:700;cursor:pointer">Tests</button>
       </div>
-      <span style="color:#555;font-size:18px">›</span>
+      <div id="tab-colores-content"></div>
+      <button onclick="guardarColores()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px;cursor:pointer;margin-top:10px">💾 Guardar colores</button>
     </div>
     <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:12px 0 10px">🔊 Sistema</div>
     <div style="background:#1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer" onclick="cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100);">

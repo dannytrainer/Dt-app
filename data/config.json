@@ -1,5 +1,18 @@
 {
   "nombre_entrenador": "Danny",
   "logo_entrenador": "/icon.png",
-  "color_acento": "#e31e24"
+  "color_acento": "#e31e24",
+  "colores": {
+    "--rojo": "#e31e24",
+    "--fondo": "#000000",
+    "--card": "#000000",
+    "--gris": "#1a1a1a",
+    "--chip-activos": "#00ff00",
+    "--chip-person": "#ffffff",
+    "--chip-asesor": "#ffffff",
+    "--chip-pausados": "#666",
+    "--test-fuerza": "#e31e24",
+    "--test-resist": "#4a9eff",
+    "--test-especif": "#9c27b0"
+  }
 }
