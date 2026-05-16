@@ -62,6 +62,36 @@
           "score": 60
         },
         "scoreTotal": 67
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "fuerza",
+        "peso": 72,
+        "pecho": {
+          "kg": 95,
+          "reps": 5,
+          "rm": 111,
+          "score": 80
+        },
+        "espalda": {
+          "kg": 80,
+          "reps": 3,
+          "rm": 88,
+          "score": 60
+        },
+        "femoral": {
+          "kg": 150,
+          "reps": 1,
+          "rm": 150,
+          "score": 60
+        },
+        "cuad": {
+          "kg": 130,
+          "reps": 6,
+          "rm": 156,
+          "score": 80
+        },
+        "scoreTotal": 70
       }
     ]
   },
@@ -165,6 +195,30 @@
           "score": 20
         },
         "scoreTotal": 33
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "fuerza",
+        "peso": 70,
+        "pecho": {
+          "kg": 24,
+          "reps": 3,
+          "rm": 26,
+          "score": 40
+        },
+        "espalda": {
+          "kg": 28,
+          "reps": 8,
+          "rm": 35,
+          "score": 40
+        },
+        "cuad": {
+          "kg": 20,
+          "reps": 14,
+          "rm": 29,
+          "score": 20
+        },
+        "scoreTotal": 33
       }
     ]
   },
@@ -194,6 +248,165 @@
     ]
   },
   "1778377049231": {
-    "registros": []
+    "registros": [
+      {
+        "fecha": "2026-05-15",
+        "tipo": "fuerza",
+        "peso": 47,
+        "pecho": {
+          "kg": 34,
+          "reps": 4,
+          "rm": 39,
+          "score": 60
+        },
+        "scoreTotal": 60
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "fuerza",
+        "peso": 47,
+        "pecho": {
+          "kg": 34,
+          "reps": 4,
+          "rm": 39,
+          "score": 60
+        },
+        "scoreTotal": 60
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "fuerza",
+        "peso": 47,
+        "espalda": {
+          "kg": 34,
+          "reps": 4,
+          "rm": 39,
+          "score": 60
+        },
+        "scoreTotal": 60
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "fuerza",
+        "peso": 47,
+        "espalda": {
+          "kg": 34,
+          "reps": 4,
+          "rm": 39,
+          "score": 60
+        },
+        "biceps": {
+          "kg": 15,
+          "reps": 2,
+          "rm": 16,
+          "score": 40
+        },
+        "scoreTotal": 50
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "fuerza",
+        "peso": 47,
+        "espalda": {
+          "kg": 34,
+          "reps": 4,
+          "rm": 39,
+          "score": 60
+        },
+        "biceps": {
+          "kg": 15,
+          "reps": 2,
+          "rm": 16,
+          "score": 40
+        },
+        "scoreTotal": 50
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "resist",
+        "peso": 47,
+        "pushups": {
+          "valor": 13,
+          "score": 40
+        },
+        "scoreTotal": 40
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "especif",
+        "peso": 47,
+        "sitreach": {
+          "valor": 10,
+          "score": 40
+        },
+        "hombro": {
+          "valor": -1,
+          "score": 40
+        },
+        "scoreTotal": 40
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "especif",
+        "peso": 47,
+        "sitreach": {
+          "valor": 10,
+          "score": 40
+        },
+        "hombro": {
+          "valor": -1,
+          "score": 40
+        },
+        "scoreTotal": 40
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "fuerza",
+        "peso": 47,
+        "pecho": {
+          "kg": 20,
+          "reps": 6,
+          "rm": 24,
+          "score": 40
+        },
+        "espalda": {
+          "kg": 34,
+          "reps": 4,
+          "rm": 39,
+          "score": 60
+        },
+        "biceps": {
+          "kg": 15,
+          "reps": 2,
+          "rm": 16,
+          "score": 40
+        },
+        "scoreTotal": 47
+      },
+      {
+        "fecha": "2026-05-16",
+        "tipo": "fuerza",
+        "peso": 47,
+        "pecho": {
+          "kg": 20,
+          "reps": 6,
+          "rm": 24,
+          "score": 40
+        },
+        "espalda": {
+          "kg": 34,
+          "reps": 4,
+          "rm": 39,
+          "score": 60
+        },
+        "biceps": {
+          "kg": 15,
+          "reps": 2,
+          "rm": 16,
+          "score": 40
+        },
+        "scoreTotal": 47
+      }
+    ]
   }
 }

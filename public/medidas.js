@@ -12,6 +12,7 @@ function showMTab(t) {
 async function showMTabLoad(t, id) {
   showMTab(t);
   if (t === 'perfil') await renderPerfil(id);
+  if (t === 'peso') await renderPeso(id);
   if (t === 'medidas') await renderMedidas(id);
   if (t === 'analisis') await renderAnalisis(id);
 }
@@ -413,6 +414,16 @@ function seleccionarUnidad(u, id) {
   const lbBtn = document.getElementById('p-unit-lb');
   if (kgBtn) { kgBtn.style.background = u==='kg'?'#e31e24':'#1a1a1a'; kgBtn.style.borderColor = u==='kg'?'#e31e24':'#333'; }
   if (lbBtn) { lbBtn.style.background = u==='lb'?'#e31e24':'#1a1a1a'; lbBtn.style.borderColor = u==='lb'?'#e31e24':'#333'; }
+  const tabActiva = document.querySelector('.mtab-btn.active');
+  if (id) {
+    const tabs = ['perfil','peso','medidas','analisis'];
+    let tabActiva = 'peso';
+    tabs.forEach(x => {
+      const el = document.getElementById('msec-'+x);
+      if (el && el.style.display !== 'none') tabActiva = x;
+    });
+    showMTabLoad(tabActiva, id);
+  }
 }
 
 function getUnidadCliente() {

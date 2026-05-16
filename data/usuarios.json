@@ -116,10 +116,11 @@
     "perfil": {
       "fecha_inicio": "2026-05-11",
       "sexo": "F",
-      "edad": "25",
+      "edad": "23",
       "altura": "155",
       "etiqueta": "hipertrofia",
-      "notas": ""
+      "notas": "Hernia inguinal ",
+      "unidades": "kg"
     }
   },
   {

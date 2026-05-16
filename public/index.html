@@ -2451,25 +2451,314 @@ hiitCargar();
 let _hiitActual=null;
 let _hiitEjecutando=null;
 
+// ── estado intervalos simples ────────────────────────────────────────────────
+let _intervTab = 'lista'; // lista | nuevo | ejecutar
+let _intervActual = null;
+let _intervEjecutando = null;
+let _intervCircuitos = [];
+let _intervViendoEjecucion = false;
+
+// ── TAB ACTIVO Y VISTAS INDEPENDIENTES ──────────────────────────────────────
+let _hiitTab = 'circuitos';          // 'circuitos' | 'intervalos'
+let _hiitVistaCircuito = 'lista';    // vista actual del módulo circuitos
+let _hiitVistaIntervalo = 'lista';   // vista actual del módulo intervalos
+
 function renderHiit(c){
   c.innerHTML=`
   <div id="hiit-panel">
     <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button onclick="hiitMostrar('lista')" id="hiit-btn-lista" style="flex:1;background:#e31e24;color:#fff;border:1px solid #e31e24;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">📋 Mis circuitos</button>
-      <button onclick="hiitMostrar('nuevo')" style="flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">➕ Nuevo</button>
+      <button id="btn-tab-circuitos" onclick="_hiitCambiarTab('circuitos')" style="flex:1;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">🔥 Circuitos</button>
+      <button id="btn-tab-intervalos" onclick="_hiitCambiarTab('intervalos')" style="flex:1;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">⏱️ Intervalos</button>
     </div>
     <div id="hiit-contenido"></div>
   </div>`;
-  hiitMostrar('lista');
+  _hiitCambiarTab(_hiitTab);
+}
+
+function _hiitCambiarTab(tab) {
+  _hiitTab = tab;
+  // Estilos tabs
+  var btnC = document.getElementById('btn-tab-circuitos');
+  var btnI = document.getElementById('btn-tab-intervalos');
+  if (btnC) {
+    btnC.style.background = tab==='circuitos' ? '#e31e24' : '#1a1a1a';
+    btnC.style.color = '#fff';
+    btnC.style.border = tab==='circuitos' ? '1px solid #e31e24' : '1px solid #333';
+  }
+  if (btnI) {
+    btnI.style.background = tab==='intervalos' ? '#4a9eff' : '#1a1a1a';
+    btnI.style.color = tab==='intervalos' ? '#fff' : '#4a9eff';
+    btnI.style.border = tab==='intervalos' ? '1px solid #4a9eff' : '1px solid #4a9eff';
+  }
+  var c = document.getElementById('hiit-contenido');
+  if (!c) return;
+  if (tab === 'circuitos') {
+    hiitMostrar(_hiitVistaCircuito);
+  } else {
+    intervMostrar(_hiitVistaIntervalo);
+  }
 }
 
 function hiitMostrar(vista){
+  _hiitVistaCircuito = vista;
   const c=document.getElementById('hiit-contenido');
   if(!c)return;
   if(vista==='lista') hiitRenderLista(c);
   else if(vista==='nuevo'){_hiitActual=hiitNuevoCircuito();hiitRenderEditor(c);}
   else if(vista==='editor') hiitRenderEditor(c);
   else if(vista==='ejecutar') hiitRenderEjecucion(c);
+}
+
+// ── INTERVALOS SIMPLES ───────────────────────────────────────────────────────
+function intervMostrar(vista) {
+  _hiitVistaIntervalo = vista;
+  const c = document.getElementById('hiit-contenido');
+  if (!c) return;
+  if (vista==='lista')     intervRenderLista(c);
+  else if (vista==='nuevo')   { _intervActual = intervNuevo(); intervRenderEditor(c); }
+  else if (vista==='editor')  intervRenderEditor(c);
+  else if (vista==='ejecutar') intervRenderEjecucion(c);
+}
+
+function intervNuevo() {
+  return {
+    id: Date.now(),
+    nombre: 'Intervalos',
+    preparacion: 10,
+    trabajo: 30,
+    descanso: 15,
+    rondas: 8,
+    sets: 1,
+    descEntreSets: 60,
+    finalizacion: 5
+  };
+}
+
+function intervRenderLista(c) {
+  var html = '';
+  if (!_intervCircuitos.length) {
+    html = '<div style="text-align:center;padding:40px;color:#555">Sin intervalos aún.<br>Crea el primero 👆</div>';
+  } else {
+    html = _intervCircuitos.map(function(iv, i) {
+      var total = iv.preparacion + (iv.trabajo + iv.descanso) * iv.rondas + iv.finalizacion;
+      return '<div style="background:#0d0d0d;border:1px solid #1a2a3a;border-radius:12px;padding:14px;margin-bottom:8px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+        '<div style="font-size:14px;font-weight:700;color:#fff">' + iv.nombre + '</div>' +
+        '<div style="font-size:11px;color:#555">~' + Math.ceil(total/60) + ' min</div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:#666;margin-bottom:10px">' +
+        '⚡ ' + iv.trabajo + 's · 😮 ' + iv.descanso + 's · ' + iv.rondas + ' rondas' +
+        ((iv.sets&&iv.sets>1) ? ' · ' + iv.sets + ' sets' : '') +
+        '</div>' +
+        '<div style="display:flex;gap:6px">' +
+        '<button onclick="_intervActual=JSON.parse(JSON.stringify(_intervCircuitos[' + i + ']));intervMostrar(\'ejecutar\')" style="flex:2;background:#e31e24;color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">▶️ Iniciar</button>' +
+        '<button onclick="_intervActual=JSON.parse(JSON.stringify(_intervCircuitos[' + i + ']));intervMostrar(\'editor\')" style="flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>' +
+        '<button onclick="_intervCircuitos.splice(' + i + ',1);intervMostrar(\'lista\')" style="flex:1;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+  }
+  c.innerHTML =
+    '<button onclick="intervMostrar(\'nuevo\')" style="width:100%;background:#0a0a1a;color:#4a9eff;border:1px solid #4a9eff;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px">➕ Nuevo intervalo</button>' +
+    html;
+}
+
+function intervRenderEditor(c) {
+  var iv = _intervActual;
+  c.innerHTML =
+    '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px">' +
+    '<div>' +
+    '<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Nombre</div>' +
+    '<input value="' + iv.nombre + '" onchange="_intervActual.nombre=this.value" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:14px;font-weight:700;box-sizing:border-box">' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+    _intervCampo('Preparación (seg)', iv.preparacion, '_intervActual.preparacion=parseInt(this.value)||0') +
+    _intervCampo('Trabajo (seg) ⚡', iv.trabajo, '_intervActual.trabajo=parseInt(this.value)||1') +
+    _intervCampo('Descanso (seg) 😮', iv.descanso, '_intervActual.descanso=parseInt(this.value)||0') +
+    _intervCampo('Rondas 🔁', iv.rondas, '_intervActual.rondas=parseInt(this.value)||1') +
+    _intervCampo('Sets 🔄', iv.sets||1, '_intervActual.sets=parseInt(this.value)||1') +
+    _intervCampo('Desc. entre sets (seg)', iv.descEntreSets||0, '_intervActual.descEntreSets=parseInt(this.value)||0') +
+    _intervCampo('Finalización (seg)', iv.finalizacion, '_intervActual.finalizacion=parseInt(this.value)||0') +
+    '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;margin-top:12px">' +
+    '<button onclick="intervMostrar(\'lista\')" style="flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:10px;padding:12px;font-size:13px;cursor:pointer">← Volver</button>' +
+    '<button onclick="intervGuardar()" style="flex:2;background:#4a9eff;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">💾 Guardar</button>' +
+    '<button onclick="intervMostrar(\'ejecutar\')" style="flex:2;background:#e31e24;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">▶️ Iniciar</button>' +
+    '</div>';
+}
+
+function _intervCampo(label, val, onchange) {
+  return '<div>' +
+    '<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">' + label + '</div>' +
+    '<input type="number" min="0" value="' + val + '" onchange="' + onchange + '" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:20px;text-align:center;font-family:monospace;box-sizing:border-box">' +
+    '</div>';
+}
+
+function intervGuardar() {
+  var iv = _intervActual;
+  if (!iv.nombre.trim()) { alert('Ponle un nombre'); return; }
+  var idx = _intervCircuitos.findIndex(function(x){return x.id===iv.id;});
+  if (idx >= 0) _intervCircuitos[idx] = iv;
+  else _intervCircuitos.push(iv);
+  intervMostrar('lista');
+}
+
+// ── EJECUCIÓN INTERVALOS ─────────────────────────────────────────────────────
+function intervRenderEjecucion(c) {
+  _intervViendoEjecucion = true;
+  if (_intervEjecutando) {
+    clearInterval(_intervEjecutando.interval);
+    _intervEjecutando = null;
+  }
+  var iv = _intervActual;
+  _intervEjecutando = {
+    iv: iv,
+    fase: 'preparacion',  // preparacion | trabajo | descanso | desc_sets | finalizacion | fin
+    rondaActual: 1,
+    setActual: 1,
+    resto: iv.preparacion || iv.trabajo,
+    total: iv.preparacion || iv.trabajo,
+    running: false,
+    interval: null
+  };
+  if (!_intervEjecutando.resto) {
+    _intervEjecutando.fase = 'trabajo';
+    _intervEjecutando.resto = iv.trabajo;
+    _intervEjecutando.total = iv.trabajo;
+  }
+  intervRenderFrame(c);
+}
+
+function intervRenderFrame(c) {
+  var ej = _intervEjecutando;
+  if (!ej) return;
+  var iv = ej.iv;
+  var colores = {preparacion:'#ffd700', trabajo:'#e31e24', descanso:'#4caf50', finalizacion:'#4a9eff', fin:'#555'};
+  var labels  = {preparacion:'⏳ Preparación', trabajo:'⚡ Trabajo', descanso:'😮‍💨 Descanso', finalizacion:'🏁 Finalización', fin:'✅ ¡Listo!'};
+  var col = colores[ej.fase] || '#fff';
+  var lbl = labels[ej.fase]  || '';
+  var pct = ej.total > 0 ? Math.round((ej.resto / ej.total) * 100) : 0;
+  var mins = Math.floor(ej.resto/60);
+  var secs = ej.resto % 60;
+  var display = (mins>0?mins+'m ':'') + secs + 's';
+
+  c.innerHTML =
+    '<div style="text-align:center;padding:10px 0">' +
+    '<button onclick="intervMostrar(\'lista\')" style="background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;margin-bottom:16px">← Salir</button>' +
+    '<div style="font-size:13px;font-weight:700;color:' + col + ';margin-bottom:8px;letter-spacing:1px">' + lbl + '</div>' +
+    '<div style="font-size:70px;font-weight:700;color:#fff;font-family:monospace;line-height:1;margin-bottom:8px;text-shadow:0 0 30px ' + col + '66">' + display + '</div>' +
+    (ej.fase==='trabajo'||ej.fase==='descanso' ?
+      '<div style="font-size:14px;color:#555;margin-bottom:12px">Ronda ' + ej.rondaActual + '/' + iv.rondas +
+      ((iv.sets&&iv.sets>1) ? ' · Set ' + ej.setActual + '/' + iv.sets : '') + '</div>'
+    : ej.fase==='desc_sets' ?
+      '<div style="font-size:14px;color:#4a9eff;margin-bottom:12px">Descanso entre sets · Set ' + ej.setActual + '/' + iv.sets + '</div>'
+    : '<div style="margin-bottom:12px"></div>') +
+    '<div style="background:#111;border-radius:8px;height:8px;margin:0 20px 20px;overflow:hidden">' +
+    '<div style="height:100%;width:' + pct + '%;background:' + col + ';border-radius:8px;transition:width 0.9s linear"></div>' +
+    '</div>' +
+    (ej.fase !== 'fin' ?
+      '<button onclick="intervToggle()" style="background:' + (ej.running?'#333':'#e31e24') + ';color:#fff;border:none;border-radius:50%;width:72px;height:72px;font-size:28px;cursor:pointer;box-shadow:0 0 20px ' + col + '44">' + (ej.running?'⏸️':'▶️') + '</button>'
+    : '<button onclick="intervMostrar(\'lista\')" style="background:#4a9eff;color:#fff;border:none;border-radius:12px;padding:16px 32px;font-size:16px;font-weight:700;cursor:pointer">👊 Volver</button>') +
+    '</div>';
+}
+
+function intervToggle() {
+  var ej = _intervEjecutando;
+  if (!ej) return;
+  if (!ej.running && _hiitEjecutando) {
+    if (!confirm('Hay un circuito en curso. ¿Detenerlo y continuar?')) return;
+    clearInterval(_hiitEjecutando.interval);
+    _hiitEjecutando = null;
+  }
+  var c = document.getElementById('hiit-contenido');
+  if (ej.running) {
+    clearInterval(ej.interval);
+    ej.running = false;
+    intervRenderFrame(c);
+    return;
+  }
+  ej.running = true;
+  dtSonarEvento('hiit', ej.fase==='trabajo'?'inicio':ej.fase==='descanso'?'descanso':'preparacion');
+  intervRenderFrame(c);
+  ej.interval = setInterval(function(){
+    ej.resto--;
+    if (ej.resto <= 0) {
+      var iv2 = ej.iv;
+      var totalSets = iv2.sets || 1;
+      if (ej.fase === 'preparacion') {
+        ej.fase = 'trabajo';
+        ej.resto = iv2.trabajo;
+        ej.total = iv2.trabajo;
+        dtSonarEvento('hiit','inicio');
+      } else if (ej.fase === 'trabajo') {
+        if (iv2.descanso > 0 && ej.rondaActual < iv2.rondas) {
+          ej.fase = 'descanso';
+          ej.resto = iv2.descanso;
+          ej.total = iv2.descanso;
+          dtSonarEvento('hiit','descanso');
+        } else if (ej.rondaActual < iv2.rondas) {
+          ej.rondaActual++;
+          ej.fase = 'trabajo';
+          ej.resto = iv2.trabajo;
+          ej.total = iv2.trabajo;
+          dtSonarEvento('hiit','inicio');
+        } else {
+          if (ej.setActual < totalSets) {
+            if (iv2.descEntreSets > 0) {
+              ej.fase = 'desc_sets';
+              ej.resto = iv2.descEntreSets;
+              ej.total = iv2.descEntreSets;
+              dtSonarEvento('hiit','descanso');
+            } else {
+              ej.setActual++;
+              ej.rondaActual = 1;
+              ej.fase = 'trabajo';
+              ej.resto = iv2.trabajo;
+              ej.total = iv2.trabajo;
+              dtSonarEvento('hiit','inicio');
+            }
+          } else {
+            if (iv2.finalizacion > 0) {
+              ej.fase = 'finalizacion';
+              ej.resto = iv2.finalizacion;
+              ej.total = iv2.finalizacion;
+              dtSonarEvento('hiit','final');
+            } else {
+              ej.fase = 'fin';
+              ej.resto = 0;
+              clearInterval(ej.interval);
+              ej.running = false;
+              dtSonarEvento('hiit','final');
+            }
+          }
+        }
+      } else if (ej.fase === 'descanso') {
+        ej.rondaActual++;
+        ej.fase = 'trabajo';
+        ej.resto = iv2.trabajo;
+        ej.total = iv2.trabajo;
+        dtSonarEvento('hiit','inicio');
+      } else if (ej.fase === 'desc_sets') {
+        ej.setActual++;
+        ej.rondaActual = 1;
+        ej.fase = 'trabajo';
+        ej.resto = iv2.trabajo;
+        ej.total = iv2.trabajo;
+        dtSonarEvento('hiit','inicio');
+      } else if (ej.fase === 'finalizacion') {
+        ej.fase = 'fin';
+        ej.resto = 0;
+        clearInterval(ej.interval);
+        ej.running = false;
+        dtSonarEvento('hiit','final');
+      }
+    }
+    if (_hiitTab === 'intervalos' && _hiitVistaIntervalo === 'ejecutar') {
+      var c2 = document.getElementById('hiit-contenido');
+      if (c2) intervRenderFrame(c2);
+    }
+  }, 1000);
 }
 
 function hiitNuevoCircuito(){
@@ -2488,15 +2777,16 @@ function hiitNuevoCircuito(){
 }
 
 function hiitRenderLista(c){
+  var btnNuevo = '<button onclick="hiitMostrar(\'nuevo\')" style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px">➕ Nuevo circuito</button>';
   if(_hiitCircuitos.length===0){
-    c.innerHTML=`<div style="text-align:center;padding:40px 0;color:#444">
+    c.innerHTML=btnNuevo+`<div style="text-align:center;padding:40px 0;color:#444">
       <div style="font-size:40px;margin-bottom:12px">🔥</div>
       <div style="font-size:14px">No tienes circuitos guardados</div>
-      <div style="font-size:12px;margin-top:6px">Toca ➕ Nuevo para crear uno</div>
+      <div style="font-size:12px;margin-top:6px">Toca ➕ para crear uno</div>
     </div>`;
     return;
   }
-  c.innerHTML=_hiitCircuitos.map((ci,i)=>`
+  c.innerHTML=btnNuevo+_hiitCircuitos.map((ci,i)=>`
   <div style="background:#111;border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
     <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px">${ci.nombre}</div>
     <div style="font-size:11px;color:#666;margin-bottom:10px">${ci.series} series · ${ci.bloques.length} bloques · Prep: ${ci.preparacion}s</div>
@@ -2603,6 +2893,11 @@ async function hiitEliminar(i){
 }
 
 function hiitIniciar(i){
+  if (_intervEjecutando && _intervEjecutando.fase !== 'fin') {
+    if (!confirm('Hay un intervalo en curso. ¿Detenerlo y continuar?')) return;
+    clearInterval(_intervEjecutando.interval);
+    _intervEjecutando = null;
+  }
   _hiitActual=JSON.parse(JSON.stringify(_hiitCircuitos[i]));
   hiitIniciarActual();
 }

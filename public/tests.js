@@ -151,7 +151,7 @@ async function renderTests(id) {
   window._ultimoEspecif = ultimoEspecif;
 
   document.getElementById('msec-tests').innerHTML = `
-<div style="font-size:10px;color:#888;margin-bottom:10px">Peso corporal: <span style="color:#e31e24;font-weight:700">${UNIDADES.mostrarPeso(pesoCorporal)} ${UNIDADES.pesoLabel()}</span> · <span style="color:#e31e24;font-weight:700">${sexo === 'M' ? 'Masculino' : 'Femenino'}</span></div>
+<div style="font-size:10px;color:#888;margin-bottom:10px">Peso corporal: <span style="color:#e31e24;font-weight:700">${mostrarPesoCliente(pesoCorporal)} ${pesoClienteLabel()}</span> · <span style="color:#e31e24;font-weight:700">${sexo === 'M' ? 'Masculino' : 'Femenino'}</span></div>
     <div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto">
       <button id="ttab-fuerza" class="btn br" style="flex:1;font-size:11px;padding:8px 4px;white-space:nowrap" onclick="showTTab('fuerza')">🏋️ Fuerza</button>
       <button id="ttab-resist" class="btn bg" style="flex:1;font-size:11px;padding:8px 4px;white-space:nowrap" onclick="showTTab('resist')">💪🏻 Resist.</button>
@@ -206,7 +206,8 @@ function filaFuerza(nombre, musculo, key, nota) {
 }
 
 function actualizarFuerza(key) {
-  const kg = parseFloat(document.getElementById('f-' + key + '-kg')?.value);
+  const kgRaw = parseFloat(document.getElementById('f-' + key + '-kg')?.value);
+  const kg = inputAPesoCliente(kgRaw);
   const reps = parseFloat(document.getElementById('f-' + key + '-reps')?.value);
   const scoreEl = document.getElementById('f-' + key + '-score');
   const rmLabel = document.getElementById(key + '-rm-label');
@@ -214,7 +215,7 @@ function actualizarFuerza(key) {
   if (kg && reps) {
 const rm = epley(kg, reps);
 const rmReal = key === 'triceps' ? rm + window._testsPeso : rm;
-if (rmLabel) rmLabel.innerHTML = '1RM est: <span style="color:#e31e24;font-weight:700">' + UNIDADES.mostrarPeso(rmReal) + ' ' + UNIDADES.pesoLabel() + '</span>';
+if (rmLabel) rmLabel.innerHTML = '1RM est: <span style="color:#e31e24;font-weight:700">' + mostrarPesoCliente(rmReal) + ' ' + pesoClienteLabel() + '</span>';
     const s = getScore('fuerza', key, rm, window._testsSexo, window._testsPeso);
     scoreEl.textContent = s.icon + ' ' + s.label;
     scoreEl.style.cssText = 'display:inline-block;padding:3px 7px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;' + badgeStyle(s.icon);

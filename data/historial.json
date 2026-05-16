@@ -21,8 +21,48 @@
     "medidas": []
   },
   "1778377049231": {
-    "peso": [],
-    "medidas": []
+    "peso": [
+      {
+        "fecha": "2026-05-15",
+        "valor": 47
+      }
+    ],
+    "medidas": [
+      {
+        "fecha": "2026-05-15",
+        "cintura": 64.5,
+        "cadera": 88,
+        "pecho": 71,
+        "brazo": 24,
+        "pierna": 48,
+        "hombros": 92,
+        "pantorrilla": 31,
+        "analisis": {
+          "pctGrasa": null,
+          "kgGrasa": null,
+          "kgMusculo": null
+        }
+      },
+      {
+        "fecha": "2026-05-15",
+        "cintura": 64.5,
+        "cadera": 88,
+        "pecho": 71,
+        "brazo": 24,
+        "pierna": 48,
+        "hombros": 92,
+        "pantorrilla": 31,
+        "triceps": 10,
+        "subescapular": 11,
+        "abdominal": 11,
+        "suprailiaco": 8,
+        "analisis": {
+          "pctGrasa": 23.1,
+          "kgGrasa": 10.9,
+          "kgMusculo": 36.1
+        }
+      }
+    ]
   },
   "1778377208321": {
     "peso": [],
