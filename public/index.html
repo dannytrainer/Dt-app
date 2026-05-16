@@ -553,24 +553,6 @@ async function abrirAdminCliente(id){
   html+='<select id="ac-moneda" style="background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px">';
   MONEDAS.forEach(m=>{html+='<option value="'+m+'"'+(d.moneda===m?' selected':'')+'>'+m+'</option>';});
   html+='</select></div>';
-  // Precio real calculado
-  const precioReal=d.descuento_tipo==='pct'?Math.round((d.precio||0)*(1-(d.descuento_valor||0)/100)):(d.precio||0)-(d.descuento_valor||0);
-  if((d.descuento_valor||0)>0){
-    html+='<div style="margin-top:8px;font-size:12px;color:#4caf50">✅ Precio con descuento: <b>'+(precioReal/1000).toLocaleString()+' mil '+(d.moneda||'COP')+'</b></div>';
-  }
-  html+='</div>';
-
-  html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:10px">';
-  html+='<div style="font-size:12px;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">🏷️ Descuento</div>';
-  html+='<div style="display:flex;gap:8px;margin-bottom:8px">';
-  html+='<select id="ac-desc-tipo" style="background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px">';
-  html+='<option value="pct"'+(d.descuento_tipo==='pct'?' selected':'')+'>% Porcentaje</option>';
-  html+='<option value="fijo"'+(d.descuento_tipo==='fijo'?' selected':'')+'>Valor fijo</option>';
-  html+='</select>';
-  html+='<input type="number" id="ac-desc-valor" placeholder="0" value="'+(d.descuento_tipo==='pct'?(d.descuento_valor||0):Math.round((d.descuento_valor||0)/1000))+'" style="flex:1;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:14px;outline:none">';
-  html+='</div>';
-  html+='<input type="text" id="ac-desc-motivo" placeholder="Motivo del descuento (ej: cliente referido)" value="'+(d.descuento_motivo||'')+'" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px;outline:none;box-sizing:border-box">';
-  html+='</div>';
 
   html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:10px">';
   html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
@@ -582,27 +564,66 @@ async function abrirAdminCliente(id){
 
   html+='<div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">📋 Registrar pago</div>';
   html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:10px">';
-  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
-  html+='<input type="number" id="ac-monto" placeholder="ej: 350 = $350.000" style="background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px;outline:none">';
-  html+='<select id="ac-metodo" style="background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px">';
+  html+='<div style="display:flex;gap:8px;margin-bottom:8px">';
+  html+='<input type="number" id="ac-monto" placeholder="ej: 350 = $350.000" style="flex:1;min-width:0;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px;outline:none">';
+  html+='<select id="ac-metodo" style="width:130px;flex-shrink:0;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px">';
   html+='<option value="efectivo">💵 Efectivo</option><option value="transferencia">🏦 Transferencia</option><option value="tarjeta">💳 Tarjeta</option><option value="otro">📝 Otro</option>';
   html+='</select></div>';
+  html+='<input type="text" id="ac-novedad" placeholder="📝 Novedades del pago (opcional)" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:12px;outline:none;box-sizing:border-box;margin-bottom:8px">';
+  html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer" onclick="toggleDescPanel()">';
+  html+='<div style="width:18px;height:18px;border:2px solid #555;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px" id="ac-desc-check">+</div>';
+  html+='<span style="font-size:12px;color:#aaa">🏷️ Aplicar descuento</span></div>';
+  html+='<div id="ac-desc-panel" style="display:none;background:#111;border:1px solid #333;border-radius:10px;padding:10px;margin-bottom:8px">';
+  html+='<div style="display:flex;gap:8px;margin-bottom:6px">';
+  html+='<select id="ac-desc-tipo" onchange="calcDescuento()" style="width:140px;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:7px;color:#fff;font-size:12px">';
+  html+='<option value="pct">% Porcentaje</option><option value="fijo">Valor fijo</option></select>';
+  html+='<input type="number" id="ac-desc-valor" oninput="calcDescuento()" placeholder="0" style="flex:1;min-width:0;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:7px;color:#fff;font-size:13px;outline:none">';
+  html+='</div>';
+  html+='<input type="text" id="ac-desc-motivo" placeholder="Motivo (ej: primer mes, referido)" style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:7px;color:#fff;font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  html+='<div id="ac-desc-info" style="font-size:12px;color:#4caf50;font-weight:700"></div>';
+  html+='</div>';
   html+='<button onclick="registrarPago('+id+')" style="width:100%;background:#0f1a0f;border:1px solid #1e3a1e;border-radius:10px;color:#4caf50;font-size:13px;font-weight:700;padding:10px;cursor:pointer">✅ Registrar pago</button></div>';
 
   // Historial pagos
   if(d.pagos&&d.pagos.length){
     html+='<div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">📅 Historial de pagos</div>';
     [...d.pagos].reverse().forEach(p=>{
-      html+='<div style="background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">';
+      const tieneDesc=p.descuento_valor&&p.descuento_valor>0;
+      html+='<div style="background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:12px;margin-bottom:6px">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center">';
       html+='<div><div style="font-size:13px;color:#fff;font-weight:600">'+(p.monto||0).toLocaleString()+' '+(p.moneda||d.moneda||'COP')+'</div>';
-      html+='<div style="font-size:11px;color:#555">'+p.fecha+' · '+p.metodo+'</div></div>';
-      html+='<span style="color:#4caf50;font-size:18px">✅</span></div>';
+      html+='<div style="font-size:11px;color:#555;margin-top:2px">'+p.fecha+' · '+(p.metodo||'efectivo')+(p.novedad?' · <span style="color:#aaa">'+p.novedad+'</span>':'')+'</div></div>';
+      html+='<div style="display:flex;gap:6px;align-items:center">';
+      if(tieneDesc)html+='<span style="background:#1a1500;border:1px solid #3a3000;border-radius:6px;padding:2px 6px;font-size:10px;color:#f0c040">🏷️ DESC</span>';
+      html+='<span style="color:#4caf50;font-size:16px">✅</span></div></div>';
+      if(tieneDesc){
+        const descStr=p.descuento_tipo==='pct'?p.descuento_valor+'%':((p.descuento_valor/1000).toLocaleString()+' mil');
+        html+='<div style="margin-top:6px;font-size:11px;color:#f0c040">🏷️ Descuento: '+descStr+(p.descuento_motivo?' — '+p.descuento_motivo:'')+'</div>';
+      }
+      html+='</div>';
     });
   }
   html+='</div>';
   document.getElementById('admin-tab-content').innerHTML=html;
 }
 
+function calcDescuento(){
+  const precio=parseFloat(document.getElementById('ac-precio')?document.getElementById('ac-precio').value:0)||0;
+  const tipo=document.getElementById('ac-desc-tipo')?document.getElementById('ac-desc-tipo').value:'pct';
+  const val=parseFloat(document.getElementById('ac-desc-valor')?document.getElementById('ac-desc-valor').value:0)||0;
+  const montoEl=document.getElementById('ac-monto');
+  const infoEl=document.getElementById('ac-desc-info');
+  if(!montoEl)return;
+  let final=precio;
+  if(tipo==='pct') final=Math.round(precio*(1-val/100));
+  else final=Math.max(0,precio-val);
+  montoEl.value=final>0?final:'';
+  if(infoEl) infoEl.textContent=final>0?'💰 Recomendado: '+(final).toLocaleString()+' mil':'';
+}
+function toggleDescPanel(){
+  const p=document.getElementById('ac-desc-panel');
+  if(p)p.style.display=p.style.display==='none'?'block':'none';
+}
 async function guardarAdminCliente(id){
   const precio=(parseFloat(document.getElementById('ac-precio').value)||0)*1000;
   const moneda=document.getElementById('ac-moneda').value;
@@ -623,11 +644,19 @@ async function registrarPago(id){
   const monto=(parseFloat(document.getElementById('ac-monto').value)||0)*1000;
   const metodo=document.getElementById('ac-metodo').value;
   const moneda=(window._adminData.clientes[id]||{}).moneda||'COP';
+  const novedad=document.getElementById('ac-novedad')?document.getElementById('ac-novedad').value.trim():'';
+  const descPanel=document.getElementById('ac-desc-panel');
+  const tieneDesc=descPanel&&descPanel.style.display!=='none';
+  const descTipo=tieneDesc&&document.getElementById('ac-desc-tipo')?document.getElementById('ac-desc-tipo').value:'';
+  const descValorRaw=tieneDesc&&document.getElementById('ac-desc-valor')?parseFloat(document.getElementById('ac-desc-valor').value)||0:0;
+  const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
+  const descMotivo=tieneDesc&&document.getElementById('ac-desc-motivo')?document.getElementById('ac-desc-motivo').value.trim():'';
   if(!monto){toast('❌ Ingresa un monto',false);return;}
-  await fetch('/api/admin/'+id+'/pago',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({monto,metodo,moneda})});
+  const pagoData={monto,metodo,moneda,novedad,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo};
+  await fetch('/api/admin/'+id+'/pago',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pagoData)});
   if(!window._adminData.clientes[id])window._adminData.clientes[id]={precio:0,moneda,pagos:[]};
   if(!window._adminData.clientes[id].pagos)window._adminData.clientes[id].pagos=[];
-  window._adminData.clientes[id].pagos.push({monto,metodo,moneda,fecha:new Date().toISOString().split('T')[0]});
+  window._adminData.clientes[id].pagos.push({...pagoData,fecha:new Date().toISOString().split('T')[0]});
   toast('✅ Pago registrado');
   abrirAdminCliente(id);
 }

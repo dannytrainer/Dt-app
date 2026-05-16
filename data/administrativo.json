@@ -80,7 +80,10 @@
     "1778216541791": {
       "precio": 0,
       "moneda": "COP",
-      "pagos": []
+      "pagos": [],
+      "descuento_tipo": "pct",
+      "descuento_valor": 0,
+      "descuento_motivo": ""
     }
   },
   "config": {
