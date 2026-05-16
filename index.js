@@ -208,6 +208,44 @@ app.post('/api/config/logo', upload.single('logo'), (req, res) => {
   guardarJSON('config.json', cfg);
   res.json({ok:true, path:'/icon.png'});
 });
+
+// ADMINISTRATIVO
+app.get('/api/admin', (req, res) => res.json(cargarJSON('administrativo.json')));
+app.get('/api/admin/:id', (req, res) => {
+  const data = cargarJSON('administrativo.json');
+  res.json(data.clientes[req.params.id] || {});
+});
+app.post('/api/admin/:id', (req, res) => {
+  const data = cargarJSON('administrativo.json');
+  if(!data.clientes[req.params.id]) data.clientes[req.params.id] = {precio:0,moneda:'COP',pagos:[]};
+  const {msg_pago, ...resto} = req.body;
+  Object.assign(data.clientes[req.params.id], resto);
+  guardarJSON('administrativo.json', data);
+  // Guardar msg_pago en usuarios.json
+  if(msg_pago !== undefined){
+    const usuarios = cargarJSON('usuarios.json');
+    const idx = usuarios.findIndex(u => String(u.id) === String(req.params.id));
+    if(idx !== -1){ usuarios[idx].msg_pago = msg_pago; guardarJSON('usuarios.json', usuarios); }
+  }
+  res.json({ok:true});
+});
+app.post('/api/admin/:id/pago', (req, res) => {
+  const data = cargarJSON('administrativo.json');
+  if(!data.clientes[req.params.id]) data.clientes[req.params.id] = {precio:0,moneda:'COP',pagos:[]};
+  data.clientes[req.params.id].pagos.push({...req.body, fecha: new Date().toISOString().split('T')[0]});
+  guardarJSON('administrativo.json', data);
+  // Actualizar estado_pago en usuarios.json
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if(idx !== -1){ usuarios[idx].estado_pago = 'aldia'; guardarJSON('usuarios.json', usuarios); }
+  res.json({ok:true});
+});
+app.post('/api/admin/config/update', (req, res) => {
+  const data = cargarJSON('administrativo.json');
+  Object.assign(data.config, req.body);
+  guardarJSON('administrativo.json', data);
+  res.json({ok:true});
+});
 // CONFIG
 app.get('/api/config', (req, res) => res.json(cargarJSON('config.json')));
 app.post('/api/config', (req, res) => {

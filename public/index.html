@@ -151,20 +151,32 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
     <div style="font-size:15px;font-weight:700;color:#fff">Enviar</div>
     <div style="font-size:11px;color:#555;margin-top:3px">WhatsApp rutinas</div>
   </div>
-  <div onclick="showPage('clientes')" style="background:#111;border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+  <div onclick="showPage('admin')" style="background:#111;border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff9800,#ffe082)"></div>
     <div style="font-size:40px;margin-bottom:8px">💰</div>
-    <div style="font-size:15px;font-weight:700;color:#fff">Cobros</div>
-    <div style="font-size:11px;color:#555;margin-top:3px">Pagos y vencidos</div>
+    <div style="font-size:15px;font-weight:700;color:#fff">Administrativo</div>
+    <div style="font-size:11px;color:#555;margin-top:3px">Cobros y finanzas</div>
   </div>
-  <div onclick="showPage('clientes')" style="background:#111;border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+  <div onclick="showPage('admin')" style="background:#111;border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#9c27b0,#ce93d8)"></div>
     <div style="font-size:40px;margin-bottom:8px">📊</div>
     <div style="font-size:15px;font-weight:700;color:#fff">Estadísticas</div>
-    <div style="font-size:11px;color:#555;margin-top:3px">Próximamente</div>
+    <div style="font-size:11px;color:#555;margin-top:3px">Finanzas del negocio</div>
   </div>
 </div>
 </div>
+<div id="page-admin" class="page">
+<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:16px">💰 Módulo Administrativo</div>
+
+<!-- TABS -->
+<div style="display:flex;gap:6px;margin-bottom:16px">
+  <button onclick="showAdminTab('dashboard')" id="atab-dashboard" style="flex:1;padding:8px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:11px;font-weight:700;cursor:pointer">📊 Dashboard</button>
+  <button onclick="showAdminTab('clientes')" id="atab-clientes" style="flex:1;padding:8px;border-radius:10px;border:none;background:#2a2a2a;color:#888;font-size:11px;font-weight:700;cursor:pointer">👥 Clientes</button>
+</div>
+
+<div id="admin-tab-content"></div>
+</div>
+
 <div id="page-clientes" class="page">
 <input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:11px;color:#f0f0f0;font-size:14px;outline:none;margin-bottom:12px"><div id="stats-clientes" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px"><div style="background:#111;border:1px solid #1a3a1a;border-radius:8px;padding:8px;text-align:center"><div id="stat-activos" style="font-size:20px;font-weight:700;color:#4caf50">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">🟢 Activos</div></div><div style="background:#111;border:1px solid #3a0000;border-radius:8px;padding:8px;text-align:center"><div id="stat-personalizados" style="font-size:20px;font-weight:700;color:#e31e24">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">💪 Person.</div></div><div style="background:#111;border:1px solid #1a2a3a;border-radius:8px;padding:8px;text-align:center"><div id="stat-asesorados" style="font-size:20px;font-weight:700;color:#4a9eff">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">📋 Asesor.</div></div><div style="background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:8px;text-align:center"><div id="stat-pausados" style="font-size:20px;font-weight:700;color:#666">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">⏸️ Pausados</div></div></div><p class="st">Clientes registrados</p>
 <div id="lista-clientes"></div>
@@ -291,7 +303,6 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 </div>
 <input type="hidden" id="cliente-estado-pago" value="aldia">
 </div>
-<div class="ig" id="msg-mensual-box"><label>Mensaje recordatorio de pago</label><textarea id="cliente-msg-pago" placeholder="Ej: Hola, habla Daniel. Mañana es tu fecha de pago 🙌" style="min-height:60px"></textarea></div>
 <div class="ig" id="msg-quincena1-box" style="display:none"><label>Mensaje primera quincena</label><textarea id="cliente-msg-q1" placeholder="Ej: Hola, mañana es tu primera quincena 👋" style="min-height:60px"></textarea></div>
 <div class="ig" id="msg-quincena2-box" style="display:none"><label>Mensaje segunda quincena</label><textarea id="cliente-msg-q2" placeholder="Ej: Hola, mañana vence tu segunda quincena 🙌" style="min-height:60px"></textarea></div>
 <div style="display:flex;gap:8px;margin-top:8px">
@@ -363,6 +374,7 @@ if(p==='rutinas')cargarRutinasClientes();
 if(p==='festivos')cargarFestivos();
 if(p==='logs')cargarLogs();
 if(p==='enviar'){cargarSelectEnviar();cargarDifusion();}
+if(p==='admin')cargarAdmin();
 }
 function toast(msg,ok=true){
 const t=document.getElementById('toast');
@@ -386,6 +398,239 @@ return '<span class="badge bal">✅ Al día</span>';
 
 
 
+
+// ═══════════════════════════════
+// MODULO ADMINISTRATIVO
+// ═══════════════════════════════
+const MONEDAS = ['COP','USD','EUR','GBP','MXN','ARS','BRL','PEN','CLP'];
+
+async function cargarAdmin(){
+  try{
+    const [usuarios, adminData] = await Promise.all([
+      fetch('/api/usuarios').then(r=>r.json()),
+      fetch('/api/admin').then(r=>r.json())
+    ]);
+    window._adminUsuarios = usuarios.filter(u=>u.activo);
+    window._adminData = adminData;
+    showAdminTab('dashboard');
+  }catch(e){console.error('cargarAdmin',e);}
+}
+
+function showAdminTab(tab){
+  ['dashboard','clientes','config'].forEach(t=>{
+    const btn=document.getElementById('atab-'+t);
+    if(btn){btn.style.background=t===tab?'var(--rojo)':'#2a2a2a';btn.style.color=t===tab?'#fff':'#888';}
+  });
+  const c=document.getElementById('admin-tab-content');
+  if(tab==='dashboard') c.innerHTML=renderAdminDashboard();
+  else if(tab==='clientes') c.innerHTML=renderAdminClientes();
+  else if(tab==='config') c.innerHTML=renderAdminConfig();
+}
+
+function renderAdminDashboard(){
+  const data=window._adminData||{clientes:{}};
+  const usuarios=window._adminUsuarios||[];
+  const hoy=new Date();
+  const mesActual=hoy.getMonth();
+  const anioActual=hoy.getFullYear();
+  const mesAnterior=mesActual===0?11:mesActual-1;
+  const anioAnterior=mesActual===0?anioActual-1:anioActual;
+
+  let totalMes=0, totalMesAnt=0, totalPagos=0;
+  const monedas={};
+
+  usuarios.forEach(u=>{
+    const d=data.clientes[u.id]||{};
+    const precio=d.precio||0;
+    const moneda=d.moneda||'COP';
+    if(!monedas[moneda])monedas[moneda]=0;
+    monedas[moneda]+=precio;
+    totalMes+=precio;
+    (d.pagos||[]).forEach(p=>{
+      const fp=new Date(p.fecha);
+      if(fp.getMonth()===mesActual&&fp.getFullYear()===anioActual) totalPagos+=p.monto||0;
+      if(fp.getMonth()===mesAnterior&&fp.getFullYear()===anioAnterior) totalMesAnt+=p.monto||0;
+    });
+  });
+
+  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  let html='';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
+  html+='<div style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:14px;padding:14px">';
+  html+='<div style="font-size:10px;color:#4caf50;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Proyección mes</div>';
+  html+='<div style="font-size:20px;font-weight:800;color:#4caf50">'+totalMes.toLocaleString()+'</div>';
+  html+='<div style="font-size:10px;color:#444;margin-top:2px">'+meses[mesActual]+' '+anioActual+'</div></div>';
+  html+='<div style="background:#1a0a0a;border:1px solid #3a1010;border-radius:14px;padding:14px">';
+  html+='<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cobrado este mes</div>';
+  html+='<div style="font-size:20px;font-weight:800;color:#e31e24">'+totalPagos.toLocaleString()+'</div>';
+  html+='<div style="font-size:10px;color:#444;margin-top:2px">Pagos registrados</div></div>';
+  html+='<div style="background:#0a0f1a;border:1px solid #10203a;border-radius:14px;padding:14px">';
+  html+='<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Mes anterior</div>';
+  html+='<div style="font-size:20px;font-weight:800;color:#4a9eff">'+totalMesAnt.toLocaleString()+'</div>';
+  html+='<div style="font-size:10px;color:#444;margin-top:2px">'+meses[mesAnterior]+' '+(mesActual===0?anioAnterior:anioActual)+'</div></div>';
+  html+='<div style="background:#111;border:1px solid #2a2a2a;border-radius:14px;padding:14px">';
+  html+='<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Clientes activos</div>';
+  html+='<div style="font-size:20px;font-weight:800;color:#fff">'+(window._adminUsuarios||[]).length+'</div>';
+  html+='<div style="font-size:10px;color:#444;margin-top:2px">Con plan activo</div></div>';
+  html+='</div>';
+  return html;
+}
+
+function renderAdminClientes(){
+  const usuarios=window._adminUsuarios||[];
+  const data=window._adminData||{clientes:{}};
+  let html='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:80px">';
+  usuarios.forEach(u=>{
+    const d=data.clientes[u.id]||{precio:0,moneda:'COP',pagos:[]};
+    const ultimoPago=d.pagos&&d.pagos.length?d.pagos[d.pagos.length-1].fecha:'Sin pagos';
+    html+='<div class="admin-cliente-row" data-uid='+JSON.stringify(u.id)+' style="background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:14px;cursor:pointer">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    html+='<div><div style="font-size:14px;font-weight:700;color:#fff">'+u.nombre+'</div>';
+    html+='<div style="font-size:11px;color:#555;margin-top:2px">Último pago: '+ultimoPago+'</div></div>';
+    html+='<div style="text-align:right"><div style="font-size:16px;font-weight:800;color:#4caf50">'+(d.precio||0).toLocaleString()+'</div>';
+    html+='<div style="font-size:10px;color:#555">'+(d.moneda||'COP')+'</div></div></div></div>';
+  });
+  html+='</div>';
+  setTimeout(()=>{
+    document.querySelectorAll('.admin-cliente-row').forEach(el=>{
+      el.onclick=()=>abrirAdminCliente(el.dataset.uid);
+      el.style.cursor='pointer';
+    });
+  },50);
+  return html;
+}
+
+function renderAdminConfig(){
+  const cfg=(window._adminData||{}).config||{};
+  let html='<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:80px">';
+  html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px">';
+  html+='<div style="font-size:13px;color:#fff;font-weight:600;margin-bottom:10px">Moneda por defecto</div>';
+  html+='<select id="admin-moneda-default" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:13px">';
+  MONEDAS.forEach(m=>{html+='<option value="'+m+'"'+(cfg.moneda_default===m?' selected':'')+'>'+m+'</option>';});
+  html+='</select></div>';
+  html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px">';
+  html+='<div style="font-size:13px;color:#fff;font-weight:600;margin-bottom:10px">Mensaje recordatorio por defecto</div>';
+  html+='<textarea id="admin-msg-default" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:12px;min-height:80px;box-sizing:border-box">'+(cfg.msg_default||'')+'</textarea></div>';
+  html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center">';
+  html+='<div><div style="font-size:13px;color:#fff;font-weight:600">Mensaje prellenado en WhatsApp</div>';
+  html+='<div style="font-size:11px;color:#555;margin-top:2px">Abrir chat con mensaje o vacío</div></div>';
+  html+='<label class="switch"><input type="checkbox" id="admin-prellenado"'+(cfg.msg_prellenado?' checked':'')+' onchange="guardarAdminConfig()"><span class="slider"></span></label></div>';
+  html+='<button onclick="guardarAdminConfig()" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;padding:12px;cursor:pointer">💾 Guardar configuración</button>';
+  html+='</div>';
+  return html;
+}
+
+async function guardarAdminConfig(){
+  const cfg={
+    moneda_default:document.getElementById('admin-moneda-default').value,
+    msg_default:document.getElementById('admin-msg-default').value.trim(),
+    msg_prellenado:document.getElementById('admin-prellenado').checked
+  };
+  await fetch('/api/admin/config/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
+  window._adminData.config=cfg;
+  toast('✅ Configuración guardada');
+}
+
+async function abrirAdminCliente(id){
+  const u=(window._adminUsuarios||[]).find(x=>String(x.id)===String(id));
+  if(!u)return;
+  const data=window._adminData||{clientes:{}};
+  const d=data.clientes[id]||{precio:0,moneda:'COP',pagos:[]};
+  const cfg=data.config||{};
+  const tipoPago=u.tipo_pago||'mensual';
+  const diaPago=u.dia_pago||'';
+  const diaPago2=u.dia_pago2||'';
+
+  let html='<div style="padding:0 0 80px">';
+  html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">';
+  html+='<button onclick="showAdminTab(\'clientes\')" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#aaa;font-size:14px;padding:7px 12px;cursor:pointer">‹ Volver</button>';
+  html+='<span style="font-size:15px;font-weight:700;color:#fff">'+u.nombre+'</span></div>';
+
+  html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:10px">';
+  html+='<div style="font-size:12px;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">💰 Precio del plan</div>';
+  html+='<div style="display:flex;gap:8px">';
+  html+='<input type="number" id="ac-precio" placeholder="ej: 200 = $200.000" value="'+(Math.round((d.precio||0)/1000))+'" style="flex:1;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:14px;outline:none">';
+  html+='<select id="ac-moneda" style="background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px">';
+  MONEDAS.forEach(m=>{html+='<option value="'+m+'"'+(d.moneda===m?' selected':'')+'>'+m+'</option>';});
+  html+='</select></div>';
+  // Precio real calculado
+  const precioReal=d.descuento_tipo==='pct'?Math.round((d.precio||0)*(1-(d.descuento_valor||0)/100)):(d.precio||0)-(d.descuento_valor||0);
+  if((d.descuento_valor||0)>0){
+    html+='<div style="margin-top:8px;font-size:12px;color:#4caf50">✅ Precio con descuento: <b>'+(precioReal/1000).toLocaleString()+' mil '+(d.moneda||'COP')+'</b></div>';
+  }
+  html+='</div>';
+
+  html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:10px">';
+  html+='<div style="font-size:12px;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">🏷️ Descuento</div>';
+  html+='<div style="display:flex;gap:8px;margin-bottom:8px">';
+  html+='<select id="ac-desc-tipo" style="background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px">';
+  html+='<option value="pct"'+(d.descuento_tipo==='pct'?' selected':'')+'>% Porcentaje</option>';
+  html+='<option value="fijo"'+(d.descuento_tipo==='fijo'?' selected':'')+'>Valor fijo</option>';
+  html+='</select>';
+  html+='<input type="number" id="ac-desc-valor" placeholder="0" value="'+(d.descuento_tipo==='pct'?(d.descuento_valor||0):Math.round((d.descuento_valor||0)/1000))+'" style="flex:1;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:14px;outline:none">';
+  html+='</div>';
+  html+='<input type="text" id="ac-desc-motivo" placeholder="Motivo del descuento (ej: cliente referido)" value="'+(d.descuento_motivo||'')+'" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px;outline:none;box-sizing:border-box">';
+  html+='</div>';
+
+  html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:10px">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+  html+='<div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px">💬 Mensaje de cobro</div>';
+  html+='<div style="font-size:11px;color:#4a9eff;font-weight:700">'+(tipoPago==='quincenal'?'📅 Quincenal — días '+diaPago+' y '+diaPago2:'📅 Mensual — día '+diaPago)+'</div></div>';
+  html+='<textarea id="ac-msg" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:12px;min-height:70px;box-sizing:border-box" placeholder="Mensaje de cobro...">'+(u.msg_pago||'')+'</textarea></div>';
+
+  html+='<button onclick="guardarAdminCliente('+id+')" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;padding:12px;cursor:pointer;margin-bottom:10px">💾 Guardar</button>';
+
+  html+='<div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">📋 Registrar pago</div>';
+  html+='<div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:10px">';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
+  html+='<input type="number" id="ac-monto" placeholder="ej: 350 = $350.000" style="background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px;outline:none">';
+  html+='<select id="ac-metodo" style="background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px">';
+  html+='<option value="efectivo">💵 Efectivo</option><option value="transferencia">🏦 Transferencia</option><option value="tarjeta">💳 Tarjeta</option><option value="otro">📝 Otro</option>';
+  html+='</select></div>';
+  html+='<button onclick="registrarPago('+id+')" style="width:100%;background:#0f1a0f;border:1px solid #1e3a1e;border-radius:10px;color:#4caf50;font-size:13px;font-weight:700;padding:10px;cursor:pointer">✅ Registrar pago</button></div>';
+
+  // Historial pagos
+  if(d.pagos&&d.pagos.length){
+    html+='<div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">📅 Historial de pagos</div>';
+    [...d.pagos].reverse().forEach(p=>{
+      html+='<div style="background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">';
+      html+='<div><div style="font-size:13px;color:#fff;font-weight:600">'+(p.monto||0).toLocaleString()+' '+(p.moneda||d.moneda||'COP')+'</div>';
+      html+='<div style="font-size:11px;color:#555">'+p.fecha+' · '+p.metodo+'</div></div>';
+      html+='<span style="color:#4caf50;font-size:18px">✅</span></div>';
+    });
+  }
+  html+='</div>';
+  document.getElementById('admin-tab-content').innerHTML=html;
+}
+
+async function guardarAdminCliente(id){
+  const precio=(parseFloat(document.getElementById('ac-precio').value)||0)*1000;
+  const moneda=document.getElementById('ac-moneda').value;
+  const msg=document.getElementById('ac-msg').value.trim();
+  const descTipo=document.getElementById('ac-desc-tipo').value;
+  const descValorRaw=parseFloat(document.getElementById('ac-desc-valor').value)||0;
+  const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
+  const descMotivo=document.getElementById('ac-desc-motivo').value.trim();
+  await fetch('/api/admin/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_pago:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo})});
+  if(!window._adminData.clientes[id])window._adminData.clientes[id]={pagos:[]};
+  Object.assign(window._adminData.clientes[id],{precio,moneda,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo});
+  const uIdx=(window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
+  if(uIdx!==-1)window._adminUsuarios[uIdx].msg_pago=msg;
+  toast('✅ Cliente guardado');
+}
+
+async function registrarPago(id){
+  const monto=(parseFloat(document.getElementById('ac-monto').value)||0)*1000;
+  const metodo=document.getElementById('ac-metodo').value;
+  const moneda=(window._adminData.clientes[id]||{}).moneda||'COP';
+  if(!monto){toast('❌ Ingresa un monto',false);return;}
+  await fetch('/api/admin/'+id+'/pago',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({monto,metodo,moneda})});
+  if(!window._adminData.clientes[id])window._adminData.clientes[id]={precio:0,moneda,pagos:[]};
+  if(!window._adminData.clientes[id].pagos)window._adminData.clientes[id].pagos=[];
+  window._adminData.clientes[id].pagos.push({monto,metodo,moneda,fecha:new Date().toISOString().split('T')[0]});
+  toast('✅ Pago registrado');
+  abrirAdminCliente(id);
+}
 // ═══════════════════════════════
 // COLORES PERSONALIZABLES
 // ═══════════════════════════════
@@ -735,10 +980,8 @@ document.getElementById('cliente-pago').value=u.dia_pago||'';
 document.getElementById('cliente-pago2').value=u.dia_pago2||'';
 document.getElementById('cliente-tipo-pago').value=u.tipo_pago||'mensual';
 document.getElementById('pago2-box').style.display=(u.tipo_pago==='quincenal')?'block':'none';
-document.getElementById('cliente-msg-pago').value=u.msg_pago||'';
 document.getElementById('cliente-msg-q1').value=u.msg_q1||'';
 document.getElementById('cliente-msg-q2').value=u.msg_q2||'';
-document.getElementById('msg-mensual-box').style.display=(u.tipo_pago==='quincenal')?'none':'block';
 document.getElementById('msg-quincena1-box').style.display=(u.tipo_pago==='quincenal')?'block':'none';
 document.getElementById('msg-quincena2-box').style.display=(u.tipo_pago==='quincenal')?'block':'none';
 selEstado(u.estado_pago||'aldia');
@@ -759,7 +1002,7 @@ tipo_pago:document.getElementById('cliente-tipo-pago').value,
 dia_pago:parseInt(document.getElementById('cliente-pago').value)||null,
 dia_pago2:parseInt(document.getElementById('cliente-pago2').value)||null,
 estado_pago:document.getElementById('cliente-estado-pago').value,
-msg_pago:document.getElementById('cliente-msg-pago').value.trim()
+
 };
 if(!datos.nombre||!datos.telefono){toast('Completa nombre y teléfono',false);return;}
 if(id){

@@ -1,0 +1,91 @@
+{
+  "clientes": {
+    "1778354312296": {
+      "precio": 200000,
+      "moneda": "COP",
+      "msg_recordatorio": "",
+      "msg_prellenado": true,
+      "pagos": [],
+      "msg_pago": "Prueba de cobro auto"
+    },
+    "1778377380425": {
+      "precio": 350000,
+      "moneda": "COP",
+      "msg_recordatorio": "",
+      "msg_prellenado": true,
+      "pagos": [
+        {
+          "monto": 350,
+          "metodo": "transferencia",
+          "moneda": "COP",
+          "fecha": "2026-05-16"
+        },
+        {
+          "monto": 349650,
+          "metodo": "efectivo",
+          "moneda": "COP",
+          "fecha": "2026-05-16"
+        }
+      ]
+    },
+    "1778376855974": {
+      "precio": 200000,
+      "moneda": "COP",
+      "msg_recordatorio": "",
+      "msg_prellenado": true,
+      "pagos": []
+    },
+    "1778379484797": {
+      "precio": 350000,
+      "moneda": "COP",
+      "msg_recordatorio": "",
+      "msg_prellenado": true,
+      "pagos": []
+    },
+    "1778377616786": {
+      "precio": 150000,
+      "moneda": "COP",
+      "msg_recordatorio": "",
+      "msg_prellenado": true,
+      "pagos": []
+    },
+    "1778377049231": {
+      "precio": 85000,
+      "moneda": "COP",
+      "msg_recordatorio": "",
+      "msg_prellenado": true,
+      "pagos": [
+        {
+          "monto": 85000,
+          "metodo": "transferencia",
+          "moneda": "COP",
+          "fecha": "2026-05-16"
+        }
+      ]
+    },
+    "1778377208321": {
+      "precio": 150000,
+      "moneda": "COP",
+      "msg_recordatorio": "",
+      "msg_prellenado": true,
+      "pagos": []
+    },
+    "1778687454932": {
+      "precio": 250000,
+      "moneda": "COP",
+      "msg_recordatorio": "",
+      "msg_prellenado": true,
+      "pagos": []
+    },
+    "1778216541791": {
+      "precio": 0,
+      "moneda": "COP",
+      "pagos": []
+    }
+  },
+  "config": {
+    "moneda_default": "COP",
+    "msg_default": "Hola {nombre}, te recuerdo que tienes un pago pendiente. Comunicate conmigo para ponernos al dia. Gracias!",
+    "msg_prellenado": false
+  }
+}
