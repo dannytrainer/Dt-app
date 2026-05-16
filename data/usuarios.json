@@ -62,7 +62,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 16,
     "dia_pago2": null,
-    "estado_pago": "proximo",
+    "estado_pago": "vencido",
     "msg_pago": "Prueba de cobro automático",
     "msg_q1": "",
     "msg_q2": "",
@@ -112,7 +112,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 16,
     "dia_pago2": null,
-    "estado_pago": "proximo",
+    "estado_pago": "vencido",
     "perfil": {
       "fecha_inicio": "2026-05-11",
       "sexo": "F",
@@ -179,7 +179,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 16,
     "dia_pago2": null,
-    "estado_pago": "proximo",
+    "estado_pago": "vencido",
     "perfil": {
       "fecha_inicio": "2026-05-09",
       "sexo": "F",
@@ -305,7 +305,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 16,
     "dia_pago2": null,
-    "estado_pago": "aldia",
+    "estado_pago": "vencido",
     "msg_pago": "Prueba de cobro automático",
     "perfil": {
       "fecha_inicio": "2026-05-01",

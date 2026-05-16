@@ -439,7 +439,7 @@ async function enviarTest(tipo) {
         const rm = epley(kg, reps);
         const s = getScore('fuerza', k, rm, sexo, peso);
         const antRM = anterior?.[k]?.rm;
-        msg += names[i] + ': ' + rm + ' kg RM ' + s.icon + cambioTexto(antRM, rm) + '\n';
+        msg += names[i] + ': ' + mostrarPesoCliente(rm) + ' ' + pesoClienteLabel() + ' RM ' + s.icon + cambioTexto(antRM, rm) + '\n';
       }
     });
   }
@@ -500,7 +500,7 @@ async function renderHistorialTests() {
       const s = r[k].score ? Object.values(ESCALAS[r.tipo]?.[k]?.M || []).find(n => n.score === r[k].score) : null;
       return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #111">
         <span style="font-size:12px;color:#888">${label}</span>
-        <span style="font-size:12px;color:#fff;font-weight:700">${val}${r.tipo === 'fuerza' ? ' kg' : ''} ${s ? s.icon : ''}</span>
+        <span style="font-size:12px;color:#fff;font-weight:700">${val}${r.tipo === 'fuerza' ? ' '+pesoClienteLabel() : ''} ${s ? s.icon : ''}</span>
       </div>`;
     }).join('');
     return `

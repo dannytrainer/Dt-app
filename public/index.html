@@ -558,7 +558,7 @@ setTimeout(()=>{
 },50);
 const ejs=d.ejercicios||[];
 let h='';
-ejs.forEach((e,i)=>{h+=`<div style="background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;margin-bottom:6px"><div style="display:flex;gap:6px;margin-bottom:6px"><input type="text" value="${e.nombre||''}" placeholder="Ejercicio" id="ej-${i}-n" style="flex:1;background:#111;border:1px solid #333;border-radius:6px;padding:8px;color:#fff;font-size:13px;outline:none"><button onclick="eliminarEjercicio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button></div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">${[['series','S','4'],['reps','Reps','8-10'],['rir','RIR','1-2'],['desc','DESC','60s'],['var','VAR','V1']].map(([f,label,ph])=>`<div><div style="font-size:9px;color:#555;text-align:center;margin-bottom:2px">${label}</div><input type="text" id="ej-${i}-${f}" value="${e[f]||''}" placeholder="${ph}" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:6px;color:#fff;font-size:12px;text-align:center;outline:none"></div>`).join('')}</div></div>`;});
+ejs.forEach((e,i)=>{h+=`<div id="rut-drag-ej-${i}" draggable="true" ondragstart="rutDragStart(event,${i},'ej')" ondragover="rutDragOver(event,${i},'ej')" ondrop="rutDrop(event,${i},'ej')" ondragend="rutDragEnd(event)" style="background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;margin-bottom:6px;cursor:grab"><div style="display:flex;gap:6px;margin-bottom:6px"><span style="color:#444;font-size:16px;padding:6px 4px;cursor:grab">☰</span><input type="text" value="${e.nombre||''}" placeholder="Ejercicio" id="ej-${i}-n" style="flex:1;background:#111;border:1px solid #333;border-radius:6px;padding:8px;color:#fff;font-size:13px;outline:none"><button onclick="eliminarEjercicio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button></div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">${[['series','S','4'],['reps','Reps','8-10'],['rir','RIR','1-2'],['desc','DESC','60s'],['var','VAR','V1']].map(([f,label,ph])=>`<div><div style="font-size:9px;color:#555;text-align:center;margin-bottom:2px">${label}</div><input type="text" id="ej-${i}-${f}" value="${e[f]||''}" placeholder="${ph}" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:6px;color:#fff;font-size:12px;text-align:center;outline:none"></div>`).join('')}</div></div>`;});
 document.getElementById('rutina-form').innerHTML=`<div class="ig"><label>💬 Recordatorio</label><textarea id="rec-${diaSeleccionado}" placeholder="Escribe el recordatorio...">${d.recordatorio||''}</textarea></div><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:10px 0 8px">📋 Ejercicios</div><div id="lista-ejs">${h}</div><button onclick="agregarEjercicio()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar ejercicio</button><div style="margin-top:10px"><button onclick="toggleCardio()" style="width:100%;background:#0a0a0a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer">🏃 Cardio</button><div id="panel-cardio" style="display:none;background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;margin-top:6px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:8px">🏃 CARDIO</div><div id="lista-cardio"></div><button onclick="agregarCardio()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar momento de cardio</button></div></div><div style="margin-top:10px"><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">📝 Notas</div><textarea id="rut-${diaSeleccionado}" placeholder="Notas adicionales..." style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;min-height:80px">${d.rutina||''}</textarea></div>`;
 }
 
@@ -621,7 +621,7 @@ function toggleCardio(){
 function renderCardios(arr){
   const lista=document.getElementById('lista-cardio');
   if(!lista)return;
-  lista.innerHTML=arr.map((c,i)=>`<div style="background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:11px;color:#e31e24;font-weight:700">MOMENTO ${i+1}</span><button onclick="eliminarCardio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">🗑️</button></div><div style="margin-bottom:6px"><div style="font-size:10px;color:#888;margin-bottom:3px">Momento</div><input type="text" id="c-${i}-cm" value="${c.momento||''}" placeholder="Ej: Calentamiento, Final..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:6px"><div style="font-size:10px;color:#888;margin-bottom:3px">Ejercicio</div><input type="text" id="c-${i}-ce" value="${c.ejercicio||''}" placeholder="Ej: Bici, Elíptica..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:6px"><div style="font-size:10px;color:#888;margin-bottom:3px">Tiempo (min)</div><input type="number" id="c-${i}-ct" value="${c.tiempo||''}" placeholder="Ej: 20" style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div><div style="font-size:10px;color:#888;margin-bottom:3px">Notas</div><textarea id="c-${i}-cn" placeholder="Observaciones..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;min-height:55px;box-sizing:border-box">${c.notas||''}</textarea></div></div>`).join('');
+  lista.innerHTML=arr.map((c,i)=>`<div id="rut-drag-cardio-${i}" draggable="true" ondragstart="rutDragStart(event,${i},'cardio')" ondragover="rutDragOver(event,${i},'cardio')" ondrop="rutDrop(event,${i},'cardio')" ondragend="rutDragEnd(event)" style="background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px;margin-bottom:6px;cursor:grab"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:16px;color:#444;cursor:grab">☰</span><span style="font-size:11px;color:#e31e24;font-weight:700">MOMENTO ${i+1}</span><button onclick="eliminarCardio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">🗑️</button></div><div style="margin-bottom:6px"><div style="font-size:10px;color:#888;margin-bottom:3px">Momento</div><input type="text" id="c-${i}-cm" value="${c.momento||''}" placeholder="Ej: Calentamiento, Final..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:6px"><div style="font-size:10px;color:#888;margin-bottom:3px">Ejercicio</div><input type="text" id="c-${i}-ce" value="${c.ejercicio||''}" placeholder="Ej: Bici, Elíptica..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:6px"><div style="font-size:10px;color:#888;margin-bottom:3px">Tiempo (min)</div><input type="number" id="c-${i}-ct" value="${c.tiempo||''}" placeholder="Ej: 20" style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div><div><div style="font-size:10px;color:#888;margin-bottom:3px">Notas</div><textarea id="c-${i}-cn" placeholder="Observaciones..." style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:7px;color:#fff;font-size:13px;outline:none;min-height:55px;box-sizing:border-box">${c.notas||''}</textarea></div></div>`).join('');
 }
 function agregarCardio(){
   guardarEjsActuales();
@@ -3142,6 +3142,49 @@ function dtNotificar(titulo,cuerpo){
   if(Notification.permission==='granted'){
     new Notification(titulo,{body:cuerpo,icon:'/icon.png',badge:'/icon.png'});
   }
+}
+
+// ═══════════════════════════════
+// DRAG & DROP RUTINAS
+// ═══════════════════════════════
+let _rutDragIdx=null;
+let _rutDragTipo=null;
+
+function rutDragStart(e,i,tipo){
+  guardarEjsActuales();
+  _rutDragIdx=i;
+  _rutDragTipo=tipo;
+  e.target.style.opacity='0.4';
+}
+function rutDragOver(e,i,tipo){
+  e.preventDefault();
+  if(tipo!==_rutDragTipo)return;
+  document.querySelectorAll('[id^="rut-drag-"]').forEach(el=>el.style.borderTop='');
+  var el=document.getElementById('rut-drag-'+tipo+'-'+i);
+  if(el)el.style.borderTop='2px solid #e31e24';
+}
+function rutDrop(e,i,tipo){
+  e.preventDefault();
+  if(_rutDragIdx===null||_rutDragIdx===i||tipo!==_rutDragTipo)return;
+  var dia=diaSeleccionado;
+  if(tipo==='ej'){
+    var arr=rutinaActual[dia].ejercicios||[];
+    var item=arr.splice(_rutDragIdx,1)[0];
+    arr.splice(i,0,item);
+    rutinaActual[dia].ejercicios=arr;
+  } else {
+    var arr=rutinaActual[dia].cardio||[];
+    var item=arr.splice(_rutDragIdx,1)[0];
+    arr.splice(i,0,item);
+    rutinaActual[dia].cardio=arr;
+  }
+  _rutDragIdx=null;
+  renderRutinaForm();
+}
+function rutDragEnd(e){
+  _rutDragIdx=null;
+  e.target.style.opacity='1';
+  document.querySelectorAll('[id^="rut-drag-"]').forEach(el=>el.style.borderTop='');
 }
 // ═══════════════════════════════
 // CRONÓMETROS

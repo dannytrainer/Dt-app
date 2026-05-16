@@ -288,10 +288,10 @@ async function compartirProgreso(id, nombre) {
   // PESO
   if (pesoActual) {
     msg += '⚖️ *Peso*\n';
-    msg += 'Actual: ' + pesoActual + ' kg';
+    msg += 'Actual: ' + mostrarPesoCliente(pesoActual) + ' ' + pesoClienteLabel();
     if (!soloPrimera && pesoInicial && pesoInicial !== pesoActual) {
       const cambio = (parseFloat(pesoActual)-parseFloat(pesoInicial)).toFixed(1);
-      if (parseFloat(cambio)!==0) msg += ' (' + (parseFloat(cambio)>0?'+':'') + cambio + ' kg)';
+      if (parseFloat(cambio)!==0) msg += ' (' + (parseFloat(cambio)>0?'+':'') + cambio + ' ' + pesoClienteLabel() + ')';
     }
     msg += '\n\n';
   }
