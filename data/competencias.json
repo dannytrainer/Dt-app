@@ -44,12 +44,12 @@
           "pushups": 20
         },
         "fecha": "2026-05-15",
-        "_puntos": 6,
+        "_puntos": 12,
         "_detalle": {
-          "sent_rel": 1,
-          "pecho_rel": 1,
-          "pmuerto_rel": 2,
-          "pushups": 2
+          "sent_rel": 2,
+          "pecho_rel": 2,
+          "pmuerto_rel": 4,
+          "pushups": 4
         }
       },
       {
@@ -62,12 +62,12 @@
           "pushups": 90
         },
         "fecha": "2026-05-15",
-        "_puntos": 11,
+        "_puntos": 17,
         "_detalle": {
-          "sent_rel": 3,
-          "pecho_rel": 2,
-          "pmuerto_rel": 3,
-          "pushups": 3
+          "sent_rel": 4,
+          "pecho_rel": 3,
+          "pmuerto_rel": 5,
+          "pushups": 5
         }
       },
       {
@@ -80,12 +80,12 @@
           "pushups": 8
         },
         "fecha": "2026-05-15",
-        "_puntos": 7,
+        "_puntos": 12,
         "_detalle": {
-          "sent_rel": 2,
-          "pecho_rel": 3,
-          "pmuerto_rel": 1,
-          "pushups": 1
+          "sent_rel": 3,
+          "pecho_rel": 4,
+          "pmuerto_rel": 2,
+          "pushups": 3
         }
       },
       {
@@ -97,10 +97,28 @@
           "pmuerto_rel": 8,
           "pushups": 6
         },
-        "fecha": "2026-05-15"
+        "fecha": "2026-05-15",
+        "_puntos": 15,
+        "_detalle": {
+          "sent_rel": 5,
+          "pecho_rel": 5,
+          "pmuerto_rel": 3,
+          "pushups": 2
+        }
+      },
+      {
+        "nombre": "T",
+        "peso": 2,
+        "resultados": {
+          "sent_rel": 2,
+          "pecho_rel": 2,
+          "pmuerto_rel": 2,
+          "pushups": 2
+        },
+        "fecha": "2026-05-16"
       }
     ],
-    "estado": "activa",
+    "estado": "finalizada",
     "id": "1778882564233",
     "creada": "2026-05-15"
   },

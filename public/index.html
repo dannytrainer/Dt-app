@@ -1315,6 +1315,7 @@ function _renderCompExtDetalle() {
       '<div style="font-size:13px;font-weight:700;color:#fff">' + ru.nombre + '</div>' +
       '<div style="font-size:11px;color:#666">' + Math.round(ru._puntos) + ' pts</div>' +
       '</div>' +
+      (comp.estado !== 'finalizada' ? '<button onclick="_agregarParticipanteExt(' + comp.participantes.indexOf(ru) + ')" style="background:#1a1a1a;color:#888;border:1px solid #333;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✏️</button>' : '') +
       '</div>';
   }
 
@@ -1354,6 +1355,26 @@ function _renderCompExtDetalle() {
     htmlTabla += '</div>';
   }
 
+  // Lista general de participantes (solo cuando activa)
+  var htmlListaPartic = '';
+  if (comp.estado !== 'finalizada' && ranked.length) {
+    htmlListaPartic = '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden;margin-bottom:14px">' +
+      '<div style="padding:10px 14px;border-bottom:1px solid #111;font-size:11px;color:#666;font-weight:700;text-transform:uppercase;letter-spacing:1px">👥 Participantes</div>';
+    for (var ri2=0; ri2<ranked.length; ri2++) {
+      var ru2 = ranked[ri2];
+      var ri2i = ru2.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+      htmlListaPartic +=
+        '<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #111">' +
+        '<div style="font-size:16px;font-weight:700;color:#555;width:24px;text-align:center">' + (ri2+1) + '</div>' +
+        '<div style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#aaa">' + ri2i + '</div>' +
+        '<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#fff">' + ru2.nombre + '</div>' +
+        '<div style="font-size:11px;color:#666">' + Math.round(ru2._puntos) + ' pts</div></div>' +
+        '<button onclick="_agregarParticipanteExt(' + comp.participantes.indexOf(ru2) + ')" style="background:#1a1a1a;color:#888;border:1px solid #333;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✏️</button>' +
+        '</div>';
+    }
+    htmlListaPartic += '</div>';
+  }
+
   var estadoBtn = comp.estado === 'finalizada'
     ? '<button onclick="_toggleEstadoCompExt()" style="flex:1;background:#1a1a1a;color:#555;border:1px solid #333;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🔄 Reabrir</button>'
     : '<button onclick="_toggleEstadoCompExt()" style="flex:1;background:#1a1a1a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🏁 Finalizar</button>';
@@ -1365,14 +1386,15 @@ function _renderCompExtDetalle() {
     '<div style="font-size:10px;color:' + (comp.estado==='finalizada'?'#555':'#4caf50') + ';font-weight:700">' + (comp.estado==='finalizada'?'🏁 FIN':'🟢 ACTIVA') + '</div>' +
     '</div>' +
     '<div style="font-size:11px;color:#666;margin-bottom:12px">' + (comp.categoria||'Mixto') + ' · ' + pruebas.length + ' pruebas · ' + sistLabel + '</div>' +
-    (n >= 2 ?
+    (comp.estado === 'finalizada' && n >= 2 ?
       '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;padding:20px 10px 10px;margin-bottom:14px">' +
       '<div style="font-size:10px;color:#666;text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">🏅 Podio</div>' +
       '<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px">' + htmlPodio + '</div>' +
       '</div>'
-    : '<div style="text-align:center;padding:20px;color:#555;font-size:12px">Agrega al menos 2 participantes para ver el podio</div>') +
+    : '') +
+    htmlListaPartic +
     htmlTabla +
-    (resto.length ? '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;overflow:hidden;margin-bottom:14px">' + htmlResto + '</div>' : '') +
+    (comp.estado === 'finalizada' && resto.length ? '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;overflow:hidden;margin-bottom:14px">' + htmlResto + '</div>' : '') +
     (comp.estado !== 'finalizada' ?
       '<button onclick="_agregarParticipanteExt()" style="width:100%;background:#0a0a1a;color:#4a9eff;border:1px solid #4a9eff;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">➕ Agregar / Editar Participante</button>'
     : '') +

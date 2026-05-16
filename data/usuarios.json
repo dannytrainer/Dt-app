@@ -20,8 +20,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 15,
-    "sesiones_ciclo": 15,
+    "sesiones_total": 16,
+    "sesiones_ciclo": 16,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague",
     "msg_q1": "",
@@ -29,7 +29,7 @@
   },
   {
     "id": "1778272241158",
-    "activo": true,
+    "activo": false,
     "nombre": "Morza",
     "telefono": "573185663001",
     "tipo": "asesorado",
@@ -60,10 +60,10 @@
     "tipo": "personalizado",
     "hora_envio": "13:00",
     "tipo_pago": "mensual",
-    "dia_pago": null,
+    "dia_pago": 16,
     "dia_pago2": null,
-    "estado_pago": "aldia",
-    "msg_pago": "Pague ",
+    "estado_pago": "proximo",
+    "msg_pago": "Prueba de cobro automático",
     "msg_q1": "",
     "msg_q2": "",
     "perfil": {
@@ -110,9 +110,9 @@
     "tipo": "personalizado",
     "hora_envio": "12:05",
     "tipo_pago": "mensual",
-    "dia_pago": null,
+    "dia_pago": 16,
     "dia_pago2": null,
-    "estado_pago": "aldia",
+    "estado_pago": "proximo",
     "perfil": {
       "fecha_inicio": "2026-05-11",
       "sexo": "F",
@@ -121,7 +121,8 @@
       "etiqueta": "hipertrofia",
       "notas": "Hernia inguinal ",
       "unidades": "kg"
-    }
+    },
+    "msg_pago": "Prueba de cobro automático"
   },
   {
     "id": "1778377208321",
@@ -186,7 +187,8 @@
       "altura": "163",
       "etiqueta": "perdida",
       "notas": ""
-    }
+    },
+    "msg_pago": "Prueba de cobro automático"
   },
   {
     "id": "1778378152347",
@@ -301,10 +303,10 @@
     "tipo": "personalizado",
     "hora_envio": "09:00",
     "tipo_pago": "mensual",
-    "dia_pago": 20,
+    "dia_pago": 16,
     "dia_pago2": null,
     "estado_pago": "aldia",
-    "msg_pago": "Pague",
+    "msg_pago": "Prueba de cobro automático",
     "perfil": {
       "fecha_inicio": "2026-05-01",
       "sexo": "F",
