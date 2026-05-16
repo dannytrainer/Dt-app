@@ -450,9 +450,8 @@ document.getElementById('modal-cliente').classList.add('open');
 }
 
 async function editarCliente(id){
-const res=await fetch('/api/usuarios');
-const usuarios=await res.json();
-const u=usuarios.find(x=>x.id===id);
+const res=await fetch('/api/usuarios/'+id);
+const u=await res.json();
 document.getElementById('cliente-id').value=u.id;
 document.getElementById('cliente-nombre').value=u.nombre;
 document.getElementById('cliente-telefono').value=u.telefono;

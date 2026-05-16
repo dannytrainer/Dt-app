@@ -128,6 +128,12 @@ cron.schedule('* * * * *', async () => {
 });
 
 app.get('/api/usuarios', (req, res) => res.json(cargarJSON('usuarios.json')));
+app.get('/api/usuarios/:id', (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const u = usuarios.find(x => x.id === req.params.id);
+  if (!u) return res.status(404).json({ error: 'No encontrado' });
+  res.json(u);
+});
 app.post('/api/usuarios', (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
   const nuevo = { id: Date.now().toString(), activo: true, ...req.body };
