@@ -80,7 +80,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <p>ASISTENTE DE ENTRENAMIENTO</p>
 </div>
 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-<button onclick="showPage('config')" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#aaa;font-size:18px;cursor:pointer;padding:5px 8px;line-height:1">⚙️</button>
+<button onclick="abrirConfig()" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#aaa;font-size:18px;cursor:pointer;padding:5px 8px;line-height:1">⚙️</button>
 <span class="sdot soff" id="statusWA" style="font-size:11px">⚫ Offline</span>
 </div>
 
@@ -174,6 +174,9 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div id="lista-rutinas-clientes"></div>
 </div>
 <div id="page-festivos" class="page">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+<span style="font-size:15px;font-weight:700;color:#fff">🗓️ Días Festivos</span>
+</div>
 <p class="st">Días sin envío automático</p>
 <div id="lista-festivos"></div>
 <div style="margin-top:16px" class="card">
@@ -377,6 +380,27 @@ return '<span class="badge bal">✅ Al día</span>';
 }
 
 
+
+// ═══════════════════════════════
+// CONFIG BOTTOM SHEET
+// ═══════════════════════════════
+function abrirConfig(){
+  const ov=document.getElementById('config-overlay');
+  const sh=document.getElementById('config-sheet');
+  ov.style.display='block';
+  sh.style.display='block';
+  requestAnimationFrame(()=>{
+    ov.style.opacity='1';
+    sh.style.transform='translateY(0)';
+  });
+}
+function cerrarConfig(){
+  const ov=document.getElementById('config-overlay');
+  const sh=document.getElementById('config-sheet');
+  ov.style.opacity='0';
+  sh.style.transform='translateY(100%)';
+  setTimeout(()=>{ov.style.display='none';sh.style.display='none';},350);
+}
 // ═══════════════════════════════
 // PANTALLA INICIO
 // ═══════════════════════════════
@@ -3760,5 +3784,58 @@ function filtrarRutinas(){
 </div>
 <script src="/tests.js"></script>
 <script>window.addEventListener("load",function(){showPage("inicio");});</script>
+
+<!-- CONFIG BOTTOM SHEET -->
+<div id="config-overlay" onclick="cerrarConfig()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;opacity:0;transition:opacity .3s"></div>
+<div id="config-sheet" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#111;border-radius:24px 24px 0 0;border-top:1px solid #2a2a2a;z-index:201;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.23,1);max-height:60vh;overflow-y:auto">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 12px">
+    <div>
+      <div style="font-size:16px;font-weight:800;color:#fff;letter-spacing:.5px">⚙️ Configuración</div>
+      <div style="font-size:11px;color:#555;margin-top:2px">Danny Trainer App</div>
+    </div>
+    <button onclick="cerrarConfig()" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#888;font-size:16px;padding:6px 10px;cursor:pointer">✕</button>
+  </div>
+  <div style="height:1px;background:#1e1e1e;margin:0 20px"></div>
+  <div style="padding:16px 20px;display:flex;flex-direction:column;gap:4px">
+    <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:8px 0 10px">🎨 Apariencia</div>
+    <div style="background:#1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div>
+        <div style="font-size:14px;color:#fff;font-weight:600">Nombre del entrenador</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">Danny Trainer</div>
+      </div>
+      <span style="color:#555;font-size:18px">›</span>
+    </div>
+    <div style="background:#1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div>
+        <div style="font-size:14px;color:#fff;font-weight:600">Logo de la app</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">Cambiar imagen</div>
+      </div>
+      <span style="color:#555;font-size:18px">›</span>
+    </div>
+    <div style="background:#1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div>
+        <div style="font-size:14px;color:#fff;font-weight:600">Colores de la app</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">Próximamente</div>
+      </div>
+      <span style="color:#555;font-size:18px">›</span>
+    </div>
+    <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:12px 0 10px">🔊 Sistema</div>
+    <div style="background:#1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer" onclick="cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100);">
+      <div>
+        <div style="font-size:14px;color:#fff;font-weight:600">Configurar sonidos</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">Cronos · Timers · HIIT</div>
+      </div>
+      <span style="color:#555;font-size:18px">›</span>
+    </div>
+    <div style="background:#1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer" onclick="cerrarConfig();showPage('festivos');">
+      <div>
+        <div style="font-size:14px;color:#fff;font-weight:600">Días festivos</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">Sin envío automático</div>
+      </div>
+      <span style="color:#555;font-size:18px">›</span>
+    </div>
+    <div style="height:30px"></div>
+  </div>
+</div>
 </body>
 </html>
