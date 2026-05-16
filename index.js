@@ -1,3 +1,6 @@
+const multer = require('multer');
+const storage = multer.diskStorage({destination:(req,file,cb)=>cb(null,'./public/'),filename:(req,file,cb)=>cb(null,'icon.png')});
+const upload = multer({storage,limits:{fileSize:5*1024*1024}});
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const qrcode = require('qrcode-terminal');
 const cron = require('node-cron');
@@ -193,6 +196,24 @@ app.delete('/api/hiit/:id', (req, res) => {
   let data = cargarJSON('hiit.json');
   data = data.filter(c => String(c.id) !== req.params.id);
   guardarJSON('hiit.json', data);
+  res.json({ok:true});
+});
+
+
+// SUBIR LOGO
+app.post('/api/config/logo', upload.single('logo'), (req, res) => {
+  if(!req.file) return res.status(400).json({error:'No file'});
+  const cfg = cargarJSON('config.json');
+  cfg.logo_entrenador = '/icon.png';
+  guardarJSON('config.json', cfg);
+  res.json({ok:true, path:'/icon.png'});
+});
+// CONFIG
+app.get('/api/config', (req, res) => res.json(cargarJSON('config.json')));
+app.post('/api/config', (req, res) => {
+  const cfg = cargarJSON('config.json');
+  Object.assign(cfg, req.body);
+  guardarJSON('config.json', cfg);
   res.json({ok:true});
 });
 app.get('/api/status',(req,res)=>res.json({conectado:global.waConectado||false}));
