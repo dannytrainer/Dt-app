@@ -253,7 +253,7 @@ function renderFuerza() {
     <button class="btn br" style="width:100%;margin-top:10px" onclick="guardarTest('fuerza')">💾 Guardar test de fuerza</button>
     <button style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px" onclick="enviarTest('fuerza')">📤 Enviar por WhatsApp</button>
   `;
-  setTimeout(() => initRadar('radarFuerza', '_radarFuerzaChart', ['Pecho','Espalda','Bíceps','Tríceps','Femoral','Cuád','Glúteo'], getScoresFuerza(), '#e31e24'), 100);
+  setTimeout(() => initRadar('radarFuerza', '_radarFuerzaChart', ['Pecho','Espalda','Bíceps','Tríceps','Femoral','Cuád','Glúteo'], getScoresFuerza(), getComputedStyle(document.documentElement).getPropertyValue('--test-fuerza').trim()||'#e31e24'), 100);
 }
 
 function filaResist(nombre, key, unidad) {
@@ -308,7 +308,7 @@ function renderResist() {
     <button class="btn br" style="width:100%;margin-top:10px" onclick="guardarTest('resist')">💾 Guardar test de resistencia</button>
     <button style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px" onclick="enviarTest('resist')">📤 Enviar por WhatsApp</button>
   `;
-  setTimeout(() => initRadar('radarResist', '_radarResistChart', ['Push ups','Dominadas','Fondos','Sentadilla','Plancha','Burpees'], getScoresResist(), '#4fc3f7'), 100);
+  setTimeout(() => initRadar('radarResist', '_radarResistChart', ['Push ups','Dominadas','Fondos','Sentadilla','Plancha','Burpees'], getScoresResist(), getComputedStyle(document.documentElement).getPropertyValue('--test-resist').trim()||'#4a9eff'), 100);
 }
 
 function filaEspecif(nombre, subtitulo, key, unidad) {
@@ -366,7 +366,7 @@ function renderEspecif() {
     <button class="btn br" style="width:100%;margin-top:10px" onclick="guardarTest('especif')">💾 Guardar test específico</button>
     <button style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px" onclick="enviarTest('especif')">📤 Enviar por WhatsApp</button>
   `;
-  setTimeout(() => initRadar('radarEspecif', '_radarEspecifChart', ['Cooper','Léger','Sit&Reach','Hombro','S.Largo','S.Vertical','30m'], getScoresEspecif(), '#ce93d8'), 100);
+  setTimeout(() => initRadar('radarEspecif', '_radarEspecifChart', ['Cooper','Léger','Sit&Reach','Hombro','S.Largo','S.Vertical','30m'], getScoresEspecif(), getComputedStyle(document.documentElement).getPropertyValue('--test-especif').trim()||'#9c27b0'), 100);
 }
 
 function initRadar(canvasId, chartKey, labels, datos, color) {
