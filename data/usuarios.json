@@ -7,7 +7,7 @@
     "tipo": "asesorado",
     "hora_envio": "20:56",
     "dia_pago": 10,
-    "estado_pago": "vencido",
+    "estado_pago": "aldia",
     "perfil": {
       "fecha_inicio": "2026-05-09",
       "sexo": "M",
@@ -35,7 +35,7 @@
     "tipo": "asesorado",
     "hora_envio": "15:35",
     "dia_pago": 9,
-    "estado_pago": "vencido",
+    "estado_pago": "aldia",
     "perfil": {
       "fecha_inicio": "",
       "sexo": "M",
