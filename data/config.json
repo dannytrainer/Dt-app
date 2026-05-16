@@ -11,7 +11,7 @@
     "--chip-person": "#ffffff",
     "--chip-asesor": "#ffffff",
     "--chip-pausados": "#666",
-    "--test-fuerza": "#00ff00",
+    "--test-fuerza": "#ff0000",
     "--test-resist": "#4a9eff",
     "--test-especif": "#9c27b0"
   }

@@ -518,6 +518,15 @@ function cerrarConfig(){
 // ═══════════════════════════════
 // PANTALLA INICIO
 // ═══════════════════════════════
+
+let _vencIdx=0;
+let _vencidos=[];
+function enviarPagoWA(idx){
+  const u=_vencidos[idx];
+  if(!u)return;
+  const msg=encodeURIComponent('Hola '+u.nombre+' 👋, te recuerdo que tienes un pago pendiente. Comunicate conmigo para ponernos al dia. Gracias! 💪');
+  window.open('https://wa.me/'+u.telefono+'?text='+msg,'_blank');
+}
 async function cargarInicio(){
   try{
     const usuarios=await fetch('/api/usuarios').then(r=>r.json());
@@ -533,24 +542,31 @@ async function cargarInicio(){
     badge.textContent=activos.length;
     badge.style.display=activos.length>0?'block':'none';
     const hoy=new Date();
+    _vencIdx=0;_vencidos=[];
     const vencidos=activos.filter(u=>u.estado_pago==='vencido');
+    _vencidos=vencidos;
     const proximos=activos.filter(u=>{
       if(!u.dia_pago||u.estado_pago==='vencido')return false;
       const d=new Date(hoy.getFullYear(),hoy.getMonth(),parseInt(u.dia_pago));
       const diff=(d-hoy)/(1000*60*60*24);
       return diff>=0&&diff<=3;
     });
+    _vencidos=vencidos;
     let cobrosHtml='';
     if(vencidos.length===0&&proximos.length===0){
       cobrosHtml='<div style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:16px;padding:20px;text-align:center;min-width:180px;flex-shrink:0"><div style="font-size:28px">✅</div><div style="font-size:13px;color:#4caf50;font-weight:700;margin-top:6px">Todo al día</div><div style="font-size:11px;color:#444;margin-top:4px">Sin cobros pendientes</div></div>';
     }
-    vencidos.forEach(u=>{
-      cobrosHtml+='<div style="background:#1a0505;border:1px solid #3a0a0a;border-radius:16px;padding:16px;min-width:190px;flex-shrink:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🔴</span><span style="font-size:11px;font-weight:800;color:#e31e24;text-transform:uppercase;letter-spacing:.5px">Cobro vencido</span></div><div style="font-size:14px;color:#fff;font-weight:600;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:#666;margin-bottom:10px">'+(u.msg_pago||'Pago pendiente')+'</div><div style="background:#2a0808;border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#e31e24;font-weight:700;cursor:pointer" onclick="showPage(\'clientes\')">📲 Gestionar</div></div>';
+    vencidos.forEach((u,_vi)=>{
+      cobrosHtml+='<div style="background:#1a0505;border:1px solid #3a0a0a;border-radius:16px;padding:16px;min-width:190px;flex-shrink:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🔴</span><span style="font-size:11px;font-weight:800;color:#e31e24;text-transform:uppercase;letter-spacing:.5px">Cobro vencido</span></div><div style="font-size:14px;color:#fff;font-weight:600;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:#666;margin-bottom:10px">'+(u.msg_pago||'Pago pendiente')+'</div><div style="background:#2a0808;border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#e31e24;font-weight:700;cursor:pointer" id=\"wa-btn-'+ _vi +'\">📲 WhatsApp</div></div>';
     });
     proximos.forEach(u=>{
       cobrosHtml+='<div style="background:#1a1000;border:1px solid #3a2500;border-radius:16px;padding:16px;min-width:190px;flex-shrink:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">⚠️</span><span style="font-size:11px;font-weight:800;color:#ff9800;text-transform:uppercase;letter-spacing:.5px">Próximo cobro</span></div><div style="font-size:14px;color:#fff;font-weight:600;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:#666;margin-bottom:10px">Vence día '+u.dia_pago+'</div><div style="background:#2a1a00;border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#ff9800;font-weight:700;cursor:pointer" onclick="showPage(\'clientes\')">🔔 Recordar</div></div>';
     });
     document.getElementById('hi-cobros').innerHTML=cobrosHtml;
+    vencidos.forEach((_u,_i)=>{
+      const b=document.getElementById('wa-btn-'+_i);
+      if(b)b.onclick=()=>enviarPagoWA(_i);
+    });
     const items=[];
     if(activos.length>0)items.push('👥 '+activos.length+' clientes activos');
     if(vencidos.length>0)items.push('🔴 Cobro vencido: '+vencidos.map(u=>u.nombre).join(', '));
