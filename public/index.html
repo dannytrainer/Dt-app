@@ -281,7 +281,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div class="mt" id="modal-titulo">➕ Nuevo cliente</div>
 <input type="hidden" id="cliente-id">
 <div class="ig"><label>Nombre</label><input type="text" id="cliente-nombre" placeholder="Nombre del cliente"></div>
-<div class="ig"><label>Teléfono (código país + número)</label><input type="tel" id="cliente-telefono" placeholder="Ej: 573001234567"></div>
+<div class="ig"><label>Teléfono (código país + número)</label><input type="tel" id="cliente-telefono" placeholder="+57 315 6634805"></div>
 <div class="ig"><label>Tipo de cliente</label>
 <select id="cliente-tipo">
 <option value="asesorado">Asesorado (recibe rutina)</option>
@@ -905,7 +905,7 @@ function enviarPagoWA(idx){
   const u=_vencidos[idx];
   if(!u)return;
   const msg=encodeURIComponent('Hola '+u.nombre+' 👋, te recuerdo que tienes un pago pendiente. Comunicate conmigo para ponernos al dia. Gracias! 💪');
-  window.open('https://wa.me/'+u.telefono+'?text='+msg,'_blank');
+  window.open('https://wa.me/'+u.telefono.replace(/\D/g,'')+'?text='+msg,'_blank');
 }
 async function cargarInicio(){
   try{
@@ -1130,7 +1130,7 @@ async function guardarCliente(){
 const id=document.getElementById('cliente-id').value;
 const datos={
 nombre:document.getElementById('cliente-nombre').value.trim(),
-telefono:document.getElementById('cliente-telefono').value.trim(),
+telefono:document.getElementById('cliente-telefono').value.replace(/\D/g,''),
 tipo:document.getElementById('cliente-tipo').value,
 hora_envio:document.getElementById('cliente-hora').value,
 tipo_pago:document.getElementById('cliente-tipo-pago').value,
