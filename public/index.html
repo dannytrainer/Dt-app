@@ -494,7 +494,7 @@ function toggleDashPanel(id){
         labels:clientes.map(c=>c.nombre.split(' ')[0]),
         datasets:[{label:'Precio plan',data:clientes.map(c=>c.precio),backgroundColor:'#4caf5044',borderColor:'#4caf50',borderWidth:2,borderRadius:6}]
       },
-      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#888',callback:function(v){return v.toLocaleString();}}},y:{ticks:{color:'#ccc',font:{size:10}}}}}
+      options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#888',callback:function(v){return v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(0)+'k':v;}}},y:{ticks:{color:'#ccc',font:{size:11}},grid:{lineWidth:0}}}}
     });
   }
 }
@@ -541,24 +541,24 @@ function renderAdminDashboard(){
   window._dash={totalMes,totalMesAnt,totalPagos,totalDesc,monedas,metodos,metodosMesAnt,pagosMes,pagosMesAnt,proyeccionClientes,meses,mesActual,mesAnterior,anioActual,anioAnterior};
   window._chartInstances={};
   let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
-  html+='<div onclick="toggleDashPanel(\'dp-proy\')" style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:14px;padding:14px;cursor:pointer">';
+  html+='<div onclick="toggleDashPanel(\'dp-proy\')" style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
   html+='<div style="font-size:10px;color:#4caf50;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Proyección mes</div>';
   html+='<div style="font-size:20px;font-weight:800;color:#4caf50">'+totalMes.toLocaleString()+'</div>';
   html+='<div style="font-size:10px;color:#444;margin-top:2px">'+meses[mesActual]+' '+anioActual+' · toca ▾</div>';
   html+='<div id="dp-proy" style="display:none;margin-top:10px;border-top:1px solid #1e3a1e;padding-top:10px">';
   proyeccionClientes.forEach(cl=>{
-    html+='<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:#aaa">'+cl.nombre+'</span><span style="color:#4caf50;font-weight:700">'+cl.precio.toLocaleString()+' '+cl.moneda+'</span></div>';
+    html+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #1e3a1e"><span style="color:#aaa">'+cl.nombre+'</span><span style="color:#4caf50;font-weight:700;white-space:nowrap;margin-left:8px">'+cl.precio.toLocaleString()+' '+cl.moneda+'</span></div>';
   });
   if(totalDesc>0)html+='<div style="margin-top:6px;font-size:11px;color:#f0c040">🏷️ Inversión en retención: '+totalDesc.toLocaleString()+'</div>';
-  html+='<canvas id="chart-proyeccion" style="margin-top:12px;max-height:200px"></canvas>';
+  html+='<div style="overflow-y:scroll;max-height:280px;margin-top:12px"><canvas id="chart-proyeccion" style="width:100%;height:'+(proyeccionClientes.length*36+30)+'px"></canvas></div>';
   html+='</div></div>';
-  html+='<div onclick="toggleDashPanel(\'dp-cob\')" style="background:#1a0a0a;border:1px solid #3a1010;border-radius:14px;padding:14px;cursor:pointer">';
+  html+='<div onclick="toggleDashPanel(\'dp-cob\')" style="background:#1a0a0a;border:1px solid #3a1010;border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
   html+='<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cobrado este mes</div>';
   html+='<div style="font-size:20px;font-weight:800;color:#e31e24">'+totalPagos.toLocaleString()+'</div>';
   html+='<div style="font-size:10px;color:#444;margin-top:2px">Toca para ver ▾</div>';
   html+='<div id="dp-cob" style="display:none">'+_adminPanelMetodos(metodos,pagosMes,"#e31e24")+'<canvas id="chart-metodos" style="margin-top:12px;max-height:180px"></canvas></div>';
   html+='</div>';
-  html+='<div onclick="toggleDashPanel(\'dp-ant\')" style="background:#0a0f1a;border:1px solid #10203a;border-radius:14px;padding:14px;cursor:pointer">';
+  html+='<div onclick="toggleDashPanel(\'dp-ant\')" style="background:#0a0f1a;border:1px solid #10203a;border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
   html+='<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Mes anterior</div>';
   html+='<div style="font-size:20px;font-weight:800;color:#4a9eff">'+totalMesAnt.toLocaleString()+'</div>';
   html+='<div style="font-size:10px;color:#444;margin-top:2px">'+meses[mesAnterior]+' '+(mesActual===0?anioAnterior:anioActual)+' · toca ▾</div>';
