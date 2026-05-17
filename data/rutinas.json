@@ -19,37 +19,70 @@
   },
   "1778216541791": {
     "lunes": {
-      "recordatorio": "Está es la rutina d pecho ",
-      "rutina": "Recuerda calentar los hombros \nVariaciones :\nV0= 15 /12/10/8/8\nV1= última serie en dropset de 3 \nV2= última serie en rest países al fallo \nV3= biserie",
+      "recordatorio": "Rutina pecho espalda ",
+      "rutina": "Recuerda calentar los hombros \nVariaciones :\nV1= última serie en dropset de 3 \nV2= biserie",
       "ejercicios": [
         {
-          "nombre": "Hh",
+          "nombre": "Haz clavicular barra ",
           "series": "5",
-          "reps": "3",
-          "rir": "3",
-          "desc": "3",
-          "var": "3"
+          "reps": "15/12/8/8/8",
+          "rir": "1-2",
+          "desc": "60",
+          "var": ""
         },
         {
-          "nombre": "Mf",
+          "nombre": "Press inclinado  barra",
           "series": "2",
-          "reps": "3",
-          "rir": "45",
-          "desc": "5",
-          "var": "4"
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Press plano barra ",
+          "series": "3",
+          "reps": "8",
+          "rir": "0-1",
+          "desc": "",
+          "var": "V1"
+        },
+        {
+          "nombre": "Remo t",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Jalón en polea abierto ",
+          "series": "4",
+          "reps": "8",
+          "rir": "0-1",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Jalón cerrado",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Pull over + vuelos ",
+          "series": "2",
+          "reps": "Fallo",
+          "rir": "0",
+          "desc": "30",
+          "var": "V2"
         }
       ],
-      "cardio": [
-        {
-          "momento": "W",
-          "ejercicio": "W",
-          "tiempo": "1",
-          "notas": "W\n"
-        }
-      ]
+      "cardio": []
     },
     "viernes": {
-      "recordatorio": "Hoy toca pierna ",
+      "recordatorio": "Hoy toca pierna e.focads a cuadriceps ",
       "rutina": "V1= pares ascendentes \nV2= biseries \nV3= dropset de 3 ",
       "ejercicios": [
         {
@@ -120,64 +153,232 @@
       "cardio": []
     },
     "martes": {
-      "recordatorio": "B",
-      "rutina": "B",
-      "ejercicios": [],
-      "cardio": [
-        {
-          "momento": "Calentamiento ",
-          "ejercicio": "Bici",
-          "tiempo": "6",
-          "notas": "Nd"
-        },
-        {
-          "momento": "",
-          "ejercicio": "",
-          "tiempo": "",
-          "notas": ""
-        }
-      ]
-    },
-    "miercoles": {
-      "recordatorio": "C",
-      "rutina": "C",
+      "recordatorio": "Día de pierna énfasis en femoral ",
+      "rutina": "",
       "ejercicios": [
         {
-          "nombre": "3",
-          "series": "34",
-          "reps": "5",
-          "rir": "5",
-          "desc": "2",
-          "var": "3"
+          "nombre": "Add +abd cadera ",
+          "series": "3",
+          "reps": "15-20",
+          "rir": "2",
+          "desc": "30",
+          "var": "V1"
         },
         {
-          "nombre": "N",
+          "nombre": "Extension rodilla ",
+          "series": "5",
+          "reps": "15",
+          "rir": "5",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Peso muerto ",
+          "series": "5",
+          "reps": "15/10/8/8/8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Femoral individual ",
           "series": "3",
-          "reps": "3",
-          "rir": "4",
-          "desc": "4",
-          "var": "4"
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": "V2"
+        },
+        {
+          "nombre": "Femoral sentado ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Femoral acostado ",
+          "series": "2",
+          "reps": "Fallo",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Pantorrilla ",
+          "series": "10",
+          "reps": "10",
+          "rir": "0",
+          "desc": "10",
+          "var": ""
         }
       ],
-      "cardio": [
+      "cardio": []
+    },
+    "miercoles": {
+      "recordatorio": "Dia de hombro y brazo ",
+      "rutina": "",
+      "ejercicios": [
         {
-          "momento": "2",
-          "ejercicio": "2",
-          "tiempo": "1",
-          "notas": "W\n"
+          "nombre": "Press hombro ",
+          "series": "4",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
         },
         {
-          "momento": "E",
-          "ejercicio": "E",
-          "tiempo": "4",
-          "notas": "D\n"
+          "nombre": "Flexion de hombro con polea ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Flexion de hombro individual ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Add hombro post máquina ",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Hombro  post en polea ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Face pull",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Abd hombro máquina ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Abd hombro mancuerna ",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Abd hombro individual acostado ",
+          "series": "3",
+          "reps": "8",
+          "rir": "0",
+          "desc": "10",
+          "var": ""
+        },
+        {
+          "nombre": "Predicador +press francés ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Martillo + ext codo",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Copa indv + bíceps polea indv ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "30",
+          "var": "V1"
         }
-      ]
+      ],
+      "cardio": []
     },
     "jueves": {
-      "recordatorio": "Hoy pico y placa ",
-      "rutina": "D",
-      "ejercicios": [],
+      "recordatorio": "Hoy pico y placa\nY pecho espalda ",
+      "rutina": "V1= dropset de 3\nV2 = bi-serie \n",
+      "ejercicios": [
+        {
+          "nombre": "Haz clavicular mancuernas ",
+          "series": "5",
+          "reps": "15/12/8/8/8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Pres inclinado mancuernas ",
+          "series": "3 ",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Pres plano mancuernas ",
+          "series": "2",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Remo mancuernas ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Jalón en máquina ",
+          "series": "4",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Jalón cerrado ",
+          "series": "2",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Vuelos cabina + pull over ",
+          "series": "2",
+          "reps": "Fallo",
+          "rir": "2",
+          "desc": "30",
+          "var": "V2"
+        }
+      ],
       "cardio": []
     },
     "sabado": {
