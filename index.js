@@ -277,6 +277,19 @@ app.get('/data/fotos/:file', (req, res) => {
 });
 
 
+// ===== ALIMENTACION =====
+app.get('/api/alimentacion/:id', (req, res) => {
+  const data = cargarJSON('alimentacion.json');
+  res.json(data[req.params.id] || {});
+});
+
+app.post('/api/alimentacion/:id', (req, res) => {
+  const data = cargarJSON('alimentacion.json');
+  data[req.params.id] = req.body;
+  guardarJSON('alimentacion.json', data);
+  res.json({ ok: true });
+});
+
 app.get('/api/horarios', (req, res) => res.json(cargarJSON('horarios.json')));
 app.post('/api/horarios', (req, res) => {
   guardarJSON('horarios.json', req.body);
