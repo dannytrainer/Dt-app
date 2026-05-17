@@ -427,6 +427,78 @@ function showAdminTab(tab){
   else if(tab==='config') c.innerHTML=renderAdminConfig();
 }
 
+function _adminPanelMetodos(met,pagos,color){
+  let h='<div style="margin-top:10px;border-top:1px solid #2a2a2a;padding-top:10px">';
+  const icons={efectivo:'💵',transferencia:'🏦',tarjeta:'💳',otro:'📦'};
+  Object.keys(met).forEach(k=>{
+    if(met[k]>0)h+='<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:#888">'+icons[k]+' '+k.charAt(0).toUpperCase()+k.slice(1)+'</span><span style="color:'+color+';font-weight:700">'+met[k].toLocaleString()+'</span></div>';
+  });
+  if(pagos.length){
+    h+='<div style="margin-top:8px;font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px">Detalle</div>';
+    pagos.forEach(p=>{
+      h+='<div style="background:#0a0a0a;border-radius:8px;padding:7px;margin-top:4px"><div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#fff;font-weight:600">'+p.nombre+'</span><span style="font-size:12px;color:'+color+';font-weight:700">'+p.monto.toLocaleString()+' '+p.moneda+'</span></div><div style="font-size:10px;color:#555;margin-top:2px">'+p.fecha+' · '+p.metodo+(p.novedad?' · '+p.novedad:'')+'</div></div>';
+    });
+  }
+  h+='</div>';
+  return h;
+}
+
+if(!window._chartInstances)window._chartInstances={};
+function toggleDashPanel(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const visible=el.style.display==='none';
+  el.style.display=visible?'block':'none';
+  if(!visible)return;
+  const dash=window._dash||{};
+  if(id==='dp-cob'){
+    const ctx=document.getElementById('chart-metodos');
+    if(!ctx)return;
+    if(window._chartInstances['metodos'])window._chartInstances['metodos'].destroy();
+    const met=dash.metodos||{efectivo:0,transferencia:0,tarjeta:0,otro:0};
+    const vals=[met.efectivo,met.transferencia,met.tarjeta,met.otro];
+    if(vals.every(v=>v===0))return;
+    window._chartInstances['metodos']=new Chart(ctx,{
+      type:'doughnut',
+      data:{labels:['💵 Efectivo','🏦 Transferencia','💳 Tarjeta','📦 Otro'],datasets:[{data:vals,backgroundColor:['#4caf50','#4a9eff','#ff9800','#9c27b0'],borderWidth:0}]},
+      options:{plugins:{legend:{labels:{color:'#ccc',font:{size:11}}}},cutout:'65%'}
+    });
+  }
+  if(id==='dp-ant'){
+    const ctx=document.getElementById('chart-comparativo');
+    if(!ctx)return;
+    if(window._chartInstances['comp'])window._chartInstances['comp'].destroy();
+    const met=dash.metodos||{};
+    const metAnt=dash.metodosMesAnt||{};
+    const meses=dash.meses||[];
+    window._chartInstances['comp']=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:['Efectivo','Transfer.','Tarjeta','Otro'],
+        datasets:[
+          {label:meses[dash.mesAnterior]||'Ant',data:[metAnt.efectivo||0,metAnt.transferencia||0,metAnt.tarjeta||0,metAnt.otro||0],backgroundColor:'#4a9eff44',borderColor:'#4a9eff',borderWidth:2,borderRadius:6},
+          {label:meses[dash.mesActual]||'Act',data:[met.efectivo||0,met.transferencia||0,met.tarjeta||0,met.otro||0],backgroundColor:'#e31e2444',borderColor:'#e31e24',borderWidth:2,borderRadius:6}
+        ]
+      },
+      options:{plugins:{legend:{labels:{color:'#ccc',font:{size:11}}}},scales:{x:{ticks:{color:'#888'}},y:{ticks:{color:'#888',callback:function(v){return v.toLocaleString();}}}}}
+    });
+  }
+  if(id==='dp-proy'){
+    const ctx=document.getElementById('chart-proyeccion');
+    if(!ctx)return;
+    if(window._chartInstances['proy'])window._chartInstances['proy'].destroy();
+    const clientes=dash.proyeccionClientes||[];
+    window._chartInstances['proy']=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:clientes.map(c=>c.nombre.split(' ')[0]),
+        datasets:[{label:'Precio plan',data:clientes.map(c=>c.precio),backgroundColor:'#4caf5044',borderColor:'#4caf50',borderWidth:2,borderRadius:6}]
+      },
+      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#888',callback:function(v){return v.toLocaleString();}}},y:{ticks:{color:'#ccc',font:{size:10}}}}}
+    });
+  }
+}
+
 function renderAdminDashboard(){
   const data=window._adminData||{clientes:{}};
   const usuarios=window._adminUsuarios||[];
@@ -435,10 +507,12 @@ function renderAdminDashboard(){
   const anioActual=hoy.getFullYear();
   const mesAnterior=mesActual===0?11:mesActual-1;
   const anioAnterior=mesActual===0?anioActual-1:anioActual;
-
-  let totalMes=0, totalMesAnt=0, totalPagos=0;
+  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  let totalMes=0,totalMesAnt=0,totalPagos=0,totalDesc=0;
   const monedas={};
-
+  const metodos={efectivo:0,transferencia:0,tarjeta:0,otro:0};
+  const metodosMesAnt={efectivo:0,transferencia:0,tarjeta:0,otro:0};
+  const pagosMes=[],pagosMesAnt=[],proyeccionClientes=[];
   usuarios.forEach(u=>{
     const d=data.clientes[u.id]||{};
     const precio=d.precio||0;
@@ -446,36 +520,57 @@ function renderAdminDashboard(){
     if(!monedas[moneda])monedas[moneda]=0;
     monedas[moneda]+=precio;
     totalMes+=precio;
+    proyeccionClientes.push({nombre:u.nombre,precio,moneda});
     (d.pagos||[]).forEach(p=>{
       const fp=new Date(p.fecha);
-      if(fp.getMonth()===mesActual&&fp.getFullYear()===anioActual) totalPagos+=p.monto||0;
-      if(fp.getMonth()===mesAnterior&&fp.getFullYear()===anioAnterior) totalMesAnt+=p.monto||0;
+      if(fp.getMonth()===mesActual&&fp.getFullYear()===anioActual){
+        totalPagos+=p.monto||0;
+        const m=p.metodo||'efectivo';
+        if(metodos[m]!==undefined)metodos[m]+=p.monto||0; else metodos.otro+=p.monto||0;
+        if(p.descuento_valor)totalDesc+=p.descuento_tipo==='pct'?Math.round((d.precio||0)*p.descuento_valor/100):p.descuento_valor;
+        pagosMes.push({nombre:u.nombre,monto:p.monto,moneda:p.moneda||moneda,metodo:p.metodo||'efectivo',fecha:p.fecha,novedad:p.novedad||''});
+      }
+      if(fp.getMonth()===mesAnterior&&fp.getFullYear()===anioAnterior){
+        totalMesAnt+=p.monto||0;
+        const m=p.metodo||'efectivo';
+        if(metodosMesAnt[m]!==undefined)metodosMesAnt[m]+=p.monto||0; else metodosMesAnt.otro+=p.monto||0;
+        pagosMesAnt.push({nombre:u.nombre,monto:p.monto,moneda:p.moneda||moneda,metodo:p.metodo||'efectivo',fecha:p.fecha});
+      }
     });
   });
-
-  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  let html='';
-  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
-  html+='<div style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:14px;padding:14px">';
+  window._dash={totalMes,totalMesAnt,totalPagos,totalDesc,monedas,metodos,metodosMesAnt,pagosMes,pagosMesAnt,proyeccionClientes,meses,mesActual,mesAnterior,anioActual,anioAnterior};
+  window._chartInstances={};
+  let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
+  html+='<div onclick="toggleDashPanel(\'dp-proy\')" style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:14px;padding:14px;cursor:pointer">';
   html+='<div style="font-size:10px;color:#4caf50;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Proyección mes</div>';
   html+='<div style="font-size:20px;font-weight:800;color:#4caf50">'+totalMes.toLocaleString()+'</div>';
-  html+='<div style="font-size:10px;color:#444;margin-top:2px">'+meses[mesActual]+' '+anioActual+'</div></div>';
-  html+='<div style="background:#1a0a0a;border:1px solid #3a1010;border-radius:14px;padding:14px">';
+  html+='<div style="font-size:10px;color:#444;margin-top:2px">'+meses[mesActual]+' '+anioActual+' · toca ▾</div>';
+  html+='<div id="dp-proy" style="display:none;margin-top:10px;border-top:1px solid #1e3a1e;padding-top:10px">';
+  proyeccionClientes.forEach(cl=>{
+    html+='<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:#aaa">'+cl.nombre+'</span><span style="color:#4caf50;font-weight:700">'+cl.precio.toLocaleString()+' '+cl.moneda+'</span></div>';
+  });
+  if(totalDesc>0)html+='<div style="margin-top:6px;font-size:11px;color:#f0c040">🏷️ Inversión en retención: '+totalDesc.toLocaleString()+'</div>';
+  html+='<canvas id="chart-proyeccion" style="margin-top:12px;max-height:200px"></canvas>';
+  html+='</div></div>';
+  html+='<div onclick="toggleDashPanel(\'dp-cob\')" style="background:#1a0a0a;border:1px solid #3a1010;border-radius:14px;padding:14px;cursor:pointer">';
   html+='<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cobrado este mes</div>';
   html+='<div style="font-size:20px;font-weight:800;color:#e31e24">'+totalPagos.toLocaleString()+'</div>';
-  html+='<div style="font-size:10px;color:#444;margin-top:2px">Pagos registrados</div></div>';
-  html+='<div style="background:#0a0f1a;border:1px solid #10203a;border-radius:14px;padding:14px">';
+  html+='<div style="font-size:10px;color:#444;margin-top:2px">Toca para ver ▾</div>';
+  html+='<div id="dp-cob" style="display:none">'+_adminPanelMetodos(metodos,pagosMes,"#e31e24")+'<canvas id="chart-metodos" style="margin-top:12px;max-height:180px"></canvas></div>';
+  html+='</div>';
+  html+='<div onclick="toggleDashPanel(\'dp-ant\')" style="background:#0a0f1a;border:1px solid #10203a;border-radius:14px;padding:14px;cursor:pointer">';
   html+='<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Mes anterior</div>';
   html+='<div style="font-size:20px;font-weight:800;color:#4a9eff">'+totalMesAnt.toLocaleString()+'</div>';
-  html+='<div style="font-size:10px;color:#444;margin-top:2px">'+meses[mesAnterior]+' '+(mesActual===0?anioAnterior:anioActual)+'</div></div>';
+  html+='<div style="font-size:10px;color:#444;margin-top:2px">'+meses[mesAnterior]+' '+(mesActual===0?anioAnterior:anioActual)+' · toca ▾</div>';
+  html+='<div id="dp-ant" style="display:none">'+_adminPanelMetodos(metodosMesAnt,pagosMesAnt,"#4a9eff")+'<canvas id="chart-comparativo" style="margin-top:12px;max-height:180px"></canvas></div>';
+  html+='</div>';
   html+='<div style="background:#111;border:1px solid #2a2a2a;border-radius:14px;padding:14px">';
   html+='<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Clientes activos</div>';
-  html+='<div style="font-size:20px;font-weight:800;color:#fff">'+(window._adminUsuarios||[]).length+'</div>';
+  html+='<div style="font-size:20px;font-weight:800;color:#fff">'+usuarios.length+'</div>';
   html+='<div style="font-size:10px;color:#444;margin-top:2px">Con plan activo</div></div>';
   html+='</div>';
   return html;
 }
-
 function renderAdminClientes(){
   const usuarios=window._adminUsuarios||[];
   const data=window._adminData||{clientes:{}};
