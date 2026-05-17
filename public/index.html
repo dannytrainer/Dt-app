@@ -444,8 +444,20 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div class="mc">
 <div class="mt" id="rutina-titulo">📋 Rutina</div>
 <input type="hidden" id="rutina-cliente-id">
+<div style="display:flex;gap:0;margin-bottom:12px;background:#111;border-radius:10px;padding:3px">
+<button id="tab-entrenamiento" onclick="switchRutinaTab('entrenamiento')" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--rojo);color:#fff;font-size:12px;font-weight:700;cursor:pointer">🏋️ entrenamiento</button>
+<button id="tab-alimentacion" onclick="switchRutinaTab('alimentacion')" style="flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:#666;font-size:12px;font-weight:700;cursor:pointer">🍖 alimentación</button>
+</div>
+<div id="panel-entrenamiento">
 <div class="dtab" id="dias-tabs"></div>
 <div id="rutina-form"></div>
+</div>
+<div id="panel-alimentacion" style="display:none">
+<div style="text-align:center;padding:40px 20px;color:#555">
+<div style="font-size:40px;margin-bottom:12px">🍖</div>
+<div style="font-size:14px">Plan de alimentación próximamente</div>
+</div>
+</div>
 <div style="display:flex;gap:8px;margin-top:14px">
 <button class="btn bg" style="flex:1" onclick="cerrarModalRutina()">Cancelar</button>
 <button class="btn br" style="flex:1" onclick="guardarRutina()">Guardar rutina</button>
@@ -1770,6 +1782,15 @@ ${avatarHTML(u)}
 </div></div>`).join('');
 }
 
+function switchRutinaTab(tab){
+  const esEnt = tab === 'entrenamiento';
+  document.getElementById('panel-entrenamiento').style.display = esEnt ? 'block' : 'none';
+  document.getElementById('panel-alimentacion').style.display = esEnt ? 'none' : 'block';
+  document.getElementById('tab-entrenamiento').style.background = esEnt ? 'var(--rojo)' : 'transparent';
+  document.getElementById('tab-entrenamiento').style.color = esEnt ? '#fff' : '#666';
+  document.getElementById('tab-alimentacion').style.background = esEnt ? 'transparent' : 'var(--rojo)';
+  document.getElementById('tab-alimentacion').style.color = esEnt ? '#666' : '#fff';
+}
 async function abrirRutina(id,nombre){
 document.getElementById('rutina-cliente-id').value=id;
 document.getElementById('rutina-titulo').textContent='📋 '+nombre;

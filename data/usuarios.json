@@ -89,7 +89,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 20,
     "dia_pago2": null,
-    "estado_pago": "aldia",
+    "estado_pago": "proximo",
     "perfil": {
       "fecha_inicio": "2026-05-11",
       "sexo": "F",
@@ -261,7 +261,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 20,
     "dia_pago2": null,
-    "estado_pago": "aldia",
+    "estado_pago": "proximo",
     "perfil": {
       "fecha_inicio": "2026-04-15",
       "sexo": "",
