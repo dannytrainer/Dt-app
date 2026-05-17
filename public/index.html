@@ -221,14 +221,26 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
       <button class="btn bg" style="padding:6px 14px" onclick="cerrarModalHorario()">✕</button>
     </div>
 
-    <div class="ig"><label>Cliente</label>
-      <select id="h-cliente" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none">
-        <option value="">— Seleccionar cliente —</option>
-      </select>
+    <!-- Toggle tipo -->
+    <div style="display:flex;gap:6px;margin-bottom:16px">
+      <button id="htipo-cliente" onclick="toggleTipoHorario('cliente')" style="flex:1;padding:9px;border-radius:10px;border:none;background:var(--rojo);color:#fff;font-size:12px;font-weight:700;cursor:pointer">👤 Cliente</button>
+      <button id="htipo-evento" onclick="toggleTipoHorario('evento')" style="flex:1;padding:9px;border-radius:10px;border:none;background:#2a2a2a;color:#888;font-size:12px;font-weight:700;cursor:pointer">📅 Evento</button>
     </div>
 
-    <div class="ig"><label>Descripción (opcional)</label>
-      <input type="text" id="h-desc" placeholder="Ej: Clase grupal, Test físico..." style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box">
+    <!-- Modo cliente -->
+    <div id="h-modo-cliente">
+      <div class="ig"><label>Cliente</label>
+        <select id="h-cliente" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none">
+          <option value="">— Seleccionar cliente —</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Modo evento -->
+    <div id="h-modo-evento" style="display:none">
+      <div class="ig"><label>Nombre del evento</label>
+        <input type="text" id="h-desc" placeholder="Ej: Clase grupal, Test físico, Semipersonalizado..." style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box">
+      </div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -263,7 +275,13 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
     <div id="h-dias-container" style="display:none" class="ig">
       <label>Días</label>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        ${['Lu','Ma','Mi','Ju','Vi','Sá','Do'].map((d,i)=>`<div id="hdia-${i}" onclick="toggleDiaH(${i})" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer">${d}</div>`).join('')}
+        <div id="hdia-0" onclick="toggleDiaH(0)" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer">Lu</div>
+        <div id="hdia-1" onclick="toggleDiaH(1)" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer">Ma</div>
+        <div id="hdia-2" onclick="toggleDiaH(2)" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer">Mi</div>
+        <div id="hdia-3" onclick="toggleDiaH(3)" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer">Ju</div>
+        <div id="hdia-4" onclick="toggleDiaH(4)" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer">Vi</div>
+        <div id="hdia-5" onclick="toggleDiaH(5)" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer">Sá</div>
+        <div id="hdia-6" onclick="toggleDiaH(6)" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer">Do</div>
       </div>
     </div>
 
@@ -1407,7 +1425,11 @@ function renderHorariosSemana(){
     html += `<div style="display:grid;grid-template-columns:44px repeat(7,1fr);gap:2px;min-height:28px;border-top:1px solid #1a1a1a">
       <div style="font-size:9px;color:#444;padding-top:2px;text-align:right;padding-right:4px">${hora.endsWith(':00')?hora:''}</div>`;
     fechas.forEach(f=>{
-      const eventos = getEventosDia(f).filter(e=>e.inicio===hora);
+      const eventos = getEventosDia(f).filter(e=>{
+        const eMin = tiempoAMin(e.inicio);
+        const hMin = tiempoAMin(hora);
+        return eMin>=hMin && eMin<hMin+30;
+      });
       if(eventos.length>0){
         const e = eventos[0];
         const durMin = tiempoAMin(e.fin)-tiempoAMin(e.inicio);
@@ -1483,12 +1505,17 @@ function generarOpcionesHora(){
   const ops = [];
   for(let h=5;h<=22;h++){
     ops.push(String(h).padStart(2,'0')+':00');
-    ops.push(String(h).padStart(2,'0')+':15');
     ops.push(String(h).padStart(2,'0')+':30');
-    ops.push(String(h).padStart(2,'0')+':45');
   }
   ops.push('23:00');
   return ops;
+}
+function hora24a12(h24){
+  const [h,m] = h24.split(':');
+  const hn = parseInt(h);
+  const ampm = hn>=12?'PM':'AM';
+  const h12 = hn===0?12:hn>12?hn-12:hn;
+  return h12+':'+m+' '+ampm;
 }
 
 function abrirModalHorario(fecha, hora){
@@ -1502,6 +1529,7 @@ function abrirModalHorario(fecha, hora){
   document.getElementById('h-dias-container').style.display = 'none';
   document.getElementById('h-fecha-container').style.display = '';
   document.getElementById('h-btn-eliminar').style.display = 'none';
+  toggleTipoHorario('cliente');
 
   // Colores
   seleccionarColorH('#e31e24');
@@ -1514,11 +1542,17 @@ function abrirModalHorario(fecha, hora){
 
   // Fecha y hora
   if(fecha) document.getElementById('h-fecha').value = fecha;
-  else document.getElementById('h-fecha').value = fechaStr(new Date());
+  else {
+    const hoy = new Date();
+    const yy = hoy.getFullYear();
+    const mm = String(hoy.getMonth()+1).padStart(2,'0');
+    const dd = String(hoy.getDate()).padStart(2,'0');
+    document.getElementById('h-fecha').value = yy+'-'+mm+'-'+dd;
+  }
 
   // Opciones hora
   const ops = generarOpcionesHora();
-  const optHTML = ops.map(o=>`<option value="${o}">${o}</option>`).join('');
+  const optHTML = ops.map(o=>`<option value="${o}">${hora24a12(o)}</option>`).join('');
   document.getElementById('h-inicio').innerHTML = optHTML;
   document.getElementById('h-fin').innerHTML = optHTML;
   if(hora){
@@ -1539,7 +1573,19 @@ function seleccionarColorH(color){
   _horarioColorSel = color;
   document.getElementById('h-color').value = color;
   document.querySelectorAll('#h-colores div').forEach(d=>{
-    d.style.border = d.style.background===color||d.style.backgroundColor===color ? '3px solid #fff':'3px solid transparent';
+    const bg = d.style.backgroundColor||d.style.background;
+    const tmp = document.createElement('div');
+    tmp.style.background = color;
+    document.body.appendChild(tmp);
+    const colorComp = getComputedStyle(tmp).backgroundColor;
+    document.body.removeChild(tmp);
+    const tmp2 = document.createElement('div');
+    tmp2.style.background = bg;
+    document.body.appendChild(tmp2);
+    const bgComp = getComputedStyle(tmp2).backgroundColor;
+    document.body.removeChild(tmp2);
+    d.style.border = bgComp===colorComp ? '3px solid #fff':'3px solid transparent';
+    d.style.transform = bgComp===colorComp ? 'scale(1.2)':'scale(1)';
   });
 }
 
@@ -1552,6 +1598,17 @@ function toggleDiaH(i){
     _horarioDiasSel.push(i);
     el.style.background=getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24'; el.style.color='#fff'; el.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24';
   }
+}
+
+
+function toggleTipoHorario(tipo){
+  const esCliente = tipo==='cliente';
+  document.getElementById('h-modo-cliente').style.display = esCliente?'':'none';
+  document.getElementById('h-modo-evento').style.display = esCliente?'none':'';
+  document.getElementById('htipo-cliente').style.background = esCliente?'var(--rojo)':'#2a2a2a';
+  document.getElementById('htipo-cliente').style.color = esCliente?'#fff':'#888';
+  document.getElementById('htipo-evento').style.background = esCliente?'#2a2a2a':'var(--rojo)';
+  document.getElementById('htipo-evento').style.color = esCliente?'#888':'#fff';
 }
 
 function toggleRecurrente(){
@@ -1574,17 +1631,21 @@ async function guardarHorario(){
   if(recurrente && _horarioDiasSel.length===0){ toast('Selecciona al menos un día',false); return; }
   if(!recurrente && !fecha){ toast('Selecciona una fecha',false); return; }
 
-  // Nombre del cliente
-  let nombreCliente = desc;
-  if(clienteId){
+  // Nombre según modo
+  const modoEvento = document.getElementById('h-modo-evento').style.display!=='none';
+  const desc2 = modoEvento ? document.getElementById('h-desc').value.trim() : '';
+  let nombreCliente = desc2;
+  const clienteId2 = modoEvento ? '' : document.getElementById('h-cliente').value;
+  if(!modoEvento && clienteId){
     const sel = document.getElementById('h-cliente');
     nombreCliente = sel.options[sel.selectedIndex].text;
   }
+  if(!nombreCliente){ toast('Agrega un cliente o nombre de evento',false); return; }
 
   await cargarHorarios();
 
   if(recurrente){
-    const evento = { id: Date.now().toString(), clienteId, nombreCliente, desc, inicio, fin, color, dias: _horarioDiasSel };
+    const evento = { id: Date.now().toString(), clienteId:clienteId2||clienteId, nombreCliente, desc:desc2, inicio, fin, color, dias: _horarioDiasSel };
     if(_horarioEditId){
       const idx = _horariosData.recurrentes.findIndex(e=>e.id===_horarioEditId);
       if(idx>=0){ evento.id=_horarioEditId; _horariosData.recurrentes[idx]=evento; }
@@ -1592,7 +1653,7 @@ async function guardarHorario(){
       _horariosData.recurrentes.push(evento);
     }
   } else {
-    const evento = { id: Date.now().toString(), clienteId, nombreCliente, desc, inicio, fin, color, fecha };
+    const evento = { id: Date.now().toString(), clienteId:clienteId2||clienteId, nombreCliente, desc:desc2, inicio, fin, color, fecha };
     if(_horarioEditId){
       const idx = _horariosData.unicos.findIndex(e=>e.id===_horarioEditId);
       if(idx>=0){ evento.id=_horarioEditId; _horariosData.unicos[idx]=evento; }
@@ -1604,6 +1665,15 @@ async function guardarHorario(){
   await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
   toast('✅ Horario guardado');
   cerrarModalHorario();
+  // Si es único, navegar a la semana del evento
+  if(!recurrente && fecha){
+    const lunes = getLunesDeSemana(0);
+    const target = new Date(fecha+'T12:00:00');
+    const diff = Math.round((target-lunes)/(7*24*3600*1000));
+    _horariosOffset = diff;
+  } else {
+    _horariosOffset = 0;
+  }
   renderHorarios();
 }
 

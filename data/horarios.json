@@ -1,4 +1,53 @@
 {
-  "recurrentes": [],
-  "unicos": []
+  "recurrentes": [
+    {
+      "id": "1778986632469",
+      "clienteId": "1778377380425",
+      "nombreCliente": "Arianna Chirino",
+      "desc": "Clase",
+      "inicio": "18:30",
+      "fin": "19:30",
+      "color": "#4caf50",
+      "dias": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "1778986803527",
+      "clienteId": "",
+      "nombreCliente": "Clase",
+      "desc": "Clase",
+      "inicio": "19:30",
+      "fin": "20:30",
+      "color": "#4caf50",
+      "dias": [
+        4
+      ]
+    }
+  ],
+  "unicos": [
+    {
+      "id": "1778986175728",
+      "clienteId": "1778377380425",
+      "nombreCliente": "Arianna Chirino",
+      "desc": "",
+      "inicio": "05:00",
+      "fin": "07:00",
+      "color": "#9c27b0",
+      "fecha": "2026-05-16"
+    },
+    {
+      "id": "1778986363640",
+      "clienteId": "1778377616786",
+      "nombreCliente": "Manuela Gaviria",
+      "desc": "",
+      "inicio": "05:00",
+      "fin": "06:30",
+      "color": "#e31e24",
+      "fecha": "2026-05-16"
+    }
+  ]
 }
