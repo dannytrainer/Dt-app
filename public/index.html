@@ -157,10 +157,10 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
     <div style="font-size:15px;font-weight:700;color:#fff">Administrativo</div>
     <div style="font-size:11px;color:#555;margin-top:3px">Cobros y finanzas</div>
   </div>
-  <div onclick="showPage('admin')" style="background:#111;border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
-    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#9c27b0,#ce93d8)"></div>
-    <div style="font-size:40px;margin-bottom:8px">📊</div>
-    <div style="font-size:15px;font-weight:700;color:#fff">Estadísticas</div>
+  <div onclick="showPage('horarios')" style="background:#111;border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--rojo),#ff6b6b)"></div>
+    <div style="font-size:40px;margin-bottom:8px">🗓️</div>
+    <div style="font-size:15px;font-weight:700;color:#fff">Horarios</div>
     <div style="font-size:11px;color:#555;margin-top:3px">Finanzas del negocio</div>
   </div>
 </div>
@@ -189,6 +189,99 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <input type="text" id="buscador-rutinas" placeholder="🔍 Buscar cliente..." oninput="filtrarRutinas()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:11px;color:#f0f0f0;font-size:14px;outline:none;margin-bottom:12px"><p class="st">Selecciona un cliente</p>
 <div id="lista-rutinas-clientes"></div>
 </div>
+
+<div id="page-horarios" class="page">
+  <div style="font-size:10px;color:var(--rojo);text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:12px">🗓️ Horarios</div>
+
+  <!-- Tabs vista -->
+  <div style="display:flex;gap:6px;margin-bottom:14px">
+    <button id="htab-semana" onclick="horariosVista('semana')" style="flex:1;padding:8px;border-radius:10px;border:none;background:var(--rojo);color:#fff;font-size:11px;font-weight:700;cursor:pointer">📅 Semana</button>
+    <button id="htab-mes" onclick="horariosVista('mes')" style="flex:1;padding:8px;border-radius:10px;border:none;background:#2a2a2a;color:#888;font-size:11px;font-weight:700;cursor:pointer">📆 Mes</button>
+  </div>
+
+  <!-- Navegación fecha -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <button onclick="horariosNav(-1)" style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:8px 14px;color:#fff;font-size:18px;cursor:pointer">‹</button>
+    <div id="horarios-titulo" style="font-size:14px;font-weight:700;color:#fff;text-align:center"></div>
+    <button onclick="horariosNav(1)" style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:8px 14px;color:#fff;font-size:18px;cursor:pointer">›</button>
+  </div>
+
+  <!-- Contenido -->
+  <div id="horarios-contenido"></div>
+
+  <!-- Botón agregar -->
+  <button onclick="abrirModalHorario()" style="position:fixed;bottom:80px;right:20px;background:var(--rojo);color:#fff;border:none;border-radius:50%;width:52px;height:52px;font-size:26px;cursor:pointer;box-shadow:0 4px 15px rgba(227,30,36,.5);z-index:99">+</button>
+</div>
+
+<!-- Modal crear/editar horario -->
+<div class="modal" id="modal-horario">
+  <div class="modal-content" style="max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="mt" id="modal-horario-titulo">➕ Nueva clase</div>
+      <button class="btn bg" style="padding:6px 14px" onclick="cerrarModalHorario()">✕</button>
+    </div>
+
+    <div class="ig"><label>Cliente</label>
+      <select id="h-cliente" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none">
+        <option value="">— Seleccionar cliente —</option>
+      </select>
+    </div>
+
+    <div class="ig"><label>Descripción (opcional)</label>
+      <input type="text" id="h-desc" placeholder="Ej: Clase grupal, Test físico..." style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ig"><label>Hora inicio</label>
+        <select id="h-inicio" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none"></select>
+      </div>
+      <div class="ig"><label>Hora fin</label>
+        <select id="h-fin" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none"></select>
+      </div>
+    </div>
+
+    <div class="ig"><label>Color</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="h-colores">
+        <div onclick="seleccionarColorH('#e31e24')" style="width:32px;height:32px;border-radius:50%;background:#e31e24;cursor:pointer;border:3px solid #fff"></div>
+        <div onclick="seleccionarColorH('#9c27b0')" style="width:32px;height:32px;border-radius:50%;background:#9c27b0;cursor:pointer"></div>
+        <div onclick="seleccionarColorH('#4a9eff')" style="width:32px;height:32px;border-radius:50%;background:#4a9eff;cursor:pointer"></div>
+        <div onclick="seleccionarColorH('#4caf50')" style="width:32px;height:32px;border-radius:50%;background:#4caf50;cursor:pointer"></div>
+        <div onclick="seleccionarColorH('#ff9800')" style="width:32px;height:32px;border-radius:50%;background:#ff9800;cursor:pointer"></div>
+        <div onclick="seleccionarColorH('#00bcd4')" style="width:32px;height:32px;border-radius:50%;background:#00bcd4;cursor:pointer"></div>
+      </div>
+      <input type="hidden" id="h-color" value="#e31e24">
+    </div>
+
+    <div class="ig">
+      <label style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="h-recurrente" onchange="toggleRecurrente()" style="accent-color:var(--rojo);width:16px;height:16px">
+        <span>Repetir cada semana</span>
+      </label>
+    </div>
+
+    <!-- Si recurrente: días de la semana -->
+    <div id="h-dias-container" style="display:none" class="ig">
+      <label>Días</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${['Lu','Ma','Mi','Ju','Vi','Sá','Do'].map((d,i)=>`<div id="hdia-${i}" onclick="toggleDiaH(${i})" style="width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer">${d}</div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Si único: fecha específica -->
+    <div id="h-fecha-container" class="ig">
+      <label>Fecha</label>
+      <input type="date" id="h-fecha" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box">
+    </div>
+
+    <input type="hidden" id="h-editando-id">
+
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="guardarHorario()" style="flex:1;background:var(--rojo);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">💾 Guardar</button>
+      <button id="h-btn-eliminar" onclick="eliminarHorario()" style="display:none;background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:12px;font-size:14px;cursor:pointer">🗑️</button>
+    </div>
+  </div>
+</div>
+
 <div id="page-festivos" class="page">
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
 <span style="font-size:15px;font-weight:700;color:#fff">🗓️ Días Festivos</span>
@@ -375,6 +468,7 @@ if(p==='festivos')cargarFestivos();
 if(p==='logs')cargarLogs();
 if(p==='enviar'){cargarSelectEnviar();cargarDifusion();}
 if(p==='admin')cargarAdmin();
+if(p==='horarios')initHorarios();
 }
 function toast(msg,ok=true){
 const t=document.getElementById('toast');
@@ -1186,6 +1280,391 @@ async function cambiarFoto(id){
   };
   input.click();
 }
+
+
+// ===== HORARIOS =====
+let _horariosData = {recurrentes:[], unicos:[]};
+let _horariosVista = 'semana';
+let _horariosOffset = 0;
+let _horarioColorSel = '#e31e24';
+let _horarioDiasSel = [];
+let _horarioEditId = null;
+
+async function cargarHorarios(){
+  const res = await fetch('/api/horarios');
+  _horariosData = await res.json();
+  if(!_horariosData.recurrentes) _horariosData.recurrentes = [];
+  if(!_horariosData.unicos) _horariosData.unicos = [];
+}
+
+async function initHorarios(){
+  await cargarHorarios();
+  _horariosOffset = 0;
+  _horariosVista = 'semana';
+  horariosVista('semana');
+  cargarClientesSelectH();
+}
+
+function cargarClientesSelectH(){
+  fetch('/api/usuarios').then(r=>r.json()).then(usuarios=>{
+    const sel = document.getElementById('h-cliente');
+    if(!sel) return;
+    sel.innerHTML = '<option value="">— Seleccionar cliente —</option>' +
+      usuarios.filter(u=>u.activo).map(u=>`<option value="${u.id}">${u.nombre}</option>`).join('');
+  });
+}
+
+function horariosVista(v){
+  _horariosVista = v;
+  _horariosOffset = 0;
+  document.getElementById('htab-semana').style.background = v==='semana'?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#2a2a2a';
+  document.getElementById('htab-semana').style.color = v==='semana'?'#fff':'#888';
+  document.getElementById('htab-mes').style.background = v==='mes'?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#2a2a2a';
+  document.getElementById('htab-mes').style.color = v==='mes'?'#fff':'#888';
+  renderHorarios();
+}
+
+function horariosNav(dir){
+  _horariosOffset += dir;
+  renderHorarios();
+}
+
+function getLunesDeSemana(offset){
+  const hoy = new Date();
+  const dia = hoy.getDay();
+  const diffLunes = (dia===0?-6:1-dia);
+  const lunes = new Date(hoy);
+  lunes.setDate(hoy.getDate() + diffLunes + offset*7);
+  lunes.setHours(0,0,0,0);
+  return lunes;
+}
+
+function getPrimerDiaMes(offset){
+  const hoy = new Date();
+  return new Date(hoy.getFullYear(), hoy.getMonth()+offset, 1);
+}
+
+function fechaStr(d){
+  return d.toISOString().split('T')[0];
+}
+
+function getDiaSemana(fecha){
+  const d = new Date(fecha+'T12:00:00');
+  return d.getDay()===0?6:d.getDay()-1; // 0=Lun, 6=Dom
+}
+
+function getEventosDia(fechaStr){
+  const diaSem = getDiaSemana(fechaStr);
+  const recurrentes = _horariosData.recurrentes.filter(e=>e.dias && e.dias.includes(diaSem));
+  const unicos = _horariosData.unicos.filter(e=>e.fecha===fechaStr);
+  return [...recurrentes.map(e=>({...e,tipo:'rec'})), ...unicos.map(e=>({...e,tipo:'uni'}))];
+}
+
+function renderHorarios(){
+  if(_horariosVista==='semana') renderHorariosSemana();
+  else renderHorariosMes();
+}
+
+function renderHorariosSemana(){
+  const lunes = getLunesDeSemana(_horariosOffset);
+  const dias = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const hoy = fechaStr(new Date());
+
+  // Titulo
+  const domingo = new Date(lunes); domingo.setDate(lunes.getDate()+6);
+  document.getElementById('horarios-titulo').textContent =
+    lunes.getDate()+'/'+(lunes.getMonth()+1)+' — '+domingo.getDate()+'/'+(domingo.getMonth()+1);
+
+  // Horas 5am a 10pm
+  const horas = [];
+  for(let h=5;h<=22;h++){
+    horas.push(h+':00');
+    if(h<22) horas.push(h+':30');
+  }
+
+  // Fechas de la semana
+  const fechas = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(lunes); d.setDate(lunes.getDate()+i);
+    fechas.push(fechaStr(d));
+  }
+
+  let html = `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+  <div style="min-width:520px">
+  <!-- Header días -->
+  <div style="display:grid;grid-template-columns:44px repeat(7,1fr);gap:2px;margin-bottom:4px">
+    <div></div>`;
+  fechas.forEach((f,i)=>{
+    const esHoy = f===hoy;
+    html += `<div style="text-align:center;font-size:10px;color:${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#888'};font-weight:${esHoy?'800':'400'}">
+      ${dias[i]}<br><span style="font-size:13px;color:${esHoy?'#fff':'#ccc'};font-weight:${esHoy?'800':'400'}">${new Date(f+'T12:00:00').getDate()}</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Franjas de hora
+  horas.forEach(hora=>{
+    html += `<div style="display:grid;grid-template-columns:44px repeat(7,1fr);gap:2px;min-height:28px;border-top:1px solid #1a1a1a">
+      <div style="font-size:9px;color:#444;padding-top:2px;text-align:right;padding-right:4px">${hora.endsWith(':00')?hora:''}</div>`;
+    fechas.forEach(f=>{
+      const eventos = getEventosDia(f).filter(e=>e.inicio===hora);
+      if(eventos.length>0){
+        const e = eventos[0];
+        const durMin = tiempoAMin(e.fin)-tiempoAMin(e.inicio);
+        const alto = Math.max(26, durMin*0.9);
+        html += `<div onclick="editarHorario('${e.id||''}','${e.tipo}')" style="background:${e.color||'#e31e24'};border-radius:6px;padding:2px 4px;cursor:pointer;min-height:${alto}px;overflow:hidden">
+          <div style="font-size:9px;color:#fff;font-weight:700;line-height:1.2">${e.nombreCliente||e.desc||'Clase'}</div>
+          <div style="font-size:8px;color:rgba(255,255,255,.7)">${e.inicio}-${e.fin}</div>
+        </div>`;
+      } else {
+        html += `<div onclick="abrirModalHorario('${f}','${hora}')" style="min-height:26px;border-radius:4px;cursor:pointer" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='transparent'"></div>`;
+      }
+    });
+    html += `</div>`;
+  });
+
+  html += `</div></div>`;
+  document.getElementById('horarios-contenido').innerHTML = html;
+}
+
+function renderHorariosMes(){
+  const primer = getPrimerDiaMes(_horariosOffset);
+  const mes = primer.getMonth();
+  const anio = primer.getFullYear();
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('horarios-titulo').textContent = meses[mes]+' '+anio;
+
+  const hoy = fechaStr(new Date());
+  const diasMes = new Date(anio, mes+1, 0).getDate();
+  const primerDiaSem = primer.getDay()===0?6:primer.getDay()-1;
+
+  let html = `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">`;
+  ['L','M','X','J','V','S','D'].forEach(d=>{
+    html += `<div style="text-align:center;font-size:10px;color:#555;font-weight:700">${d}</div>`;
+  });
+  html += `</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">`;
+
+  for(let i=0;i<primerDiaSem;i++) html += `<div></div>`;
+
+  for(let d=1;d<=diasMes;d++){
+    const f = anio+'-'+String(mes+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const eventos = getEventosDia(f);
+    const esHoy = f===hoy;
+    html += `<div onclick="verDiaHorario('${f}')" style="background:${esHoy?'#1a0000':'#111'};border:1px solid ${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#1e1e1e'};border-radius:10px;padding:6px;min-height:52px;cursor:pointer">
+      <div style="font-size:12px;color:${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#ccc'};font-weight:${esHoy?'800':'400'};margin-bottom:3px">${d}</div>
+      ${eventos.slice(0,3).map(e=>`<div style="background:${e.color||'#9c27b0'};border-radius:3px;height:5px;margin-bottom:2px"></div>`).join('')}
+      ${eventos.length>3?`<div style="font-size:8px;color:#666">+${eventos.length-3}</div>`:''}
+    </div>`;
+  }
+  html += `</div>`;
+  document.getElementById('horarios-contenido').innerHTML = html;
+}
+
+function verDiaHorario(fecha){
+  _horariosVista = 'semana';
+  // Calcular offset para esa semana
+  const lunes = getLunesDeSemana(0);
+  const target = new Date(fecha+'T12:00:00');
+  const diff = Math.round((target-lunes)/(7*24*3600*1000));
+  _horariosOffset = diff;
+  document.getElementById('htab-semana').style.background = getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24';
+  document.getElementById('htab-semana').style.color = '#fff';
+  document.getElementById('htab-mes').style.background = '#2a2a2a';
+  document.getElementById('htab-mes').style.color = '#888';
+  renderHorarios();
+}
+
+function tiempoAMin(t){
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+
+function generarOpcionesHora(){
+  const ops = [];
+  for(let h=5;h<=22;h++){
+    ops.push(String(h).padStart(2,'0')+':00');
+    ops.push(String(h).padStart(2,'0')+':15');
+    ops.push(String(h).padStart(2,'0')+':30');
+    ops.push(String(h).padStart(2,'0')+':45');
+  }
+  ops.push('23:00');
+  return ops;
+}
+
+function abrirModalHorario(fecha, hora){
+  _horarioEditId = null;
+  _horarioDiasSel = [];
+  _horarioColorSel = '#e31e24';
+  document.getElementById('modal-horario-titulo').textContent = '➕ Nueva clase';
+  document.getElementById('h-editando-id').value = '';
+  document.getElementById('h-desc').value = '';
+  document.getElementById('h-recurrente').checked = false;
+  document.getElementById('h-dias-container').style.display = 'none';
+  document.getElementById('h-fecha-container').style.display = '';
+  document.getElementById('h-btn-eliminar').style.display = 'none';
+
+  // Colores
+  seleccionarColorH('#e31e24');
+
+  // Días botones reset
+  for(let i=0;i<7;i++){
+    const el = document.getElementById('hdia-'+i);
+    if(el){ el.style.background='#1a1a1a'; el.style.color='#888'; el.style.borderColor='#333'; }
+  }
+
+  // Fecha y hora
+  if(fecha) document.getElementById('h-fecha').value = fecha;
+  else document.getElementById('h-fecha').value = fechaStr(new Date());
+
+  // Opciones hora
+  const ops = generarOpcionesHora();
+  const optHTML = ops.map(o=>`<option value="${o}">${o}</option>`).join('');
+  document.getElementById('h-inicio').innerHTML = optHTML;
+  document.getElementById('h-fin').innerHTML = optHTML;
+  if(hora){
+    document.getElementById('h-inicio').value = hora;
+    const finIdx = Math.min(ops.indexOf(hora)+2, ops.length-1);
+    document.getElementById('h-fin').value = ops[finIdx];
+  }
+
+  cargarClientesSelectH();
+  document.getElementById('modal-horario').classList.add('open');
+}
+
+function cerrarModalHorario(){
+  document.getElementById('modal-horario').classList.remove('open');
+}
+
+function seleccionarColorH(color){
+  _horarioColorSel = color;
+  document.getElementById('h-color').value = color;
+  document.querySelectorAll('#h-colores div').forEach(d=>{
+    d.style.border = d.style.background===color||d.style.backgroundColor===color ? '3px solid #fff':'3px solid transparent';
+  });
+}
+
+function toggleDiaH(i){
+  const el = document.getElementById('hdia-'+i);
+  if(_horarioDiasSel.includes(i)){
+    _horarioDiasSel = _horarioDiasSel.filter(d=>d!==i);
+    el.style.background='#1a1a1a'; el.style.color='#888'; el.style.borderColor='#333';
+  } else {
+    _horarioDiasSel.push(i);
+    el.style.background=getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24'; el.style.color='#fff'; el.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24';
+  }
+}
+
+function toggleRecurrente(){
+  const rec = document.getElementById('h-recurrente').checked;
+  document.getElementById('h-dias-container').style.display = rec?'':'none';
+  document.getElementById('h-fecha-container').style.display = rec?'none':'';
+}
+
+async function guardarHorario(){
+  const clienteId = document.getElementById('h-cliente').value;
+  const desc = document.getElementById('h-desc').value.trim();
+  const inicio = document.getElementById('h-inicio').value;
+  const fin = document.getElementById('h-fin').value;
+  const color = document.getElementById('h-color').value||'#e31e24';
+  const recurrente = document.getElementById('h-recurrente').checked;
+  const fecha = document.getElementById('h-fecha').value;
+
+  if(!inicio||!fin){ toast('Completa hora inicio y fin',false); return; }
+  if(tiempoAMin(fin)<=tiempoAMin(inicio)){ toast('La hora fin debe ser mayor',false); return; }
+  if(recurrente && _horarioDiasSel.length===0){ toast('Selecciona al menos un día',false); return; }
+  if(!recurrente && !fecha){ toast('Selecciona una fecha',false); return; }
+
+  // Nombre del cliente
+  let nombreCliente = desc;
+  if(clienteId){
+    const sel = document.getElementById('h-cliente');
+    nombreCliente = sel.options[sel.selectedIndex].text;
+  }
+
+  await cargarHorarios();
+
+  if(recurrente){
+    const evento = { id: Date.now().toString(), clienteId, nombreCliente, desc, inicio, fin, color, dias: _horarioDiasSel };
+    if(_horarioEditId){
+      const idx = _horariosData.recurrentes.findIndex(e=>e.id===_horarioEditId);
+      if(idx>=0){ evento.id=_horarioEditId; _horariosData.recurrentes[idx]=evento; }
+    } else {
+      _horariosData.recurrentes.push(evento);
+    }
+  } else {
+    const evento = { id: Date.now().toString(), clienteId, nombreCliente, desc, inicio, fin, color, fecha };
+    if(_horarioEditId){
+      const idx = _horariosData.unicos.findIndex(e=>e.id===_horarioEditId);
+      if(idx>=0){ evento.id=_horarioEditId; _horariosData.unicos[idx]=evento; }
+    } else {
+      _horariosData.unicos.push(evento);
+    }
+  }
+
+  await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
+  toast('✅ Horario guardado');
+  cerrarModalHorario();
+  renderHorarios();
+}
+
+function editarHorario(id, tipo){
+  if(!id) return;
+  const lista = tipo==='rec'?_horariosData.recurrentes:_horariosData.unicos;
+  const e = lista.find(x=>x.id===id);
+  if(!e) return;
+
+  _horarioEditId = id;
+  _horarioDiasSel = e.dias||[];
+  _horarioColorSel = e.color||'#e31e24';
+
+  document.getElementById('modal-horario-titulo').textContent = '✏️ Editar clase';
+  document.getElementById('h-editando-id').value = id;
+  document.getElementById('h-desc').value = e.desc||'';
+  document.getElementById('h-btn-eliminar').style.display = '';
+
+  const ops = generarOpcionesHora();
+  const optHTML = ops.map(o=>`<option value="${o}">${o}</option>`).join('');
+  document.getElementById('h-inicio').innerHTML = optHTML;
+  document.getElementById('h-fin').innerHTML = optHTML;
+  document.getElementById('h-inicio').value = e.inicio;
+  document.getElementById('h-fin').value = e.fin;
+
+  const rec = tipo==='rec';
+  document.getElementById('h-recurrente').checked = rec;
+  document.getElementById('h-dias-container').style.display = rec?'':'none';
+  document.getElementById('h-fecha-container').style.display = rec?'none':'';
+
+  if(rec){
+    for(let i=0;i<7;i++){
+      const el=document.getElementById('hdia-'+i);
+      if(el){
+        const sel=_horarioDiasSel.includes(i);
+        el.style.background=sel?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#1a1a1a';
+        el.style.color=sel?'#fff':'#888';
+        el.style.borderColor=sel?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#333';
+      }
+    }
+  } else {
+    document.getElementById('h-fecha').value = e.fecha||'';
+  }
+
+  seleccionarColorH(e.color||'#e31e24');
+  cargarClientesSelectH();
+  setTimeout(()=>{ if(e.clienteId) document.getElementById('h-cliente').value=e.clienteId; },200);
+  document.getElementById('modal-horario').classList.add('open');
+}
+
+async function eliminarHorario(){
+  if(!_horarioEditId) return;
+  await cargarHorarios();
+  _horariosData.recurrentes = _horariosData.recurrentes.filter(e=>e.id!==_horarioEditId);
+  _horariosData.unicos = _horariosData.unicos.filter(e=>e.id!==_horarioEditId);
+  await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
+  toast('🗑️ Eliminado');
+  cerrarModalHorario();
+  renderHorarios();
+}
+// ===== FIN HORARIOS =====
 
 async function cargarRutinasClientes(){
 const res=await fetch('/api/usuarios');

@@ -274,6 +274,13 @@ app.get('/data/fotos/:file', (req, res) => {
   else res.status(404).end();
 });
 
+
+app.get('/api/horarios', (req, res) => res.json(cargarJSON('horarios.json')));
+app.post('/api/horarios', (req, res) => {
+  guardarJSON('horarios.json', req.body);
+  res.json({ok:true});
+});
+
 app.get('/api/status',(req,res)=>res.json({conectado:global.waConectado||false}));
 app.get('/api/logs', (req, res) => res.json(cargarJSON('logs.json')));
 app.post('/api/enviar', async (req, res) => {
