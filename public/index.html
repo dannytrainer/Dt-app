@@ -681,7 +681,8 @@ async function abrirAdminCliente(id){
 
   // Historial pagos
   if(d.pagos&&d.pagos.length){
-    html+='<div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">📅 Historial de pagos</div>';
+    html+='<div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="toggleHistAdmin(\''+id+'\')" >📅 Ver historial <span id="hist-arr-'+id+'">▾</span></div>';
+    html+='<div id="hist-'+id+'" style="display:none">';
     [...d.pagos].reverse().forEach(p=>{
       const tieneDesc=p.descuento_valor&&p.descuento_valor>0;
       html+='<div style="background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:12px;margin-bottom:6px">';
@@ -695,6 +696,7 @@ async function abrirAdminCliente(id){
         const descStr=p.descuento_tipo==='pct'?p.descuento_valor+'%':((p.descuento_valor/1000).toLocaleString()+' mil');
         html+='<div style="margin-top:6px;font-size:11px;color:#f0c040">🏷️ Descuento: '+descStr+(p.descuento_motivo?' — '+p.descuento_motivo:'')+'</div>';
       }
+    html+='</div>';
       html+='</div>';
     });
   }
@@ -718,6 +720,15 @@ function calcDescuento(){
 function toggleDescPanel(){
   const p=document.getElementById('ac-desc-panel');
   if(p)p.style.display=p.style.display==='none'?'block':'none';
+}
+
+function toggleHistAdmin(id){
+  const h=document.getElementById('hist-'+id);
+  const a=document.getElementById('hist-arr-'+id);
+  if(!h)return;
+  const visible=h.style.display==='none';
+  h.style.display=visible?'block':'none';
+  if(a)a.textContent=visible?'▴':'▾';
 }
 async function guardarAdminCliente(id){
   const precio=(parseFloat(document.getElementById('ac-precio').value)||0)*1000;
