@@ -179,6 +179,22 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 
 <div id="page-clientes" class="page">
 <input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:11px;color:#f0f0f0;font-size:14px;outline:none;margin-bottom:12px"><div id="stats-clientes" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px"><div style="background:#111;border:1px solid #1a3a1a;border-radius:8px;padding:8px;text-align:center"><div id="stat-activos" style="font-size:20px;font-weight:700;color:#4caf50">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">🟢 Activos</div></div><div style="background:#111;border:1px solid #3a0000;border-radius:8px;padding:8px;text-align:center"><div id="stat-personalizados" style="font-size:20px;font-weight:700;color:#e31e24">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">💪 Person.</div></div><div style="background:#111;border:1px solid #1a2a3a;border-radius:8px;padding:8px;text-align:center"><div id="stat-asesorados" style="font-size:20px;font-weight:700;color:#4a9eff">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">📋 Asesor.</div></div><div style="background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:8px;text-align:center"><div id="stat-pausados" style="font-size:20px;font-weight:700;color:#666">0</div><div style="font-size:9px;color:#888;text-transform:uppercase;margin-top:2px">⏸️ Pausados</div></div></div><p class="st">Clientes registrados</p>
+<div id="barra-pausa" style="margin-bottom:12px">
+<button onclick="abrirModalPausa()" id="btn-pausa-global" style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:10px;color:#aaa;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><span id="icono-pausa-global">⏸️</span><span id="lbl-pausa-global">Pausar envíos globalmente</span></button>
+</div>
+<div id="modal-pausa" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center">
+<div style="background:#1a1a1a;border:1px solid #333;border-radius:16px;padding:24px;width:88%;max-width:340px">
+<p style="font-size:16px;font-weight:700;margin-bottom:6px;text-align:center">⏸️ Pausar todos los envíos</p>
+<p style="font-size:12px;color:#888;text-align:center;margin-bottom:20px">Ningún cliente recibirá mensajes por WhatsApp. Sus estados no cambian.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<button onclick="ejecutarPausaGlobal(1)" style="background:#111;border:1px solid #333;border-radius:10px;padding:13px;color:#f0f0f0;font-size:14px;cursor:pointer">📅 1 día</button>
+<button onclick="ejecutarPausaGlobal(7)" style="background:#111;border:1px solid #333;border-radius:10px;padding:13px;color:#f0f0f0;font-size:14px;cursor:pointer">📅 1 semana</button>
+<button onclick="ejecutarPausaGlobal(14)" style="background:#111;border:1px solid #333;border-radius:10px;padding:13px;color:#f0f0f0;font-size:14px;cursor:pointer">📅 2 semanas</button>
+<button onclick="ejecutarPausaGlobal(-1)" style="background:#111;border:1px solid #444;border-radius:10px;padding:13px;color:#aaa;font-size:14px;cursor:pointer">🔁 Hasta reactivar manualmente</button>
+</div>
+<button onclick="cerrarModalPausa()" style="width:100%;margin-top:16px;background:transparent;border:1px solid #333;border-radius:10px;padding:11px;color:#666;font-size:13px;cursor:pointer">Cancelar</button>
+</div>
+</div>
 <div id="lista-clientes"></div>
 <div id="empty-clientes" style="display:none;text-align:center;padding:40px;color:#444">
 <p style="font-size:40px">👥</p>
@@ -480,7 +496,7 @@ if(p==='inicio'){nav.style.display='none';}
 else{nav.style.display='flex';const navIdx=['inicio','clientes','rutinas','logs','enviar'].indexOf(p);if(navIdx>=0)document.querySelectorAll('.nav button')[navIdx].classList.add('active');}
 document.getElementById('fab-btn').style.display=p==='clientes'?'flex':'none';
 if(p==='inicio')cargarInicio();
-if(p==='clientes')cargarClientes();
+if(p==='clientes'){cargarClientes();cargarEstadoPausaGlobal();}
 if(p==='rutinas')cargarRutinasClientes();
 if(p==='festivos')cargarFestivos();
 if(p==='logs')cargarLogs();
@@ -1317,6 +1333,8 @@ async function cargarHorarios(){
 
 async function initHorarios(){
   await cargarHorarios();
+  const fr = await fetch('/api/festivos');
+  window._festivos = await fr.json();
   _horariosOffset = 0;
   _horariosVista = 'semana';
   horariosVista('semana');
@@ -1412,10 +1430,12 @@ function renderHorariosSemana(){
   <!-- Header días -->
   <div style="display:grid;grid-template-columns:44px repeat(7,1fr);gap:2px;margin-bottom:4px">
     <div></div>`;
+  const festivosSem = (window._festivos||[]).map(x=>x.fecha);
   fechas.forEach((f,i)=>{
     const esHoy = f===hoy;
+    const esFestivo = festivosSem.includes(f);
     html += `<div style="text-align:center;font-size:10px;color:${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#888'};font-weight:${esHoy?'800':'400'}">
-      ${dias[i]}<br><span style="font-size:13px;color:${esHoy?'#fff':'#ccc'};font-weight:${esHoy?'800':'400'}">${new Date(f+'T12:00:00').getDate()}</span>
+      ${dias[i]}<br><span style="font-size:13px;color:${esHoy?'#fff':'#ccc'};font-weight:${esHoy?'800':'400'}">${new Date(f+'T12:00:00').getDate()}</span>${esFestivo?'<br><span style="width:6px;height:6px;background:#e31e24;border-radius:50%;display:inline-block;margin-top:2px"></span>':''}
     </div>`;
   });
   html += `</div>`;
@@ -1458,6 +1478,7 @@ function renderHorariosMes(){
 
   const hoy = fechaStr(new Date());
   const diasMes = new Date(anio, mes+1, 0).getDate();
+  const festivosMes = (window._festivos || []).map(f=>f.fecha);
   const primerDiaSem = primer.getDay()===0?6:primer.getDay()-1;
 
   let html = `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">`;
@@ -1473,7 +1494,7 @@ function renderHorariosMes(){
     const eventos = getEventosDia(f);
     const esHoy = f===hoy;
     html += `<div onclick="verDiaHorario('${f}')" style="background:${esHoy?'#1a0000':'#111'};border:1px solid ${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#1e1e1e'};border-radius:10px;padding:6px;min-height:52px;cursor:pointer">
-      <div style="font-size:12px;color:${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#ccc'};font-weight:${esHoy?'800':'400'};margin-bottom:3px">${d}</div>
+      <div style="font-size:12px;color:${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#ccc'};font-weight:${esHoy?'800':'400'};margin-bottom:3px;display:flex;align-items:center;gap:3px">${d}${festivosMes.includes(f)?'<span style="width:6px;height:6px;background:#e31e24;border-radius:50%;display:inline-block;flex-shrink:0" title="Festivo"></span>':''}</div>
       ${eventos.slice(0,3).map(e=>`<div style="background:${e.color||'#9c27b0'};border-radius:3px;height:5px;margin-bottom:2px"></div>`).join('')}
       ${eventos.length>3?`<div style="font-size:8px;color:#666">+${eventos.length-3}</div>`:''}
     </div>`;
@@ -1484,11 +1505,11 @@ function renderHorariosMes(){
 
 function verDiaHorario(fecha){
   _horariosVista = 'semana';
-  // Calcular offset para esa semana
+  // Calcular offset exacto por días
   const lunes = getLunesDeSemana(0);
   const target = new Date(fecha+'T12:00:00');
-  const diff = Math.round((target-lunes)/(7*24*3600*1000));
-  _horariosOffset = diff;
+  const diffDias = Math.floor((target-lunes)/(24*3600*1000));
+  _horariosOffset = Math.floor(diffDias/7);
   document.getElementById('htab-semana').style.background = getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24';
   document.getElementById('htab-semana').style.color = '#fff';
   document.getElementById('htab-mes').style.background = '#2a2a2a';
@@ -4840,6 +4861,48 @@ if(d.conectado){s.textContent='🟢 Online';s.className='sdot son';}
 else{s.textContent='⚫ Offline';s.className='sdot soff';}
 }catch(e){}
 },3000);
+function abrirModalPausa(){
+  document.getElementById('modal-pausa').style.display='flex';
+}
+function cerrarModalPausa(){
+  document.getElementById('modal-pausa').style.display='none';
+}
+async function ejecutarPausaGlobal(dias){
+  let hasta = dias === -1 ? 'indefinido' : new Date(Date.now() + dias*86400000).toISOString().split('T')[0];
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: hasta})});
+  cerrarModalPausa();
+  actualizarBtnPausaGlobal(hasta);
+}
+async function reactivarEnviosGlobal(){
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: null})});
+  actualizarBtnPausaGlobal(null);
+}
+function actualizarBtnPausaGlobal(hasta){
+  const btn = document.getElementById('btn-pausa-global');
+  const icono = document.getElementById('icono-pausa-global');
+  const lbl = document.getElementById('lbl-pausa-global');
+  if(!hasta || hasta === null){
+    btn.style.borderColor='#333';
+    btn.style.color='#aaa';
+    btn.style.background='#1a1a1a';
+    icono.textContent='⏸️';
+    lbl.textContent='Pausar envíos globalmente';
+    btn.onclick = abrirModalPausa;
+  } else {
+    btn.style.borderColor='#e31e24';
+    btn.style.color='#e31e24';
+    btn.style.background='#2a0000';
+    icono.textContent='🔴';
+    lbl.textContent = hasta === 'indefinido' ? 'Envíos pausados — Toca para reactivar' : 'Pausado hasta '+hasta+' — Toca para reactivar';
+    btn.onclick = reactivarEnviosGlobal;
+  }
+}
+async function cargarEstadoPausaGlobal(){
+  const r = await fetch('/api/config');
+  const cfg = await r.json();
+  const hasta = cfg.envios_pausados_hasta || null;
+  actualizarBtnPausaGlobal(hasta);
+}
 function filtrarClientes(){
   const q=document.getElementById('buscador-clientes').value.toLowerCase();
   document.querySelectorAll('#lista-clientes>div').forEach(d=>{

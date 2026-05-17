@@ -182,7 +182,9 @@
     },
     "sabado": {
       "recordatorio": "B",
-      "rutina": "C"
+      "rutina": "C",
+      "ejercicios": [],
+      "cardio": []
     },
     "domingo": {
       "recordatorio": "",

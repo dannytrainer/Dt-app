@@ -72,62 +72,64 @@ cron.schedule('* * * * *', async () => {
     if (cambio) fs.writeFileSync(path.join(__dirname,'data','usuarios.json'), JSON.stringify(usuarios2, null, 2));
   } catch(e) {}
 
-  const ahora = new Date();
-  const horaActual = ahora.getHours().toString().padStart(2,'0') + ':' + ahora.getMinutes().toString().padStart(2,'0');
-  const diaActual = DIAS[ahora.getDay()];
-  const hoy = ahora.toISOString().split('T')[0];
+  // Envío automático de rutinas y recordatorio de pago
+  try {
+    const ahora = new Date();
+    const horaActual = ahora.getHours().toString().padStart(2,'0') + ':' + ahora.getMinutes().toString().padStart(2,'0');
+    const DIAS = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+    const diaActual = DIAS[ahora.getDay()];
+    const hoy = ahora.toISOString().split('T')[0];
+    const festivos = cargarJSON('festivos.json');
+    const usuarios = cargarJSON('usuarios.json');
+    const rutinas = cargarJSON('rutinas.json');
+    const logs = cargarJSON('logs.json');
+    if (!logs[hoy]) logs[hoy] = {};
 
-  const festivos = cargarJSON('festivos.json');
-  const usuarios = cargarJSON('usuarios.json');
-  const rutinas = cargarJSON('rutinas.json');
-  const logs = cargarJSON('logs.json');
+    if (festivos.find(f => f.fecha === hoy)) {
+      guardarJSON('logs.json', logs);
+      return;
+    }
 
-  if (!logs[hoy]) logs[hoy] = {};
+    // Respetar pausa global
+    const cfg = cargarJSON('config.json');
+    const pausadoHasta = cfg.envios_pausados_hasta || null;
+    if (pausadoHasta) {
+      if (pausadoHasta === 'indefinido') return;
+      if (new Date(pausadoHasta) >= new Date(hoy)) return;
+    }
 
-  if (ahora.getHours() === 22 && ahora.getMinutes() === 0 && logs[hoy]["aviso_festivo"] !== true) {
-    const manana = new Date(ahora);
-    manana.setDate(manana.getDate() + 1);
-    const mananaStr = manana.toISOString().split('T')[0];
-    const festivoManana = festivos.find(f => f.fecha === mananaStr);
-    if (festivoManana) {
-      logs[hoy]["aviso_festivo"] = true;
-      for (const u of usuarios) {
-        await enviarMensaje(u.telefono, 'Manana es ' + festivoManana.nombre + '. No se enviaran mensajes automaticos.');
+    for (const usuario of usuarios) {
+      if (!usuario.activo) continue;
+      if (usuario.hora_envio !== horaActual) continue;
+      const rutinaUsuario = rutinas[usuario.id];
+      if (!rutinaUsuario || !rutinaUsuario[diaActual]) continue;
+      const recordatorio = rutinaUsuario[diaActual].recordatorio || '';
+      const rutinaDia = rutinaUsuario[diaActual].rutina || '';
+      const mensaje = recordatorio + (rutinaDia ? '\n\n' + rutinaDia : '');
+      if (!mensaje.trim()) continue;
+      if (logs[hoy][usuario.id]) continue;
+      const resultado = await enviarMensaje(usuario.telefono, mensaje);
+      logs[hoy][usuario.id] = resultado ? 'enviado' : 'error';
+    }
+
+    // Recordatorio de pago
+    for (const usuario of usuarios) {
+      if (!usuario.activo) continue;
+      if (usuario.hora_envio !== horaActual) continue;
+      const manana = new Date(ahora);
+      manana.setDate(manana.getDate() + 1);
+      const diaman = manana.getDate();
+      if (diaman === usuario.dia_pago) {
+        const msg = usuario.msg_pago || ('Hola ' + usuario.nombre + ', recuerda que mañana es tu fecha de pago.');
+        await enviarMensaje(usuario.telefono, msg);
+      } else if (usuario.tipo_pago === 'quincenal' && diaman === usuario.dia_pago2) {
+        const msg = usuario.msg_q2 || ('Hola ' + usuario.nombre + ', recuerda que mañana es tu segunda quincena.');
+        await enviarMensaje(usuario.telefono, msg);
       }
     }
-  }
 
-  if (festivos.find(f => f.fecha === hoy)) return;
-
-  for (const usuario of usuarios) {
-    if (!usuario.activo) continue;
-    if (usuario.hora_envio !== horaActual) continue;
-    const rutinaUsuario = rutinas[usuario.id];
-    if (!rutinaUsuario || !rutinaUsuario[diaActual]) continue;
-    const recordatorio = rutinaUsuario[diaActual].recordatorio || '';
-    const rutinaDia = rutinaUsuario[diaActual].rutina || '';
-    const mensaje = recordatorio + (rutinaDia ? '\n\n' + rutinaDia : '');
-    if (!mensaje.trim()) continue;
-    const resultado = await enviarMensaje(usuario.telefono, mensaje);
-    logs[hoy][usuario.id] = resultado ? 'enviado' : 'error';
-  }
-
-  // Recordatorio de pago (independiente de rutina)
-  for (const usuario of usuarios) {
-    if (!usuario.activo) continue;
-    if (usuario.hora_envio !== horaActual) continue;
-    const manana = new Date(ahora);
-    manana.setDate(manana.getDate() + 1);
-    const diaman = manana.getDate();
-    if (diaman === usuario.dia_pago) {
-      const msg = usuario.msg_pago || ('Hola ' + usuario.nombre + ', recuerda que manana es tu fecha de pago.');
-      await enviarMensaje(usuario.telefono, msg);
-    } else if (usuario.tipo_pago === 'quincenal' && diaman === usuario.dia_pago2) {
-      const msg = usuario.msg_q2 || ('Hola ' + usuario.nombre + ', recuerda que manana es tu segunda quincena.');
-      await enviarMensaje(usuario.telefono, msg);
-    }
-  }
-  guardarJSON('logs.json', logs);
+    guardarJSON('logs.json', logs);
+  } catch(e) { console.error('Cron envios:', e); }
 });
 
 app.get('/api/usuarios', (req, res) => res.json(cargarJSON('usuarios.json')));
