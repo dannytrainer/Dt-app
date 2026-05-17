@@ -254,6 +254,26 @@ app.post('/api/config', (req, res) => {
   guardarJSON('config.json', cfg);
   res.json({ok:true});
 });
+
+app.post('/api/foto-cliente/:id', upload.single('foto'), (req, res) => {
+  try {
+    const id = req.params.id;
+    const ext = req.file.originalname.split('.').pop();
+    const dest = path.join(__dirname, 'data/fotos', id + '.' + ext);
+    fs.renameSync(req.file.path, dest);
+    const usuarios = cargarJSON('usuarios.json');
+    const u = usuarios.find(x => x.id === id);
+    if(u) { u.foto = '/data/fotos/' + id + '.' + ext; guardarJSON('usuarios.json', usuarios); }
+    res.json({ok:true, foto: u.foto});
+  } catch(e) { res.status(500).json({ok:false}); }
+});
+
+app.get('/data/fotos/:file', (req, res) => {
+  const p = path.join(__dirname, 'data/fotos', req.params.file);
+  if(fs.existsSync(p)) res.sendFile(p);
+  else res.status(404).end();
+});
+
 app.get('/api/status',(req,res)=>res.json({conectado:global.waConectado||false}));
 app.get('/api/logs', (req, res) => res.json(cargarJSON('logs.json')));
 app.post('/api/enviar', async (req, res) => {

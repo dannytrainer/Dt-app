@@ -30,7 +30,7 @@ body{background:var(--fondo);color:#fff}
 .card{background:var(--gris);border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px}
 .card.vencido{border-color:#e31e24}
 .card.proximo{border-color:#ff9800}
-.avatar{width:42px;height:42px;border-radius:50%;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex-shrink:0}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex-shrink:0;cursor:pointer;overflow:hidden;position:relative}.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-right:4px}
 .ba{background:#1a3a1a;color:#4caf50}
 .bp2{background:#2a2a2a;color:#888}
@@ -977,7 +977,7 @@ const ep=u.estado_pago||'aldia';
 const cc=ep==='vencido'?'card vencido':ep==='proximo'?'card proximo':'card';
 return`<div class="${cc}">
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-<div class="avatar">${u.nombre[0].toUpperCase()}</div>
+${avatarHTML(u)}
 <div style="flex:1">
 <div style="font-size:16px;font-weight:700;color:#fff">${u.nombre}</div>
 <div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;⏰ ${u.hora_envio} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
@@ -1058,7 +1058,7 @@ function _renderListaLocal(){
     const cc=ep==='vencido'?'card vencido':ep==='proximo'?'card proximo':'card';
     return`<div class="${cc}">
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-<div class="avatar">${u.nombre[0].toUpperCase()}</div>
+${avatarHTML(u)}
 <div style="flex:1">
 <div style="font-size:16px;font-weight:700;color:#fff">${u.nombre}</div>
 <div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;⏰ ${u.hora_envio} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
@@ -1161,13 +1161,39 @@ await fetch('/api/usuarios/'+id,{method:'PUT',headers:{'Content-Type':'applicati
 toast(activo?'✅ Activado':'⏸️ Pausado');cargarClientes();
 }
 
+
+function avatarHTML(u){
+  const iniciales = u.nombre.split(' ').slice(0,2).map(n=>n[0].toUpperCase()).join('');
+  if(u.foto){
+    return `<div class="avatar" onclick="cambiarFoto('${u.id}')"><img src="${u.foto}" onerror="this.parentElement.innerHTML='${iniciales}'"></div>`;
+  }
+  return `<div class="avatar" onclick="cambiarFoto('${u.id}')">${iniciales}</div>`;
+}
+
+async function cambiarFoto(id){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const fd = new FormData();
+    fd.append('foto', file);
+    const res = await fetch('/api/foto-cliente/'+id, {method:'POST', body:fd});
+    const data = await res.json();
+    if(data.ok){ toast('✅ Foto actualizada'); cargarClientes(); }
+    else toast('❌ Error al subir foto', false);
+  };
+  input.click();
+}
+
 async function cargarRutinasClientes(){
 const res=await fetch('/api/usuarios');
 const usuarios=await res.json();
 document.getElementById('lista-rutinas-clientes').innerHTML=usuarios.map(u=>`
 <div class="card" onclick="abrirRutina('${u.id}','${u.nombre}')" style="cursor:pointer">
 <div style="display:flex;align-items:center;gap:12px">
-<div class="avatar">${u.nombre[0].toUpperCase()}</div>
+${avatarHTML(u)}
 <div style="flex:1"><div style="font-weight:700">${u.nombre}</div>
 <div style="font-size:12px;color:#777">Toca para editar rutina</div></div>
 <span style="color:#e31e24;font-size:22px">›</span>
