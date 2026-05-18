@@ -67,7 +67,7 @@ module.exports = function(app, fs) {
 
   // ── GET /api/informe/:id/html ────────────────────────────
   // Genera el HTML completo del informe con datos reales
-  app.get('/api/informe/:id/html', (req, res) => {
+  app.get('/api/informe/:id/html', async (req, res) => {
     try {
       const id = req.params.id;
 
@@ -197,11 +197,30 @@ module.exports = function(app, fs) {
           <div style="font-size:11px;margin-top:6px;">Próximamente disponible · Se añadirá en la siguiente actualización del informe</div>
         </div>`;
 
+      // Cargar calculos de composicion corporal
+      let calculos = {};
+      try {
+        const http = require('http');
+        calculos = await new Promise((resolve) => {
+          const r = http.get('http://localhost:3000/api/calculos/' + id, (res2) => {
+            let d = ''; res2.on('data', c => d+=c); res2.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve({}); } });
+          }); r.on('error', () => resolve({}));
+        });
+      } catch(e) { calculos = {}; }
+
+      // Fotos comparativas
+      const fotoAntes   = path.join(__dirname, 'data/fotos', id, 'antes', 'foto.jpg');
+      const fotoDespues = path.join(__dirname, 'data/fotos', id, 'despues', 'foto.jpg');
+      let fotoAntesB64 = null, fotoDespuesB64 = null;
+      try { if (fs.existsSync(fotoAntes))   fotoAntesB64   = fs.readFileSync(fotoAntes).toString('base64'); } catch{}
+      try { if (fs.existsSync(fotoDespues)) fotoDespuesB64 = fs.readFileSync(fotoDespues).toString('base64'); } catch{}
+
       // Leer plantilla HTML base y reemplazar sección de rutina y alimentación
       // Por ahora generamos el HTML completo inline
       const html = generarHTMLCompleto({
         usuario, ultima, penultima, primera, medidas,
-        testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso
+        testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso,
+        calculos, fotoAntesB64, fotoDespuesB64, registros
       });
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -218,7 +237,7 @@ module.exports = function(app, fs) {
 // ============================================================
 // Función generadora del HTML completo
 // ============================================================
-function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso }) {
+function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso, calculos, fotoAntesB64, fotoDespuesB64, registros }) {
   const perfil = usuario.perfil || {};
   const edad = perfil.edad || usuario.edad || null;
   const altura = perfil.altura || usuario.altura || null;
@@ -443,57 +462,164 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
     </div>
   </div>
 
-  <!-- 2 — TESTS -->
+  
+  <!-- 2 — ANÁLISIS CORPORAL + FOTOS -->
   <div class="seccion">
     <div class="seccion-header">
       <div class="seccion-num">2</div>
-      <div class="seccion-titulo">TESTS FÍSICOS</div>
+      <div class="seccion-titulo">ANÁLISIS CORPORAL</div>
     </div>
     <div class="seccion-body">
-      ${testData ? `
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <!-- Composición corporal -->
         <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;">⚡ ESPECÍFICOS</div>
-          ${Object.entries(testData.especificos || {}).map(([k,v2]) => `
-          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;">
-            <span style="color:var(--texto-secundario);font-size:10px;">${k}</span>
-            <span style="font-weight:600;">${v2}</span>
-          </div>`).join('') || '<div style="color:#555;font-size:11px;font-style:italic;">Sin datos</div>'}
+          ${calculos && calculos.pctGrasa ? `
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;">📊 COMPOSICIÓN CORPORAL</div>
+          <div style="background:var(--negro);border:1px solid var(--gris-borde);border-radius:4px;overflow:hidden;">
+            <div style="display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="font-size:11px;color:#888">% Grasa</span><span style="font-size:12px;font-weight:700;color:#fff">${calculos.pctGrasa}%</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="font-size:11px;color:#888">% Masa magra</span><span style="font-size:12px;font-weight:700;color:#fff">${calculos.pctMagra}%</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="font-size:11px;color:#888">Kg de grasa</span><span style="font-size:12px;font-weight:700;color:#fff">${calculos.kgGrasa} kg</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 10px"><span style="font-size:11px;color:#888">Kg músculo</span><span style="font-size:12px;font-weight:700;color:#4caf50">${calculos.kgMusculo} kg</span></div>
+          </div>
+          ${calculos.proporciones ? `
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin:10px 0 8px;">📐 PROPORCIONES</div>
+          <div style="background:var(--negro);border:1px solid var(--gris-borde);border-radius:4px;overflow:hidden;">
+            ${Object.entries(calculos.proporciones).map(([k,v])=>{
+              const labels={hombros_cintura:'Hombros/cintura',pecho_cintura:'Pecho/cintura',brazo_cintura:'Brazo/cintura'};
+              const color=v.nivel==='ok'?'#4caf50':v.nivel==='warn'?'#ff9800':'#e31e24';
+              return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,0.04)">
+                <span style="font-size:11px;color:#888">${labels[k]||k}</span>
+                <span style="font-size:11px;font-weight:700;color:${color}">${v.valor} · ${v.estado}</span>
+              </div>`;
+            }).join('')}
+          </div>` : ''}
+          ${calculos.salud ? `
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin:10px 0 8px;">❤️ SALUD METABÓLICA</div>
+          <div style="background:var(--negro);border:1px solid var(--gris-borde);border-radius:4px;overflow:hidden;">
+            ${Object.entries(calculos.salud).map(([k,v])=>{
+              const labels={icc:'Índice cintura/cadera',ica:'Índice cintura/altura'};
+              const color=v.nivel==='ok'?'#4caf50':v.nivel==='warn'?'#ff9800':'#e31e24';
+              return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,0.04)">
+                <span style="font-size:11px;color:#888">${labels[k]||k}</span>
+                <span style="font-size:11px;font-weight:700;color:${color}">${v.valor} · ${v.estado}</span>
+              </div>`;
+            }).join('')}
+          </div>` : ''}
+          ` : '<div style="color:#555;font-size:11px;font-style:italic;padding:10px;">Sin datos de composición</div>'}
         </div>
+
+        <!-- Fotos comparativas -->
         <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;">💪 RESISTENCIA</div>
-          ${Object.entries(testData.resistencia || {}).map(([k,v2]) => `
-          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;">
-            <span style="color:var(--texto-secundario);font-size:10px;">${k}</span>
-            <span style="font-weight:600;">${v2}</span>
-          </div>`).join('') || '<div style="color:#555;font-size:11px;font-style:italic;">Sin datos</div>'}
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;">📸 COMPARATIVA ANTES / DESPUÉS</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Antes</div>
+              ${fotoAntesB64 ? `<img src="data:image/jpeg;base64,${fotoAntesB64}" style="width:100%;border-radius:6px;border:1px solid var(--gris-borde);max-height:200px;object-fit:cover;">`
+              : `<div style="background:#1a1a1a;border:1px dashed #333;border-radius:6px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;"><span style="font-size:28px;">🏃</span><span style="font-size:10px;color:#555;">Sin foto</span></div>`}
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Después</div>
+              ${fotoDespuesB64 ? `<img src="data:image/jpeg;base64,${fotoDespuesB64}" style="width:100%;border-radius:6px;border:1px solid var(--rojo);max-height:200px;object-fit:cover;">`
+              : `<div style="background:#1a1a1a;border:1px dashed var(--rojo);border-radius:6px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;"><span style="font-size:28px;">💪</span><span style="font-size:10px;color:#555;">Sin foto</span></div>`}
+            </div>
+          </div>
         </div>
-        <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;">🏆 FUERZA · 1RM</div>
-          ${Object.entries(testData.fuerza || {}).map(([k,v2]) => `
-          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;">
-            <span style="color:var(--texto-secundario);font-size:10px;">${k}</span>
-            <span style="font-weight:600;">${v2}</span>
-          </div>`).join('') || '<div style="color:#555;font-size:11px;font-style:italic;">Sin datos</div>'}
-        </div>
-      </div>` : `
-      <div style="text-align:center;padding:20px;color:#555;font-style:italic;">Sin tests registrados aún</div>`}
+      </div>
     </div>
   </div>
 
-  <!-- 3 — ALIMENTACIÓN -->
+  <!-- 3 — TESTS -->
   <div class="seccion">
     <div class="seccion-header">
       <div class="seccion-num">3</div>
+      <div class="seccion-titulo">TESTS FÍSICOS · RECORDS PERSONALES</div>
+    </div>
+    <div class="seccion-body">
+    ${(() => {
+      const regs = registros || [];
+      const byTipo = (tipo) => regs.filter(r => r.tipo === tipo);
+      const ultimo = (tipo) => { const a = byTipo(tipo); return a[a.length-1] || null; };
+      const penult = (tipo) => { const a = byTipo(tipo); return a[a.length-2] || null; };
+      const fuerza  = ultimo('fuerza');  const fuerzaP  = penult('fuerza');
+      const resist  = ultimo('resist');  const resistP  = penult('resist');
+      const especif = ultimo('especif'); const especifP = penult('especif');
+
+      const flecha = (actual, anterior, invertir=false) => {
+        if (actual==null || anterior==null) return '<span style="color:#555;font-size:10px;">—</span>';
+        const d = parseFloat(actual) - parseFloat(anterior);
+        if (d === 0) return '<span style="color:#555;font-size:10px;">—</span>';
+        const mejor = invertir ? d < 0 : d > 0;
+        return mejor
+          ? `<span style="color:#4caf50;font-size:10px;">▲+${Math.abs(d).toFixed(1)}</span>`
+          : `<span style="color:#e31e24;font-size:10px;">▼-${Math.abs(d).toFixed(1)}</span>`;
+      };
+
+      const fila = (nombre, valor, delta) =>
+        `<div style="display:flex;align-items:baseline;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <span style="font-size:11px;color:#888;white-space:nowrap;">${nombre}</span>
+          <span style="flex:1;border-bottom:1px dotted #2a2a2a;margin:0 5px;position:relative;top:-3px;"></span>
+          <span style="font-size:12px;font-weight:700;color:#fff;white-space:nowrap;">${valor}</span>
+          <span style="min-width:56px;text-align:right;">${delta}</span>
+        </div>`;
+
+      const radar = (datos, color) => {
+        if (!datos.length) return '<div style="height:160px;display:flex;align-items:center;justify-content:center;color:#333;font-size:11px;">Sin datos</div>';
+        const n=datos.length, cx=80, cy=80, r=58;
+        const ang = i => Math.PI*2*i/n - Math.PI/2;
+        const ptOuter = i => [cx+r*Math.cos(ang(i)), cy+r*Math.sin(ang(i))];
+        let grid='';
+        [25,50,75,100].forEach(pct=>{
+          const pts=datos.map((_,i)=>{const a=ang(i),rv=r*pct/100;return `${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;}).join(' ');
+          grid+=`<polygon points="${pts}" fill="none" stroke="#2a2a2a" stroke-width="0.8"/>`;
+        });
+        const ejes=datos.map((_,i)=>{const[x,y]=ptOuter(i);return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#333" stroke-width="0.8"/>`;}).join('');
+        const pts=datos.map((d,i)=>{const a=ang(i),rv=r*Math.min(d.score||0,100)/100;return `${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;}).join(' ');
+        const area=`<polygon points="${pts}" fill="${color}33" stroke="${color}" stroke-width="1.5"/>`;
+        const labels=datos.map((d,i)=>{const[x,y]=ptOuter(i);const lx=cx+(x-cx)*1.3,ly=cy+(y-cy)*1.3;return `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#999">${d.label}</text>`;}).join('');
+        return `<svg viewBox="0 0 160 160" width="160" height="160">${grid}${ejes}${area}${labels}</svg>`;
+      };
+
+      const musculos={pecho:'Pecho',espalda:'Espalda',cuad:'Cuádriceps',femoral:'Femoral',biceps:'Bíceps',triceps:'Tríceps',gluteo:'Glúteo'};
+      let hF='', rF=[];
+      if(fuerza) Object.entries(musculos).forEach(([k,n])=>{ if(fuerza[k]){ const v=fuerza[k],vp=fuerzaP&&fuerzaP[k]; hF+=fila(n,`${v.kg}kg × ${v.reps} reps`,vp?flecha(v.kg,vp.kg):'<span style="color:#555;font-size:10px;">—</span>'); rF.push({label:n.substring(0,5),score:v.score||0}); }});
+
+      const resistEjs={pushups:'Push ups',dominadas:'Dominadas',sentadilla:'Sentadilla',fondos:'Fondos',plancha:'Plancha (s)',burpees:'Burpees/min'};
+      let hR='', rR=[];
+      if(resist) Object.entries(resistEjs).forEach(([k,n])=>{ if(resist[k]){ const v=resist[k],vp=resistP&&resistP[k]; hR+=fila(n,v.valor+' reps',vp?flecha(v.valor,vp.valor):'<span style="color:#555;font-size:10px;">—</span>'); rR.push({label:n.substring(0,5),score:v.score||0}); }});
+
+      const especifEjs={cooper:'Cooper (m)',leger:'Léger (niv)',sitreach:'Sit&Reach cm',hombro:'Flex hombro',saltoL:'Salto largo cm',saltoV:'Salto vertical cm',vel30:'Vel. 30m (s)'};
+      let hE='', rE=[];
+      if(especif) Object.entries(especifEjs).forEach(([k,n])=>{ if(especif[k]){ const v=especif[k],vp=especifP&&especifP[k]; hE+=fila(n,v.valor,vp?flecha(v.valor,vp.valor,k==='vel30'):'<span style="color:#555;font-size:10px;">—</span>'); rE.push({label:n.substring(0,4),score:v.score||0}); }});
+
+      const sin='<div style="color:#555;font-size:11px;font-style:italic;padding:6px 0;">Sin datos</div>';
+      return `
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;border-bottom:1px solid var(--gris-borde);padding-bottom:4px;">🏆 PRs · FUERZA</div>${hF||sin}</div>
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;border-bottom:1px solid var(--gris-borde);padding-bottom:4px;">💪 RESISTENCIA</div>${hR||sin}</div>
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;border-bottom:1px solid var(--gris-borde);padding-bottom:4px;">⚡ ESPECÍFICOS</div>${hE||sin}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;border-top:1px solid var(--gris-borde);padding-top:14px;">
+          <div style="display:flex;flex-direction:column;align-items:center;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Radar Fuerza</div><div style="height:160px;display:flex;align-items:center;justify-content:center;">${radar(rF,'#e31e24')}</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Radar Resistencia</div><div style="height:160px;display:flex;align-items:center;justify-content:center;">${radar(rR,'#2196f3')}</div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Radar Específicos</div><div style="height:160px;display:flex;align-items:center;justify-content:center;">${radar(rE,'#4caf50')}</div></div>
+        </div>`;
+    })()}
+    </div>
+  </div>
+
+  <!-- 4 — ALIMENTACIÓN -->
+  <div class="seccion">
+    <div class="seccion-header">
+      <div class="seccion-num">4</div>
       <div class="seccion-titulo">PLAN DE ALIMENTACIÓN</div>
     </div>
     <div class="seccion-body">${alimHtml}</div>
   </div>
 
-  <!-- 4 — RUTINA -->
+  <!-- 5 — RUTINA -->
   <div class="seccion">
     <div class="seccion-header">
-      <div class="seccion-num">4</div>
+      <div class="seccion-num">5</div>
       <div class="seccion-titulo">RUTINA DE ENTRENAMIENTO SEMANAL</div>
     </div>
     <div class="seccion-body">
