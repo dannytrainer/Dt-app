@@ -23,6 +23,7 @@ const guardarJSON = (archivo, datos) => {
 };
 
 let sock;
+module.exports = { getSock: () => sock };
 
 async function conectarWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState('auth');
@@ -445,3 +446,38 @@ require("./sincronizar");
 require("./rutas_historial")(app, fs);
 conectarWhatsApp();
 app.listen(3000, () => console.log('Interfaz en http://localhost:3000'));
+require('./rutas_informe')(app, fs);
+app.post('/api/informe/:id/enviar', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const usuarios = JSON.parse(fs.readFileSync('./data/usuarios.json', 'utf8'));
+    const usuario = usuarios.find(u => u.id == id || u.telefono == id);
+    if (!usuario) return res.status(404).json({ ok: false, error: 'Cliente no encontrado' });
+
+    const telefono = usuario.telefono.replace(/[^0-9]/g, '');
+    const jid = telefono + '@s.whatsapp.net';
+    const nombre = usuario.nombre || 'Cliente';
+
+    const http = require('http');
+    const htmlContent = await new Promise((resolve, reject) => {
+      const req2 = http.request({ hostname: 'localhost', port: 3000, path: '/api/informe/' + id + '/html', method: 'GET' }, (res2) => {
+        let data = '';
+        res2.on('data', chunk => data += chunk);
+        res2.on('end', () => resolve(data));
+      });
+      req2.on('error', reject);
+      req2.end();
+    });
+
+    const buffer = Buffer.from(htmlContent, 'utf-8');
+    await sock.sendMessage(jid, {
+      document: buffer,
+      mimetype: 'text/html',
+      fileName: 'Informe-Premium-' + nombre.replace(/ /g, '-') + '.html'
+    });
+    res.json({ ok: true, mensaje: 'Informe enviado a ' + nombre });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+

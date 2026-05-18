@@ -14,7 +14,27 @@
         "valor": 73
       }
     ],
-    "medidas": []
+    "medidas": [
+      {
+        "fecha": "2026-05-18",
+        "cintura": 84,
+        "cadera": 96,
+        "pecho": 106,
+        "brazo": 35,
+        "pierna": 58,
+        "hombros": 123,
+        "pantorrilla": 35,
+        "triceps": 10,
+        "subescapular": 16,
+        "abdominal": 14,
+        "suprailiaco": 12,
+        "analisis": {
+          "pctGrasa": 21.9,
+          "kgGrasa": 16,
+          "kgMusculo": 57
+        }
+      }
+    ]
   },
   "1778272241158": {
     "peso": [],

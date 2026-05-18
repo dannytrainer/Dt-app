@@ -92,6 +92,118 @@
           "score": 80
         },
         "scoreTotal": 70
+      },
+      {
+        "fecha": "2026-05-18",
+        "tipo": "fuerza",
+        "peso": 73,
+        "pecho": {
+          "kg": 95,
+          "reps": 5,
+          "rm": 111,
+          "score": 80
+        },
+        "espalda": {
+          "kg": 80,
+          "reps": 3,
+          "rm": 88,
+          "score": 60
+        },
+        "biceps": {
+          "kg": 40,
+          "reps": 4,
+          "rm": 45,
+          "score": 60
+        },
+        "triceps": {
+          "kg": 40,
+          "reps": 6,
+          "rm": 48,
+          "score": 60
+        },
+        "femoral": {
+          "kg": 150,
+          "reps": 1,
+          "rm": 150,
+          "score": 60
+        },
+        "cuad": {
+          "kg": 130,
+          "reps": 6,
+          "rm": 156,
+          "score": 80
+        },
+        "gluteo": {
+          "kg": 150,
+          "reps": 8,
+          "rm": 190,
+          "score": 80
+        },
+        "scoreTotal": 69
+      },
+      {
+        "fecha": "2026-05-18",
+        "tipo": "resist",
+        "peso": 73,
+        "pushups": {
+          "valor": 31,
+          "score": 60
+        },
+        "dominadas": {
+          "valor": 18,
+          "score": 80
+        },
+        "fondos": {
+          "valor": 30,
+          "score": 80
+        },
+        "sentadilla": {
+          "valor": 63,
+          "score": 60
+        },
+        "plancha": {
+          "valor": 60,
+          "score": 60
+        },
+        "burpees": {
+          "valor": 20,
+          "score": 80
+        },
+        "scoreTotal": 70
+      },
+      {
+        "fecha": "2026-05-18",
+        "tipo": "especif",
+        "peso": 73,
+        "cooper": {
+          "valor": 3000,
+          "score": 100
+        },
+        "leger": {
+          "valor": 8,
+          "score": 40
+        },
+        "sitreach": {
+          "valor": 10,
+          "score": 60
+        },
+        "hombro": {
+          "valor": 1,
+          "score": 60
+        },
+        "saltoL": {
+          "valor": 200,
+          "score": 80
+        },
+        "saltoV": {
+          "valor": 30,
+          "score": 40
+        },
+        "vel30": {
+          "valor": 5,
+          "score": 40
+        },
+        "scoreTotal": 60
       }
     ]
   },

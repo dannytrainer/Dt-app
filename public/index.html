@@ -172,6 +172,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div style="display:flex;gap:6px;margin-bottom:16px">
   <button onclick="showAdminTab('dashboard')" id="atab-dashboard" style="flex:1;padding:8px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:11px;font-weight:700;cursor:pointer">📊 Dashboard</button>
   <button onclick="showAdminTab('clientes')" id="atab-clientes" style="flex:1;padding:8px;border-radius:10px;border:none;background:#2a2a2a;color:#888;font-size:11px;font-weight:700;cursor:pointer">👥 Clientes</button>
+  <button onclick="showAdminTab('promos')" id="atab-promos" style="flex:1;padding:8px;border-radius:10px;border:none;background:#2a2a2a;color:#888;font-size:11px;font-weight:700;cursor:pointer">🎁 Promos</button>
 </div>
 
 <div id="admin-tab-content"></div>
@@ -373,6 +374,8 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div class="card">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar1" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar1()" onfocus="mostrarDrop1()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#f0f0f0;font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar1" style="display:none;position:absolute;top:40px;left:0;right:0;background:#1a1a1a;border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente"></div>
 <button class="btn br" style="width:100%" onclick="enviarRutinaCompleta()">💪 Enviar rutina completa</button>
+<button class="btn br" style="width:100%;margin-top:8px;background:#7c3aed" onclick="enviarInformePremium()">👑 Enviar PDF premium</button>
+<button class="btn br" style="width:100%;margin-top:8px;background:#065f46" onclick="descargarInformePremium()">👑 Descargar PDF premium</button>
 </div>
 <div class="card" style="margin-top:8px">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar2" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar2()" onfocus="mostrarDrop2()" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#f0f0f0;font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar2" style="display:none;position:absolute;top:40px;left:0;right:0;background:#1a1a1a;border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente-dia"></div>
@@ -832,13 +835,14 @@ async function cargarAdmin(){
 }
 
 function showAdminTab(tab){
-  ['dashboard','clientes','config'].forEach(t=>{
+  ['dashboard','clientes','promos','config'].forEach(t=>{
     const btn=document.getElementById('atab-'+t);
     if(btn){btn.style.background=t===tab?'var(--rojo)':'#2a2a2a';btn.style.color=t===tab?'#fff':'#888';}
   });
   const c=document.getElementById('admin-tab-content');
   if(tab==='dashboard') c.innerHTML=renderAdminDashboard();
   else if(tab==='clientes') c.innerHTML=renderAdminClientes();
+  else if(tab==='promos') c.innerHTML=renderAdminPromos();
   else if(tab==='config') c.innerHTML=renderAdminConfig();
 }
 
@@ -1078,6 +1082,89 @@ function renderAdminClientes(){
       el.style.cursor='pointer';
     });
   },50);
+  return html;
+}
+
+function renderAdminPromos(){
+  const usuarios=window._adminUsuarios||[];
+  const clientes=(window._adminData||{}).clientes||{};
+  const hoy=new Date();
+  const activos=usuarios.filter(u=>u.activo);
+  const pausados=usuarios.filter(u=>!u.activo);
+  const promos=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+
+  // Limpiar promos corruptas
+  const promosRaw=localStorage.getItem('dt_promos_custom');
+  if(promosRaw){
+    try{JSON.parse(promosRaw);}catch(e){localStorage.removeItem('dt_promos_custom');}
+  }
+  window._promsMsgs=[];
+  let html='<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:80px;background:var(--fondo);min-height:100vh;padding:12px">';
+
+  // Lista promos existentes
+  if(promos.length){
+    promos.forEach((p,i)=>{
+      let candidatos=[];
+      if(p.condicion==='nuevo'){
+        candidatos=activos.filter(u=>{
+          const d=clientes[u.id]||{};
+          const pagos=d.pagos||[];
+          if(!pagos.length) return true;
+          return Math.floor((hoy-new Date(pagos[0].fecha))/(1000*60*60*24))<=30;
+        });
+      } else if(p.condicion==='pausado') candidatos=pausados;
+      else if(p.condicion==='activo') candidatos=activos;
+      else candidatos=[...activos,...pausados];
+
+      html+='<div style="background:#1a1a1a;border-radius:14px;padding:14px;border-left:3px solid #e91e63">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+      html+='<span style="font-size:13px;color:#fff;font-weight:700">🎁 '+p.nombre+'</span>';
+      html+='<div style="display:flex;gap:8px;align-items:center">';
+      html+='<label class="switch"><input type="checkbox" '+(p.activa?'checked':'')+' onchange="togglePromoCustom('+i+',this.checked)"><span class="slider"></span></label>';
+      html+='<button onclick="borrarPromoCustom('+i+')" style="background:#2a0a0a;border:1px solid #5a1a1a;border-radius:8px;color:#e31e24;font-size:11px;padding:4px 8px;cursor:pointer">🗑️</button>';
+      html+='</div></div>';
+      html+='<div style="font-size:11px;color:#888;margin-bottom:10px">'+(p.condicion==='nuevo'?'🆕 Nuevos':p.condicion==='pausado'?'⏸️ Pausados':p.condicion==='activo'?'✅ Activos':'👥 Todos')+' · '+p.descuento+'% off · '+candidatos.length+' clientes califican</div>';
+
+      // Clientes que califican con botón copiar
+      candidatos.forEach(u=>{
+        const d=clientes[u.id]||{};
+        const precio=d.precio||0;
+        const precioDesc=Math.round(precio*(1-p.descuento/100));
+        const msg=p.mensaje
+          .replace(/{nombre}/g,u.nombre)
+          .replace(/{descuento}/g,p.descuento+'%')
+          .replace(/{precio}/g,precio.toLocaleString())
+          .replace(/{precio_con_descuento}/g,precioDesc.toLocaleString());
+        html+='<div style="background:#111;border-radius:10px;padding:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">';
+        html+='<div><div style="font-size:12px;color:#fff;font-weight:600">'+u.nombre+'</div>';
+        html+='<div style="font-size:11px;color:#555">'+(precio>0?precio.toLocaleString()+' → '+precioDesc.toLocaleString()+' COP':'sin precio')+'</div></div>';
+        if(!window._promsMsgs)window._promsMsgs=[];
+        const msgIdx=window._promsMsgs.push(msg)-1;
+        html+='<button onclick="copiarMensaje(window._promsMsgs['+msgIdx+'])" style="background:#1a3a1a;border:none;border-radius:8px;color:#4caf50;font-size:11px;font-weight:700;padding:7px 10px;cursor:pointer;flex-shrink:0">📋</button>';
+        html+='</div>';
+      });
+      html+='</div>';
+    });
+  } else {
+    html+='<div style="background:#1a1a1a;border-radius:14px;padding:20px;text-align:center;color:#555;font-size:13px">Sin promociones aún.<br>Crea una abajo 👇</div>';
+  }
+
+  // Formulario nueva promo
+  html+='<div style="background:#1a1a1a;border-radius:14px;padding:14px">';
+  html+='<div style="font-size:12px;color:#e91e63;font-weight:700;margin-bottom:10px">➕ Nueva promoción</div>';
+  html+='<input type="text" id="np-nombre" placeholder="Nombre (ej: Promo familia julio)" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:12px;outline:none;box-sizing:border-box;margin-bottom:8px">';
+  html+='<select id="np-condicion" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:12px;margin-bottom:8px">';
+  html+='<option value="nuevo">🆕 Nuevos clientes (registro &lt; 30 días)</option>';
+  html+='<option value="pausado">⏸️ Pausados</option>';
+  html+='<option value="activo">✅ Activos</option>';
+  html+='<option value="todos">👥 Todos</option>';
+  html+='</select>';
+  html+='<input type="number" id="np-descuento" placeholder="% descuento (ej: 20)" min="0" max="100" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:12px;outline:none;box-sizing:border-box;margin-bottom:8px">';
+  html+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre} {precio} {descuento} {precio_con_descuento}" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:12px;min-height:80px;box-sizing:border-box;margin-bottom:6px"></textarea>';
+  html+='<div style="font-size:10px;color:#555;margin-bottom:10px">Variables: {nombre} {precio} {descuento} {precio_con_descuento}</div>';
+  html+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:10px;color:#e91e63;font-size:13px;font-weight:700;padding:10px;cursor:pointer">💾 Guardar promoción</button>';
+  html+='</div>';
+  html+='</div>';
   return html;
 }
 
@@ -5280,6 +5367,29 @@ const data=await res.json();
 toast(data.ok?'✅ Rutina enviada':'❌ Error',data.ok);
 }
 
+async function enviarInformePremium(){
+  const id=document.getElementById('enviar-cliente').value;
+  const res=await fetch('/api/informe/'+id+'/enviar',{method:'POST'});
+  const data=await res.json();
+  toast(data.ok?'Informe enviado':'Error: '+data.error,data.ok);
+}
+async function descargarInformePremium(){
+  const id=document.getElementById('enviar-cliente').value;
+  window.open('/api/informe/'+id+'/html','_blank');
+}
+async function enviarInformePremium(){
+  const id=document.getElementById("enviar-cliente").value;
+  if(!id){toast("Selecciona un cliente",false);return;}
+  if(!confirm("Enviar informe premium por WhatsApp?")){return;}
+  const res=await fetch("/api/informe/"+id+"/enviar",{method:"POST"});
+  const data=await res.json();
+  toast(data.ok?"Informe enviado":"Error: "+data.error,data.ok);
+}
+async function descargarInformePremium(){
+  const id=document.getElementById("enviar-cliente").value;
+  if(!id){toast("Selecciona un cliente",false);return;}
+  window.open("/api/informe/"+id+"/html","_blank");
+}
 let _difusionSeleccionados=new Set();
 let _difusionIniciado=false;
 function cargarDifusion(){
