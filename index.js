@@ -1,6 +1,22 @@
 const multer = require('multer');
-const storage = multer.diskStorage({destination:(req,file,cb)=>cb(null,'./public/'),filename:(req,file,cb)=>cb(null,'icon.png')});
+const storage = multer.diskStorage({
+  destination:(req,file,cb)=>cb(null,'./public/'),
+  filename:(req,file,cb)=>cb(null,'icon.png')
+});
 const upload = multer({storage,limits:{fileSize:5*1024*1024}});
+const storageFoto = multer.diskStorage({
+  destination:(req,file,cb)=>{
+    const id = req.params ? req.params.id : 'tmp';
+    const dir = require('path').join(__dirname,'data/fotos',id);
+    require('fs').mkdirSync(dir,{recursive:true});
+    cb(null,dir);
+  },
+  filename:(req,file,cb)=>{
+    const ext = file.originalname.split('.').pop();
+    cb(null,'perfil.'+ext);
+  }
+});
+const uploadFoto = multer({storage:storageFoto,limits:{fileSize:5*1024*1024}});
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const qrcode = require('qrcode-terminal');
 const cron = require('node-cron');
@@ -11,6 +27,7 @@ const path = require('path');
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/data/fotos', express.static(path.join(__dirname,'data/fotos')));
 
 const cargarJSON = (archivo, def=[]) => {
   const ruta = path.join(__dirname, 'data', archivo);
@@ -261,7 +278,7 @@ app.post('/api/config', (req, res) => {
   res.json({ok:true});
 });
 
-app.post('/api/foto-cliente/:id', upload.single('foto'), (req, res) => {
+app.post('/api/foto-cliente/:id', uploadFoto.single('foto'), (req, res) => {
   try {
     const id = req.params.id;
     const ext = req.file.originalname.split('.').pop();
@@ -271,7 +288,7 @@ app.post('/api/foto-cliente/:id', upload.single('foto'), (req, res) => {
     fs.renameSync(req.file.path, dest);
     const usuarios = cargarJSON('usuarios.json');
     const u = usuarios.find(x => x.id === id);
-    if(u) { u.foto = dest; guardarJSON('usuarios.json', usuarios); }
+    if(u) { u.foto = 'data/fotos/'+id+'/perfil.'+ext; guardarJSON('usuarios.json', usuarios); }
     res.json({ok:true, foto: u.foto});
   } catch(e) { res.status(500).json({ok:false}); }
 });
