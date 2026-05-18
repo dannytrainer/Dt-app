@@ -45,12 +45,12 @@ module.exports = function(app, fs) {
           edad:       (usuario.perfil && usuario.perfil.edad) || usuario.edad || null,
           sexo:       (usuario.perfil && usuario.perfil.sexo) || usuario.sexo || null,
           altura:     (usuario.perfil && usuario.perfil.altura) || usuario.altura || null,
-          objetivo:   (usuario.perfil && usuario.perfil.objetivo) || usuario.objetivo || null,
+          objetivo:   (usuario.perfil && usuario.perfil.objetivo) || (usuario.perfil && usuario.perfil.etiqueta) || usuario.objetivo || null,
           entrenador: usuario.entrenador || 'Danny Trainer',
           lesion:     usuario.lesion || null,
           desde:      (usuario.perfil && usuario.perfil.fecha_inicio) || usuario.fecha_inicio || null,
-          sesiones:   usuario.sesiones || null,
-          ciclo:      usuario.ciclo || null,
+          sesiones:   usuario.sesiones_total || usuario.sesiones || null,
+          ciclo:      usuario.sesiones_ciclo || usuario.ciclo || null,
           foto:       usuario.foto || null,
         },
         rutina:      rutina || null,
@@ -378,21 +378,21 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
   <div class="seccion">
     <div class="seccion-header">
       <div class="seccion-num" style="background:none;color:var(--rojo);font-size:16px;">🔥</div>
-      <div class="seccion-titulo">${v(usuario,'objetivo','OBJETIVO') + ' · PERSONALIZADO'}</div>
+      <div class="seccion-titulo">${({'perdida':'PÉRDIDA DE PESO','masa':'AUMENTO DE MASA','rehab':'REHABILITACIÓN','rendimiento':'RENDIMIENTO'}[usuario.objetivo] || usuario.objetivo || 'PERSONALIZADO') + ' · PERSONALIZADO'}</div>
     </div>
     <div class="seccion-body">
       <div style="display:grid;grid-template-columns:120px 1fr 1fr;gap:16px;align-items:start;">
         <div style="text-align:center;">
           ${avatarHtml}
           <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;line-height:1;">${v(usuario,'nombre')}</div>
-          <div style="background:var(--rojo);color:#fff;font-size:9px;padding:2px 6px;border-radius:2px;display:inline-block;margin-top:4px;letter-spacing:1px;">${v(usuario,'objetivo','—')}</div>
+          <div style="background:var(--rojo);color:#fff;font-size:9px;padding:2px 6px;border-radius:2px;display:inline-block;margin-top:4px;letter-spacing:1px;">${({'perdida':'Pérdida de peso','masa':'Aumento de masa','rehab':'Rehabilitación','rendimiento':'Rendimiento deportivo'})[(usuario.perfil&&usuario.perfil.etiqueta)||usuario.objetivo] || (usuario.perfil&&usuario.perfil.etiqueta) || usuario.objetivo || '—'}</div>
         </div>
         <div>
           <ul class="datos-lista">
             <li><span style="color:var(--rojo);">🎂</span> ${edad || '—'} años · ${sexo || '—'}</li>
             <li><span style="color:var(--rojo);">📏</span> ${altura || '—'} cm</li>
             <li><span style="color:var(--rojo);">📅</span> Desde: ${fechaInicio || '—'}</li>
-            <li><span style="color:var(--rojo);">🏋️</span> ${usuario.sesiones || '—'} sesiones · ciclo ${usuario.ciclo || '—'}</li>
+            <li><span style="color:var(--rojo);">🏋️</span> ${usuario.sesiones_total || usuario.sesiones || '—'} sesiones · ciclo ${usuario.sesiones_ciclo || usuario.ciclo || '—'}</li>
             <li><span style="color:var(--rojo);">👨‍💼</span> ${v(usuario,'entrenador','Danny Trainer')}</li>
             ${usuario.lesion ? `<li><span style="color:var(--rojo);">⚠️</span> ${usuario.lesion}</li>` : ''}
           </ul>
