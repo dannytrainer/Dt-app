@@ -206,6 +206,7 @@ async function renderAnalisis(id) {
   } else if (!html) {
     html = '<p style="color:#555;text-align:center;padding:30px">Registra pliegues y medidas<br>para ver el análisis</p>';
   }
+  html += `<div style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;margin-bottom:10px"><div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">📸 Comparativa Antes / Después</div><div style="display:flex;gap:10px"><div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Antes</div><img src="data/fotos/${id}/antes/foto.jpg?t=${Date.now()}" onclick="verFotoGrande(this.src)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;border-radius:8px;border:1px solid #2a2a2a;cursor:pointer;max-height:180px;object-fit:cover"><div style="display:none;background:#1a1a1a;border:1px dashed #333;border-radius:8px;height:120px;align-items:center;justify-content:center;flex-direction:column;gap:6px"><span style="font-size:24px">📷</span><span style="font-size:10px;color:#555">Sin foto</span></div><input type="file" accept="image/*" style="display:none" id="inp-antes-${id}" onchange="subirFotoComparativa(this,'${id}','antes')"><button onclick="document.getElementById('inp-antes-${id}').click()" style="margin-top:8px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:11px;padding:6px 12px;width:100%;cursor:pointer">📤 Subir</button></div><div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Después</div><img src="data/fotos/${id}/despues/foto.jpg?t=${Date.now()}" onclick="verFotoGrande(this.src)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;border-radius:8px;border:1px solid #2a2a2a;cursor:pointer;max-height:180px;object-fit:cover"><div style="display:none;background:#1a1a1a;border:1px dashed #333;border-radius:8px;height:120px;align-items:center;justify-content:center;flex-direction:column;gap:6px"><span style="font-size:24px">📷</span><span style="font-size:10px;color:#555">Sin foto</span></div><input type="file" accept="image/*" style="display:none" id="inp-despues-${id}" onchange="subirFotoComparativa(this,'${id}','despues')"><button onclick="document.getElementById('inp-despues-${id}').click()" style="margin-top:8px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:11px;padding:6px 12px;width:100%;cursor:pointer">📤 Subir</button></div></div></div>`;
   document.getElementById('msec-analisis').innerHTML = html;
 }
 
@@ -458,4 +459,29 @@ async function guardarPerfil(id) {
   };
   await fetch('/api/usuarios/'+id+'/perfil', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(datos)});
   toast('✅ Perfil guardado');
+}
+
+async function subirFotoComparativa(input, id, tipo) {
+  if (!input.files[0]) return;
+  const fd = new FormData();
+  fd.append('foto', input.files[0]);
+  fd.append('tipo', tipo);
+  const res = await fetch('/api/foto-comparativa/' + id + '/' + tipo, {method:'POST', body:fd});
+  if (res.ok) {
+    toast('✅ Foto ' + tipo + ' guardada');
+    showMTabLoad('analisis', id);
+  } else {
+    toast('❌ Error al subir foto', false);
+  }
+}
+
+function verFotoGrande(src) {
+  const overlay = document.createElement('div');
+  overlay.style = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:9999;display:flex;align-items:center;justify-content:center';
+  overlay.onclick = () => overlay.remove();
+  const img = document.createElement('img');
+  img.src = src;
+  img.style = 'max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px';
+  overlay.appendChild(img);
+  document.body.appendChild(overlay);
 }

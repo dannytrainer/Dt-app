@@ -503,3 +503,26 @@ app.post('/api/informe/:id/enviar', async (req, res) => {
   }
 });
 
+
+// SUBIR FOTO COMPARATIVA (antes/después)
+const storageFotoComp = multer.diskStorage({
+  destination:(req,file,cb)=>{
+    const {id,tipo} = req.params;
+    const dir = path.join(__dirname,'data/fotos',id,tipo);
+    fs.mkdirSync(dir,{recursive:true});
+    cb(null,dir);
+  },
+  filename:(req,file,cb)=>{
+    const ext = file.originalname.split('.').pop();
+    cb(null,'foto.'+ext);
+  }
+});
+const uploadFotoComp = multer({storage:storageFotoComp,limits:{fileSize:5*1024*1024}});
+
+app.post('/api/foto-comparativa/:id/:tipo', uploadFotoComp.single('foto'), (req, res) => {
+  try {
+    const {id, tipo} = req.params;
+    if (!['antes','despues'].includes(tipo)) return res.status(400).json({ok:false,error:'Tipo inválido'});
+    res.json({ok:true, path:`data/fotos/${id}/${tipo}/foto.${req.file.originalname.split('.').pop()}`});
+  } catch(e) { res.status(500).json({ok:false,error:e.message}); }
+});
