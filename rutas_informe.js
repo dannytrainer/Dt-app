@@ -88,13 +88,13 @@ module.exports = function(app, fs) {
       const regResist = registros.find(r => r.tipo === "resist") || {};
       const testData = {
         fuerza: {
-          "Pecho 1RM": regFuerza.pecho ? regFuerza.pecho.rm + " kg" : null,
-          "Espalda 1RM": regFuerza.espalda ? regFuerza.espalda.rm + " kg" : null,
-          "Cuadriceps 1RM": regFuerza.cuad ? regFuerza.cuad.rm + " kg" : null,
+          "Pecho": regFuerza.pecho ? regFuerza.pecho.kg + "kg x " + regFuerza.pecho.reps + " reps" : null,
+          "Espalda": regFuerza.espalda ? regFuerza.espalda.kg + "kg x " + regFuerza.espalda.reps + " reps" : null,
+          "Cuadriceps": regFuerza.cuad ? regFuerza.cuad.kg + "kg x " + regFuerza.cuad.reps + " reps" : null,
         },
         resistencia: {
           "Sentadilla": regResist.sentadilla ? regResist.sentadilla + " reps" : null,
-          "Peso": regFuerza.peso ? regFuerza.peso + " kg" : null,
+          "Peso corporal": regFuerza.peso ? regFuerza.peso + " kg" : null,
         },
         especificos: {},
         score: regFuerza.scoreTotal || regResist.scoreTotal || null,
@@ -104,11 +104,15 @@ module.exports = function(app, fs) {
       Object.keys(testData.resistencia).forEach(k => { if (!testData.resistencia[k]) delete testData.resistencia[k]; });
       const alimCliente  = alimentacion[id] || alimentacion[usuario.telefono] || null;
 
-      const medidas = Array.isArray(historial)
-        ? historial.filter(h => h.id == id || h.telefono == usuario.telefono)
-        : (historial[id] || historial[usuario.telefono] || []);
+      const historialCliente = historial[id] || historial[usuario.telefono] || {};
+      const pesoArr  = historialCliente.peso || [];
+      const medidasArr = historialCliente.medidas || [];
 
-      // Última medida y penúltima
+      // Ultimo peso registrado
+      const ultimoPeso = pesoArr.length > 0 ? pesoArr[pesoArr.length - 1].valor : null;
+
+      // Para compatibilidad con el resto del codigo
+      const medidas = medidasArr;
       const ultima      = medidas[medidas.length - 1] || {};
       const penultima   = medidas[medidas.length - 2] || {};
       const primera     = medidas[0] || {};
@@ -127,16 +131,14 @@ module.exports = function(app, fs) {
       const hoy = new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
 
       // Foto del cliente
-      const fotoSrc = usuario.foto
-        ? `/data/fotos/${usuario.foto}`
-        : null;
+      const fotoSrc = usuario.foto || null;
 
       // Generar días de rutina
       const diasSemana = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
       const diasHtml = diasSemana.map(dia => {
         const ejercicios = (rutina[dia] && rutina[dia].ejercicios) ? rutina[dia].ejercicios : [];
-        const musculo    = (rutina[dia] && rutina[dia].musculo) ? rutina[dia].musculo : '';
-        const notas      = (rutina[dia] && rutina[dia].notas) ? rutina[dia].notas : '';
+        const musculo    = (rutina[dia] && rutina[dia].recordatorio) ? rutina[dia].recordatorio : '';
+        const notas      = (rutina[dia] && rutina[dia].rutina) ? rutina[dia].rutina : '';
         const esDescanso = ejercicios.length === 0;
 
         if (esDescanso) {
@@ -159,8 +161,8 @@ module.exports = function(app, fs) {
             <td class="ej-cell"><div class="ej-val">${ej.series || '—'}</div></td>
             <td class="ej-cell"><div class="ej-val">${ej.reps || '—'}</div></td>
             <td class="ej-cell"><span class="rir-badge">RIR ${ej.rir || '—'}</span></td>
-            <td class="ej-cell"><span class="desc-badge">${ej.descanso || '—'}</span></td>
-            <td class="ej-cell" style="font-size:10px;color:var(--texto-secundario);">${ej.variante || 'V1'}</td>
+            <td class="ej-cell"><span class="desc-badge">${ej.desc || '—'}</span></td>
+            <td class="ej-cell" style="font-size:10px;color:var(--texto-secundario);">${ej.var || ''}</td>
             <td style="font-size:9px;color:#444;font-style:italic;text-align:center;">Próximamente</td>
             <td style="text-align:center"><a href="${ej.video || '#'}" class="btn-video"><span class="play-icon">▶</span> Ver video</a></td>
           </tr>`).join('');
@@ -199,7 +201,7 @@ module.exports = function(app, fs) {
       // Por ahora generamos el HTML completo inline
       const html = generarHTMLCompleto({
         usuario, ultima, penultima, primera, medidas,
-        testData, alimHtml, diasHtml, fotoSrc, hoy
+        testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso
       });
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -216,13 +218,29 @@ module.exports = function(app, fs) {
 // ============================================================
 // Función generadora del HTML completo
 // ============================================================
-function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtml, fotoSrc, hoy }) {
+function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso }) {
+  const perfil = usuario.perfil || {};
+  const edad = perfil.edad || usuario.edad || null;
+  const altura = perfil.altura || usuario.altura || null;
+  const sexo = perfil.sexo || usuario.sexo || null;
+  const fechaInicio = perfil.fecha_inicio || usuario.fecha_inicio || null;
+  const _tmp_remove = 0; {
 
   const v = (obj, key, def='—') => (obj && obj[key] != null) ? obj[key] : def;
 
-  const avatarHtml = fotoSrc
-    ? `<img src="${fotoSrc}" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--rojo);object-fit:cover;">`
-    : `<div class="avatar">${(usuario.nombre || 'C').charAt(0).toUpperCase()}</div>`;
+  let avatarHtml;
+  try {
+    if (fotoSrc && require('fs').existsSync(fotoSrc)) {
+      const fotoData = require('fs').readFileSync(fotoSrc);
+      const fotoB64 = fotoData.toString('base64');
+      const ext = fotoSrc.endsWith('.png') ? 'png' : 'jpeg';
+      avatarHtml = `<img src="data:image/${ext};base64,${fotoB64}" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--rojo);object-fit:cover;">`;
+    } else {
+      avatarHtml = `<div class="avatar">${(usuario.nombre || 'C').charAt(0).toUpperCase()}</div>`;
+    }
+  } catch(e) {
+    avatarHtml = `<div class="avatar">${(usuario.nombre || 'C').charAt(0).toUpperCase()}</div>`;
+  }
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -352,10 +370,10 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
         </div>
         <div>
           <ul class="datos-lista">
-            <li><span style="color:var(--rojo);">🎂</span> ${v(usuario,'edad','—')} años · ${v(usuario,'sexo','—')}</li>
-            <li><span style="color:var(--rojo);">📏</span> ${v(usuario,'altura','—')} cm</li>
-            <li><span style="color:var(--rojo);">📅</span> Desde: ${v(usuario,'fecha_inicio','—')}</li>
-            <li><span style="color:var(--rojo);">🏋️</span> ${v(usuario,'sesiones','—')} sesiones · ciclo ${v(usuario,'ciclo','—')}</li>
+            <li><span style="color:var(--rojo);">🎂</span> ${edad || '—'} años · ${sexo || '—'}</li>
+            <li><span style="color:var(--rojo);">📏</span> ${altura || '—'} cm</li>
+            <li><span style="color:var(--rojo);">📅</span> Desde: ${fechaInicio || '—'}</li>
+            <li><span style="color:var(--rojo);">🏋️</span> ${usuario.sesiones || '—'} sesiones · ciclo ${usuario.ciclo || '—'}</li>
             <li><span style="color:var(--rojo);">👨‍💼</span> ${v(usuario,'entrenador','Danny Trainer')}</li>
             ${usuario.lesion ? `<li><span style="color:var(--rojo);">⚠️</span> ${usuario.lesion}</li>` : ''}
           </ul>
@@ -365,17 +383,17 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
           <p>Progreso registrado desde el inicio. Revisa tus medidas, tests y rendimiento semanal.</p>
           <div class="metricas-grid">
             <div class="metrica-card">
-              <div class="val">${v(ultima,'peso','—')}</div>
+              <div class="val">${ultimoPeso || v(ultima,'peso','—')}</div>
               <div class="unidad">kg</div>
               <div class="label-m">Peso</div>
             </div>
             <div class="metrica-card">
-              <div class="val">${v(ultima,'grasa','—')}</div>
+              <div class="val">${(ultima && ultima.analisis && ultima.analisis.pctGrasa != null ? ultima.analisis.pctGrasa : '—')}</div>
               <div class="unidad">% Grasa</div>
               <div class="label-m">% Grasa</div>
             </div>
             <div class="metrica-card">
-              <div class="val">${v(ultima,'musculo','—')}</div>
+              <div class="val">${(ultima && ultima.analisis && ultima.analisis.kgMusculo != null ? ultima.analisis.kgMusculo : '—')}</div>
               <div class="unidad">kg</div>
               <div class="label-m">Músculo</div>
             </div>
@@ -417,8 +435,8 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
             <tr><td>Tríceps</td><td>${v(primera,'triceps')}</td><td>${v(penultima,'triceps')}</td><td class="td-actual">${v(ultima,'triceps')}</td><td>—</td></tr>
             <tr><td>Subescapular</td><td>${v(primera,'subescapular')}</td><td>${v(penultima,'subescapular')}</td><td class="td-actual">${v(ultima,'subescapular')}</td><td>—</td></tr>
             <tr><td>Abdominal</td><td>${v(primera,'abdominal')}</td><td>${v(penultima,'abdominal')}</td><td class="td-actual">${v(ultima,'abdominal')}</td><td>—</td></tr>
-            <tr><td>% Grasa</td><td>${v(primera,'grasa')}</td><td>${v(penultima,'grasa')}</td><td class="td-actual">${v(ultima,'grasa')}</td><td>—</td></tr>
-            <tr><td>Kg músculo</td><td>${v(primera,'musculo')}</td><td>${v(penultima,'musculo')}</td><td class="td-actual">${v(ultima,'musculo')}</td><td>—</td></tr>
+            <tr><td>% Grasa</td><td>${(primera && primera.analisis ? primera.analisis.pctGrasa : '—')}</td><td>${(penultima && penultima.analisis ? penultima.analisis.pctGrasa : '—')}</td><td class="td-actual">${(ultima && ultima.analisis ? ultima.analisis.pctGrasa : '—')}</td><td>—</td></tr>
+            <tr><td>Kg músculo</td><td>${(primera && primera.analisis ? primera.analisis.kgMusculo : '—')}</td><td>${(penultima && penultima.analisis ? penultima.analisis.kgMusculo : '—')}</td><td class="td-actual">${(ultima && ultima.analisis ? ultima.analisis.kgMusculo : '—')}</td><td>—</td></tr>
           </table>
         </div>
       </div>
@@ -566,5 +584,6 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
     }
   });
 
+}
 }
 }

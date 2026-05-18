@@ -382,9 +382,106 @@
       "cardio": []
     },
     "sabado": {
-      "recordatorio": "B",
-      "rutina": "C",
-      "ejercicios": [],
+      "recordatorio": "Rutina hombro y brazo ",
+      "rutina": "A muerte ",
+      "ejercicios": [
+        {
+          "nombre": "Pres hombro barra ",
+          "series": "4",
+          "reps": "15/12/3(10)",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Flexion  de hombros mancuernas ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Flexion de hombro individual polea",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Flex posterior mancuernas ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Face-pull",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Flex individual de hombro mancuerna ",
+          "series": "3",
+          "reps": "8",
+          "rir": "0",
+          "desc": "20",
+          "var": ""
+        },
+        {
+          "nombre": "Abd hombro mancuerna inclinado ",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Abd mancuerna individual polea ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Abd hombro máquina ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Predicador +press francés ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Martillo + ext codo",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Copa indv + bíceps polea indv ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "30",
+          "var": ""
+        }
+      ],
       "cardio": []
     },
     "domingo": {
@@ -395,7 +492,9 @@
   "1778272241158": {
     "lunes": {
       "recordatorio": "",
-      "rutina": ""
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": []
     },
     "viernes": {
       "recordatorio": "Prueba ",
@@ -449,6 +548,341 @@
       "rutina": "Q",
       "ejercicios": [],
       "cardio": []
+    }
+  },
+  "1778377049231": {
+    "lunes": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": []
+    },
+    "martes": {
+      "recordatorio": "Hoy toca femoral \nRecuerda calentar y muy buena movilidad articular ",
+      "rutina": "V1= bi-serie",
+      "ejercicios": [
+        {
+          "nombre": "Add +abd cadera ",
+          "series": "4",
+          "reps": "15",
+          "rir": "3",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Peso muerto",
+          "series": "4",
+          "reps": "15/12/8/8",
+          "rir": "3",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "femoral indv + Peso muerto indv",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Femoral sentado ",
+          "series": "3",
+          "reps": "10",
+          "rir": "3",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Prensa + pantorrilla ",
+          "series": "3",
+          "reps": "15",
+          "rir": "4",
+          "desc": "30",
+          "var": "V1"
+        }
+      ],
+      "cardio": []
+    },
+    "miercoles": {
+      "recordatorio": "Día de superior ",
+      "rutina": "V1= bi-serie \nV2 = última en dropset ",
+      "ejercicios": [
+        {
+          "nombre": "Nadadores hacia el frente ",
+          "series": "2",
+          "reps": "10",
+          "rir": "2",
+          "desc": "30",
+          "var": ""
+        },
+        {
+          "nombre": "Haz clavicular mancuernas ",
+          "series": "4",
+          "reps": "12",
+          "rir": "3",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Jalón cerrado  + bíceps martillo",
+          "series": "3",
+          "reps": "12",
+          "rir": "2",
+          "desc": "45",
+          "var": "V1"
+        },
+        {
+          "nombre": "Remo horizontal+ fondos en banco",
+          "series": "4",
+          "reps": "10",
+          "rir": "0",
+          "desc": "30",
+          "var": "V1 v2"
+        }
+      ],
+      "cardio": []
+    },
+    "jueves": {
+      "recordatorio": "Día de glúteo\n",
+      "rutina": "V1 = bi-serie ",
+      "ejercicios": [
+        {
+          "nombre": "",
+          "series": "",
+          "reps": "",
+          "rir": "",
+          "desc": "",
+          "var": ""
+        },
+        {
+          "nombre": "Add + abd cadera ",
+          "series": "4",
+          "reps": "15",
+          "rir": "2",
+          "desc": "30",
+          "var": "V1 "
+        },
+        {
+          "nombre": "Pull trougth",
+          "series": "4",
+          "reps": "12",
+          "rir": "3",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Sentadilla sumo",
+          "series": "4 ",
+          "reps": "12",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Empuje de cadera individual ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "30",
+          "var": ""
+        },
+        {
+          "nombre": "Abd cadera + pantorrilla ",
+          "series": "3",
+          "reps": "20",
+          "rir": "2",
+          "desc": "30",
+          "var": "V2"
+        }
+      ],
+      "cardio": []
+    },
+    "viernes": {
+      "recordatorio": "Día de superior ",
+      "rutina": "V1= biseries\nV2= última en dropset ",
+      "ejercicios": [
+        {
+          "nombre": "Nadadores hacia atrás ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "30",
+          "var": ""
+        },
+        {
+          "nombre": "Flexiones de pecho ",
+          "series": "4",
+          "reps": "12",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "Remo t + curl con barra ",
+          "series": "4",
+          "reps": "12",
+          "rir": "3",
+          "desc": "60",
+          "var": "V1 v2"
+        },
+        {
+          "nombre": "Jalón abierto + copa ",
+          "series": "3",
+          "reps": "12",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1 "
+        },
+        {
+          "nombre": "",
+          "series": "",
+          "reps": "",
+          "rir": "",
+          "desc": "",
+          "var": ""
+        }
+      ],
+      "cardio": []
+    },
+    "sabado": {
+      "recordatorio": "Día de cuádriceps ",
+      "rutina": "V1= bi-serie \nV2= dropset \nV3=( La tijera al final es Lara fortalecer equilibrio para la hernia - no mucho peso hacer lenta )",
+      "ejercicios": [
+        {
+          "nombre": "Add + abd cadera",
+          "series": "3",
+          "reps": "12",
+          "rir": "3",
+          "desc": "30",
+          "var": "V1"
+        },
+        {
+          "nombre": "Femoral acosada",
+          "series": "4",
+          "reps": "12",
+          "rir": "2",
+          "desc": "30",
+          "var": ""
+        },
+        {
+          "nombre": "Hacka ",
+          "series": "5 ",
+          "reps": "15/12/8/8/8",
+          "rir": "3",
+          "desc": "30",
+          "var": ""
+        },
+        {
+          "nombre": "Extensión rodilla ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "60",
+          "var": "V2"
+        },
+        {
+          "nombre": "Goblet + pantorrilla ",
+          "series": "3",
+          "reps": "20",
+          "rir": "3",
+          "desc": "30",
+          "var": "V1"
+        },
+        {
+          "nombre": "Tijera en cajón ",
+          "series": "3",
+          "reps": "15",
+          "rir": "3",
+          "desc": "60",
+          "var": "V3"
+        }
+      ],
+      "cardio": []
+    }
+  },
+  "1778377616786": {
+    "lunes": {
+      "recordatorio": "Iniciamos semana con pierna + abdomen ",
+      "rutina": "V1= bi-serie \nV2 = circuito #1\nV3 =circuito #2\n",
+      "ejercicios": [
+        {
+          "nombre": "Abd + Add cadera ",
+          "series": "3",
+          "reps": "20",
+          "rir": "2",
+          "desc": "30",
+          "var": "V1"
+        },
+        {
+          "nombre": "Sentadilla ",
+          "series": "4",
+          "reps": "10",
+          "rir": "2",
+          "desc": "",
+          "var": "V2"
+        },
+        {
+          "nombre": "Flexion de rodilla ",
+          "series": "4",
+          "reps": "20",
+          "rir": "3",
+          "desc": "",
+          "var": "V2"
+        },
+        {
+          "nombre": "Abdominales ",
+          "series": "4 ",
+          "reps": "20",
+          "rir": "0",
+          "desc": "60",
+          "var": "V2"
+        },
+        {
+          "nombre": "Peso muerto",
+          "series": "4",
+          "reps": "10",
+          "rir": "2",
+          "desc": "",
+          "var": "V2"
+        },
+        {
+          "nombre": "Extensión rodilla ",
+          "series": "4",
+          "reps": "20",
+          "rir": "2",
+          "desc": "",
+          "var": "V2"
+        },
+        {
+          "nombre": "Oblicuos bicicleta ",
+          "series": "4 ",
+          "reps": "30",
+          "rir": "3",
+          "desc": "60",
+          "var": "V2"
+        }
+      ],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Elíptica ",
+          "tiempo": "10",
+          "notas": "Cada minuto aumentar la intensidad  hasta el 85 y sostener \n1/60% 2/70% 3/75% 4/80% 5/85% 6,7,8/85%. 9/70%"
+        },
+        {
+          "momento": "Al final de cada segmento",
+          "ejercicio": "Cualquiera ",
+          "tiempo": "5",
+          "notas": "Hiit 20×20. 65%/ 85"
+        },
+        {
+          "momento": "Final ",
+          "ejercicio": "Banda ",
+          "tiempo": "20",
+          "notas": "Intensidad al 75%"
+        }
+      ]
     }
   }
 }

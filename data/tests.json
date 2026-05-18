@@ -204,6 +204,66 @@
           "score": 40
         },
         "scoreTotal": 60
+      },
+      {
+        "fecha": "2026-05-18",
+        "tipo": "resist",
+        "peso": 73,
+        "pushups": {
+          "valor": 31,
+          "score": 60
+        },
+        "dominadas": {
+          "valor": 20,
+          "score": 80
+        },
+        "fondos": {
+          "valor": 30,
+          "score": 80
+        },
+        "sentadilla": {
+          "valor": 63,
+          "score": 60
+        },
+        "plancha": {
+          "valor": 60,
+          "score": 60
+        },
+        "burpees": {
+          "valor": 20,
+          "score": 80
+        },
+        "scoreTotal": 70
+      },
+      {
+        "fecha": "2026-05-18",
+        "tipo": "resist",
+        "peso": 73,
+        "pushups": {
+          "valor": 46,
+          "score": 80
+        },
+        "dominadas": {
+          "valor": 20,
+          "score": 80
+        },
+        "fondos": {
+          "valor": 30,
+          "score": 80
+        },
+        "sentadilla": {
+          "valor": 63,
+          "score": 60
+        },
+        "plancha": {
+          "valor": 60,
+          "score": 60
+        },
+        "burpees": {
+          "valor": 20,
+          "score": 80
+        },
+        "scoreTotal": 73
       }
     ]
   },
