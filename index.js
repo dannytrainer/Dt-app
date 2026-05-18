@@ -144,6 +144,9 @@ app.post('/api/usuarios', (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
   const nuevo = { id: Date.now().toString(), activo: true, ...req.body };
   usuarios.push(nuevo);
+  const carpetaFotos = path.join(__dirname, 'data/fotos', nuevo.id);
+  fs.mkdirSync(path.join(carpetaFotos, 'antes'), { recursive: true });
+  fs.mkdirSync(path.join(carpetaFotos, 'despues'), { recursive: true });
   guardarJSON('usuarios.json', usuarios);
   res.json(nuevo);
 });
@@ -262,11 +265,13 @@ app.post('/api/foto-cliente/:id', upload.single('foto'), (req, res) => {
   try {
     const id = req.params.id;
     const ext = req.file.originalname.split('.').pop();
-    const dest = path.join(__dirname, 'data/fotos', id + '.' + ext);
+    const carpeta = path.join(__dirname, 'data/fotos', id);
+    if (!fs.existsSync(carpeta)) fs.mkdirSync(carpeta, { recursive: true });
+    const dest = path.join(carpeta, 'perfil.' + ext);
     fs.renameSync(req.file.path, dest);
     const usuarios = cargarJSON('usuarios.json');
     const u = usuarios.find(x => x.id === id);
-    if(u) { u.foto = '/data/fotos/' + id + '.' + ext; guardarJSON('usuarios.json', usuarios); }
+    if(u) { u.foto = dest; guardarJSON('usuarios.json', usuarios); }
     res.json({ok:true, foto: u.foto});
   } catch(e) { res.status(500).json({ok:false}); }
 });

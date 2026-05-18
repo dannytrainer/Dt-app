@@ -26,7 +26,7 @@
     "msg_pago": "Pague m",
     "msg_q1": "",
     "msg_q2": "",
-    "foto": "/data/fotos/1778216541791.jpg"
+    "foto": "/data/data/com.termux/files/home/Dt-app/data/fotos/1778216541791/perfil.jpg"
   },
   {
     "id": "1778272241158",
@@ -168,7 +168,8 @@
     },
     "msg_pago": "Cobro robot 🤖",
     "sesiones_total": 1,
-    "sesiones_ciclo": 1
+    "sesiones_ciclo": 1,
+    "foto": "/data/data/com.termux/files/home/Dt-app/data/fotos/1778377380425/perfil.jpg"
   },
   {
     "id": "1778377616786",
