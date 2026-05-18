@@ -602,19 +602,31 @@ function generarRecomendaciones(usuarios,adminData,dash){
     const precio=d.precio||0;
     const pagos=d.pagos||[];
     const ultimoPago=pagos.length?new Date(pagos[pagos.length-1].fecha):null;
-    const diasPausado=ultimoPago?Math.floor((hoy-ultimoPago)/(1000*60*60*24)):90;
-    if(diasPausado>30){
-      const desc=30;
-      const precioDesc=Math.round(precio*(1-desc/100));
-      const msg='Hola '+u.nombre+' 👋, te extrañamos en el gym! Tenemos un plan especial de regreso con '+desc+'% de descuento — solo '+precioDesc.toLocaleString()+' este mes. ¿Volvemos? 💪';
+    if(!ultimoPago){
+      // Nunca ha pagado
       rec.push({
-        icono:'⏸️',
-        titulo:u.nombre+' lleva '+diasPausado+' días pausado',
-        detalle:'Precio anterior: '+(precio>0?precio.toLocaleString()+' '+( d.moneda||'COP'):'sin registrar')+' · Plan retoma con '+desc+'% off = '+(precioDesc>0?precioDesc.toLocaleString():'calcular precio'),
-        color:'#ff9800',
-        mensaje:msg,
-        btnWA:msg
+        icono:'🆕',
+        titulo:u.nombre+' — aún no ha pagado su primera mensualidad',
+        detalle:'Cliente registrado sin pagos. Verifica si ya inició o si está pendiente de cobro.',
+        color:'#607d8b',
+        mensaje:'Hola '+u.nombre+' 👋, quería saber cómo vas con tu plan. ¿Arrancamos? 💪',
+        btnWA:'Hola '+u.nombre+' 👋, quería saber cómo vas con tu plan. ¿Arrancamos? 💪'
       });
+    } else {
+      const diasPausado=Math.floor((hoy-ultimoPago)/(1000*60*60*24));
+      if(diasPausado>30){
+        const desc=30;
+        const precioDesc=Math.round(precio*(1-desc/100));
+        const msg='Hola '+u.nombre+' 👋, te extrañamos en el gym! Tenemos un plan especial de regreso con '+desc+'% de descuento — solo '+(precioDesc>0?precioDesc.toLocaleString():'[precio]')+' este mes. ¿Volvemos? 💪';
+        rec.push({
+          icono:'⏸️',
+          titulo:u.nombre+' lleva '+diasPausado+' días pausado',
+          detalle:'Último pago: '+ultimoPago.toLocaleDateString('es-CO')+' · Precio: '+(precio>0?precio.toLocaleString()+' '+(d.moneda||'COP'):'sin registrar')+' · Plan retoma con '+desc+'% off'+(precioDesc>0?' = '+precioDesc.toLocaleString():''),
+          color:'#ff9800',
+          mensaje:msg,
+          btnWA:msg
+        });
+      }
     }
   });
 
@@ -679,6 +691,127 @@ function generarRecomendaciones(usuarios,adminData,dash){
     });
   }
 
+  // MEJORA 2: Retención — clientes 3+ meses activos
+  activos.forEach(u=>{
+    const d=clientes[u.id]||{};
+    const precio=d.precio||0;
+    const pagos=d.pagos||[];
+    if(pagos.length===0) return;
+    const primerPago=new Date(pagos[0].fecha);
+    const mesesActivo=Math.floor((hoy-primerPago)/(1000*60*60*24*30));
+    if(mesesActivo>=3 && mesesActivo<6){
+      const desc=10;
+      const precioDesc=Math.round(precio*(1-desc/100));
+      const msg='Hola '+u.nombre+' 💪, llevas '+mesesActivo+' meses entrenando y eso merece reconocimiento. Quiero ofrecerte un precio preferencial de '+precioDesc.toLocaleString()+' para que sigamos juntos mucho más. ¡Cuéntame!';
+      rec.push({
+        icono:'🏅',
+        titulo:u.nombre+' lleva '+mesesActivo+' meses — fidelizar ahora',
+        detalle:'Cliente activo desde '+primerPago.toLocaleDateString('es-CO')+'. Ofrecer '+desc+'% preferencial antes de los 6 meses = '+precioDesc.toLocaleString()+' '+(d.moneda||'COP'),
+        color:'#4caf50',
+        mensaje:msg,
+        btnWA:msg
+      });
+    }
+  });
+
+  // MEJORA 3: Temporada baja — mes actual vs anterior
+  const totalMesAct=dash.totalPagos||0;
+  const totalMesAnt=dash.totalMesAnt||0;
+  if(totalMesAnt>0 && totalMesAct<totalMesAnt*0.8){
+    const caida=Math.round((1-totalMesAct/totalMesAnt)*100);
+    rec.push({
+      icono:'📉',
+      titulo:'Este mes vas '+caida+'% por debajo del anterior',
+      detalle:'Mes anterior: '+totalMesAnt.toLocaleString()+' → Este mes: '+totalMesAct.toLocaleString()+'. Momento ideal para campaña de reactivación.',
+      color:'#ff5722',
+      mensaje:null,
+      btnWA:null
+    });
+  }
+
+  // MEJORA 1: Propuestas 2x1 — clientes con horario similar
+  const horarioMap={};
+  activos.forEach(u=>{
+    if(!u.horario) return;
+    const h=u.horario.trim().toLowerCase();
+    if(!horarioMap[h]) horarioMap[h]=[];
+    horarioMap[h].push(u);
+  });
+  Object.entries(horarioMap).forEach(([horario,grupo])=>{
+    if(grupo.length>=2){
+      grupo.forEach(u=>{
+        const d=clientes[u.id]||{};
+        const precio=d.precio||0;
+        const precioDesc=Math.round(precio*0.7);
+        const msg='Hola '+u.nombre+' 👋, tengo una propuesta especial: si traes un amigo a tu horario ('+horario+') ambos pagan solo el 70% — quedarías en '+precioDesc.toLocaleString()+'. ¿Conoces a alguien? 💪';
+        rec.push({
+          icono:'👥',
+          titulo:'2x1 para '+u.nombre+' (horario '+horario+')',
+          detalle:grupo.length+' clientes en este horario. Sugerir traer amigo con 30% descuento = '+precioDesc.toLocaleString()+' '+(d.moneda||'COP'),
+          color:'#00bcd4',
+          mensaje:msg,
+          btnWA:msg
+        });
+      });
+    }
+  });
+
+  // MEJORA 5: Historial de promociones enviadas
+  const promoHistorial=JSON.parse(localStorage.getItem('dt_promo_historial')||'[]');
+  const hoyStr=hoy.toISOString().split('T')[0];
+  const enviadas=promoHistorial.filter(p=>p.fecha===hoyStr);
+  if(enviadas.length>0){
+    rec.push({
+      icono:'📊',
+      titulo:'Hoy enviaste '+enviadas.length+' promoción'+(enviadas.length>1?'es':''),
+      detalle:enviadas.map(p=>p.cliente+': '+p.tipo).join(' · '),
+      color:'#607d8b',
+      mensaje:null,
+      btnWA:null
+    });
+  }
+
+  // MEJORA 6: Promociones personalizadas — UNA tarjeta grupal por promo
+  const promosPersonalizadas=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  promosPersonalizadas.filter(p=>p.activa).forEach(promo=>{
+    let candidatos=[];
+    if(promo.condicion==='nuevo'){
+      candidatos=activos.filter(u=>{
+        const d=clientes[u.id]||{};
+        const pagos=d.pagos||[];
+        if(pagos.length===0) return true;
+        const primer=new Date(pagos[0].fecha);
+        return Math.floor((hoy-primer)/(1000*60*60*24))<=30;
+      });
+    } else if(promo.condicion==='pausado'){
+      candidatos=pausados;
+    } else if(promo.condicion==='activo'){
+      candidatos=activos;
+    } else if(promo.condicion==='todos'){
+      candidatos=[...activos,...pausados];
+    }
+    if(candidatos.length===0) return;
+    const desc=promo.descuento||0;
+    const potencial=candidatos.reduce((s,u)=>{
+      const d=clientes[u.id]||{};
+      return s+Math.round((d.precio||0)*(1-desc/100));
+    },0);
+    const msg=promo.mensaje
+      .replace(/{nombre}/g,'[cliente]')
+      .replace(/{descuento}/g,desc+'%')
+      .replace(/{precio}/g,'[precio]')
+      .replace(/{precio_con_descuento}/g,'[precio con descuento]');
+    const condLabel=promo.condicion==='nuevo'?'nuevos':promo.condicion==='pausado'?'pausados':promo.condicion==='activo'?'activos':'total';
+    rec.push({
+      icono:'🎁',
+      titulo:promo.nombre+' · '+candidatos.length+' clientes '+condLabel,
+      detalle:desc+'% descuento · Potencial recuperable: '+(potencial>0?potencial.toLocaleString()+' COP':'calcular precios'),
+      color:'#e91e63',
+      mensaje:msg,
+      btnWA:msg
+    });
+  });
+
   return rec;
 }
 // ═══════════════════════════════
@@ -692,7 +825,7 @@ async function cargarAdmin(){
       fetch('/api/usuarios').then(r=>r.json()),
       fetch('/api/admin').then(r=>r.json())
     ]);
-    window._adminUsuarios = usuarios.filter(u=>u.activo);
+    window._adminUsuarios = usuarios;
     window._adminData = adminData;
     showAdminTab('dashboard');
   }catch(e){console.error('cargarAdmin',e);}
@@ -800,9 +933,11 @@ function renderAdminDashboard(){
     const precio=d.precio||0;
     const moneda=d.moneda||'COP';
     if(!monedas[moneda])monedas[moneda]=0;
-    monedas[moneda]+=precio;
-    totalMes+=precio;
-    proyeccionClientes.push({nombre:u.nombre,precio,moneda});
+    if(u.activo){
+      monedas[moneda]+=precio;
+      totalMes+=precio;
+      proyeccionClientes.push({nombre:u.nombre,precio,moneda});
+    }
     (d.pagos||[]).forEach(p=>{
       const fp=new Date(p.fecha);
       if(fp.getMonth()===mesActual&&fp.getFullYear()===anioActual){
@@ -848,8 +983,10 @@ function renderAdminDashboard(){
   html+='</div>';
   html+='<div style="background:#111;border:1px solid #2a2a2a;border-radius:14px;padding:14px">';
   html+='<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Clientes activos</div>';
-  html+='<div style="font-size:20px;font-weight:800;color:#fff">'+usuarios.length+'</div>';
-  html+='<div style="font-size:10px;color:#444;margin-top:2px">Con plan activo</div></div>';
+  const nActivos=usuarios.filter(u=>u.activo).length;
+  const nTotal=usuarios.length;
+  html+='<div style="font-size:20px;font-weight:800;color:#fff">'+nActivos+'<span style="font-size:13px;color:#555;font-weight:400">/'+nTotal+'</span></div>';
+  html+='<div style="font-size:10px;color:#444;margin-top:2px">Activos / Total registrados</div></div>';
   html+='</div>';
 
   // ═══ CHIP POTENCIAL ═══
@@ -887,6 +1024,37 @@ function renderAdminDashboard(){
     });
     html+='</div>';
   }
+
+  // Panel promos al final
+  html+='<div id="promo-panel" style="display:none;background:#1a1a1a;border-radius:14px;padding:14px;margin-top:12px">';
+  html+='<div style="font-size:12px;color:#e91e63;font-weight:700;margin-bottom:8px">🎁 Promociones personalizadas</div>';
+  html+='<div style="font-size:11px;color:#555;margin-bottom:10px">El motor las sugerirá según la condición. Tú decides si envías.</div>';
+  const promosCustom=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  promosCustom.forEach((p,i)=>{
+    html+='<div style="background:#111;border-radius:10px;padding:10px;margin-bottom:6px;border-left:3px solid #e91e63">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    html+='<span style="font-size:12px;color:#fff;font-weight:600">'+p.nombre+'</span>';
+    html+='<div style="display:flex;gap:6px;align-items:center">';
+    html+='<label class="switch"><input type="checkbox" '+(p.activa?'checked':'')+' onchange="togglePromoCustom('+i+',this.checked)"><span class="slider"></span></label>';
+    html+='<button onclick="borrarPromoCustom('+i+')" style="background:#2a0a0a;border:1px solid #5a1a1a;border-radius:6px;color:#e31e24;font-size:11px;padding:3px 7px;cursor:pointer">🗑️</button>';
+    html+='</div></div>';
+    html+='<div style="font-size:10px;color:#888;margin-top:4px">'+(p.condicion==='nuevo'?'🆕 Nuevos':p.condicion==='pausado'?'⏸️ Pausados':p.condicion==='activo'?'✅ Activos':'👥 Todos')+' · '+p.descuento+'% off</div>';
+  });
+  html+='<div style="border-top:1px solid #2a2a2a;margin:10px 0"></div>';
+  html+='<div style="font-size:11px;color:#e91e63;font-weight:700;margin-bottom:8px">➕ Nueva promoción</div>';
+  html+='<input type="text" id="np-nombre" placeholder="Nombre (ej: Promo familia)" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  html+='<select id="np-condicion" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:12px;margin-bottom:6px">';
+  html+='<option value="nuevo">🆕 Nuevos clientes (< 30 días)</option>';
+  html+='<option value="pausado">⏸️ Pausados</option>';
+  html+='<option value="activo">✅ Activos</option>';
+  html+='<option value="todos">👥 Todos</option>';
+  html+='</select>';
+  html+='<input type="number" id="np-descuento" placeholder="% descuento (ej: 20)" min="0" max="100" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  html+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre} {precio} {descuento} {precio_con_descuento}" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:12px;min-height:70px;box-sizing:border-box;margin-bottom:6px"></textarea>';
+  html+='<div style="font-size:10px;color:#555;margin-bottom:8px">Variables: {nombre} {precio} {descuento} {precio_con_descuento}</div>';
+  html+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:8px;color:#e91e63;font-size:12px;font-weight:700;padding:9px;cursor:pointer">💾 Guardar promoción</button>';
+  html+='</div>';
+
   return html;
 }
 function renderAdminClientes(){
@@ -929,8 +1097,118 @@ function renderAdminConfig(){
   html+='<div style="font-size:11px;color:#555;margin-top:2px">Abrir chat con mensaje o vacío</div></div>';
   html+='<label class="switch"><input type="checkbox" id="admin-prellenado"'+(cfg.msg_prellenado?' checked':'')+' onchange="guardarAdminConfig()"><span class="slider"></span></label></div>';
   html+='<button onclick="guardarAdminConfig()" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;padding:12px;cursor:pointer">💾 Guardar configuración</button>';
+  html+='<div style="height:1px;background:#2a2a2a;margin:16px 0"></div>';
+
+  // SECCIÓN PROMOCIONES PERSONALIZADAS
+  html+='<div style="margin-top:18px"><div style="font-size:13px;color:#fff;font-weight:700;margin-bottom:10px">🎁 Promociones personalizadas</div>';
+  html+='<div style="font-size:11px;color:#555;margin-bottom:12px">El motor las sugerirá automáticamente según la condición. Tú decides si la envías.</div>';
+
+  // Lista promos existentes
+  const promosCustom=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  promosCustom.forEach((p,i)=>{
+    html+='<div style="background:#1a1a1a;border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #e91e63">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+    html+='<span style="font-size:13px;color:#fff;font-weight:600">'+p.nombre+'</span>';
+    html+='<div style="display:flex;gap:8px;align-items:center">';
+    html+='<label class="switch"><input type="checkbox" '+(p.activa?'checked':'')+' onchange="togglePromoCustom('+i+',this.checked)"><span class="slider"></span></label>';
+    html+='<button onclick="borrarPromoCustom('+i+')" style="background:#2a0a0a;border:1px solid #5a1a1a;border-radius:8px;color:#e31e24;font-size:11px;padding:4px 8px;cursor:pointer">🗑️</button>';
+    html+='</div></div>';
+    html+='<div style="font-size:11px;color:#888">'+(p.condicion==='nuevo'?'🆕 Nuevos clientes':p.condicion==='pausado'?'⏸️ Pausados':p.condicion==='activo'?'✅ Activos':'👥 Todos')+' · '+p.descuento+'% descuento</div>';
+    html+='<div style="font-size:11px;color:#555;margin-top:4px;font-style:italic">'+p.mensaje.substring(0,60)+(p.mensaje.length>60?'...':'')+'</div>';
+    html+='</div>';
+  });
+
+  // Formulario nueva promo
+  html+='<div style="background:#1a1a1a;border-radius:14px;padding:14px;margin-top:10px">';
+  html+='<div style="font-size:12px;color:#e91e63;font-weight:700;margin-bottom:10px">➕ Nueva promoción</div>';
+  html+='<input type="text" id="np-nombre" placeholder="Nombre (ej: Promo familia julio)" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:12px;outline:none;box-sizing:border-box;margin-bottom:8px">';
+  html+='<select id="np-condicion" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px;margin-bottom:8px">';
+  html+='<option value="nuevo">🆕 Nuevos clientes (registro &lt; 30 días)</option>';
+  html+='<option value="pausado">⏸️ Clientes pausados</option>';
+  html+='<option value="activo">✅ Clientes activos</option>';
+  html+='<option value="todos">👥 Todos los clientes</option>';
+  html+='</select>';
+  html+='<div style="display:flex;gap:8px;margin-bottom:8px">';
+  html+='<input type="number" id="np-descuento" placeholder="% descuento (ej: 20)" min="0" max="100" style="flex:1;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;font-size:13px;outline:none">';
+  html+='<div style="display:flex;align-items:center;background:#111;border:1px solid #333;border-radius:10px;padding:9px;font-size:11px;color:#555;white-space:nowrap">% off</div>';
   html+='</div>';
+  html+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre}, {precio}, {descuento}, {precio_con_descuento}" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:12px;min-height:80px;box-sizing:border-box;margin-bottom:8px"></textarea>';
+  html+='<div style="font-size:10px;color:#555;margin-bottom:10px">Variables: {nombre} {precio} {descuento} {precio_con_descuento}</div>';
+  html+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:10px;color:#e91e63;font-size:13px;font-weight:700;padding:10px;cursor:pointer">💾 Guardar promoción</button>';
+  html+='</div></div>';
   return html;
+}
+
+function togglePromoPanel(){
+  // Quitar modal anterior si existe
+  const existing=document.getElementById('modal-promos');
+  if(existing){existing.remove();return;}
+
+  const promosCustom=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  let inner='<div style="font-size:13px;color:#e91e63;font-weight:700;margin-bottom:8px">🎁 Promociones personalizadas</div>';
+  inner+='<div style="font-size:11px;color:#555;margin-bottom:10px">El motor las sugerirá según condición. Tú decides si envías.</div>';
+  promosCustom.forEach((p,i)=>{
+    inner+='<div style="background:#0a0a0a;border-radius:10px;padding:10px;margin-bottom:6px;border-left:3px solid #e91e63">';
+    inner+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    inner+='<span style="font-size:12px;color:#fff;font-weight:600">'+p.nombre+'</span>';
+    inner+='<div style="display:flex;gap:6px;align-items:center">';
+    inner+='<label class="switch"><input type="checkbox" '+(p.activa?'checked':'')+' onchange="togglePromoCustom('+i+',this.checked)"><span class="slider"></span></label>';
+    inner+='<button onclick="borrarPromoCustom('+i+')" style="background:#2a0a0a;border:1px solid #5a1a1a;border-radius:6px;color:#e31e24;font-size:11px;padding:3px 7px;cursor:pointer">🗑️</button>';
+    inner+='</div></div>';
+    inner+='<div style="font-size:10px;color:#888;margin-top:4px">'+(p.condicion==='nuevo'?'🆕 Nuevos':p.condicion==='pausado'?'⏸️ Pausados':p.condicion==='activo'?'✅ Activos':'👥 Todos')+' · '+p.descuento+'% off</div>';
+    inner+='</div>';
+  });
+  inner+='<div style="border-top:1px solid #2a2a2a;margin:12px 0"></div>';
+  inner+='<div style="font-size:11px;color:#e91e63;font-weight:700;margin-bottom:8px">➕ Nueva promoción</div>';
+  inner+='<input type="text" id="np-nombre" placeholder="Nombre (ej: Promo familia)" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  inner+='<select id="np-condicion" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:12px;margin-bottom:6px">';
+  inner+='<option value="nuevo">🆕 Nuevos clientes (< 30 días)</option>';
+  inner+='<option value="pausado">⏸️ Pausados</option>';
+  inner+='<option value="activo">✅ Activos</option>';
+  inner+='<option value="todos">👥 Todos</option>';
+  inner+='</select>';
+  inner+='<input type="number" id="np-descuento" placeholder="% descuento (ej: 20)" min="0" max="100" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  inner+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre} {precio} {descuento} {precio_con_descuento}" style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:8px;color:#fff;font-size:12px;min-height:70px;box-sizing:border-box;margin-bottom:6px"></textarea>';
+  inner+='<div style="font-size:10px;color:#555;margin-bottom:8px">Variables: {nombre} {precio} {descuento} {precio_con_descuento}</div>';
+  inner+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:8px;color:#e91e63;font-size:12px;font-weight:700;padding:9px;cursor:pointer">💾 Guardar promoción</button>';
+
+  const modal=document.createElement('div');
+  modal.id='modal-promos';
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#000a;z-index:9999;display:flex;align-items:flex-end';
+  modal.innerHTML='<div style="background:#1a1a1a;border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:85vh;overflow-y:auto;box-sizing:border-box">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'+
+    '<span style="font-size:14px;color:#fff;font-weight:700">🎁 Promociones</span>'+
+    '<button onclick="togglePromoPanel()" style="background:#2a2a2a;border:none;border-radius:8px;color:#aaa;font-size:13px;padding:5px 10px;cursor:pointer">✕ Cerrar</button>'+
+    '</div>'+inner+'</div>';
+  document.body.appendChild(modal);
+}
+
+function guardarPromoCustom(){
+  const nombre=document.getElementById('np-nombre').value.trim();
+  const condicion=document.getElementById('np-condicion').value;
+  const descuento=parseInt(document.getElementById('np-descuento').value)||0;
+  const mensaje=document.getElementById('np-mensaje').value.trim();
+  if(!nombre||!mensaje){toast('⚠️ Completa nombre y mensaje');return;}
+  const promos=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  promos.push({nombre,condicion,descuento,mensaje,activa:true,fecha:new Date().toISOString().split('T')[0]});
+  localStorage.setItem('dt_promos_custom',JSON.stringify(promos));
+  toast('✅ Promoción guardada');
+  showAdminTab('config');
+}
+
+function togglePromoCustom(i,activa){
+  const promos=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  if(promos[i])promos[i].activa=activa;
+  localStorage.setItem('dt_promos_custom',JSON.stringify(promos));
+  toast(activa?'✅ Promoción activada':'⏸️ Promoción pausada');
+}
+
+function borrarPromoCustom(i){
+  const promos=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  promos.splice(i,1);
+  localStorage.setItem('dt_promos_custom',JSON.stringify(promos));
+  toast('🗑️ Promoción eliminada');
+  showAdminTab('config');
 }
 
 async function guardarAdminConfig(){
