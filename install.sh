@@ -1,73 +1,37 @@
 #!/bin/bash
+set -e
 
-echo "🚀 Iniciando instalación segura de Dt-app..."
+echo "🚀 Instalando Dt-app..."
 
-# =========================
-# 1. DEPENDENCIAS BASE
-# =========================
-echo "📦 Verificando dependencias..."
+# 1. Dependencias Termux
+pkg update -y && pkg upgrade -y
+pkg install -y nodejs git python
 
-pkg update -y
-pkg upgrade -y
-
-pkg install nodejs git -y
-
-# =========================
-# 2. VALIDAR CARPETA
-# =========================
-echo "📁 Verificando proyecto..."
-
-cd " $HOME/Dt-app" || {
-  echo "❌ Carpeta gymbot no existe"
-  exit 1
-}
-
-# =========================
-# 3. VALIDAR GIT
-# =========================
-if [ ! -d ".git" ]; then
-  echo "⚠️ No hay repo git, clonando desde GitHub..."
-  cd ~
+# 2. Clonar o actualizar repo
+if [ ! -d "$HOME/Dt-app/.git" ]; then
+  echo "📥 Clonando repositorio..."
   rm -rf "$HOME/Dt-app"
-  git clone https://github.com/dannytrainer/Dt-app.git
-  cd "HOME/Dt-app"
+  git clone https://github.com/dannytrainer/Dt-app.git "$HOME/Dt-app"
 else
-  echo "✔ Git detectado"
+  echo "🔄 Actualizando repositorio..."
+  cd "$HOME/Dt-app" && git pull
 fi
 
-# =========================
-# 4. DEPENDENCIAS NODE
-# =========================
-echo "📦 Instalando dependencias npm..."
+cd "$HOME/Dt-app"
 
+# 3. Instalar dependencias Node
+echo "📦 Instalando dependencias npm..."
 npm install
 
-# =========================
-# 5. VALIDAR INDEX
-# =========================
-if [ ! -f "index.js" ]; then
-  echo "❌ ERROR: falta index.js"
-  echo "👉 Revisa GitHub o backup"
-  exit 1
+# 4. Crear carpetas necesarias
+mkdir -p data/fotos auth backups
+
+# 5. Alias dtr
+if ! grep -q "alias dtr=" ~/.bashrc; then
+  echo 'alias dtr="cd $HOME/Dt-app && node index.js"' >> ~/.bashrc
 fi
+source ~/.bashrc 2>/dev/null || true
 
-# =========================
-# 6. RESTAURAR ALIAS
-# =========================
-echo "🔧 Configurando alias dt..."
-
-if ! grep -q "alias dt=" ~/.bashrc; then
-  echo 'alias dt="cd ""HOME/Dt-app && node index.js"' >> ~/.bashrc
-fi
-
-source ~/.bashrc
-
-# =========================
-# 7. FINAL
-# =========================
 echo ""
 echo "✅ INSTALACIÓN COMPLETA"
-echo "👉 Ejecuta ahora:"
-echo "   dt"
-echo ""
-echo "🌐 Sistema listo en localhost si aplica"
+echo "👉 Escribe: dtr"
