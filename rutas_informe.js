@@ -274,17 +274,45 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
     --gris-medio:#2e2e2e; --gris-borde:#3a3a3a;
     --blanco:#fff; --blanco-suave:#f5f5f5; --texto-secundario:#aaa;
   }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --rojo:#C0212C; --negro:#ffffff; --gris-oscuro:#f0f0f0;
+      --gris-medio:#e2e2e2; --gris-borde:#cccccc;
+      --blanco:#111111; --blanco-suave:#222222; --texto-secundario:#444444;
+    }
+    body { background:#e8e8e8 !important; color:#111111 !important; }
+    body * { color:inherit; }
+    .marca-agua-inner div { color:rgba(0,0,0,0.05) !important; }
+    table.dt-table th { background:#dcdcdc; }
+    table.dt-table td { border-bottom-color:rgba(0,0,0,0.06); }
+    .ejercicios-tabla thead tr { background:rgba(0,0,0,0.03); }
+    .ejercicios-tabla tbody tr { border-bottom-color:rgba(0,0,0,0.06); }
+    .rir-badge { background:rgba(25,118,210,0.1); border-color:rgba(25,118,210,0.3); color:#1565c0; }
+    .desc-badge { background:rgba(200,140,0,0.1); border-color:rgba(200,140,0,0.3); color:#8a5c00; }
+    .nota-entrenador { background:rgba(192,33,44,0.05); }
+    .rutina-dia-count { background:rgba(192,33,44,0.08); border-color:rgba(192,33,44,0.25); }
+    .ejercicios-tabla thead tr { background:rgba(0,0,0,0.03); }
+    [style*="color:#fff"] { color:#111111 !important; }
+    [style*="color: #fff"] { color:#111111 !important; }
+    [style*="color:white"] { color:#111111 !important; }
+    [style*="color:#aaa"] { color:#444444 !important; }
+    [style*="color:#888"] { color:#444444 !important; }
+    [style*="color:#555"] { color:#555555 !important; }
+    [style*="color:#444"] { color:#333333 !important; }
+    .rutina-dia-nombre { color:#111111 !important; }
+    .seccion-titulo { color:#111111 !important; }
+    .logo-texto h1 { color:#111111 !important; }
+    .header-titulo h2 { color:#111111 !important; }
+    .ej-nombre { color:#111111 !important; }
+    .ej-val { color:#111111 !important; }
+    .metrica-card .val { color:#111111 !important; }
+    .fecha-bloque .valor { color:#111111 !important; }
+  }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'DM Sans',sans-serif;background:#1c1c1c;color:#fff;font-size:13px;}
   .pagina{width:900px;margin:0 auto;background:var(--negro);position:relative;overflow:visible;}
-  .marca-agua{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;overflow:hidden;}
-  .marca-agua::before{
-    content:'DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__    DT-APP @danny_trainer__';
-    position:absolute;top:-100px;left:-200px;width:250%;
-    font-family:'DM Sans',sans-serif;font-size:22px;font-weight:900;
-    color:rgba(255,255,255,0.10);letter-spacing:4px;line-height:80px;
-    transform:rotate(-30deg);word-break:break-all;text-transform:uppercase;
-  }
+  .marca-agua{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden;}
+  .marca-agua-inner{position:absolute;top:-200px;left:-200px;width:200%;height:200%;transform:rotate(-30deg);display:flex;flex-direction:column;gap:60px;}
   .header{background:var(--negro);border-bottom:3px solid var(--rojo);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
   .logo-cuadro{width:48px;height:48px;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;border-radius:4px;}
   .logo-texto h1{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;line-height:1;}
@@ -351,7 +379,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
 </style>
 </head>
 <body>
-<div class="marca-agua"></div>
+<div class="marca-agua"><div class="marca-agua-inner">${Array(40).fill('<div style="white-space:nowrap;font-family:DM Sans,sans-serif;font-size:18px;font-weight:900;color:rgba(255,255,255,0.07);letter-spacing:3px;text-transform:uppercase;">' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · DT-APP @danny_trainer__    ' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · DT-APP @danny_trainer__    ' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · DT-APP @danny_trainer__</div>').join('')}</div></div>
 <div class="pagina">
 
   <!-- HEADER -->
