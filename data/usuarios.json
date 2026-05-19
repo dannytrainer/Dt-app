@@ -5,7 +5,7 @@
     "nombre": "Yo",
     "telefono": "573006197897",
     "tipo": "asesorado",
-    "hora_envio": "23:10",
+    "hora_envio": "13:57",
     "dia_pago": 10,
     "estado_pago": "aldia",
     "perfil": {
@@ -51,8 +51,8 @@
       "notas": "Lesión en ligamento cruzado rodilla izquierda \n\nLumbalgia ",
       "unidades": "kg"
     },
-    "sesiones_total": 1,
-    "sesiones_ciclo": 1,
+    "sesiones_total": 2,
+    "sesiones_ciclo": 2,
     "foto": "data/fotos/1778354312296/perfil.jpg"
   },
   {
@@ -86,7 +86,7 @@
     "nombre": "Mafe",
     "telefono": "573113084297",
     "tipo": "personalizado",
-    "hora_envio": "12:05",
+    "hora_envio": "13:05",
     "tipo_pago": "mensual",
     "dia_pago": 16,
     "dia_pago2": null,
@@ -131,7 +131,7 @@
     "nombre": "Arianna Chirino",
     "telefono": "573042059960",
     "tipo": "personalizado",
-    "hora_envio": "12:05",
+    "hora_envio": "14:05",
     "tipo_pago": "mensual",
     "dia_pago": 15,
     "dia_pago2": null,

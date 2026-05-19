@@ -548,6 +548,12 @@
       "rutina": "Q",
       "ejercicios": [],
       "cardio": []
+    },
+    "martes": {
+      "recordatorio": "Confirmación de clase ",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": []
     }
   },
   "1778377049231": {
@@ -803,62 +809,85 @@
   },
   "1778377616786": {
     "lunes": {
-      "recordatorio": "Iniciamos semana con pierna + abdomen ",
-      "rutina": "V1= bi-serie \nV2 = circuito #1\nV3 =circuito #2\n",
+      "recordatorio": "Día de cardio ",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": " Banda ",
+          "tiempo": "10",
+          "notas": "Iniciar con intensidad 5 e ir b cada minuto hasta llegar al máximo tolerable "
+        },
+        {
+          "momento": "Hit 1",
+          "ejercicio": "Elíptica ",
+          "tiempo": "10",
+          "notas": "Intevalos 20\" /10\"\n20\" al 65% de intensidad \n10\" al 90% se intensidad "
+        },
+        {
+          "momento": "Hiit 2 ",
+          "ejercicio": "Bicicleta ",
+          "tiempo": "5",
+          "notas": "Intervalos 15\" /15\"\n15\" pausa\n15\" 100% intensidad \n"
+        },
+        {
+          "momento": "Cardio final ",
+          "ejercicio": "Banda ",
+          "tiempo": "15",
+          "notas": "5 min al 75% de intensidad \n10 min al 60% y decreciente hasta parar "
+        }
+      ]
+    },
+    "martes": {
+      "recordatorio": "Día de pierna \nRecuerda el calentamiento y la movilidad articular",
+      "rutina": "V1= circuito 1\nV2 = circuito 2",
       "ejercicios": [
         {
-          "nombre": "Abd + Add cadera ",
+          "nombre": "Sentadilla ",
           "series": "3",
-          "reps": "20",
-          "rir": "2",
-          "desc": "30",
+          "reps": "10",
+          "rir": "1",
+          "desc": "",
           "var": "V1"
         },
         {
-          "nombre": "Sentadilla ",
-          "series": "4",
-          "reps": "10",
+          "nombre": "Femoral acosada",
+          "series": "3",
+          "reps": "15",
           "rir": "2",
           "desc": "",
-          "var": "V2"
-        },
-        {
-          "nombre": "Flexion de rodilla ",
-          "series": "4",
-          "reps": "20",
-          "rir": "3",
-          "desc": "",
-          "var": "V2"
+          "var": "V1"
         },
         {
           "nombre": "Abdominales ",
-          "series": "4 ",
+          "series": "3",
           "reps": "20",
-          "rir": "0",
+          "rir": "2",
           "desc": "60",
-          "var": "V2"
+          "var": "V1"
         },
         {
-          "nombre": "Peso muerto",
-          "series": "4",
+          "nombre": "Peso muerto ",
+          "series": "3 ",
           "reps": "10",
-          "rir": "2",
+          "rir": "1",
           "desc": "",
           "var": "V2"
         },
         {
           "nombre": "Extensión rodilla ",
-          "series": "4",
-          "reps": "20",
+          "series": "3",
+          "reps": "15",
           "rir": "2",
           "desc": "",
           "var": "V2"
         },
         {
           "nombre": "Oblicuos bicicleta ",
-          "series": "4 ",
+          "series": "3",
           "reps": "30",
-          "rir": "3",
+          "rir": "2",
           "desc": "60",
           "var": "V2"
         }
@@ -866,21 +895,196 @@
       "cardio": [
         {
           "momento": "Calentamiento ",
-          "ejercicio": "Elíptica ",
+          "ejercicio": "Banda",
           "tiempo": "10",
-          "notas": "Cada minuto aumentar la intensidad  hasta el 85 y sostener \n1/60% 2/70% 3/75% 4/80% 5/85% 6,7,8/85%. 9/70%"
+          "notas": "Iniciar con intensidad 0.5 aumentar  cada minuto hasta llegar al máximo tolerable "
         },
         {
           "momento": "Al final de cada segmento",
-          "ejercicio": "Cualquiera ",
-          "tiempo": "5",
-          "notas": "Hiit 20×20. 65%/ 85"
+          "ejercicio": "Cualquier opción ",
+          "tiempo": "3",
+          "notas": "Velocidad. Constante de 70% al 80%"
+        }
+      ]
+    },
+    "miercoles": {
+      "recordatorio": "Día de tren superior ",
+      "rutina": "V1 = bi serie \nV2= circuito 1 \nV3= circuito 2",
+      "ejercicios": [
+        {
+          "nombre": "Press hombro+ abd hombro ",
+          "series": "3",
+          "reps": "20",
+          "rir": "2",
+          "desc": "30",
+          "var": "V1"
         },
         {
-          "momento": "Final ",
+          "nombre": "Remo en barra ",
+          "series": "4",
+          "reps": "12",
+          "rir": "2",
+          "desc": "",
+          "var": "V2"
+        },
+        {
+          "nombre": "Pres plano mancuernas ",
+          "series": "3",
+          "reps": "20",
+          "rir": "2",
+          "desc": "",
+          "var": "V2"
+        },
+        {
+          "nombre": "Curl bíceps",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "60",
+          "var": "V2"
+        },
+        {
+          "nombre": "Jalón cerrado ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "",
+          "var": "V3"
+        },
+        {
+          "nombre": "Add escapular ",
+          "series": "4",
+          "reps": "15",
+          "rir": "2",
+          "desc": "",
+          "var": "V3"
+        },
+        {
+          "nombre": "Copa mancuerna ",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "60",
+          "var": "V3"
+        }
+      ],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
           "ejercicio": "Banda ",
-          "tiempo": "20",
-          "notas": "Intensidad al 75%"
+          "tiempo": "10",
+          "notas": "Iniciar en velocidad 5 y aumentar 0.5 cada minuto hasta máximo tolerable "
+        },
+        {
+          "momento": "Al final de cada segmento",
+          "ejercicio": "Cualquier opción ",
+          "tiempo": "3",
+          "notas": "Velocidad constante del 70% al 80%"
+        },
+        {
+          "momento": "Cardio final ",
+          "ejercicio": "Bicicleta ",
+          "tiempo": "15",
+          "notas": "Velocidad de 70% y decreciente "
+        }
+      ]
+    },
+    "jueves": {
+      "recordatorio": "Día de pierna con énfasis a glúteo",
+      "rutina": "V1 = bi serie \nV2= banda en rodillas ",
+      "ejercicios": [
+        {
+          "nombre": "Add +abd cadera ",
+          "series": "3",
+          "reps": "20",
+          "rir": "2",
+          "desc": "30",
+          "var": "V1"
+        },
+        {
+          "nombre": "Sentadilla sumo ",
+          "series": "5",
+          "reps": "15/12/10/10/10",
+          "rir": "2",
+          "desc": "60",
+          "var": "V2"
+        },
+        {
+          "nombre": "Empuje de cadera ",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "90",
+          "var": "V2"
+        },
+        {
+          "nombre": "Step ascenso ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "30",
+          "var": ""
+        },
+        {
+          "nombre": "Abd cadera polea ",
+          "series": "2",
+          "reps": "15",
+          "rir": "2",
+          "desc": "30",
+          "var": ""
+        },
+        {
+          "nombre": "Pantorrilla ",
+          "series": "10",
+          "reps": "10",
+          "rir": "",
+          "desc": "10",
+          "var": ""
+        }
+      ],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Banda ",
+          "tiempo": "10",
+          "notas": "Inició en 5 de velocidad ir subiendo hasta máximo tolerable "
+        },
+        {
+          "momento": "Cardio final ",
+          "ejercicio": "Elíptica ",
+          "tiempo": "15",
+          "notas": "5 minutos intevalos 10\"/20\"\n10 min velocidad constante al 70%"
+        }
+      ]
+    },
+    "viernes": {
+      "recordatorio": "Dónde cardio ",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Banda ",
+          "tiempo": "10",
+          "notas": "Aumento de intensidad cada minuto \n "
+        },
+        {
+          "momento": "Hiit 1",
+          "ejercicio": "Elíptica ",
+          "tiempo": "5",
+          "notas": "20x\" / 20\"\n90%/ 70% de intensidad "
+        },
+        {
+          "momento": "Hit 2",
+          "ejercicio": "Bicicleta ",
+          "tiempo": "5",
+          "notas": "Intevalos 30\"/30\"\n60% / 80%"
+        },
+        {
+          "momento": "Cardio final ",
+          "ejercicio": "Banda ",
+          "tiempo": "10",
+          "notas": "Velocidad constante al 65%"
         }
       ]
     }

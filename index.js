@@ -118,7 +118,10 @@ cron.schedule('* * * * *', async () => {
 
     for (const usuario of usuarios) {
       if (!usuario.activo) continue;
-      if (usuario.hora_envio !== horaActual) continue;
+      const [hh,mm] = usuario.hora_envio.split(':').map(Number);
+      const limiteMin = hh*60+mm;
+      const ahoraMin = ahora.getHours()*60+ahora.getMinutes();
+      if (ahoraMin < limiteMin || ahoraMin > limiteMin+5) continue;
       const rutinaUsuario = rutinas[usuario.id];
       if (!rutinaUsuario || !rutinaUsuario[diaActual]) continue;
       const recordatorio = rutinaUsuario[diaActual].recordatorio || '';
@@ -133,7 +136,10 @@ cron.schedule('* * * * *', async () => {
     // Recordatorio de pago
     for (const usuario of usuarios) {
       if (!usuario.activo) continue;
-      if (usuario.hora_envio !== horaActual) continue;
+      const [hh,mm] = usuario.hora_envio.split(':').map(Number);
+      const limiteMin = hh*60+mm;
+      const ahoraMin = ahora.getHours()*60+ahora.getMinutes();
+      if (ahoraMin < limiteMin || ahoraMin > limiteMin+5) continue;
       const manana = new Date(ahora);
       manana.setDate(manana.getDate() + 1);
       const diaman = manana.getDate();
@@ -311,6 +317,23 @@ app.post('/api/alimentacion/:id', (req, res) => {
   data[req.params.id] = req.body;
   guardarJSON('alimentacion.json', data);
   res.json({ ok: true });
+});
+
+
+app.post('/api/alimentacion/:id/plan', (req, res) => {
+  try {
+    const { generarPlanAlimentario } = require('./generar_plan.js');
+    const plan = generarPlanAlimentario(req.params.id);
+    // Guardar plan generado en alimentacion.json
+    const data = cargarJSON('alimentacion.json');
+    if (!data[req.params.id]) data[req.params.id] = {};
+    data[req.params.id].plan_generado = plan;
+    data[req.params.id].plan_fecha = new Date().toISOString();
+    guardarJSON('alimentacion.json', data);
+    res.json(plan);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.get('/api/horarios', (req, res) => res.json(cargarJSON('horarios.json')));

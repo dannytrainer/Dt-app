@@ -576,6 +576,10 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 
   <!-- BOTÓN GUARDAR -->
   <button class="btn br" style="width:100%;margin-top:4px" onclick="guardarAlimentacion()">💾 Guardar plan</button>
+  <button onclick="generarPlanAlimentario()" style="width:100%;margin-top:8px;padding:12px;border:none;border-radius:10px;background:#1a1a2a;border:1px solid #4a9eff;color:#4a9eff;font-size:13px;font-weight:700;cursor:pointer">⚡ Generar plan automático</button>
+
+
+
 
 </div>
 </div>
@@ -2450,6 +2454,8 @@ function switchRutinaTab(tab){
   document.getElementById('btns-rutina').style.display = esEnt ? 'flex' : 'none';
 }
 async function abrirRutina(id,nombre){
+window._clienteActual=id;
+window.clienteMedidasId=id;
 document.getElementById('rutina-cliente-id').value=id;
 document.getElementById('rutina-titulo').textContent='📋 '+nombre;
 const res=await fetch('/api/rutinas/'+id);
@@ -5870,6 +5876,108 @@ async function guardarAlimentacion() {
   } catch(e) {
     alert('❌ No se pudo conectar con el servidor.');
   }
+}
+</script>
+
+<!-- MODAL PLAN ALIMENTARIO -->
+<div id="modal-plan-ali" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:300;overflow-y:auto">
+  <div style="max-width:600px;margin:0 auto;padding:16px 16px 100px">
+    <div style="position:sticky;top:0;background:#0a0a0a;padding:12px 0;border-bottom:2px solid #e31e24;z-index:1;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div>
+        <div style="font-size:16px;font-weight:900;color:#fff">🍽️ Plan Alimentario</div>
+        <div id="ali-plan-fecha" style="font-size:10px;color:#555;margin-top:2px"></div>
+      </div>
+      <button onclick="document.getElementById('modal-plan-ali').style.display='none'" style="background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#aaa;font-size:20px;cursor:pointer;padding:6px 14px">✕</button>
+    </div>
+    <div id="ali-plan-totales" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px;text-align:center"></div>
+    <div id="ali-plan-comidas"></div>
+    <button onclick="compartirPlanWA()" style="width:100%;padding:14px;border:none;border-radius:12px;background:#25D366;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px">📲 Compartir por WhatsApp</button>
+  </div>
+</div>
+
+<script>
+function generarPlanAlimentario() {
+  var id = window.clienteMedidasId || document.getElementById('rutina-cliente-id').value;
+  if (!id) { alert('Abre un cliente primero'); return; }
+  var btn = document.querySelector('[onclick="generarPlanAlimentario()"]');
+  if (btn) btn.textContent = '⏳ Generando...';
+  fetch('/api/alimentacion/' + id + '/plan', { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(plan) {
+      window._planActual = plan;
+      var fecha = new Date(plan.generado);
+      document.getElementById('ali-plan-fecha').textContent =
+        fecha.toLocaleDateString('es-CO', {day:'2-digit', month:'short', year:'numeric'});
+      var t = plan.totales;
+      document.getElementById('ali-plan-totales').innerHTML =
+        '<div style="background:#1a1a1a;border-radius:8px;padding:8px"><div style="font-size:16px;font-weight:800;color:#e31e24">'+t.proteina+'g</div><div style="font-size:9px;color:#555">Proteína</div></div>'+
+        '<div style="background:#1a1a1a;border-radius:8px;padding:8px"><div style="font-size:16px;font-weight:800;color:#f0a500">'+t.carbohidratos+'g</div><div style="font-size:9px;color:#555">Carbos</div></div>'+
+        '<div style="background:#1a1a1a;border-radius:8px;padding:8px"><div style="font-size:16px;font-weight:800;color:#4caf50">'+t.grasas+'g</div><div style="font-size:9px;color:#555">Grasas</div></div>'+
+        '<div style="background:#1a1a1a;border-radius:8px;padding:8px"><div style="font-size:16px;font-weight:800;color:#fff">'+t.calorias+'</div><div style="font-size:9px;color:#555">kcal</div></div>';
+      var wrap = document.getElementById('ali-plan-comidas');
+      wrap.innerHTML = '';
+      plan.comidas.forEach(function(comida) {
+        var mr = comida.macros_reales;
+        var ico = comida.nombre.indexOf('Desayuno')>=0?'🌅':comida.nombre.indexOf('Snack')>=0?'🍎':comida.nombre.indexOf('Almuerzo')>=0?'🍱':comida.nombre.indexOf('Cena')>=0?'🌙':comida.nombre.indexOf('Pre')>=0?'⚡':'🍽️';
+        var h = '<div style="background:#111;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:10px">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+        h += '<div style="font-size:14px;font-weight:800;color:#fff">'+ico+' '+comida.nombre+'</div>';
+        h += '<div style="font-size:12px;color:#aaa;font-weight:600">'+mr.kcal+' kcal</div></div>';
+        var p1=Math.round(mr.proteina*10)/10, c1=Math.round(mr.carbos*10)/10, g1=Math.round(mr.grasas*10)/10;
+        h += '<div style="display:flex;gap:6px;margin-bottom:10px">';
+        h += '<span style="font-size:10px;background:#1a0a0a;color:#e31e24;border-radius:6px;padding:3px 8px">P: '+p1+'g</span>';
+        h += '<span style="font-size:10px;background:#1a120a;color:#f0a500;border-radius:6px;padding:3px 8px">C: '+c1+'g</span>';
+        h += '<span style="font-size:10px;background:#0a1a0a;color:#4caf50;border-radius:6px;padding:3px 8px">G: '+g1+'g</span></div>';
+        comida.alimentos.forEach(function(al) {
+          h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #1a1a1a">';
+          h += '<div style="flex:1"><div style="font-size:13px;color:#ddd;font-weight:600">'+al.nombre+' <span style="color:#555;font-size:11px">('+al.preparacion+')</span></div>';
+          h += '<div style="font-size:10px;color:#444;margin-top:2px">'+al.macros.proteina+'g P · '+al.macros.carbohidratos+'g C · '+al.macros.grasas+'g G</div></div>';
+          h += '<div style="text-align:right;margin-left:8px"><div style="font-size:15px;font-weight:800;color:#fff">'+al.porcion_g+'g</div>';
+          h += '<div style="font-size:10px;color:#555">'+al.macros.calorias+' kcal</div></div></div>';
+        });
+        h += '</div>';
+        wrap.innerHTML += h;
+      });
+      document.getElementById('modal-plan-ali').style.display = 'block';
+      if (btn) btn.textContent = '⚡ Generar plan automático';
+    })
+    .catch(function(e) {
+      alert('Error: ' + e.message);
+      if (btn) btn.textContent = '⚡ Generar plan automático';
+    });
+}
+
+function compartirPlanWA() {
+  var plan = window._planActual;
+  if (!plan) { alert('Genera el plan primero'); return; }
+  // Obtener teléfono del cliente desde la API
+  var id = window.clienteMedidasId;
+  fetch('/api/usuarios/' + id)
+    .then(function(r) { return r.json(); })
+    .then(function(u) {
+      var tel = (u.telefono || '').replace(/[^0-9]/g, '');
+      var txt = '🍽️ *Plan alimentario — '+plan.nombre+'*\n';
+      txt += '📅 '+new Date(plan.generado).toLocaleDateString('es-CO')+'\n';
+      txt += '⚖️ Peso objetivo: '+plan.peso_objetivo+'kg\n\n';
+      txt += '📊 *Totales del día:*\n';
+      txt += '• Proteína: '+plan.totales.proteina+'g\n';
+      txt += '• Carbos: '+plan.totales.carbohidratos+'g\n';
+      txt += '• Grasas: '+plan.totales.grasas+'g\n';
+      txt += '• Calorías: '+plan.totales.calorias+' kcal\n\n';
+      plan.comidas.forEach(function(c) {
+        var ico = c.nombre.indexOf('Desayuno')>=0?'🌅':c.nombre.indexOf('Snack')>=0?'🍎':c.nombre.indexOf('Almuerzo')>=0?'🍱':c.nombre.indexOf('Cena')>=0?'🌙':'⚡';
+        txt += ico+' *'+c.nombre+'* ('+c.macros_reales.kcal+' kcal)\n';
+        c.alimentos.forEach(function(al) { txt += '  • '+al.nombre+' ('+al.preparacion+'): *'+al.porcion_g+'g*\n'; });
+        txt += '\n';
+      });
+      txt += '💪 _Danny Trainer — DT App_';
+      var url = tel ? 'https://wa.me/'+tel+'?text='+encodeURIComponent(txt)
+                    : 'https://wa.me/?text='+encodeURIComponent(txt);
+      window.open(url, '_blank');
+    })
+    .catch(function() {
+      alert('No se pudo obtener el teléfono del cliente');
+    });
 }
 </script>
 </body>

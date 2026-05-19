@@ -15,5 +15,5 @@
     "--test-resist": "#4a9eff",
     "--test-especif": "#9c27b0"
   },
-  "envios_pausados_hasta": "2026-05-19"
+  "envios_pausados_hasta": null
 }

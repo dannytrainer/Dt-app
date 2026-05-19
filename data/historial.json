@@ -128,7 +128,27 @@
   },
   "1778377616786": {
     "peso": [],
-    "medidas": []
+    "medidas": [
+      {
+        "fecha": "2026-05-19",
+        "cintura": 90,
+        "cadera": 128,
+        "pecho": 105,
+        "brazo": 34,
+        "pierna": 73,
+        "hombros": 104,
+        "pantorrilla": 47,
+        "triceps": 26,
+        "subescapular": 27,
+        "abdominal": 31,
+        "suprailiaco": 23,
+        "analisis": {
+          "pctGrasa": 38,
+          "kgGrasa": null,
+          "kgMusculo": null
+        }
+      }
+    ]
   },
   "1778354312296": {
     "peso": [],

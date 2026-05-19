@@ -1,1 +1,359 @@
-{}
+{
+  "1778216541791": {
+    "peso_actual": 89,
+    "peso_objetivo": 100,
+    "proteina": 2,
+    "carbos": 4.5,
+    "grasas": 1.2,
+    "comidas": 6,
+    "pretreno": false,
+    "pretreno_pos": 2,
+    "nivel_eco": 0,
+    "medico": [],
+    "vida": [],
+    "alergias": [],
+    "plan_generado": {
+      "id_cliente": "1778216541791",
+      "nombre": "Yo",
+      "sexo": "M",
+      "edad": 30,
+      "generado": "2026-05-19T22:32:31.084Z",
+      "peso_actual": 89,
+      "peso_objetivo": 100,
+      "nivel_eco": "economico",
+      "filtros_activos": [],
+      "totales": {
+        "proteina": 200,
+        "carbohidratos": 450,
+        "grasas": 120,
+        "calorias": 3680
+      },
+      "comidas": [
+        {
+          "nombre": "Desayuno",
+          "macros_objetivo": {
+            "proteina": 40,
+            "carbos": 126,
+            "grasas": 22,
+            "kcal": 862
+          },
+          "macros_reales": {
+            "proteina": 45.6,
+            "carbos": 85,
+            "grasas": 31.4,
+            "kcal": 801
+          },
+          "alimentos": [
+            {
+              "nombre": "Papa",
+              "preparacion": "Cocida",
+              "porcion_g": 400,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 8,
+                "carbohidratos": 68,
+                "grasas": 0.4,
+                "calorias": 308
+              },
+              "nota": "Base energética"
+            },
+            {
+              "nombre": "Huevo",
+              "preparacion": "Cocido",
+              "porcion_g": 300,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 35,
+                "carbohidratos": 3,
+                "grasas": 30,
+                "calorias": 425
+              },
+              "nota": "Proteína matutina"
+            },
+            {
+              "nombre": "Guayaba",
+              "preparacion": "Fresca",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 2.6,
+                "carbohidratos": 14,
+                "grasas": 1,
+                "calorias": 68
+              },
+              "nota": "Micronutrientes"
+            }
+          ]
+        },
+        {
+          "nombre": "Snack 1",
+          "macros_objetivo": {
+            "proteina": 33,
+            "carbos": 81,
+            "grasas": 24,
+            "kcal": 672
+          },
+          "macros_reales": {
+            "proteina": 33.8,
+            "carbos": 74.10000000000001,
+            "grasas": 45.900000000000006,
+            "kcal": 855
+          },
+          "alimentos": [
+            {
+              "nombre": "Banano",
+              "preparacion": "Fresco",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.1,
+                "carbohidratos": 23,
+                "grasas": 0.3,
+                "calorias": 89
+              },
+              "nota": "Snack natural"
+            },
+            {
+              "nombre": "Papa",
+              "preparacion": "Frita",
+              "porcion_g": 139,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 4.7,
+                "carbohidratos": 48.7,
+                "grasas": 23.6,
+                "calorias": 434
+              },
+              "nota": "Energía snack"
+            },
+            {
+              "nombre": "Huevo",
+              "preparacion": "Pochado",
+              "porcion_g": 240,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 28,
+                "carbohidratos": 2.4,
+                "grasas": 22,
+                "calorias": 332
+              },
+              "nota": "Proteína snack"
+            }
+          ]
+        },
+        {
+          "nombre": "Almuerzo",
+          "macros_objetivo": {
+            "proteina": 33,
+            "carbos": 81,
+            "grasas": 24,
+            "kcal": 672
+          },
+          "macros_reales": {
+            "proteina": 52.300000000000004,
+            "carbos": 95,
+            "grasas": 47.400000000000006,
+            "kcal": 988
+          },
+          "alimentos": [
+            {
+              "nombre": "Muslo de pollo",
+              "preparacion": "Guisado",
+              "porcion_g": 132,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 33,
+                "carbohidratos": 2.6,
+                "grasas": 15.8,
+                "calorias": 290
+              },
+              "nota": "Proteína principal"
+            },
+            {
+              "nombre": "Plátano",
+              "preparacion": "Verde patacón",
+              "porcion_g": 213,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 3.2,
+                "carbohidratos": 80.9,
+                "grasas": 7.5,
+                "calorias": 386
+              },
+              "nota": "Energía"
+            },
+            {
+              "nombre": "Espinaca",
+              "preparacion": "Cocida",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 3,
+                "carbohidratos": 3.8,
+                "grasas": 0.3,
+                "calorias": 23
+              },
+              "nota": "Micronutrientes y fibra"
+            },
+            {
+              "nombre": "Maní",
+              "preparacion": "Natural",
+              "porcion_g": 51,
+              "categoria": "grasa",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 13.1,
+                "carbohidratos": 7.7,
+                "grasas": 23.8,
+                "calorias": 289
+              },
+              "nota": "Grasas saludables"
+            }
+          ]
+        },
+        {
+          "nombre": "Snack 2",
+          "macros_objetivo": {
+            "proteina": 33,
+            "carbos": 81,
+            "grasas": 24,
+            "kcal": 672
+          },
+          "macros_reales": {
+            "proteina": 38.5,
+            "carbos": 58.7,
+            "grasas": 48.9,
+            "kcal": 821
+          },
+          "alimentos": [
+            {
+              "nombre": "Sandía",
+              "preparacion": "Fresca",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.6,
+                "carbohidratos": 7.6,
+                "grasas": 0.2,
+                "calorias": 30
+              },
+              "nota": "Snack natural"
+            },
+            {
+              "nombre": "Arepa",
+              "preparacion": "Con queso",
+              "porcion_g": 116,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 9.9,
+                "carbohidratos": 48.7,
+                "grasas": 8.7,
+                "calorias": 311
+              },
+              "nota": "Energía snack"
+            },
+            {
+              "nombre": "Huevo",
+              "preparacion": "Frito",
+              "porcion_g": 240,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 28,
+                "carbohidratos": 2.4,
+                "grasas": 40,
+                "calorias": 480
+              },
+              "nota": "Proteína snack"
+            }
+          ]
+        },
+        {
+          "nombre": "Cena",
+          "macros_objetivo": {
+            "proteina": 61,
+            "carbos": 81,
+            "grasas": 26,
+            "kcal": 802
+          },
+          "macros_reales": {
+            "proteina": 77.3,
+            "carbos": 64.2,
+            "grasas": 29,
+            "kcal": 810
+          },
+          "alimentos": [
+            {
+              "nombre": "Atún enlatado",
+              "preparacion": "En agua",
+              "porcion_g": 235,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 61.1,
+                "carbohidratos": 0,
+                "grasas": 2.4,
+                "calorias": 273
+              },
+              "nota": "Alta proteína nocturna"
+            },
+            {
+              "nombre": "Yuca",
+              "preparacion": "Cocida",
+              "porcion_g": 128,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.8,
+                "carbohidratos": 48.6,
+                "grasas": 0.4,
+                "calorias": 205
+              },
+              "nota": "Carbs moderados"
+            },
+            {
+              "nombre": "Repollo",
+              "preparacion": "Crudo",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.3,
+                "carbohidratos": 5.8,
+                "grasas": 0.1,
+                "calorias": 25
+              },
+              "nota": "Fibra y vitaminas"
+            },
+            {
+              "nombre": "Maní",
+              "preparacion": "Mantequilla de maní",
+              "porcion_g": 49,
+              "categoria": "grasa",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 13.1,
+                "carbohidratos": 9.8,
+                "grasas": 26.1,
+                "calorias": 307
+              },
+              "nota": "Grasa nocturna"
+            }
+          ]
+        }
+      ]
+    },
+    "plan_fecha": "2026-05-19T22:32:31.085Z"
+  }
+}
