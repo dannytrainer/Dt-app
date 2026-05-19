@@ -21,7 +21,7 @@ body{background:var(--fondo);color:#fff}
 .nav{display:flex;background:#111;border-bottom:1px solid #222;overflow-x:auto}
 .nav button{flex:1;min-width:70px;padding:13px 6px;background:none;border:none;color:#666;font-size:12px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent}
 .nav button.active{color:var(--rojo);border-bottom-color:var(--rojo)}
-.page{display:none;padding:16px;max-width:600px;margin:0 auto}
+.page{display:none;padding:16px;max-width:600px;margin:0 auto;position:relative}
 .page.active{display:block}
 .btn{padding:10px 18px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
 .br{background:var(--rojo);color:#fff}
@@ -43,9 +43,9 @@ body{background:var(--fondo);color:#fff}
 .ig input,.ig select,.ig textarea{width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:11px;color:#f0f0f0;font-size:14px;outline:none}
 .ig input:focus,.ig select:focus,.ig textarea:focus{border-color:var(--rojo)}
 .ig textarea{min-height:80px;resize:vertical}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-end}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-end;width:100vw}
 .modal.open{display:flex}
-.mc{background:#111;border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-height:92vh;overflow-y:auto;border-top:3px solid var(--rojo)}
+.mc{background:#111;border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:100%;max-height:92vh;overflow-y:auto;border-top:3px solid var(--rojo);box-sizing:border-box}
 .mt{font-size:17px;font-weight:800;color:#fff;margin-bottom:18px}
 .dtab{display:flex;overflow-x:auto;gap:8px;margin-bottom:14px;padding-bottom:4px}
 .dtab button{flex-shrink:0;padding:7px 13px;border-radius:20px;border:1px solid #333;background:#1a1a1a;color:#777;font-size:12px;font-weight:600;cursor:pointer}
@@ -454,16 +454,130 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div id="panel-entrenamiento">
 <div class="dtab" id="dias-tabs"></div>
 <div id="rutina-form"></div>
-</div>
-<div id="panel-alimentacion" style="display:none">
-<div style="text-align:center;padding:40px 20px;color:#555">
-<div style="font-size:40px;margin-bottom:12px">🍖</div>
-<div style="font-size:14px">Plan de alimentación próximamente</div>
-</div>
-</div>
-<div style="display:flex;gap:8px;margin-top:14px">
+<div id="btns-rutina" style="display:flex;gap:8px;margin-top:16px;padding-bottom:8px;background:#111">
 <button class="btn bg" style="flex:1" onclick="cerrarModalRutina()">Cancelar</button>
 <button class="btn br" style="flex:1" onclick="guardarRutina()">Guardar rutina</button>
+</div>
+</div>
+<div id="panel-alimentacion" style="display:none;padding:12px 0">
+
+  <!-- MACROS BASE -->
+  <div style="background:#111;border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
+    <div style="font-size:12px;font-weight:700;color:#aaa;margin-bottom:10px">⚖️ PESOS Y MACROS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div>
+        <div style="font-size:10px;color:#666;margin-bottom:4px">Peso actual (kg)</div>
+        <input id="ali-peso-actual" type="number" step="0.1" placeholder="0" style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:8px;color:#f0f0f0;font-size:14px;outline:none">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#666;margin-bottom:4px">Peso objetivo (kg)</div>
+        <input id="ali-peso-objetivo" type="number" step="0.1" placeholder="0" style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:8px;color:#f0f0f0;font-size:14px;outline:none">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#666;margin-bottom:4px">Proteína (g/kg)</div>
+        <input id="ali-proteina" type="number" step="0.1" placeholder="0" style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:8px;color:#f0f0f0;font-size:14px;outline:none">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#666;margin-bottom:4px">Carbohidratos (g/kg)</div>
+        <input id="ali-carbos" type="number" step="0.1" placeholder="0" style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:8px;color:#f0f0f0;font-size:14px;outline:none">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#666;margin-bottom:4px">Grasas (g/kg)</div>
+        <input id="ali-grasas" type="number" step="0.1" placeholder="0" style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:8px;color:#f0f0f0;font-size:14px;outline:none">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#666;margin-bottom:4px">Comidas al día</div>
+        <select id="ali-comidas" style="width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:8px;color:#f0f0f0;font-size:14px;outline:none">
+          <option value="2">2 comidas</option>
+          <option value="3">3 comidas</option>
+          <option value="4" selected>4 comidas</option>
+          <option value="5">5 comidas</option>
+          <option value="6">6 comidas</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#aaa;cursor:pointer">
+        <input type="checkbox" id="ali-pretreno-check" onchange="togglePretreno()" style="accent-color:#e31e24;width:16px;height:16px">
+        Incluir pre entreno
+      </label>
+      <select id="ali-pretreno-pos" style="display:none;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:6px;color:#f0f0f0;font-size:12px;outline:none">
+        <option value="2">Posición 2</option>
+        <option value="3">Posición 3</option>
+        <option value="4">Posición 4</option>
+        <option value="5">Posición 5</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- NIVEL ECONÓMICO -->
+  <div style="background:#111;border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
+    <div style="font-size:12px;font-weight:700;color:#aaa;margin-bottom:10px">💰 NIVEL ECONÓMICO</div>
+    <div style="display:flex;gap:8px">
+      <button id="eco-1" onclick="selectEco(1)" style="flex:1;padding:8px;border-radius:8px;border:2px solid #2a2a2a;background:#1a1a1a;color:#888;font-size:12px;cursor:pointer">🟢 Económico</button>
+      <button id="eco-2" onclick="selectEco(2)" style="flex:1;padding:8px;border-radius:8px;border:2px solid #2a2a2a;background:#1a1a1a;color:#888;font-size:12px;cursor:pointer">🟡 Medio</button>
+      <button id="eco-3" onclick="selectEco(3)" style="flex:1;padding:8px;border-radius:8px;border:2px solid #2a2a2a;background:#1a1a1a;color:#888;font-size:12px;cursor:pointer">🔴 Premium</button>
+    </div>
+  </div>
+
+  <!-- FILTROS MÉDICOS -->
+  <div style="background:#111;border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
+    <div onclick="toggleFiltro('medico')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+      <div style="font-size:12px;font-weight:700;color:#aaa">🏥 CONDICIONES MÉDICAS</div>
+      <div id="badge-medico" style="font-size:10px;color:#e31e24;font-weight:700"></div>
+    </div>
+    <div id="filtro-medico" style="display:none;margin-top:10px">
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="chips-medico"></div>
+    </div>
+  </div>
+
+  <!-- FILTROS ESTILO DE VIDA -->
+  <div style="background:#111;border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
+    <div onclick="toggleFiltro('vida')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+      <div style="font-size:12px;font-weight:700;color:#aaa">🥗 ESTILO DE VIDA</div>
+      <div id="badge-vida" style="font-size:10px;color:#e31e24;font-weight:700"></div>
+    </div>
+    <div id="filtro-vida" style="display:none;margin-top:10px">
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="chips-vida"></div>
+    </div>
+  </div>
+
+  <!-- FILTROS ALERGIAS -->
+  <div style="background:#111;border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
+    <div onclick="toggleFiltro('alergia')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+      <div style="font-size:12px;font-weight:700;color:#aaa">⚠️ ALERGIAS</div>
+      <div id="badge-alergia" style="font-size:10px;color:#e31e24;font-weight:700"></div>
+    </div>
+    <div id="filtro-alergia" style="display:none;margin-top:10px">
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="chips-alergia"></div>
+    </div>
+  </div>
+
+  <!-- RESUMEN DE MACROS -->
+  <div id="ali-resumen" style="display:none;background:#111;border:1px solid #333;border-radius:12px;padding:14px;margin-bottom:10px">
+    <div style="font-size:12px;font-weight:700;color:#aaa;margin-bottom:8px">📊 RESUMEN</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center">
+      <div style="background:#1a1a1a;border-radius:8px;padding:8px">
+        <div style="font-size:18px;font-weight:700;color:#e31e24" id="res-proteina">0g</div>
+        <div style="font-size:9px;color:#555">Proteína</div>
+      </div>
+      <div style="background:#1a1a1a;border-radius:8px;padding:8px">
+        <div style="font-size:18px;font-weight:700;color:#f0a500" id="res-carbos">0g</div>
+        <div style="font-size:9px;color:#555">Carbos</div>
+      </div>
+      <div style="background:#1a1a1a;border-radius:8px;padding:8px">
+        <div style="font-size:18px;font-weight:700;color:#4caf50" id="res-grasas">0g</div>
+        <div style="font-size:9px;color:#555">Grasas</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:8px;font-size:11px;color:#666" id="res-calorias"></div>
+    <div id="res-diferencia" style="display:none;text-align:center;margin-top:6px;font-size:12px;font-weight:700"></div>
+  </div>
+
+  <!-- BOTÓN GUARDAR -->
+  <button class="btn br" style="width:100%;margin-top:4px" onclick="guardarAlimentacion()">💾 Guardar plan</button>
+
+</div>
 </div>
 </div>
 </div>
@@ -2333,6 +2447,7 @@ function switchRutinaTab(tab){
   document.getElementById('tab-entrenamiento').style.color = esEnt ? '#fff' : '#666';
   document.getElementById('tab-alimentacion').style.background = esEnt ? 'transparent' : 'var(--rojo)';
   document.getElementById('tab-alimentacion').style.color = esEnt ? '#666' : '#fff';
+  document.getElementById('btns-rutina').style.display = esEnt ? 'flex' : 'none';
 }
 async function abrirRutina(id,nombre){
 document.getElementById('rutina-cliente-id').value=id;
@@ -2341,7 +2456,34 @@ const res=await fetch('/api/rutinas/'+id);
 rutinaActual=await res.json();
 diaSeleccionado='lunes';
 renderDiasTabs();renderRutinaForm();
+switchRutinaTab('entrenamiento');
 document.getElementById('modal-rutina').classList.add('open');
+cargarAlimentacion(id);
+}
+
+async function cargarAlimentacion(id){
+  try {
+    const r = await fetch('/api/alimentacion/'+id);
+    if(!r.ok) return;
+    const d = await r.json();
+    if(!d) return;
+    if(d.peso_actual)   document.getElementById('ali-peso-actual').value   = d.peso_actual;
+    if(d.peso_objetivo) document.getElementById('ali-peso-objetivo').value = d.peso_objetivo;
+    if(d.proteina)      document.getElementById('ali-proteina').value      = d.proteina;
+    if(d.carbos)        document.getElementById('ali-carbos').value        = d.carbos;
+    if(d.grasas)        document.getElementById('ali-grasas').value        = d.grasas;
+    if(d.comidas)       document.getElementById('ali-comidas').value       = d.comidas;
+    if(d.pretreno){
+      document.getElementById('ali-pretreno-check').checked = true;
+      document.getElementById('ali-pretreno-pos').style.display = 'block';
+      if(d.pretreno_pos) document.getElementById('ali-pretreno-pos').value = d.pretreno_pos;
+    }
+    if(d.nivel_eco) selectEco(d.nivel_eco);
+    if(d.medico)   d.medico.forEach(item   => { const el = [...document.querySelectorAll('#chips-medico button')].find(b=>b.textContent===item);   if(el) toggleChip(el,'medico',item); });
+    if(d.vida)     d.vida.forEach(item     => { const el = [...document.querySelectorAll('#chips-vida button')].find(b=>b.textContent===item);     if(el) toggleChip(el,'vida',item); });
+    if(d.alergias) d.alergias.forEach(item => { const el = [...document.querySelectorAll('#chips-alergia button')].find(b=>b.textContent===item); if(el) toggleChip(el,'alergia',item); });
+    calcularMacros();
+  } catch(e) { console.log('Sin datos de alimentación aún'); }
 }
 
 function renderDiasTabs(){
@@ -5577,5 +5719,158 @@ function filtrarRutinas(){
     <div style="height:30px"></div>
   </div>
 </div>
+
+<script>
+// ── ALIMENTACIÓN ──────────────────────────────────────────
+
+const FILTROS = {
+  medico: ['Diabetes','Hipertensión','Colesterol alto','Hipotiroidismo','Resistencia insulina','Gastritis','Colon irritable','Hígado graso'],
+  vida:   ['Vegetariano','Vegano','Keto','Sin gluten','Ayuno intermitente','Low carb','Alto volumen','Flexible'],
+  alergia:['Lácteos','Huevo','Mariscos','Frutos secos','Soja','Trigo','Maní','Fructosa']
+};
+
+const selFiltros = { medico: new Set(), vida: new Set(), alergia: new Set() };
+let nivelEco = 0;
+
+// Inicializar chips al cargar
+document.addEventListener('DOMContentLoaded', () => {
+  ['medico','vida','alergia'].forEach(tipo => {
+    const cont = document.getElementById('chips-' + tipo);
+    FILTROS[tipo].forEach(item => {
+      const chip = document.createElement('button');
+      chip.textContent = item;
+      chip.style.cssText = 'padding:6px 10px;border-radius:20px;border:1px solid #333;background:#1a1a1a;color:#888;font-size:11px;cursor:pointer';
+      chip.onclick = () => toggleChip(chip, tipo, item);
+      cont.appendChild(chip);
+    });
+  });
+
+  // Calcular macros en tiempo real
+  ['ali-peso-actual','ali-peso-objetivo','ali-proteina','ali-carbos','ali-grasas'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', calcularMacros);
+  });
+});
+
+function togglePretreno() {
+  const check = document.getElementById('ali-pretreno-check');
+  const pos   = document.getElementById('ali-pretreno-pos');
+  pos.style.display = check.checked ? 'block' : 'none';
+}
+
+function selectEco(n) {
+  nivelEco = n;
+  [1,2,3].forEach(i => {
+    const btn = document.getElementById('eco-' + i);
+    btn.style.border    = i === n ? '2px solid #e31e24' : '2px solid #2a2a2a';
+    btn.style.color     = i === n ? '#f0f0f0'           : '#888';
+    btn.style.background = i === n ? '#2a0a0a'          : '#1a1a1a';
+  });
+}
+
+function toggleFiltro(tipo) {
+  const div = document.getElementById('filtro-' + tipo);
+  div.style.display = div.style.display === 'none' ? 'flex' : 'none';
+  div.style.flexWrap = 'wrap';
+  div.style.gap = '6px';
+}
+
+function toggleChip(chip, tipo, item) {
+  if (selFiltros[tipo].has(item)) {
+    selFiltros[tipo].delete(item);
+    chip.style.border     = '1px solid #333';
+    chip.style.background = '#1a1a1a';
+    chip.style.color      = '#888';
+  } else {
+    selFiltros[tipo].add(item);
+    chip.style.border     = '1px solid #e31e24';
+    chip.style.background = '#2a0a0a';
+    chip.style.color      = '#f0f0f0';
+  }
+  const badge = document.getElementById('badge-' + tipo);
+  badge.textContent = selFiltros[tipo].size > 0 ? selFiltros[tipo].size + ' sel.' : '';
+}
+
+function calcularMacros() {
+  const pesoObj    = parseFloat(document.getElementById('ali-peso-objetivo').value) || 0;
+  const pesoActual = parseFloat(document.getElementById('ali-peso-actual').value)   || 0;
+  const prot  = parseFloat(document.getElementById('ali-proteina').value)    || 0;
+  const carbs = parseFloat(document.getElementById('ali-carbos').value)      || 0;
+  const gras  = parseFloat(document.getElementById('ali-grasas').value)      || 0;
+
+  if (pesoObj === 0) { document.getElementById('ali-resumen').style.display = 'none'; return; }
+
+  // Macros basados en peso objetivo
+  const tProt  = Math.round(pesoObj * prot);
+  const tCarbs = Math.round(pesoObj * carbs);
+  const tGras  = Math.round(pesoObj * gras);
+  const kcalObj = (tProt * 4) + (tCarbs * 4) + (tGras * 9);
+
+  document.getElementById('res-proteina').textContent = tProt  + 'g';
+  document.getElementById('res-carbos').textContent   = tCarbs + 'g';
+  document.getElementById('res-grasas').textContent   = tGras  + 'g';
+  document.getElementById('res-calorias').textContent = kcalObj + ' kcal totales';
+
+  // Déficit / superávit si hay peso actual
+  const elDif = document.getElementById('res-diferencia');
+  if (pesoActual > 0 && elDif) {
+    const kcalActual = Math.round((pesoActual * prot * 4) + (pesoActual * carbs * 4) + (pesoActual * gras * 9));
+    const dif = kcalObj - kcalActual;
+    if (dif < 0) {
+      elDif.textContent = '🔻 Déficit de ' + Math.abs(dif) + ' kcal/día';
+      elDif.style.color = '#e31e24';
+    } else if (dif > 0) {
+      elDif.textContent = '🔺 Superávit de ' + dif + ' kcal/día';
+      elDif.style.color = '#4caf50';
+    } else {
+      elDif.textContent = '⚖️ Mantenimiento calórico';
+      elDif.style.color = '#aaa';
+    }
+    elDif.style.display = 'block';
+  } else if (elDif) {
+    elDif.style.display = 'none';
+  }
+
+  document.getElementById('ali-resumen').style.display = 'block';
+}
+
+async function guardarAlimentacion() {
+  const id = window.clienteMedidasId;
+  if (!id) { alert('⚠️ Selecciona un cliente primero.'); return; }
+
+  const datos = {
+    peso_actual:   parseFloat(document.getElementById('ali-peso-actual').value)   || 0,
+    peso_objetivo: parseFloat(document.getElementById('ali-peso-objetivo').value) || 0,
+    proteina:      parseFloat(document.getElementById('ali-proteina').value)      || 0,
+    carbos:        parseFloat(document.getElementById('ali-carbos').value)        || 0,
+    grasas:        parseFloat(document.getElementById('ali-grasas').value)        || 0,
+    comidas:       parseInt(document.getElementById('ali-comidas').value),
+    pretreno:      document.getElementById('ali-pretreno-check').checked,
+    pretreno_pos:  parseInt(document.getElementById('ali-pretreno-pos').value) || 0,
+    nivel_eco:     nivelEco,
+    medico:        [...selFiltros.medico],
+    vida:          [...selFiltros.vida],
+    alergias:      [...selFiltros.alergia]
+  };
+
+  if (!datos.peso_actual || !datos.proteina) {
+    alert('Completa al menos el peso actual y la proteína.');
+    return;
+  }
+
+  try {
+    const r = await fetch(`/api/alimentacion/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+    const res = await r.json();
+    if (res.ok) alert('✅ Plan guardado correctamente.');
+    else alert('❌ Error: ' + (res.error || 'desconocido'));
+  } catch(e) {
+    alert('❌ No se pudo conectar con el servidor.');
+  }
+}
+</script>
 </body>
 </html>

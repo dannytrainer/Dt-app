@@ -29,31 +29,6 @@
     "foto": "data/fotos/1778216541791/perfil.jpg"
   },
   {
-    "id": "1778272241158",
-    "activo": false,
-    "nombre": "Morza",
-    "telefono": "573185663001",
-    "tipo": "asesorado",
-    "hora_envio": "15:35",
-    "dia_pago": 9,
-    "estado_pago": "aldia",
-    "perfil": {
-      "fecha_inicio": "",
-      "sexo": "M",
-      "edad": "30",
-      "altura": "160",
-      "objetivo": "",
-      "etiqueta": "rehabilitacion",
-      "notas": ""
-    },
-    "tipo_pago": "mensual",
-    "dia_pago2": null,
-    "sesiones_total": 10,
-    "sesiones_ciclo": 10,
-    "ciclo_inicio": "2026-05-08",
-    "msg_pago": ""
-  },
-  {
     "id": "1778354312296",
     "activo": true,
     "nombre": "Manuela guarin",
@@ -77,7 +52,8 @@
       "unidades": "kg"
     },
     "sesiones_total": 1,
-    "sesiones_ciclo": 1
+    "sesiones_ciclo": 1,
+    "foto": "data/fotos/1778354312296/perfil.jpg"
   },
   {
     "id": "1778376855974",
@@ -101,7 +77,8 @@
     },
     "msg_pago": "",
     "sesiones_total": 1,
-    "sesiones_ciclo": 1
+    "sesiones_ciclo": 1,
+    "foto": "data/fotos/1778376855974/perfil.jpg"
   },
   {
     "id": "1778377049231",
@@ -123,7 +100,8 @@
       "notas": "Hernia inguinal ",
       "unidades": "kg"
     },
-    "msg_pago": "Prueba de cobro automát"
+    "msg_pago": "Prueba de cobro automát",
+    "foto": "data/fotos/1778377049231/perfil.jpg"
   },
   {
     "id": "1778377208321",
@@ -190,7 +168,8 @@
       "etiqueta": "perdida",
       "notas": ""
     },
-    "msg_pago": "Prueba de cobro automático"
+    "msg_pago": "Prueba de cobro automático",
+    "foto": "data/fotos/1778377616786/perfil.jpg"
   },
   {
     "id": "1778378152347",
@@ -210,7 +189,8 @@
       "altura": "160",
       "etiqueta": "hipertrofia",
       "notas": "Rino plastia \nMamoplastia "
-    }
+    },
+    "foto": "data/fotos/1778378152347/perfil.jpg"
   },
   {
     "id": "1778379130440",
@@ -271,7 +251,8 @@
       "etiqueta": "hipertrofia",
       "notas": "",
       "unidades": "kg"
-    }
+    },
+    "foto": "data/fotos/1778379484797/perfil.jpg"
   },
   {
     "id": "1778379762356",
@@ -295,7 +276,8 @@
     "tipo_pago": "mensual",
     "dia_pago": null,
     "dia_pago2": null,
-    "estado_pago": "aldia"
+    "estado_pago": "aldia",
+    "foto": "data/fotos/1778389775722/perfil.jpg"
   },
   {
     "id": "1778687454932",
@@ -316,6 +298,7 @@
       "altura": "170",
       "etiqueta": "hipertrofia",
       "notas": ""
-    }
+    },
+    "foto": "data/fotos/1778687454932/perfil.jpg"
   }
 ]
