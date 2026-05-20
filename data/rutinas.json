@@ -904,6 +904,12 @@
           "ejercicio": "Cualquier opción ",
           "tiempo": "3",
           "notas": "Velocidad. Constante de 70% al 80%"
+        },
+        {
+          "momento": "Cardio final ",
+          "ejercicio": "Banda ",
+          "tiempo": "10",
+          "notas": "Velocidad constante al 65%"
         }
       ]
     },

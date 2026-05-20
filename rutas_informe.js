@@ -139,7 +139,8 @@ module.exports = function(app, fs) {
         const ejercicios = (rutina[dia] && rutina[dia].ejercicios) ? rutina[dia].ejercicios : [];
         const musculo    = (rutina[dia] && rutina[dia].recordatorio) ? rutina[dia].recordatorio : '';
         const notas      = (rutina[dia] && rutina[dia].rutina) ? rutina[dia].rutina : '';
-        const esDescanso = ejercicios.length === 0;
+        const cardioCheck = (rutina[dia] && rutina[dia].cardio) ? rutina[dia].cardio : [];
+        const esDescanso = ejercicios.length === 0 && cardioCheck.length === 0;
 
         if (esDescanso) {
           return `
@@ -163,9 +164,28 @@ module.exports = function(app, fs) {
             <td class="ej-cell"><span class="rir-badge">RIR ${ej.rir || '—'}</span></td>
             <td class="ej-cell"><span class="desc-badge">${ej.desc || '—'}</span></td>
             <td class="ej-cell" style="font-size:10px;color:var(--texto-secundario);">${ej.var || ''}</td>
-            <td style="font-size:9px;color:#444;font-style:italic;text-align:center;">Próximamente</td>
+            <td style="font-size:9px;color:var(--texto-secundario);font-style:italic;text-align:center;">${ej.notas || ''}</td>
             <td style="text-align:center"><a href="${ej.video || '#'}" class="btn-video"><span class="play-icon">▶</span> Ver video</a></td>
           </tr>`).join('');
+
+        const cardio = (rutina[dia] && rutina[dia].cardio) ? rutina[dia].cardio : [];
+        const cardioHtml = cardio.length > 0 ? `
+            <div style="padding:10px 16px 14px;border-top:1px solid var(--gris-borde);background:var(--negro);">
+              <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#f0a500;margin-bottom:8px;font-weight:700;">🏃 Cardio</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;">
+                ${cardio.map(c => `
+                <div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:8px;overflow:hidden;">
+                  <div style="background:var(--gris-medio);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;">
+                    <div style="font-size:11px;font-weight:700;color:var(--blanco)">${c.momento || '—'}</div>
+                    <div style="font-size:10px;color:#f0a500;font-weight:700">${c.tiempo || '—'} min</div>
+                  </div>
+                  <div style="padding:6px 10px;">
+                    <div style="font-size:11px;color:var(--blanco-suave);margin-bottom:4px;">🏋️ ${c.ejercicio || '—'}</div>
+                    <div style="font-size:9px;color:var(--texto-secundario);line-height:1.4;">${(c.notas || '').replace(/\n/g,'<br>')}</div>
+                  </div>
+                </div>`).join('')}
+              </div>
+            </div>` : '';
 
         return `
           <div class="rutina-dia-bloque">
@@ -178,9 +198,10 @@ module.exports = function(app, fs) {
               <thead><tr><th>Ejercicio</th><th>S</th><th>Reps</th><th>RIR</th><th>DESC</th><th>Var.</th><th>Notas</th><th>Video</th></tr></thead>
               <tbody>${filasEj}</tbody>
             </table>
+            ${cardioHtml}
             <div style="padding:10px 16px 14px;border-top:1px solid var(--gris-borde);background:var(--negro);">
               <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--rojo);margin-bottom:6px;font-weight:700;">📝 Notas de la sesión</div>
-              <div style="background:var(--gris-oscuro);border:1px dashed #3a3a3a;border-radius:4px;padding:8px 12px;min-height:36px;font-size:11px;color:${notas ? 'var(--blanco-suave)' : '#555'};font-style:${notas ? 'normal' : 'italic'};">
+              <div style="background:var(--gris-oscuro);border:1px dashed var(--gris-borde);border-radius:4px;padding:8px 12px;min-height:36px;font-size:11px;color:${notas ? 'var(--blanco-suave)' : 'var(--texto-secundario)'};font-style:${notas ? 'normal' : 'italic'};">
                 ${notas || 'Sin notas registradas para esta sesión.'}
               </div>
             </div>
@@ -188,14 +209,69 @@ module.exports = function(app, fs) {
       }).join('');
 
       // Generar sección de alimentación
-      const alimHtml = alimCliente ? `
-        <p style="font-size:12px;color:var(--blanco-suave);">Plan nutricional disponible — ${alimCliente.calorias || '—'} kcal/día</p>
-      ` : `
-        <div style="text-align:center;padding:30px;color:#444;font-style:italic;">
-          <div style="font-size:28px;margin-bottom:8px;">🍽️</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#555;">PLAN NUTRICIONAL PERSONALIZADO</div>
-          <div style="font-size:11px;margin-top:6px;">Próximamente disponible · Se añadirá en la siguiente actualización del informe</div>
-        </div>`;
+      const alimHtml = (() => {
+        if (!alimCliente || !alimCliente.plan_generado) return '<div style="text-align:center;padding:30px;color:#444"><div style="font-size:28px">🍽️</div><div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;color:#555">PLAN NUTRICIONAL PERSONALIZADO</div><div style="font-size:11px;margin-top:6px">Próximamente disponible</div></div>';
+        const plan = alimCliente.plan_generado;
+        const tot = plan.totales;
+        const iconos = {'Desayuno':'☀️','Snack 1':'🍎','Almuerzo':'🍱','Snack 2':'🍊','Pre entreno':'⚡','Cena':'🌙'};
+        const protPct  = Math.round((tot.proteina * 4) / tot.calorias * 100);
+        const carbsPct = Math.round((tot.carbohidratos * 4) / tot.calorias * 100);
+        const grasaPct = Math.round((tot.grasas * 9) / tot.calorias * 100);
+        const n = plan.comidas.length;
+        const cols = n <= 2 ? '1fr' : n <= 4 ? '1fr 1fr' : '1fr 1fr 1fr';
+        let h = '';
+        h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
+        h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;padding:14px;text-align:center">';
+        h += '<div style="font-size:10px;color:var(--texto-secundario);text-transform:uppercase;margin-bottom:4px">🔥 Kcal / día</div>';
+        h += '<div style="font-size:28px;font-weight:700;color:var(--blanco);font-family:Bebas Neue,sans-serif">' + tot.calorias + '</div></div>';
+        h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;padding:14px;text-align:center">';
+        h += '<div style="font-size:10px;color:var(--texto-secundario);text-transform:uppercase;margin-bottom:4px">🥩 Proteína</div>';
+        h += '<div style="font-size:28px;font-weight:700;color:var(--rojo);font-family:Bebas Neue,sans-serif">' + tot.proteina + 'g</div></div></div>';
+        h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
+        h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;padding:10px;text-align:center">';
+        h += '<div style="font-size:9px;color:var(--texto-secundario);text-transform:uppercase;margin-bottom:2px">Carbohidratos</div>';
+        h += '<div style="font-size:18px;font-weight:700;color:#f0a500">' + tot.carbohidratos + 'g</div></div>';
+        h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;padding:10px;text-align:center">';
+        h += '<div style="font-size:9px;color:var(--texto-secundario);text-transform:uppercase;margin-bottom:2px">Grasas</div>';
+        h += '<div style="font-size:18px;font-weight:700;color:#4caf50">' + tot.grasas + 'g</div></div></div>';
+        h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;padding:10px;margin-bottom:14px">';
+        h += '<div style="font-size:9px;color:var(--texto-secundario);text-transform:uppercase;margin-bottom:6px">Distribución calórica</div>';
+        h += '<div style="display:flex;border-radius:4px;overflow:hidden;height:8px;margin-bottom:6px">';
+        h += '<div style="width:' + protPct + '%;background:var(--rojo)"></div>';
+        h += '<div style="width:' + carbsPct + '%;background:#f0a500"></div>';
+        h += '<div style="width:' + grasaPct + '%;background:#4caf50"></div></div>';
+        h += '<div style="display:flex;gap:10px;font-size:9px;color:var(--texto-secundario)">';
+        h += '<span>🔴 Prot ' + protPct + '%</span><span>🟡 Carbs ' + carbsPct + '%</span><span>🟢 Grasas ' + grasaPct + '%</span></div></div>';
+        h += '<div style="display:grid;grid-template-columns:' + cols + ';gap:8px">';
+        for (const comida of plan.comidas) {
+          const icono = iconos[comida.nombre] || '🍽️';
+          const mr = comida.macros_reales;
+          h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;overflow:hidden">';
+          h += '<div style="background:var(--gris-medio);padding:8px 10px;display:flex;justify-content:space-between;align-items:center">';
+          h += '<div style="font-family:Bebas Neue,sans-serif;font-size:13px;letter-spacing:1px;color:var(--blanco)">' + icono + ' ' + comida.nombre + '</div>';
+          h += '<div style="font-size:10px;color:var(--rojo);font-weight:700">' + Math.round(mr.kcal) + ' kcal</div></div>';
+          h += '<div style="padding:6px 10px;font-size:9px;color:var(--texto-secundario);border-bottom:1px solid var(--gris-borde)">--:--&nbsp;·&nbsp;';
+          h += '<span style="color:var(--rojo)">P:' + Math.round(mr.proteina) + 'g</span> ';
+          h += '<span style="color:#f0a500">C:' + Math.round(mr.carbos) + 'g</span> ';
+          h += '<span style="color:#4caf50">G:' + Math.round(mr.grasas) + 'g</span></div>';
+          h += '<div style="padding:6px 10px">';
+          for (const a of comida.alimentos) {
+            h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--gris-borde)">';
+            h += '<div style="font-size:10px;color:var(--blanco-suave)">' + a.nombre + ' <span style="color:var(--texto-secundario)">(' + a.preparacion + ')</span></div>';
+            h += '<div style="font-size:10px;font-weight:700;color:var(--blanco)">' + a.porcion_g + 'g</div></div>';
+          }
+          h += '</div>';
+          h += '<div style="padding:6px 10px;display:grid;grid-template-columns:1fr 1fr;gap:4px">';
+          h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px">';
+          h += '<div style="font-size:12px;font-weight:700;color:var(--rojo)">' + Math.round(mr.proteina) + 'g</div>';
+          h += '<div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Prot.</div></div>';
+          h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px">';
+          h += '<div style="font-size:12px;font-weight:700;color:#f0a500">' + Math.round(mr.carbos) + 'g</div>';
+          h += '<div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Carbs</div></div></div></div>';
+        }
+        h += '</div>';
+        return h;
+      })();
 
       // Cargar calculos de composicion corporal
       let calculos = {};

@@ -268,7 +268,26 @@
     ]
   },
   "1778687454932": {
-    "registros": []
+    "registros": [
+      {
+        "fecha": "2026-05-19",
+        "tipo": "fuerza",
+        "peso": 70,
+        "femoral": {
+          "kg": 50,
+          "reps": 6,
+          "rm": 60,
+          "score": 20
+        },
+        "cuad": {
+          "kg": 40,
+          "reps": 6,
+          "rm": 48,
+          "score": 20
+        },
+        "scoreTotal": 20
+      }
+    ]
   },
   "1778376855974": {
     "registros": [
@@ -277,6 +296,30 @@
         "tipo": "fuerza",
         "peso": 70,
         "scoreTotal": 0
+      },
+      {
+        "fecha": "2026-05-19",
+        "tipo": "resist",
+        "peso": 72,
+        "pushups": {
+          "valor": 13,
+          "score": 40
+        },
+        "scoreTotal": 40
+      },
+      {
+        "fecha": "2026-05-19",
+        "tipo": "especif",
+        "peso": 72,
+        "sitreach": {
+          "valor": 10,
+          "score": 40
+        },
+        "hombro": {
+          "valor": 1,
+          "score": 40
+        },
+        "scoreTotal": 40
       }
     ]
   },
@@ -401,7 +444,22 @@
     "registros": []
   },
   "1778377616786": {
-    "registros": []
+    "registros": [
+      {
+        "fecha": "2026-05-19",
+        "tipo": "resist",
+        "peso": 70,
+        "pushups": {
+          "valor": 10,
+          "score": 40
+        },
+        "plancha": {
+          "valor": 32,
+          "score": 40
+        },
+        "scoreTotal": 40
+      }
+    ]
   },
   "1778354312296": {
     "registros": [
@@ -578,6 +636,36 @@
           "score": 40
         },
         "scoreTotal": 47
+      },
+      {
+        "fecha": "2026-05-20",
+        "tipo": "fuerza",
+        "peso": 47,
+        "pecho": {
+          "kg": 20,
+          "reps": 6,
+          "rm": 24,
+          "score": 40
+        },
+        "espalda": {
+          "kg": 34,
+          "reps": 4,
+          "rm": 39,
+          "score": 60
+        },
+        "biceps": {
+          "kg": 15,
+          "reps": 2,
+          "rm": 16,
+          "score": 40
+        },
+        "femoral": {
+          "kg": 40,
+          "reps": 11,
+          "rm": 55,
+          "score": 40
+        },
+        "scoreTotal": 45
       }
     ]
   }
