@@ -1679,6 +1679,10 @@ async function cargarNombreEntrenador(){
       const inp=document.getElementById('cfg-nombre');
       if(inp)inp.value=cfg.nombre_entrenador;
     }
+    if(cfg.instagram_entrenador){
+      const inpIg=document.getElementById('cfg-instagram');
+      if(inpIg)inpIg.value=cfg.instagram_entrenador;
+    }
     if(cfg.logo_entrenador){
       const t='?t='+Date.now();
       const prev=document.getElementById('cfg-logo-preview');
@@ -5742,6 +5746,13 @@ function filtrarRutinas(){
           <button onclick="document.getElementById('cfg-logo-input').click()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:9px 16px;cursor:pointer;width:100%">📷 Logo del entrenador</button>
           <div style="font-size:10px;color:#555;margin-top:6px;text-align:center">PNG o JPG · máx 5MB</div>
         </div>
+      </div>
+    </div>
+    <div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:6px">
+      <div style="font-size:14px;color:#fff;font-weight:600;margin-bottom:10px">📸 Instagram del entrenador</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="cfg-instagram" type="text" placeholder="@tu_instagram" style="flex:1;background:#111;border:1px solid #333;border-radius:10px;padding:9px 12px;color:#fff;font-size:13px;outline:none">
+        <button onclick="guardarInstagram()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:9px 14px;cursor:pointer">Guardar</button>
       </div>
     </div>
     <div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:6px">
