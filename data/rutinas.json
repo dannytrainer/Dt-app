@@ -533,27 +533,87 @@
   },
   "1778379484797": {
     "lunes": {
-      "recordatorio": "Papi lo espero hoy",
-      "rutina": ""
+      "recordatorio": "Confirmación de clase \nPierna ",
+      "rutina": "",
+      "presencial": true,
+      "ejercicios": [],
+      "cardio": []
     },
     "martes": {
-      "recordatorio": "Papi lo espero acab",
+      "recordatorio": "Confirmación de clase \nPecho y tríceps ",
       "rutina": "",
-      "ejercicios": []
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    },
+    "miercoles": {
+      "recordatorio": "Confirmación de clase \nEspalda y bíceps ",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    },
+    "jueves": {
+      "recordatorio": "Confirmación de clase \nPierna ",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    },
+    "viernes": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": []
+    },
+    "sabado": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": []
+    },
+    "domingo": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": []
     }
   },
   "1778377380425": {
     "lunes": {
-      "recordatorio": "Xxx",
-      "rutina": "Q",
-      "ejercicios": [],
-      "cardio": []
-    },
-    "martes": {
-      "recordatorio": "Confirmación de clase ",
+      "recordatorio": "Confirmación de clase \nDia de pierna ",
       "rutina": "",
       "ejercicios": [],
-      "cardio": []
+      "cardio": [],
+      "presencial": true
+    },
+    "martes": {
+      "recordatorio": "Confirmación de clase \nSuperior ",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [],
+      "presencial": true
+    },
+    "miercoles": {
+      "recordatorio": "Confirmación de clase \nGluteo",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [],
+      "presencial": true
+    },
+    "jueves": {
+      "recordatorio": "Confirmación de clase\n superior ",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [],
+      "presencial": true
+    },
+    "viernes": {
+      "recordatorio": "Confirmación clase \nPierna ",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [],
+      "presencial": true
     }
   },
   "1778377049231": {
@@ -1093,6 +1153,36 @@
           "notas": "Velocidad constante al 65%"
         }
       ]
+    }
+  },
+  "1778687454932": {
+    "lunes": {
+      "recordatorio": "Confirmación de clase \nPierna ",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    },
+    "martes": {
+      "recordatorio": "Confirmación de clase\nEntrenamiento de Superior ",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    },
+    "miercoles": {
+      "recordatorio": "Confirmación clase \nEntrenamiento pierna enfocado a glúteo ",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [],
+      "presencial": true
+    },
+    "jueves": {
+      "recordatorio": "Confirmación de clase \nEntrenamiento de Superior ",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
     }
   }
 }

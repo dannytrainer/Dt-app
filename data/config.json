@@ -1,9 +1,9 @@
 {
   "nombre_entrenador": "Danny-trainer",
-  "logo_entrenador": "/icon.png",
+  "logo_entrenador": "/logo_trainer.png",
   "color_acento": "#e31e24",
   "colores": {
-    "--rojo": "#e31e24",
+    "--rojo": "#ff0000",
     "--fondo": "#000000",
     "--card": "#000000",
     "--gris": "#1a1a1a",

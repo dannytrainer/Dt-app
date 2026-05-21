@@ -76,6 +76,8 @@ module.exports = function(app, fs) {
       const historial    = cargarJSON('historial.json');
       const tests        = cargarJSON('tests.json');
       const alimentacion = cargarJSON('alimentacion.json');
+      const cfg = cargarJSON('config.json', {});
+      const nombreEntrenador = (cfg.nombre_entrenador || 'DANNY TRAINER').toUpperCase();
 
       const usuario = usuarios.find(u => u.id == id || u.telefono == id);
       if (!usuario) return res.status(404).send('<h2>Cliente no encontrado</h2>');
@@ -110,6 +112,9 @@ module.exports = function(app, fs) {
 
       // Ultimo peso registrado
       const ultimoPeso = pesoArr.length > 0 ? pesoArr[pesoArr.length - 1].valor : null;
+      const unidades = (usuario.perfil && usuario.perfil.unidades) || 'kg';
+      const pesoMostrar = ultimoPeso ? (unidades === 'lb' ? Math.round(ultimoPeso * 2.205 * 10) / 10 : ultimoPeso) : null;
+      const unidadPeso = unidades === 'lb' ? 'lb' : 'kg';
 
       // Para compatibilidad con el resto del codigo
       const medidas = medidasArr;
@@ -139,8 +144,28 @@ module.exports = function(app, fs) {
         const ejercicios = (rutina[dia] && rutina[dia].ejercicios) ? rutina[dia].ejercicios : [];
         const musculo    = (rutina[dia] && rutina[dia].recordatorio) ? rutina[dia].recordatorio : '';
         const notas      = (rutina[dia] && rutina[dia].rutina) ? rutina[dia].rutina : '';
-        const cardioCheck = (rutina[dia] && rutina[dia].cardio) ? rutina[dia].cardio : [];
-        const esDescanso = ejercicios.length === 0 && cardioCheck.length === 0;
+        const cardioCheck  = (rutina[dia] && rutina[dia].cardio) ? rutina[dia].cardio : [];
+        const esPresencial  = (rutina[dia] && rutina[dia].presencial) ? true : false;
+        const esDescanso    = ejercicios.length === 0 && cardioCheck.length === 0 && !esPresencial;
+
+        if (esPresencial) {
+          return `
+          <div class="rutina-dia-bloque">
+            <div class="rutina-dia-header">
+              <div class="rutina-dia-nombre">${dia.toUpperCase()}</div>
+              <div class="rutina-dia-musculo">🏟️ ENTRENAMIENTO PRESENCIAL</div>
+              <div class="rutina-dia-count" style="background:#e31e24;color:#fff">Presencial</div>
+            </div>
+            <div style="padding:16px;background:var(--negro);">
+              <div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:8px;padding:14px;text-align:center;">
+                <div style="font-size:24px;margin-bottom:8px;">🏟️</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--rojo);">ENTRENAMIENTO PRESENCIAL</div>
+                ${musculo ? '<div style="margin-top:8px;font-size:13px;font-weight:700;color:var(--blanco)">' + musculo + '</div>' : ''}
+                ${notas ? '<div style="margin-top:8px;font-size:12px;color:var(--blanco-suave);line-height:1.5">' + notas.replace(/\n/g,'<br>') + '</div>' : ''}
+              </div>
+            </div>
+          </div>`;
+        }
 
         if (esDescanso) {
           return `
@@ -226,7 +251,7 @@ module.exports = function(app, fs) {
         h += '<div style="font-size:28px;font-weight:700;color:var(--blanco);font-family:Bebas Neue,sans-serif">' + tot.calorias + '</div></div>';
         h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;padding:14px;text-align:center">';
         h += '<div style="font-size:10px;color:var(--texto-secundario);text-transform:uppercase;margin-bottom:4px">🥩 Proteína</div>';
-        h += '<div style="font-size:28px;font-weight:700;color:var(--rojo);font-family:Bebas Neue,sans-serif">' + tot.proteina + 'g</div></div></div>';
+        h += '<div style="font-size:28px;font-weight:700;color:var(--rojo);font-family:Bebas Neue,sans-serif">' + tot.proteina + '<span style="font-family:sans-serif;font-size:20px">g</span></div></div></div>';
         h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
         h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;padding:10px;text-align:center">';
         h += '<div style="font-size:9px;color:var(--texto-secundario);text-transform:uppercase;margin-bottom:2px">Carbohidratos</div>';
@@ -250,10 +275,7 @@ module.exports = function(app, fs) {
           h += '<div style="background:var(--gris-medio);padding:8px 10px;display:flex;justify-content:space-between;align-items:center">';
           h += '<div style="font-family:Bebas Neue,sans-serif;font-size:13px;letter-spacing:1px;color:var(--blanco)">' + icono + ' ' + comida.nombre + '</div>';
           h += '<div style="font-size:10px;color:var(--rojo);font-weight:700">' + Math.round(mr.kcal) + ' kcal</div></div>';
-          h += '<div style="padding:6px 10px;font-size:9px;color:var(--texto-secundario);border-bottom:1px solid var(--gris-borde)">--:--&nbsp;·&nbsp;';
-          h += '<span style="color:var(--rojo)">P:' + Math.round(mr.proteina) + 'g</span> ';
-          h += '<span style="color:#f0a500">C:' + Math.round(mr.carbos) + 'g</span> ';
-          h += '<span style="color:#4caf50">G:' + Math.round(mr.grasas) + 'g</span></div>';
+          
           h += '<div style="padding:6px 10px">';
           for (const a of comida.alimentos) {
             h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--gris-borde)">';
@@ -261,13 +283,16 @@ module.exports = function(app, fs) {
             h += '<div style="font-size:10px;font-weight:700;color:var(--blanco)">' + a.porcion_g + 'g</div></div>';
           }
           h += '</div>';
-          h += '<div style="padding:6px 10px;display:grid;grid-template-columns:1fr 1fr;gap:4px">';
+          h += '<div style="padding:6px 10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">';
           h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px">';
           h += '<div style="font-size:12px;font-weight:700;color:var(--rojo)">' + Math.round(mr.proteina) + 'g</div>';
           h += '<div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Prot.</div></div>';
           h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px">';
           h += '<div style="font-size:12px;font-weight:700;color:#f0a500">' + Math.round(mr.carbos) + 'g</div>';
-          h += '<div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Carbs</div></div></div></div>';
+          h += '<div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Carbs</div></div>';
+          h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px">';
+          h += '<div style="font-size:12px;font-weight:700;color:#4caf50">' + Math.round(mr.grasas) + 'g</div>';
+          h += '<div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Grasas</div></div></div></div>';
         }
         h += '</div>';
         return h;
@@ -295,8 +320,8 @@ module.exports = function(app, fs) {
       // Por ahora generamos el HTML completo inline
       const html = generarHTMLCompleto({
         usuario, ultima, penultima, primera, medidas,
-        testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso,
-        calculos, fotoAntesB64, fotoDespuesB64, registros
+        testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso,
+        calculos, fotoAntesB64, fotoDespuesB64, registros, nombreEntrenador, cfg
       });
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -313,7 +338,7 @@ module.exports = function(app, fs) {
 // ============================================================
 // Función generadora del HTML completo
 // ============================================================
-function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso, calculos, fotoAntesB64, fotoDespuesB64, registros }) {
+function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso, calculos, fotoAntesB64, fotoDespuesB64, registros, nombreEntrenador, cfg }) {
   const perfil = usuario.perfil || {};
   const edad = perfil.edad || usuario.edad || null;
   const altura = perfil.altura || usuario.altura || null;
@@ -459,22 +484,25 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
 <div class="pagina">
 
   <!-- HEADER -->
-  <div class="header">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div class="logo-cuadro">DT</div>
-      <div class="logo-texto">
-        <h1>DANNY TRAINER</h1>
-        <p>Asistente de Entrenamiento</p>
+  <div class="header" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;gap:8px;">
+    <div style="flex:1;text-align:left;">
+      <div class="label" style="font-size:9px;">📅 Fecha del Informe</div>
+      <div class="valor" style="font-size:16px;font-weight:700;color:#fff;">${hoy}</div>
+      <div class="badge-premium" style="margin-top:4px;display:inline-block;">★ TIPO PREMIUM</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <img src="/icon.png" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;"/>
+      <div style="text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#fff;line-height:1;">DT-APP</div>
+        <div style="font-size:8px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">ASISTENTE PARA ENTRENADORES</div>
+        <div style="font-size:10px;color:var(--rojo);font-weight:700;margin-top:2px;">${nombreEntrenador}</div>
       </div>
+      <img src="/logo_trainer.png" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;" onerror="this.style.visibility='hidden'"/>
     </div>
-    <div class="header-titulo" style="text-align:center;">
-      <h2>REPORTE DE <span>RENDIMIENTO</span></h2>
-      <p>Informe Completo del Cliente · Confidencial</p>
-    </div>
-    <div class="fecha-bloque">
-      <div class="label">📅 Fecha del Informe</div>
-      <div class="valor">${hoy}</div>
-      <div class="badge-premium">★ TIPO PREMIUM</div>
+    <div style="flex:1;text-align:right;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1;">REPORTE DE</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--rojo);line-height:1;">RENDIMIENTO</div>
+      <div style="font-size:8px;color:#aaa;margin-top:2px;">INFORME COMPLETO · CONFIDENCIAL</div>
     </div>
   </div>
 
@@ -482,7 +510,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
   <div class="seccion">
     <div class="seccion-header">
       <div class="seccion-num" style="background:none;color:var(--rojo);font-size:16px;">🔥</div>
-      <div class="seccion-titulo">${({'perdida':'PÉRDIDA DE PESO','masa':'AUMENTO DE MASA','rehab':'REHABILITACIÓN','rendimiento':'RENDIMIENTO'}[usuario.objetivo] || usuario.objetivo || 'PERSONALIZADO') + ' · PERSONALIZADO'}</div>
+      <div class="seccion-titulo">${usuario.tipo === 'asesorado' ? 'ASESORADO' : 'PERSONALIZADO'}</div>
     </div>
     <div class="seccion-body">
       <div style="display:grid;grid-template-columns:120px 1fr 1fr;gap:16px;align-items:start;">
@@ -506,14 +534,14 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
           <p>Progreso registrado desde el inicio. Revisa tus medidas, tests y rendimiento semanal.</p>
           <div class="metricas-grid">
             <div class="metrica-card">
-              <div class="val">${ultimoPeso || v(ultima,'peso','—')}</div>
-              <div class="unidad">kg</div>
+              <div class="val">${pesoMostrar || v(ultima,'peso','—')}</div>
+              <div class="unidad">${unidadPeso}</div>
               <div class="label-m">Peso</div>
             </div>
             <div class="metrica-card">
               <div class="val">${(ultima && ultima.analisis && ultima.analisis.pctGrasa != null ? ultima.analisis.pctGrasa : '—')}</div>
-              <div class="unidad">% Grasa</div>
-              <div class="label-m">% Grasa</div>
+              <div class="unidad"></div>
+              <div class="label-m">% GRASA</div>
             </div>
             <div class="metrica-card">
               <div class="val">${(ultima && ultima.analisis && ultima.analisis.kgMusculo != null ? ultima.analisis.kgMusculo : '—')}</div>
@@ -745,11 +773,11 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
     </div>
     <div style="padding:14px 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:40px;height:40px;background:var(--rojo);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;flex-shrink:0;">DT</div>
+        <img src="/icon.png" style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;"/>
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1;">DT-APP</div>
-          <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">Plataforma de entrenamiento personal</div>
-          <div style="font-size:10px;color:var(--rojo);margin-top:2px;font-weight:600;">dt-app.com</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">ASISTENTE PARA ENTRENADORES</div>
+          <div style="font-size:10px;color:var(--rojo);margin-top:2px;font-weight:600;">@danny_trainer__</div>
         </div>
       </div>
       <div style="text-align:center;">
@@ -758,11 +786,11 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
       </div>
       <div style="display:flex;align-items:center;gap:10px;justify-content:flex-end;">
         <div style="text-align:right;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1;">${v(usuario,'entrenador','DANNY TRAINER').toUpperCase()}</div>
-          <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">Entrenador Personal Certificado</div>
-          <a href="https://www.instagram.com/danny_trainer__" style="font-size:10px;color:var(--rojo);font-weight:600;text-decoration:none;margin-top:2px;display:inline-block;">📸 @danny_trainer__</a>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1;">${nombreEntrenador}</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">Entrenador Personal</div>
+          ${cfg.instagram_entrenador ? '<a href="https://www.instagram.com/' + cfg.instagram_entrenador.replace('@','') + '" style="font-size:10px;color:var(--rojo);font-weight:600;text-decoration:none;margin-top:2px;display:inline-block;">📸 ' + cfg.instagram_entrenador + '</a>' : '<span style="font-size:10px;color:#444;margin-top:2px;display:inline-block;">📸 Próximamente</span>'}
         </div>
-        <div style="width:40px;height:40px;background:var(--gris-medio);border:2px solid var(--rojo);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--rojo);flex-shrink:0;">DT</div>
+        <img src="/logo_trainer.png" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--rojo);flex-shrink:0;" onerror="this.style.visibility='hidden'"/>
       </div>
     </div>
     <div style="background:#0a0a0a;border-top:1px solid #222;padding:6px 24px;display:flex;align-items:center;justify-content:space-between;">

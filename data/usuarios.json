@@ -5,7 +5,7 @@
     "nombre": "Yo",
     "telefono": "573006197897",
     "tipo": "asesorado",
-    "hora_envio": "13:57",
+    "hora_envio": "15:46",
     "dia_pago": 10,
     "estado_pago": "aldia",
     "perfil": {
@@ -65,7 +65,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 20,
     "dia_pago2": null,
-    "estado_pago": "proximo",
+    "estado_pago": "vencido",
     "perfil": {
       "fecha_inicio": "2026-05-11",
       "sexo": "F",
@@ -101,7 +101,9 @@
       "unidades": "kg"
     },
     "msg_pago": "Prueba de cobro automát",
-    "foto": "data/fotos/1778377049231/perfil.jpg"
+    "foto": "data/fotos/1778377049231/perfil.jpg",
+    "sesiones_total": 1,
+    "sesiones_ciclo": 1
   },
   {
     "id": "1778377208321",
@@ -131,7 +133,7 @@
     "nombre": "Arianna Chirino",
     "telefono": "573042059960",
     "tipo": "personalizado",
-    "hora_envio": "14:05",
+    "hora_envio": "18:29",
     "tipo_pago": "mensual",
     "dia_pago": 15,
     "dia_pago2": null,
@@ -159,7 +161,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 16,
     "dia_pago2": null,
-    "estado_pago": "vencido",
+    "estado_pago": "aldia",
     "perfil": {
       "fecha_inicio": "2026-05-09",
       "sexo": "F",
@@ -238,18 +240,18 @@
     "nombre": "David gomez",
     "telefono": "573189742665",
     "tipo": "personalizado",
-    "hora_envio": "20:07",
+    "hora_envio": "18:30",
     "tipo_pago": "mensual",
     "dia_pago": 20,
     "dia_pago2": null,
-    "estado_pago": "proximo",
+    "estado_pago": "vencido",
     "perfil": {
       "fecha_inicio": "2026-04-15",
-      "sexo": "",
-      "edad": "20",
+      "sexo": "M",
+      "edad": "22",
       "altura": "185",
       "etiqueta": "hipertrofia",
-      "notas": "",
+      "notas": "Accidente en moto dice que no tubo secuelas pero algunas molestias por ahora ",
       "unidades": "kg"
     },
     "foto": "data/fotos/1778379484797/perfil.jpg"
@@ -300,5 +302,26 @@
       "notas": ""
     },
     "foto": "data/fotos/1778687454932/perfil.jpg"
+  },
+  {
+    "id": "1779311725122",
+    "activo": true,
+    "nombre": "Juanita",
+    "telefono": "573136203154",
+    "tipo": "asesorado",
+    "hora_envio": "07:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-05-20",
+      "sexo": "F",
+      "edad": "14",
+      "altura": "162",
+      "etiqueta": "hipertrofia",
+      "notas": "Mocosa ",
+      "unidades": "kg"
+    }
   }
 ]

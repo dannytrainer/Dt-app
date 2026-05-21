@@ -76,7 +76,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 </head>
 <body>
 <div class="header" style="align-items:center">
-<a onclick="showPage('inicio')" style="cursor:pointer;flex-shrink:0"><img src="logo.svg" style="width:60px;height:60px;border-radius:12px;object-fit:cover;pointer-events:none"></a>
+<a onclick="showPage('inicio')" style="cursor:pointer;flex-shrink:0"><img src="/icon.png" style="width:60px;height:60px;border-radius:12px;object-fit:cover;pointer-events:none"></a>
 <div style="flex:1;margin-left:6px">
 <div style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:2px;line-height:1">DT-APP</div>
 <div style="font-size:9px;color:#666;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-top:1px">Asistente de entrenadores</div>
@@ -208,7 +208,10 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 </div>
 
 <div id="page-horarios" class="page">
-  <div style="font-size:10px;color:var(--rojo);text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:12px">🗓️ Horarios</div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+    <button onclick="showPage('inicio')" style="background:var(--rojo);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:6px 12px;cursor:pointer">← Volver</button>
+    <div style="font-size:10px;color:var(--rojo);text-transform:uppercase;letter-spacing:1.5px;font-weight:800">🗓️ Horarios</div>
+  </div>
 
   <!-- Tabs vista -->
   <div style="display:flex;gap:6px;margin-bottom:14px">
@@ -445,7 +448,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <!-- MODAL RUTINA -->
 <div class="modal" id="modal-rutina">
 <div class="mc">
-<div class="mt" id="rutina-titulo">📋 Rutina</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div class="mt" id="rutina-titulo">📋 Rutina</div><button class="btn bg" style="padding:6px 14px" onclick="cerrarModalRutina()">✕</button></div>
 <input type="hidden" id="rutina-cliente-id">
 <div style="display:flex;gap:0;margin-bottom:12px;background:#111;border-radius:10px;padding:3px">
 <button id="tab-entrenamiento" onclick="switchRutinaTab('entrenamiento')" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--rojo);color:#fff;font-size:12px;font-weight:700;cursor:pointer">🏋️ entrenamiento</button>
@@ -1649,8 +1652,7 @@ async function subirLogo(input){
     const r=await fetch('/api/config/logo',{method:'POST',body:form});
     const d=await r.json();
     if(d.ok){
-      document.getElementById('cfg-logo-preview').src='/icon.png?t='+Date.now();
-      document.querySelector('.header img').src='/icon.png?t='+Date.now();
+      document.getElementById('cfg-logo-preview').src='/logo_trainer.png?t='+Date.now();
       toast('✅ Logo actualizado');
     }
   }catch(e){toast('❌ Error subiendo logo',false);}
@@ -1661,6 +1663,12 @@ async function guardarNombreEntrenador(){
   await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre_entrenador:nombre})});
   document.getElementById('nombre-entrenador').textContent=nombre;
   toast('✅ Nombre actualizado');
+}
+async function guardarInstagram(){
+  const ig=document.getElementById('cfg-instagram').value.trim();
+  if(!ig)return;
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({instagram_entrenador:ig})});
+  toast('✅ Instagram guardado');
 }
 async function cargarNombreEntrenador(){
   try{
@@ -1673,7 +1681,6 @@ async function cargarNombreEntrenador(){
     }
     if(cfg.logo_entrenador){
       const t='?t='+Date.now();
-      document.querySelector('.header img').src=cfg.logo_entrenador+t;
       const prev=document.getElementById('cfg-logo-preview');
       if(prev)prev.src=cfg.logo_entrenador+t;
     }
@@ -1688,6 +1695,22 @@ function abrirConfig(){mostrarTabColores("general");
     ov.style.opacity='1';
     sh.style.transform='translateY(0)';
   });
+}
+function validarCodigoPremium(){
+  const input = document.getElementById('cfg-codigo-premium');
+  const status = document.getElementById('cfg-codigo-status');
+  const codigo = (input.value || '').trim().toUpperCase();
+  const CODIGOS = ['DANNY2026','PREMIUM1','DTAPP'];
+  if(!codigo){ status.style.color='#666'; status.textContent='Ingresa un código.'; return; }
+  if(CODIGOS.includes(codigo)){
+    status.style.color='#4caf50';
+    status.textContent='✅ Código válido — Premium activado';
+    localStorage.setItem('dt_premium','1');
+    input.value='';
+  } else {
+    status.style.color='#e31e24';
+    status.textContent='❌ Código inválido';
+  }
 }
 function cerrarConfig(){
   const ov=document.getElementById('config-overlay');
@@ -2501,7 +2524,7 @@ document.getElementById('dias-tabs').innerHTML=DIAS.map(d=>
 function seleccionarDia(dia){
 const rec=document.getElementById('rec-'+diaSeleccionado);
 const rut=document.getElementById('rut-'+diaSeleccionado);
-if(rec)rutinaActual[diaSeleccionado]={recordatorio:rec.value,rutina:rut.value};
+if(rec){if(!rutinaActual[diaSeleccionado])rutinaActual[diaSeleccionado]={};rutinaActual[diaSeleccionado].recordatorio=rec.value;if(rut)rutinaActual[diaSeleccionado].rutina=rut.value;}
 guardarEjsActuales();diaSeleccionado=dia;renderDiasTabs();renderRutinaForm();
 }
 
@@ -2518,7 +2541,7 @@ setTimeout(()=>{
 const ejs=d.ejercicios||[];
 let h='';
 ejs.forEach((e,i)=>{h+=`<div id="rut-drag-ej-${i}" draggable="true" ondragstart="rutDragStart(event,${i},'ej')" ondragover="rutDragOver(event,${i},'ej')" ondrop="rutDrop(event,${i},'ej')" ondragend="rutDragEnd(event)" style="background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;margin-bottom:6px;cursor:grab"><div style="display:flex;gap:6px;margin-bottom:6px"><span ontouchstart="rutTouchStart(event,${i},'ej')" ontouchmove="rutTouchMove(event)" ontouchend="rutTouchEnd(event)" style="color:#444;font-size:16px;padding:6px 4px;cursor:grab;touch-action:none">☰</span><input type="text" value="${e.nombre||''}" placeholder="Ejercicio" id="ej-${i}-n" style="flex:1;background:#111;border:1px solid #333;border-radius:6px;padding:8px;color:#fff;font-size:13px;outline:none"><button onclick="eliminarEjercicio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button></div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">${[['series','S','4'],['reps','Reps','8-10'],['rir','RIR','1-2'],['desc','DESC','60s'],['var','VAR','V1']].map(([f,label,ph])=>`<div><div style="font-size:9px;color:#555;text-align:center;margin-bottom:2px">${label}</div><input type="text" id="ej-${i}-${f}" value="${e[f]||''}" placeholder="${ph}" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:6px;color:#fff;font-size:12px;text-align:center;outline:none"></div>`).join('')}</div></div>`;});
-document.getElementById('rutina-form').innerHTML=`<div class="ig"><label>💬 Recordatorio</label><textarea id="rec-${diaSeleccionado}" placeholder="Escribe el recordatorio...">${d.recordatorio||''}</textarea></div><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:10px 0 8px">📋 Ejercicios</div><div id="lista-ejs">${h}</div><button onclick="agregarEjercicio()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar ejercicio</button><div style="margin-top:10px"><button onclick="toggleCardio()" style="width:100%;background:#0a0a0a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer">🏃 Cardio</button><div id="panel-cardio" style="display:none;background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;margin-top:6px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:8px">🏃 CARDIO</div><div id="lista-cardio"></div><button onclick="agregarCardio()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar momento de cardio</button></div></div><div style="margin-top:10px"><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">📝 Notas</div><textarea id="rut-${diaSeleccionado}" placeholder="Notas adicionales..." style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;min-height:80px">${d.rutina||''}</textarea></div>`;
+document.getElementById('rutina-form').innerHTML=`<div class="ig"><label>💬 Recordatorio</label><textarea id="rec-${diaSeleccionado}" placeholder="Escribe el recordatorio...">${d.recordatorio||''}</textarea></div><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:10px 0 8px">📋 Ejercicios</div><div id="lista-ejs">${h}</div><button onclick="agregarEjercicio()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar ejercicio</button><div style="margin-top:10px"><button onclick="toggleCardio()" style="width:100%;background:#0a0a0a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer">🏃 Cardio</button><div id="panel-cardio" style="display:none;background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:10px;margin-top:6px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:8px">🏃 CARDIO</div><div id="lista-cardio"></div><button onclick="agregarCardio()" style="width:100%;background:#1a1a1a;color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar momento de cardio</button></div></div><div style="margin-top:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700">📝 Notas</div><button id="chip-presencial" onclick="togglePresencial()" style="padding:5px 12px;border-radius:20px;border:1px solid #333;background:${d.presencial?'#e31e24':'#1a1a1a'};color:${d.presencial?'#fff':'#666'};font-size:10px;font-weight:700;cursor:pointer">🏟️ Presencial</button></div><textarea id="rut-${diaSeleccionado}" placeholder="Notas adicionales..." style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;min-height:80px">${d.rutina||''}</textarea></div>`;
 }
 
 function guardarEjsActuales(){
@@ -2601,6 +2624,17 @@ function eliminarCardio(idx){
 
 function cerrarModalRutina(){guardarEjsActuales();document.getElementById('modal-rutina').classList.remove('open');}
 
+function togglePresencial(){
+  const dia = diaSeleccionado;
+  if(!rutinaActual[dia]) rutinaActual[dia]={recordatorio:'',rutina:'',ejercicios:[]};
+  rutinaActual[dia].presencial = !rutinaActual[dia].presencial;
+  const chip = document.getElementById('chip-presencial');
+  if(chip){
+    chip.style.background = rutinaActual[dia].presencial ? '#e31e24' : '#1a1a1a';
+    chip.style.color = rutinaActual[dia].presencial ? '#fff' : '#666';
+    chip.style.borderColor = rutinaActual[dia].presencial ? '#e31e24' : '#333';
+  }
+}
 async function guardarRutina(){
 guardarEjsActuales();
 const rec=document.getElementById('rec-'+diaSeleccionado);
@@ -4547,6 +4581,7 @@ function intervRenderLista(c) {
 function intervRenderEditor(c) {
   var iv = _intervActual;
   c.innerHTML =
+    '<button onclick="intervMostrar(\'lista\')" style="background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#888;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;margin-bottom:10px">← Volver</button>' +
     '<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px">' +
     '<div>' +
     '<div style="font-size:10px;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Nombre</div>' +
@@ -4563,7 +4598,7 @@ function intervRenderEditor(c) {
     '</div>' +
     '</div>' +
     '<div style="display:flex;gap:8px;margin-top:12px">' +
-    '<button onclick="intervMostrar(\'lista\')" style="flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:10px;padding:12px;font-size:13px;cursor:pointer">← Volver</button>' +
+    '' +
     '<button onclick="intervGuardar()" style="flex:2;background:#4a9eff;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">💾 Guardar</button>' +
     '<button onclick="intervMostrar(\'ejecutar\')" style="flex:2;background:#e31e24;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">▶️ Iniciar</button>' +
     '</div>';
@@ -4782,6 +4817,7 @@ function hiitRenderLista(c){
 function hiitRenderEditor(c){
   const ci=_hiitActual;
   let html=`
+  <button onclick="hiitMostrar('lista')" style="background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#888;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;margin-bottom:10px">← Volver</button>
   <div style="margin-bottom:12px">
     <div style="font-size:11px;color:#666;margin-bottom:4px">Nombre del circuito</div>
     <input value="${ci.nombre}" onchange="_hiitActual.nombre=this.value" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:14px;font-weight:700">
@@ -4825,7 +4861,7 @@ function hiitRenderEditor(c){
   <div style="display:flex;gap:8px">
     <button onclick="hiitGuardar()" style="flex:1;background:#e31e24;color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">💾 Guardar</button>
     <button onclick="hiitIniciarActual()" style="flex:1;background:#4caf50;color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">▶️ Iniciar</button>
-    <button onclick="hiitMostrar('lista')" style="background:#1a1a1a;color:#666;border:1px solid #333;border-radius:8px;padding:12px;font-size:13px;cursor:pointer">✖</button>
+
   </div>`;
   c.innerHTML=html;
 }
@@ -5678,6 +5714,17 @@ function filtrarRutinas(){
   </div>
   <div style="height:1px;background:#1e1e1e;margin:0 20px"></div>
   <div style="padding:16px 20px;display:flex;flex-direction:column;gap:4px">
+    <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:8px 0 10px">🔑 PREMIUM</div>
+    <div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:6px">
+      <div style="font-size:14px;color:#fff;font-weight:600;margin-bottom:4px">Código de acceso</div>
+      <div style="font-size:11px;color:#555;margin-bottom:10px">Ingresa tu código para desbloquear funciones premium</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="cfg-codigo-premium" type="text" placeholder="Ingresa tu código..." style="flex:1;background:#111;border:1px solid #333;border-radius:10px;padding:9px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">
+        <button onclick="validarCodigoPremium()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:9px 14px;cursor:pointer">Activar</button>
+      </div>
+      <div id="cfg-codigo-status" style="font-size:11px;margin-top:8px;text-align:center"></div>
+    </div>
+    <div style="height:1px;background:#1e1e1e;margin:4px 0 8px"></div>
     <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:8px 0 10px">🎨 Apariencia</div>
     <div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:6px">
       <div style="font-size:14px;color:#fff;font-weight:600;margin-bottom:10px">Nombre del entrenador</div>
@@ -5689,10 +5736,10 @@ function filtrarRutinas(){
     <div style="background:#1a1a1a;border-radius:14px;padding:16px;margin-bottom:6px">
       <div style="font-size:14px;color:#fff;font-weight:600;margin-bottom:10px">Logo de la app</div>
       <div style="display:flex;align-items:center;gap:12px">
-        <img id="cfg-logo-preview" src="/icon.png" style="width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid #2a2a2a">
+        <img id="cfg-logo-preview" src="/logo_trainer.png" style="width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid #2a2a2a" onerror="this.src='/icon.png'">
         <div style="flex:1">
           <input type="file" id="cfg-logo-input" accept="image/*" style="display:none" onchange="subirLogo(this)">
-          <button onclick="document.getElementById('cfg-logo-input').click()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:9px 16px;cursor:pointer;width:100%">📷 Cambiar logo</button>
+          <button onclick="document.getElementById('cfg-logo-input').click()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:9px 16px;cursor:pointer;width:100%">📷 Logo del entrenador</button>
           <div style="font-size:10px;color:#555;margin-top:6px;text-align:center">PNG o JPG · máx 5MB</div>
         </div>
       </div>

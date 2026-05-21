@@ -17,7 +17,7 @@
       "nombre": "Yo",
       "sexo": "M",
       "edad": 30,
-      "generado": "2026-05-20T00:00:27.617Z",
+      "generado": "2026-05-21T00:13:03.906Z",
       "peso_actual": 89,
       "peso_objetivo": 100,
       "nivel_eco": "economico",
@@ -399,7 +399,7 @@
         }
       ]
     },
-    "plan_fecha": "2026-05-20T00:00:27.618Z"
+    "plan_fecha": "2026-05-21T00:13:03.912Z"
   },
   "1778377380425": {
     "peso_actual": 48,
@@ -419,7 +419,7 @@
       "nombre": "Arianna Chirino",
       "sexo": "F",
       "edad": 21,
-      "generado": "2026-05-20T00:08:42.930Z",
+      "generado": "2026-05-20T14:54:25.945Z",
       "peso_actual": 48,
       "peso_objetivo": 55,
       "nivel_eco": "medio",
@@ -801,6 +801,1202 @@
         }
       ]
     },
-    "plan_fecha": "2026-05-20T00:08:42.932Z"
+    "plan_fecha": "2026-05-20T14:54:25.951Z"
+  },
+  "1778379484797": {
+    "peso_actual": 98,
+    "peso_objetivo": 98,
+    "proteina": 2.5,
+    "carbos": 3,
+    "grasas": 1,
+    "comidas": 4,
+    "pretreno": false,
+    "pretreno_pos": 2,
+    "nivel_eco": 2,
+    "medico": [],
+    "vida": [
+      "Alto volumen"
+    ],
+    "alergias": [],
+    "plan_generado": {
+      "id_cliente": "1778379484797",
+      "nombre": "David gomez",
+      "sexo": "M",
+      "edad": 22,
+      "generado": "2026-05-20T03:37:33.255Z",
+      "peso_actual": 98,
+      "peso_objetivo": 98,
+      "nivel_eco": "premium",
+      "filtros_activos": [
+        "Alto volumen"
+      ],
+      "totales": {
+        "proteina": 245,
+        "carbohidratos": 294,
+        "grasas": 98,
+        "calorias": 3038
+      },
+      "comidas": [
+        {
+          "nombre": "Desayuno",
+          "macros_objetivo": {
+            "proteina": 49,
+            "carbos": 82,
+            "grasas": 18,
+            "kcal": 686
+          },
+          "macros_reales": {
+            "proteina": 56.4,
+            "carbos": 70.8,
+            "grasas": 31.9,
+            "kcal": 803
+          },
+          "alimentos": [
+            {
+              "nombre": "Papa",
+              "preparacion": "Al horno",
+              "porcion_g": 273,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 6.8,
+                "carbohidratos": 57.3,
+                "grasas": 0.3,
+                "calorias": 254
+              },
+              "nota": "Base energética"
+            },
+            {
+              "nombre": "Carne de res (lomo)",
+              "preparacion": "Guisada",
+              "porcion_g": 196,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 49,
+                "carbohidratos": 5.9,
+                "grasas": 31.4,
+                "calorias": 519
+              },
+              "nota": "Proteína matutina"
+            },
+            {
+              "nombre": "Sandía",
+              "preparacion": "Fresca",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.6,
+                "carbohidratos": 7.6,
+                "grasas": 0.2,
+                "calorias": 30
+              },
+              "nota": "Micronutrientes"
+            }
+          ]
+        },
+        {
+          "nombre": "Snack 1",
+          "macros_objetivo": {
+            "proteina": 61,
+            "carbos": 80,
+            "grasas": 29,
+            "kcal": 825
+          },
+          "macros_reales": {
+            "proteina": 61.199999999999996,
+            "carbos": 71,
+            "grasas": 7.1000000000000005,
+            "kcal": 579
+          },
+          "alimentos": [
+            {
+              "nombre": "Banano",
+              "preparacion": "Fresco",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.1,
+                "carbohidratos": 23,
+                "grasas": 0.3,
+                "calorias": 89
+              },
+              "nota": "Snack natural"
+            },
+            {
+              "nombre": "Pasta",
+              "preparacion": "Cocida bien",
+              "porcion_g": 150,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 8.3,
+                "carbohidratos": 48,
+                "grasas": 1.4,
+                "calorias": 237
+              },
+              "nota": "Energía snack"
+            },
+            {
+              "nombre": "Tilapia",
+              "preparacion": "Al horno",
+              "porcion_g": 192,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 51.8,
+                "carbohidratos": 0,
+                "grasas": 5.4,
+                "calorias": 253
+              },
+              "nota": "Proteína snack"
+            }
+          ]
+        },
+        {
+          "nombre": "Almuerzo",
+          "macros_objetivo": {
+            "proteina": 61,
+            "carbos": 80,
+            "grasas": 29,
+            "kcal": 825
+          },
+          "macros_reales": {
+            "proteina": 90.4,
+            "carbos": 113.5,
+            "grasas": 38.2,
+            "kcal": 1141
+          },
+          "alimentos": [
+            {
+              "nombre": "Camarón",
+              "preparacion": "Cocido",
+              "porcion_g": 254,
+              "categoria": "proteina",
+              "nivel": "premium",
+              "macros": {
+                "proteina": 61,
+                "carbohidratos": 0.5,
+                "grasas": 0.8,
+                "calorias": 251
+              },
+              "nota": "Proteína principal"
+            },
+            {
+              "nombre": "Arepa",
+              "preparacion": "Con queso",
+              "porcion_g": 190,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 16.2,
+                "carbohidratos": 79.8,
+                "grasas": 14.3,
+                "calorias": 509
+              },
+              "nota": "Energía"
+            },
+            {
+              "nombre": "Tomate",
+              "preparacion": "Crudo",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.9,
+                "carbohidratos": 3.9,
+                "grasas": 0.2,
+                "calorias": 18
+              },
+              "nota": "Micronutrientes y fibra"
+            },
+            {
+              "nombre": "Semillas de chía",
+              "preparacion": "Hidratada",
+              "porcion_g": 80,
+              "categoria": "grasa",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 12.3,
+                "carbohidratos": 29.3,
+                "grasas": 22.9,
+                "calorias": 363
+              },
+              "nota": "Grasas saludables"
+            }
+          ]
+        },
+        {
+          "nombre": "Cena",
+          "macros_objetivo": {
+            "proteina": 74,
+            "carbos": 52,
+            "grasas": 22,
+            "kcal": 702
+          },
+          "macros_reales": {
+            "proteina": 40.4,
+            "carbos": 49.300000000000004,
+            "grasas": 42.5,
+            "kcal": 732
+          },
+          "alimentos": [
+            {
+              "nombre": "Huevo",
+              "preparacion": "Cocido",
+              "porcion_g": 300,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 35,
+                "carbohidratos": 3,
+                "grasas": 30,
+                "calorias": 425
+              },
+              "nota": "Alta proteína nocturna"
+            },
+            {
+              "nombre": "Arroz blanco",
+              "preparacion": "Cocido",
+              "porcion_g": 111,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 3,
+                "carbohidratos": 31.1,
+                "grasas": 0.3,
+                "calorias": 144
+              },
+              "nota": "Carbs moderados"
+            },
+            {
+              "nombre": "Zanahoria",
+              "preparacion": "Cocida",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.8,
+                "carbohidratos": 8,
+                "grasas": 0.2,
+                "calorias": 35
+              },
+              "nota": "Fibra y vitaminas"
+            },
+            {
+              "nombre": "Aguacate",
+              "preparacion": "Fresco",
+              "porcion_g": 80,
+              "categoria": "grasa",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 1.6,
+                "carbohidratos": 7.2,
+                "grasas": 12,
+                "calorias": 128
+              },
+              "nota": "Grasa nocturna"
+            }
+          ]
+        }
+      ]
+    },
+    "plan_fecha": "2026-05-20T03:37:33.257Z"
+  },
+  "1778377049231": {
+    "peso_actual": 47,
+    "peso_objetivo": 55,
+    "proteina": 2,
+    "carbos": 4.5,
+    "grasas": 1.2,
+    "comidas": 4,
+    "pretreno": true,
+    "pretreno_pos": 5,
+    "nivel_eco": 1,
+    "medico": [],
+    "vida": [],
+    "alergias": [],
+    "plan_generado": {
+      "id_cliente": "1778377049231",
+      "nombre": "Mafe",
+      "sexo": "F",
+      "edad": 23,
+      "generado": "2026-05-20T14:54:04.032Z",
+      "peso_actual": 47,
+      "peso_objetivo": 55,
+      "nivel_eco": "medio",
+      "filtros_activos": [],
+      "totales": {
+        "proteina": 110,
+        "carbohidratos": 248,
+        "grasas": 66,
+        "calorias": 2026
+      },
+      "comidas": [
+        {
+          "nombre": "Desayuno",
+          "macros_objetivo": {
+            "proteina": 22,
+            "carbos": 69,
+            "grasas": 12,
+            "kcal": 472
+          },
+          "macros_reales": {
+            "proteina": 26.500000000000004,
+            "carbos": 62.3,
+            "grasas": 14.200000000000001,
+            "kcal": 484
+          },
+          "alimentos": [
+            {
+              "nombre": "Yuca",
+              "preparacion": "Cocida",
+              "porcion_g": 127,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.8,
+                "carbohidratos": 48.3,
+                "grasas": 0.4,
+                "calorias": 203
+              },
+              "nota": "Base energética"
+            },
+            {
+              "nombre": "Carne de res (lomo)",
+              "preparacion": "A la plancha",
+              "porcion_g": 85,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 22.1,
+                "carbohidratos": 0,
+                "grasas": 12.8,
+                "calorias": 213
+              },
+              "nota": "Proteína matutina"
+            },
+            {
+              "nombre": "Guayaba",
+              "preparacion": "Fresca",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 2.6,
+                "carbohidratos": 14,
+                "grasas": 1,
+                "calorias": 68
+              },
+              "nota": "Micronutrientes"
+            }
+          ]
+        },
+        {
+          "nombre": "Snack 1",
+          "macros_objetivo": {
+            "proteina": 28,
+            "carbos": 67,
+            "grasas": 20,
+            "kcal": 560
+          },
+          "macros_reales": {
+            "proteina": 34.699999999999996,
+            "carbos": 76.3,
+            "grasas": 14.1,
+            "kcal": 574
+          },
+          "alimentos": [
+            {
+              "nombre": "Banano",
+              "preparacion": "Fresco",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.1,
+                "carbohidratos": 23,
+                "grasas": 0.3,
+                "calorias": 89
+              },
+              "nota": "Snack natural"
+            },
+            {
+              "nombre": "Pan blanco",
+              "preparacion": "Tostado",
+              "porcion_g": 100,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 9.7,
+                "carbohidratos": 53.3,
+                "grasas": 3.7,
+                "calorias": 293
+              },
+              "nota": "Energía snack"
+            },
+            {
+              "nombre": "Muslo de pollo",
+              "preparacion": "A la plancha",
+              "porcion_g": 92,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 23.9,
+                "carbohidratos": 0,
+                "grasas": 10.1,
+                "calorias": 192
+              },
+              "nota": "Proteína snack"
+            }
+          ]
+        },
+        {
+          "nombre": "Almuerzo",
+          "macros_objetivo": {
+            "proteina": 28,
+            "carbos": 67,
+            "grasas": 20,
+            "kcal": 560
+          },
+          "macros_reales": {
+            "proteina": 35.6,
+            "carbos": 70.5,
+            "grasas": 32.9,
+            "kcal": 717
+          },
+          "alimentos": [
+            {
+              "nombre": "Lomo de cerdo",
+              "preparacion": "A la plancha",
+              "porcion_g": 104,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 28.1,
+                "carbohidratos": 0,
+                "grasas": 9.4,
+                "calorias": 203
+              },
+              "nota": "Proteína principal"
+            },
+            {
+              "nombre": "Arepa",
+              "preparacion": "A la plancha",
+              "porcion_g": 152,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 6.8,
+                "carbohidratos": 66.9,
+                "grasas": 3.8,
+                "calorias": 331
+              },
+              "nota": "Energía"
+            },
+            {
+              "nombre": "Pepino",
+              "preparacion": "Crudo",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.7,
+                "carbohidratos": 3.6,
+                "grasas": 0.1,
+                "calorias": 16
+              },
+              "nota": "Micronutrientes y fibra"
+            },
+            {
+              "nombre": "Aceite de oliva",
+              "preparacion": "Crudo",
+              "porcion_g": 21,
+              "categoria": "grasa",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 0,
+                "carbohidratos": 0,
+                "grasas": 19.6,
+                "calorias": 167
+              },
+              "nota": "Grasas saludables"
+            }
+          ]
+        },
+        {
+          "nombre": "Cena",
+          "macros_objetivo": {
+            "proteina": 32,
+            "carbos": 45,
+            "grasas": 14,
+            "kcal": 434
+          },
+          "macros_reales": {
+            "proteina": 43.5,
+            "carbos": 38.5,
+            "grasas": 20.7,
+            "kcal": 518
+          },
+          "alimentos": [
+            {
+              "nombre": "Mojarra",
+              "preparacion": "Al horno",
+              "porcion_g": 133,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 31.9,
+                "carbohidratos": 0,
+                "grasas": 5.3,
+                "calorias": 184
+              },
+              "nota": "Alta proteína nocturna"
+            },
+            {
+              "nombre": "Arroz integral",
+              "preparacion": "Cocido",
+              "porcion_g": 108,
+              "categoria": "carbohidrato",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 2.9,
+                "carbohidratos": 27,
+                "grasas": 1.1,
+                "calorias": 133
+              },
+              "nota": "Carbs moderados"
+            },
+            {
+              "nombre": "Pimentón",
+              "preparacion": "Crudo",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1,
+                "carbohidratos": 7,
+                "grasas": 0.3,
+                "calorias": 31
+              },
+              "nota": "Fibra y vitaminas"
+            },
+            {
+              "nombre": "Maní",
+              "preparacion": "Natural",
+              "porcion_g": 30,
+              "categoria": "grasa",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 7.7,
+                "carbohidratos": 4.5,
+                "grasas": 14,
+                "calorias": 170
+              },
+              "nota": "Grasa nocturna"
+            }
+          ]
+        }
+      ]
+    },
+    "plan_fecha": "2026-05-20T14:54:04.048Z"
+  },
+  "1778687454932": {
+    "peso_actual": 56,
+    "peso_objetivo": 60,
+    "proteina": 2.5,
+    "carbos": 4,
+    "grasas": 1.5,
+    "comidas": 4,
+    "pretreno": false,
+    "pretreno_pos": 2,
+    "nivel_eco": 2,
+    "medico": [],
+    "vida": [],
+    "alergias": [],
+    "plan_generado": {
+      "id_cliente": "1778687454932",
+      "nombre": "Mariana",
+      "sexo": "F",
+      "edad": 20,
+      "generado": "2026-05-20T16:52:13.871Z",
+      "peso_actual": 56,
+      "peso_objetivo": 60,
+      "nivel_eco": "premium",
+      "filtros_activos": [],
+      "totales": {
+        "proteina": 150,
+        "carbohidratos": 240,
+        "grasas": 90,
+        "calorias": 2370
+      },
+      "comidas": [
+        {
+          "nombre": "Desayuno",
+          "macros_objetivo": {
+            "proteina": 30,
+            "carbos": 67,
+            "grasas": 16,
+            "kcal": 532
+          },
+          "macros_reales": {
+            "proteina": 39.699999999999996,
+            "carbos": 64.6,
+            "grasas": 27.4,
+            "kcal": 665
+          },
+          "alimentos": [
+            {
+              "nombre": "Pasta integral",
+              "preparacion": "Cocida",
+              "porcion_g": 162,
+              "categoria": "carbohidrato",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 8.9,
+                "carbohidratos": 47,
+                "grasas": 1.3,
+                "calorias": 241
+              },
+              "nota": "Base energética"
+            },
+            {
+              "nombre": "Huevo",
+              "preparacion": "Cocido",
+              "porcion_g": 257,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 30,
+                "carbohidratos": 2.6,
+                "grasas": 25.7,
+                "calorias": 364
+              },
+              "nota": "Proteína matutina"
+            },
+            {
+              "nombre": "Mango",
+              "preparacion": "Fresco",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.8,
+                "carbohidratos": 15,
+                "grasas": 0.4,
+                "calorias": 60
+              },
+              "nota": "Micronutrientes"
+            }
+          ]
+        },
+        {
+          "nombre": "Snack 1",
+          "macros_objetivo": {
+            "proteina": 38,
+            "carbos": 65,
+            "grasas": 27,
+            "kcal": 655
+          },
+          "macros_reales": {
+            "proteina": 34.199999999999996,
+            "carbos": 50.1,
+            "grasas": 14.799999999999999,
+            "kcal": 463
+          },
+          "alimentos": [
+            {
+              "nombre": "Papaya",
+              "preparacion": "Fresca",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.5,
+                "carbohidratos": 11,
+                "grasas": 0.3,
+                "calorias": 43
+              },
+              "nota": "Snack natural"
+            },
+            {
+              "nombre": "Yuca",
+              "preparacion": "Cocida",
+              "porcion_g": 103,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.4,
+                "carbohidratos": 39.1,
+                "grasas": 0.3,
+                "calorias": 165
+              },
+              "nota": "Energía snack"
+            },
+            {
+              "nombre": "Atún enlatado",
+              "preparacion": "En aceite",
+              "porcion_g": 129,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 32.3,
+                "carbohidratos": 0,
+                "grasas": 14.2,
+                "calorias": 255
+              },
+              "nota": "Proteína snack"
+            }
+          ]
+        },
+        {
+          "nombre": "Almuerzo",
+          "macros_objetivo": {
+            "proteina": 38,
+            "carbos": 65,
+            "grasas": 27,
+            "kcal": 655
+          },
+          "macros_reales": {
+            "proteina": 58.7,
+            "carbos": 97.2,
+            "grasas": 47.699999999999996,
+            "kcal": 1050
+          },
+          "alimentos": [
+            {
+              "nombre": "Carne molida de res",
+              "preparacion": "Sudada",
+              "porcion_g": 173,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 38.1,
+                "carbohidratos": 0,
+                "grasas": 24.2,
+                "calorias": 377
+              },
+              "nota": "Proteína principal"
+            },
+            {
+              "nombre": "Papa",
+              "preparacion": "Cocida",
+              "porcion_g": 382,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 7.6,
+                "carbohidratos": 64.9,
+                "grasas": 0.4,
+                "calorias": 294
+              },
+              "nota": "Energía"
+            },
+            {
+              "nombre": "Apio",
+              "preparacion": "Crudo",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.7,
+                "carbohidratos": 3,
+                "grasas": 0.2,
+                "calorias": 16
+              },
+              "nota": "Micronutrientes y fibra"
+            },
+            {
+              "nombre": "Semillas de chía",
+              "preparacion": "Hidratada",
+              "porcion_g": 80,
+              "categoria": "grasa",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 12.3,
+                "carbohidratos": 29.3,
+                "grasas": 22.9,
+                "calorias": 363
+              },
+              "nota": "Grasas saludables"
+            }
+          ]
+        },
+        {
+          "nombre": "Cena",
+          "macros_objetivo": {
+            "proteina": 44,
+            "carbos": 43,
+            "grasas": 20,
+            "kcal": 528
+          },
+          "macros_reales": {
+            "proteina": 59,
+            "carbos": 62.8,
+            "grasas": 37.7,
+            "kcal": 817
+          },
+          "alimentos": [
+            {
+              "nombre": "Lomo de cerdo",
+              "preparacion": "A la plancha",
+              "porcion_g": 163,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 44,
+                "carbohidratos": 0,
+                "grasas": 14.7,
+                "calorias": 318
+              },
+              "nota": "Alta proteína nocturna"
+            },
+            {
+              "nombre": "Arepa",
+              "preparacion": "A la plancha",
+              "porcion_g": 100,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 4.5,
+                "carbohidratos": 44,
+                "grasas": 2.5,
+                "calorias": 218
+              },
+              "nota": "Carbs moderados"
+            },
+            {
+              "nombre": "Coliflor",
+              "preparacion": "Cruda",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 1.9,
+                "carbohidratos": 5,
+                "grasas": 0.3,
+                "calorias": 25
+              },
+              "nota": "Fibra y vitaminas"
+            },
+            {
+              "nombre": "Semillas de linaza",
+              "preparacion": "Molida",
+              "porcion_g": 48,
+              "categoria": "grasa",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 8.6,
+                "carbohidratos": 13.8,
+                "grasas": 20.2,
+                "calorias": 256
+              },
+              "nota": "Grasa nocturna"
+            }
+          ]
+        }
+      ]
+    },
+    "plan_fecha": "2026-05-20T16:52:13.878Z"
+  },
+  "1778377616786": {
+    "peso_actual": 98,
+    "peso_objetivo": 80,
+    "proteina": 2.5,
+    "carbos": 3.5,
+    "grasas": 1,
+    "comidas": 4,
+    "pretreno": true,
+    "pretreno_pos": 2,
+    "nivel_eco": 1,
+    "medico": [],
+    "vida": [],
+    "alergias": [],
+    "plan_generado": {
+      "id_cliente": "1778377616786",
+      "nombre": "Manuela Gaviria",
+      "sexo": "F",
+      "edad": 20,
+      "generado": "2026-05-21T02:33:14.973Z",
+      "peso_actual": 98,
+      "peso_objetivo": 80,
+      "nivel_eco": "medio",
+      "filtros_activos": [],
+      "totales": {
+        "proteina": 200,
+        "carbohidratos": 280,
+        "grasas": 80,
+        "calorias": 2640
+      },
+      "comidas": [
+        {
+          "nombre": "Desayuno",
+          "macros_objetivo": {
+            "proteina": 40,
+            "carbos": 78,
+            "grasas": 14,
+            "kcal": 598
+          },
+          "macros_reales": {
+            "proteina": 58,
+            "carbos": 104,
+            "grasas": 26.4,
+            "kcal": 883
+          },
+          "alimentos": [
+            {
+              "nombre": "Pan integral",
+              "preparacion": "Normal",
+              "porcion_g": 142,
+              "categoria": "carbohidrato",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 17,
+                "carbohidratos": 54.4,
+                "grasas": 5.2,
+                "calorias": 327
+              },
+              "nota": "Base energética"
+            },
+            {
+              "nombre": "Pechuga de pollo",
+              "preparacion": "Apanada/frita",
+              "porcion_g": 190,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 39.9,
+                "carbohidratos": 26.6,
+                "grasas": 20.9,
+                "calorias": 467
+              },
+              "nota": "Proteína matutina"
+            },
+            {
+              "nombre": "Banano",
+              "preparacion": "Fresco",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.1,
+                "carbohidratos": 23,
+                "grasas": 0.3,
+                "calorias": 89
+              },
+              "nota": "Micronutrientes"
+            }
+          ]
+        },
+        {
+          "nombre": "Snack 1",
+          "macros_objetivo": {
+            "proteina": 50,
+            "carbos": 76,
+            "grasas": 24,
+            "kcal": 720
+          },
+          "macros_reales": {
+            "proteina": 46.6,
+            "carbos": 77.1,
+            "grasas": 34.7,
+            "kcal": 783
+          },
+          "alimentos": [
+            {
+              "nombre": "Maracuyá",
+              "preparacion": "Fresco",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 2.2,
+                "carbohidratos": 23,
+                "grasas": 0.7,
+                "calorias": 97
+              },
+              "nota": "Snack natural"
+            },
+            {
+              "nombre": "Plátano",
+              "preparacion": "Verde patacón",
+              "porcion_g": 120,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.8,
+                "carbohidratos": 45.6,
+                "grasas": 4.2,
+                "calorias": 217
+              },
+              "nota": "Energía snack"
+            },
+            {
+              "nombre": "Bagre",
+              "preparacion": "Frito",
+              "porcion_g": 213,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 42.6,
+                "carbohidratos": 8.5,
+                "grasas": 29.8,
+                "calorias": 469
+              },
+              "nota": "Proteína snack"
+            }
+          ]
+        },
+        {
+          "nombre": "Almuerzo",
+          "macros_objetivo": {
+            "proteina": 50,
+            "carbos": 76,
+            "grasas": 24,
+            "kcal": 720
+          },
+          "macros_reales": {
+            "proteina": 60.4,
+            "carbos": 94.60000000000001,
+            "grasas": 27.9,
+            "kcal": 859
+          },
+          "alimentos": [
+            {
+              "nombre": "Hígado de res",
+              "preparacion": "A la plancha",
+              "porcion_g": 185,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 50,
+                "carbohidratos": 7.4,
+                "grasas": 9.3,
+                "calorias": 324
+              },
+              "nota": "Proteína principal"
+            },
+            {
+              "nombre": "Papa",
+              "preparacion": "Puré",
+              "porcion_g": 400,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 8,
+                "carbohidratos": 72,
+                "grasas": 8,
+                "calorias": 380
+              },
+              "nota": "Energía"
+            },
+            {
+              "nombre": "Zanahoria",
+              "preparacion": "Cocida",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.8,
+                "carbohidratos": 8,
+                "grasas": 0.2,
+                "calorias": 35
+              },
+              "nota": "Micronutrientes y fibra"
+            },
+            {
+              "nombre": "Aguacate",
+              "preparacion": "Guacamole",
+              "porcion_g": 80,
+              "categoria": "grasa",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 1.6,
+                "carbohidratos": 7.2,
+                "grasas": 10.4,
+                "calorias": 120
+              },
+              "nota": "Grasas saludables"
+            }
+          ]
+        },
+        {
+          "nombre": "Cena",
+          "macros_objetivo": {
+            "proteina": 60,
+            "carbos": 50,
+            "grasas": 18,
+            "kcal": 602
+          },
+          "macros_reales": {
+            "proteina": 76,
+            "carbos": 41.699999999999996,
+            "grasas": 29.200000000000003,
+            "kcal": 724
+          },
+          "alimentos": [
+            {
+              "nombre": "Sardina",
+              "preparacion": "Enlatada en agua",
+              "porcion_g": 250,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 60,
+                "carbohidratos": 0,
+                "grasas": 10,
+                "calorias": 338
+              },
+              "nota": "Alta proteína nocturna"
+            },
+            {
+              "nombre": "Pasta",
+              "preparacion": "Cocida bien",
+              "porcion_g": 100,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 5.5,
+                "carbohidratos": 32,
+                "grasas": 0.9,
+                "calorias": 158
+              },
+              "nota": "Carbs moderados"
+            },
+            {
+              "nombre": "Lechuga",
+              "preparacion": "Cruda",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 1.4,
+                "carbohidratos": 2.9,
+                "grasas": 0.2,
+                "calorias": 15
+              },
+              "nota": "Fibra y vitaminas"
+            },
+            {
+              "nombre": "Maní",
+              "preparacion": "Mantequilla de maní",
+              "porcion_g": 34,
+              "categoria": "grasa",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 9.1,
+                "carbohidratos": 6.8,
+                "grasas": 18.1,
+                "calorias": 213
+              },
+              "nota": "Grasa nocturna"
+            }
+          ]
+        }
+      ]
+    },
+    "plan_fecha": "2026-05-21T02:33:14.982Z"
   }
 }

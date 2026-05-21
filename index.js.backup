@@ -1,7 +1,7 @@
 const multer = require('multer');
 const storage = multer.diskStorage({
   destination:(req,file,cb)=>cb(null,'./public/'),
-  filename:(req,file,cb)=>cb(null,'logo_trainer.png')
+  filename:(req,file,cb)=>cb(null,'icon.png')
 });
 const upload = multer({storage,limits:{fileSize:5*1024*1024}});
 const storageFoto = multer.diskStorage({
@@ -121,39 +121,16 @@ cron.schedule('* * * * *', async () => {
       const [hh,mm] = usuario.hora_envio.split(':').map(Number);
       const limiteMin = hh*60+mm;
       const ahoraMin = ahora.getHours()*60+ahora.getMinutes();
-      if (ahoraMin !== limiteMin) continue;
+      if (ahoraMin < limiteMin || ahoraMin > limiteMin+5) continue;
       const rutinaUsuario = rutinas[usuario.id];
       if (!rutinaUsuario || !rutinaUsuario[diaActual]) continue;
-      if (!rutinaUsuario || !rutinaUsuario[diaActual]) continue;
-              if (logs[hoy][usuario.id]) continue;
-              const d = rutinaUsuario[diaActual];
-              let lineas = [];
-              if (d.recordatorio) { lineas.push(d.recordatorio); lineas.push(''); }
-              const ejs = d.ejercicios && d.ejercicios.filter(e=>e.nombre).length > 0 ? d.ejercicios : null;
-              if (ejs) {
-                ejs.forEach(e => {
-                  if (e.nombre) {
-                    lineas.push('*' + e.nombre + '*');
-                    lineas.push('Series: ' + (e.series||'-') + ' | Reps: ' + (e.reps||'-') + ' | RIR: ' + (e.rir||'-'));
-                    if (e.desc) lineas.push('Descanso: ' + e.desc);
-                    if (e.var) lineas.push('Variacion: ' + e.var);
-                    lineas.push('');
-                  }
-                });
-              }
-              if (d.rutina) lineas.push(d.rutina);
-              if (Array.isArray(d.cardio) && d.cardio.length > 0) {
-                lineas.push('--- CARDIO ---');
-                d.cardio.forEach(cx => {
-                  if (cx.ejercicio) lineas.push(cx.ejercicio);
-                  if (cx.tiempo) lineas.push('Tiempo: ' + cx.tiempo + ' min');
-                });
-              }
-              const mensaje = lineas.join('\n');
-              if (!mensaje.trim()) continue;
-              const resultado = await enviarMensaje(usuario.telefono, mensaje);
-              logs[hoy][usuario.id] = resultado ? 'enviado' : 'error';
-              guardarJSON('logs.json', logs);
+      const recordatorio = rutinaUsuario[diaActual].recordatorio || '';
+      const rutinaDia = rutinaUsuario[diaActual].rutina || '';
+      const mensaje = recordatorio + (rutinaDia ? '\n\n' + rutinaDia : '');
+      if (!mensaje.trim()) continue;
+      if (logs[hoy][usuario.id]) continue;
+      const resultado = await enviarMensaje(usuario.telefono, mensaje);
+      logs[hoy][usuario.id] = resultado ? 'enviado' : 'error';
     }
 
     // Recordatorio de pago
@@ -162,7 +139,7 @@ cron.schedule('* * * * *', async () => {
       const [hh,mm] = usuario.hora_envio.split(':').map(Number);
       const limiteMin = hh*60+mm;
       const ahoraMin = ahora.getHours()*60+ahora.getMinutes();
-      if (ahoraMin !== limiteMin) continue;
+      if (ahoraMin < limiteMin || ahoraMin > limiteMin+5) continue;
       const manana = new Date(ahora);
       manana.setDate(manana.getDate() + 1);
       const diaman = manana.getDate();
@@ -256,9 +233,9 @@ app.delete('/api/hiit/:id', (req, res) => {
 app.post('/api/config/logo', upload.single('logo'), (req, res) => {
   if(!req.file) return res.status(400).json({error:'No file'});
   const cfg = cargarJSON('config.json');
-  cfg.logo_entrenador = '/logo_trainer.png';
+  cfg.logo_entrenador = '/icon.png';
   guardarJSON('config.json', cfg);
-  res.json({ok:true, path:'/logo_trainer.png'});
+  res.json({ok:true, path:'/icon.png'});
 });
 
 // ADMINISTRATIVO

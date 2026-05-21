@@ -47,7 +47,18 @@
       "moneda": "COP",
       "msg_recordatorio": "",
       "msg_prellenado": true,
-      "pagos": []
+      "pagos": [
+        {
+          "monto": 150000,
+          "metodo": "transferencia",
+          "moneda": "COP",
+          "novedad": "",
+          "descuento_tipo": "",
+          "descuento_valor": 0,
+          "descuento_motivo": "",
+          "fecha": "2026-05-21"
+        }
+      ]
     },
     "1778377049231": {
       "precio": 85000,
@@ -71,11 +82,14 @@
       "pagos": []
     },
     "1778687454932": {
-      "precio": 250000,
+      "precio": 200000,
       "moneda": "COP",
       "msg_recordatorio": "",
       "msg_prellenado": true,
-      "pagos": []
+      "pagos": [],
+      "descuento_tipo": "pct",
+      "descuento_valor": 0,
+      "descuento_motivo": ""
     },
     "1778216541791": {
       "precio": 0,
