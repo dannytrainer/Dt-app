@@ -628,3 +628,33 @@ app.post('/api/foto-comparativa/:id/:tipo', uploadFotoComp.single('foto'), (req,
     res.json({ok:true, path:`data/fotos/${id}/${tipo}/foto.${req.file.originalname.split('.').pop()}`});
   } catch(e) { res.status(500).json({ok:false,error:e.message}); }
 });
+
+// Vinculación cliente
+app.post('/api/vincular', (req, res) => {
+  const { id, codigo } = req.body;
+  const cfg = cargarJSON('config.json');
+  if (codigo !== cfg.codigo_vinculacion) return res.json({ ok: false, error: 'Código incorrecto' });
+  const usuarios = cargarJSON('usuarios.json');
+  const u = usuarios.find(u => u.id === id);
+  if (!u) return res.json({ ok: false, error: 'Usuario no encontrado' });
+  u.vinculado = true;
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+
+app.get('/api/codigo-entrenador', (req, res) => {
+  const cfg = cargarJSON('config.json');
+  res.json({ codigo: cfg.codigo_vinculacion });
+});
+
+// Habilitar dia en app para cliente
+app.post('/api/habilitar-dia/:id', (req, res) => {
+  const { dia } = req.body;
+  const usuarios = cargarJSON('usuarios.json');
+  const u = usuarios.find(u => u.id === req.params.id);
+  if (!u) return res.json({ ok: false });
+  if (!u.dias_habilitados) u.dias_habilitados = [];
+  if (!u.dias_habilitados.includes(dia)) u.dias_habilitados.push(dia);
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});

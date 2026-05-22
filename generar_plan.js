@@ -83,12 +83,12 @@ function generarPlanAlimentario(idCliente, dataDir) {
   // Porcentajes por tipo de comida
   const pctPorComida = {
     'Desayuno':    { prot: 0.20, carbs: 0.25, grasa: 0.20 },
-    'Almuerzo':    { prot: 0.30, carbs: 0.30, grasa: 0.25 },
+    'Almuerzo':    { prot: 0.32, carbs: 0.35, grasa: 0.28 },
     'Cena':        { prot: 0.30, carbs: 0.18, grasa: 0.25 },
-    'Snack 1':     { prot: 0.08, carbs: 0.12, grasa: 0.10 },
-    'Snack 2':     { prot: 0.08, carbs: 0.10, grasa: 0.10 },
-    'Snack 3':     { prot: 0.07, carbs: 0.08, grasa: 0.08 },
-    'Pre entreno': { prot: 0.10, carbs: 0.20, grasa: 0.05 }
+    'Snack 1':     { prot: 0.07, carbs: 0.10, grasa: 0.08 },
+    'Snack 2':     { prot: 0.07, carbs: 0.08, grasa: 0.08 },
+    'Snack 3':     { prot: 0.06, carbs: 0.07, grasa: 0.06 },
+    'Pre entreno': { prot: 0.08, carbs: 0.12, grasa: 0.03 }
   };
   // Normalizar porcentajes segun comidas activas
   const sumProt  = comidasDia.reduce((s,c) => s + (pctPorComida[c]?.prot  || 0.10), 0);
@@ -204,8 +204,8 @@ function generarPlanAlimentario(idCliente, dataDir) {
     if (pool.length === 0) pool = porCat[categoria] || [];
     if (pool.length === 0) return null;
     if (comida) {
-      const filtrado = pool.filter(a => !a.comidas_permitidas || a.comidas_permitidas.includes(comida));
-      if (filtrado.length > 0) pool = filtrado;
+      const filtrado = pool.filter(a => !a.comidas_permitidas || a.comidas_permitidas.includes(comida.toLowerCase().replace(/ /g,"_")));
+      pool = filtrado;
     }
     const usarPrioridad = (categoria === 'proteina' && (comida === 'almuerzo' || comida === 'cena')) || (categoria === 'carbohidrato');
     const elegido = usarPrioridad ? elegirConPrioridad(pool, offset) : seededRand(pool, offset);
@@ -259,7 +259,7 @@ function generarPlanAlimentario(idCliente, dataDir) {
       if (prot)  items.push({ ...prot,  porcion_g: calcularPorcion(prot, protComida, 'proteina'), nota: 'Proteína matutina' });
       if (fruta) items.push({ ...fruta, porcion_g: fruta.variante.porcion_g, nota: 'Micronutrientes' });
     }
-    else if (nombreComida === 'Almuerzo') {
+    else if (nombreComida === 'Almuerzo') { pool = pool; // almuerzo solo usa carbs de almuerzo
       const EXCLUIR_ALMUERZO = ['avena','cereal','granola','milo'];
       let poolCarbAlmuerzo = (porCat['carbohidrato'] || []).filter(a =>
         !usados.has(a.varId) &&
@@ -311,11 +311,11 @@ function generarPlanAlimentario(idCliente, dataDir) {
         if (protSnack) items.push({ ...protSnack, porcion_g: calcularPorcion(protSnack, protComida * 0.8, 'proteina'), nota: 'Complemento proteína' });
       }
     }
-    else if (nombreComida === 'Pre entreno') {
+    else if (nombreComida === 'Pre entreno') { const carbsPreEntreno = Math.min(carbsComida, 40); const protPreEntreno = Math.min(protComida, 20);
       const carb = elegirAlimento('carbohidrato', offset, true, 'pre_entreno');
       const prot = elegirAlimento('proteina', offset+1, true, 'pre_entreno');
-      if (carb) items.push({ ...carb, porcion_g: calcularPorcion(carb, carbsComida, 'carbohidratos'), nota: 'Energía pre entreno' });
-      if (prot) items.push({ ...prot, porcion_g: calcularPorcion(prot, protComida * 0.5, 'proteina'), nota: 'Proteína pre entreno' });
+      if (carb) items.push({ ...carb, porcion_g: calcularPorcion(carb, carbsPreEntreno, 'carbohidratos'), nota: 'Energía pre entreno' });
+      if (prot) items.push({ ...prot, porcion_g: calcularPorcion(prot, protPreEntreno, 'proteina'), nota: 'Proteína pre entreno' });
     }
 
     // Calcular macros reales de los items seleccionados

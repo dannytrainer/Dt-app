@@ -2844,10 +2844,10 @@ function renderJuegos(c) {
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Snake</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Próximamente</div>
         </div>
-        <div class="card" style="cursor:pointer;text-align:center;padding:16px 10px;opacity:0.4">
+        <div class="card" onclick="renderMemoria(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
           <div style="font-size:28px;margin-bottom:6px">🧠</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Memoria</div>
-          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Próximamente</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Encuentra los pares</div>
         </div>
         <div class="card" style="cursor:pointer;text-align:center;padding:16px 10px;opacity:0.4">
           <div style="font-size:28px;margin-bottom:6px">⚽</div>
@@ -2858,6 +2858,11 @@ function renderJuegos(c) {
           <div style="font-size:28px;margin-bottom:6px">🎯</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Reflejos</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Toca antes de que desaparezca</div>
+        </div>
+        <div class="card" onclick="renderHockey(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
+          <div style="font-size:28px;margin-bottom:6px">🏒</div>
+          <div style="font-size:13px;font-weight:700;color:var(--texto)">DT Hockey</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">2 jugadores</div>
         </div>
         <div class="card" style="cursor:pointer;text-align:center;padding:16px 10px;opacity:0.4;grid-column:1/-1">
           <div style="font-size:28px;margin-bottom:6px">👾</div>
@@ -3043,6 +3048,144 @@ function hkDraw() {
     ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(pl.x, pl.y, pl.r, 0, Math.PI*2); ctx.stroke();
   });
+}
+
+function renderMemoria(c) {
+  c.innerHTML = `
+    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:700;color:var(--texto)">Memoria DT</div>
+      <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Encuentra todos los pares</div>
+    </div>
+    <div id="mem-niveles" style="display:flex;gap:8px;margin-bottom:14px">
+      <button onclick="memStart(8)" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">
+        😊 Fácil<div style="font-size:10px;font-weight:400;color:var(--texto-secundario)">16 cartas</div>
+        <div style="font-size:10px;color:#f59e0b" id="mem-mejor-8">⏱ --</div>
+      </button>
+      <button onclick="memStart(10)" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">
+        💪 Medio<div style="font-size:10px;font-weight:400;color:var(--texto-secundario)">20 cartas</div>
+        <div style="font-size:10px;color:#f59e0b" id="mem-mejor-10">⏱ --</div>
+      </button>
+      <button onclick="memStart(12)" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">
+        🔥 Difícil<div style="font-size:10px;font-weight:400;color:var(--texto-secundario)">24 cartas</div>
+        <div style="font-size:10px;color:#f59e0b" id="mem-mejor-12">⏱ --</div>
+      </button>
+    </div>
+    <div id="mem-hud" style="display:none;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:13px;color:var(--texto-secundario)">Pares: <span id="mem-pares" style="color:var(--texto);font-weight:700">0</span></div>
+      <div style="font-size:16px;font-weight:700;color:#e31e24" id="mem-timer">00:00</div>
+      <div style="font-size:13px;color:var(--texto-secundario)">Intentos: <span id="mem-intentos" style="color:var(--texto);font-weight:700">0</span></div>
+    </div>
+    <div id="mem-board" style="display:grid;gap:8px"></div>`;
+  memCargarMejores();
+}
+
+var _mem = { pares:0, total:0, intentos:0, timer:null, seg:0, volteadas:[], bloqueado:false, nivel:8 };
+
+var _memIconos = [
+  '<svg viewBox="0 0 40 40" fill="none"><rect x="4" y="17" width="8" height="6" rx="2" fill="#e31e24"/><rect x="28" y="17" width="8" height="6" rx="2" fill="#e31e24"/><rect x="12" y="18" width="16" height="4" rx="1" fill="#aaa"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="12" fill="#555"/><circle cx="20" cy="20" r="7" fill="#333"/><circle cx="20" cy="20" r="3" fill="#222"/><rect x="18" y="6" width="4" height="28" rx="1" fill="#777"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><path d="M10 30 Q15 10 20 15 Q25 20 30 10" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="10" cy="30" r="3" fill="#3b82f6"/><circle cx="30" cy="10" r="3" fill="#3b82f6"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><ellipse cx="14" cy="22" rx="8" ry="10" fill="#e31e24"/><ellipse cx="26" cy="22" rx="8" ry="10" fill="#e31e24"/><rect x="12" y="12" width="16" height="6" rx="3" fill="#c01010"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><path d="M20 8 L28 28 Q20 34 12 28 Z" fill="#555"/><circle cx="20" cy="28" r="5" fill="#333"/><circle cx="20" cy="10" r="3" fill="#777"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><rect x="4" y="19" width="32" height="4" rx="1" fill="#aaa"/><rect x="3" y="14" width="6" height="14" rx="2" fill="#777"/><rect x="31" y="14" width="6" height="14" rx="2" fill="#777"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><path d="M8 20 Q14 12 20 20 Q26 28 32 20" stroke="#22c55e" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="8" cy="20" r="3" fill="#22c55e"/><circle cx="32" cy="20" r="3" fill="#22c55e"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><rect x="8" y="14" width="24" height="16" rx="3" fill="#555"/><ellipse cx="20" cy="30" rx="8" ry="3" fill="#333"/><rect x="14" y="10" width="12" height="6" rx="2" fill="#444"/><line x1="12" y1="22" x2="28" y2="22" stroke="#777" stroke-width="1"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><rect x="10" y="26" width="20" height="8" rx="2" fill="#555"/><ellipse cx="14" cy="26" rx="4" ry="4" fill="#444"/><ellipse cx="26" cy="26" rx="4" ry="4" fill="#444"/><rect x="12" y="18" width="16" height="10" rx="2" fill="#666"/><circle cx="20" cy="14" r="5" fill="#555"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" fill="none" stroke="#f59e0b" stroke-width="2"/><line x1="20" y1="8" x2="20" y2="20" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="20" x2="28" y2="24" stroke="#e31e24" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="20" r="2" fill="#f59e0b"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><path d="M10 32 L14 20 L20 24 L26 20 L30 32 Z" fill="#3b82f6"/><ellipse cx="20" cy="16" rx="6" ry="7" fill="#5b9cf6"/><path d="M14 32 L20 28 L26 32" fill="#2563eb"/></svg>',
+  '<svg viewBox="0 0 40 40" fill="none"><rect x="12" y="22" width="16" height="10" rx="3" fill="#e31e24"/><rect x="15" y="18" width="10" height="6" rx="2" fill="#c01010"/><circle cx="17" cy="18" r="2" fill="#aaa"/><circle cx="23" cy="18" r="2" fill="#aaa"/><rect x="10" y="28" width="4" height="6" rx="1" fill="#aaa"/><rect x="26" y="28" width="4" height="6" rx="1" fill="#aaa"/></svg>'
+];
+
+function memCargarMejores() {
+  [8,10,12].forEach(function(n) {
+    var mejor = localStorage.getItem('mem_mejor_'+n);
+    var el = document.getElementById('mem-mejor-'+n);
+    if(el && mejor) el.textContent = '⏱ ' + mejor;
+  });
+}
+
+function memStart(pares) {
+  _mem = { pares:0, total:pares, intentos:0, seg:0, volteadas:[], bloqueado:false, nivel:pares };
+  clearInterval(_mem.timer);
+  var hud = document.getElementById('mem-hud');
+  var niveles = document.getElementById('mem-niveles');
+  if(hud) hud.style.display='flex';
+  if(niveles) niveles.style.display='none';
+  document.getElementById('mem-pares').textContent = '0';
+  document.getElementById('mem-intentos').textContent = '0';
+  document.getElementById('mem-timer').textContent = '00:00';
+  var iconos = _memIconos.slice(0, pares);
+  var cartas = [...iconos, ...iconos].sort(function(){ return Math.random()-0.5; });
+  var cols = pares === 8 ? 4 : pares === 10 ? 4 : 4;
+  var board = document.getElementById('mem-board');
+  board.style.gridTemplateColumns = 'repeat('+cols+',1fr)';
+  board.innerHTML = cartas.map(function(svg, i) {
+    return '<div id="mc'+i+'" onclick="memVoltear('+i+')" data-idx="'+i+'" data-svg="'+encodeURIComponent(svg)+'" style="background:var(--gris);border:1px solid #333;border-radius:10px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;transition:background .2s">🏋️</div>';
+  }).join('');
+  cartas.forEach(function(svg, i) {
+    document.getElementById('mc'+i).dataset.svg = encodeURIComponent(svg);
+  });
+  board.innerHTML = cartas.map(function(svg, i) {
+    return '<div id="mc'+i+'" onclick="memVoltear('+i+')" style="background:#1a1a1a;border:2px solid #333;border-radius:10px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden" data-svg="'+encodeURIComponent(svg)+'" data-volteada="0" data-encontrada="0"><span style="font-size:20px">💪</span></div>';
+  }).join('');
+  _mem.timer = setInterval(function(){
+    _mem.seg++;
+    var m = Math.floor(_mem.seg/60).toString().padStart(2,'0');
+    var s = (_mem.seg%60).toString().padStart(2,'0');
+    var t = document.getElementById('mem-timer');
+    if(t) t.textContent = m+':'+s;
+  }, 1000);
+}
+
+function memVoltear(i) {
+  if(_mem.bloqueado) return;
+  var el = document.getElementById('mc'+i);
+  if(!el || el.dataset.encontrada==='1' || el.dataset.volteada==='1') return;
+  el.dataset.volteada = '1';
+  el.style.background = '#2a2a2a';
+  el.style.borderColor = '#e31e24';
+  el.innerHTML = decodeURIComponent(el.dataset.svg);
+  _mem.volteadas.push(i);
+  if(_mem.volteadas.length === 2) {
+    _mem.bloqueado = true;
+    _mem.intentos++;
+    document.getElementById('mem-intentos').textContent = _mem.intentos;
+    var a = document.getElementById('mc'+_mem.volteadas[0]);
+    var b = document.getElementById('mc'+_mem.volteadas[1]);
+    if(a.dataset.svg === b.dataset.svg) {
+      a.dataset.encontrada = '1'; b.dataset.encontrada = '1';
+      a.style.borderColor = '#22c55e'; b.style.borderColor = '#22c55e';
+      a.style.background = '#052e16'; b.style.background = '#052e16';
+      _mem.pares++;
+      document.getElementById('mem-pares').textContent = _mem.pares;
+      _mem.volteadas = [];
+      _mem.bloqueado = false;
+      if(_mem.pares === _mem.total) memGanar();
+    } else {
+      setTimeout(function(){
+        a.dataset.volteada='0'; b.dataset.volteada='0';
+        a.style.background='#1a1a1a'; b.style.background='#1a1a1a';
+        a.style.borderColor='#333'; b.style.borderColor='#333';
+        a.innerHTML='<span style="font-size:20px">💪</span>';
+        b.innerHTML='<span style="font-size:20px">💪</span>';
+        _mem.volteadas=[];
+        _mem.bloqueado=false;
+      }, 900);
+    }
+  }
+}
+
+function memGanar() {
+  clearInterval(_mem.timer);
+  var m = Math.floor(_mem.seg/60).toString().padStart(2,'0');
+  var s = (_mem.seg%60).toString().padStart(2,'0');
+  var tiempo = m+':'+s;
+  var mejor = localStorage.getItem('mem_mejor_'+_mem.nivel);
+  var esMejor = !mejor || _mem.seg < parseInt(mejor.replace(':',''));
+  if(esMejor) localStorage.setItem('mem_mejor_'+_mem.nivel, tiempo);
+  var board = document.getElementById('mem-board');
+  if(board) board.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px 0"><div style="font-size:40px">🏆</div><div style="font-size:16px;font-weight:700;color:#22c55e;margin-top:8px">¡Completado!</div><div style="font-size:13px;color:var(--texto-secundario);margin-top:6px">Tiempo: '+tiempo+'</div><div style="font-size:12px;color:#f59e0b;margin-top:4px">'+(esMejor?'🌟 Nuevo récord!':'Mejor: '+mejor)+'</div><button onclick="renderMemoria(document.getElementById(\'herramienta-contenido\'))" style="margin-top:16px;background:#e31e24;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer">Jugar de nuevo</button></div>';
 }
 
 function renderReflejos(c) {

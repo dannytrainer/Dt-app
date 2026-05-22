@@ -27,7 +27,8 @@
     "msg_pago": "Pague m",
     "msg_q1": "",
     "msg_q2": "",
-    "foto": "data/fotos/1778216541791/perfil.jpg"
+    "foto": "data/fotos/1778216541791/perfil.jpg",
+    "vinculado": true
   },
   {
     "id": "1778354312296",
@@ -172,7 +173,8 @@
       "notas": ""
     },
     "msg_pago": "Prueba de cobro automático",
-    "foto": "data/fotos/1778377616786/perfil.jpg"
+    "foto": "data/fotos/1778377616786/perfil.jpg",
+    "vinculado": true
   },
   {
     "id": "1778378152347",
