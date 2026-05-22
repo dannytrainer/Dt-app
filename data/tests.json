@@ -692,6 +692,66 @@
           "score": 80
         },
         "scoreTotal": 50
+      },
+      {
+        "fecha": "2026-05-21",
+        "tipo": "resist",
+        "peso": 56,
+        "pushups": {
+          "valor": 1,
+          "score": 20
+        },
+        "sentadilla": {
+          "valor": 35,
+          "score": 60
+        },
+        "plancha": {
+          "valor": 90,
+          "score": 80
+        },
+        "scoreTotal": 53
+      },
+      {
+        "fecha": "2026-05-21",
+        "tipo": "fuerza",
+        "peso": 56,
+        "pecho": {
+          "kg": 20,
+          "reps": 11,
+          "rm": 27,
+          "score": 40
+        },
+        "espalda": {
+          "kg": 30,
+          "reps": 5,
+          "rm": 35,
+          "score": 40
+        },
+        "biceps": {
+          "kg": 12,
+          "reps": 9,
+          "rm": 16,
+          "score": 40
+        },
+        "femoral": {
+          "kg": 50,
+          "reps": 6,
+          "rm": 60,
+          "score": 40
+        },
+        "cuad": {
+          "kg": 40,
+          "reps": 6,
+          "rm": 48,
+          "score": 40
+        },
+        "gluteo": {
+          "kg": 70,
+          "reps": 7,
+          "rm": 86,
+          "score": 40
+        },
+        "scoreTotal": 40
       }
     ]
   },
@@ -1095,6 +1155,42 @@
           "score": 80
         },
         "scoreTotal": 60
+      },
+      {
+        "fecha": "2026-05-22",
+        "tipo": "fuerza",
+        "peso": 72,
+        "espalda": {
+          "kg": 22.5,
+          "reps": 8,
+          "rm": 29,
+          "score": 20
+        },
+        "biceps": {
+          "kg": 12,
+          "reps": 10,
+          "rm": 16,
+          "score": 40
+        },
+        "scoreTotal": 30
+      },
+      {
+        "fecha": "2026-05-22",
+        "tipo": "resist",
+        "peso": 72,
+        "pushups": {
+          "valor": 6,
+          "score": 40
+        },
+        "sentadilla": {
+          "valor": 37,
+          "score": 60
+        },
+        "plancha": {
+          "valor": 72,
+          "score": 60
+        },
+        "scoreTotal": 53
       }
     ]
   },

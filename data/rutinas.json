@@ -1184,5 +1184,42 @@
       "presencial": true,
       "cardio": []
     }
+  },
+  "1779311725122": {
+    "lunes": {
+      "recordatorio": "\nPierna ",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    },
+    "miercoles": {
+      "recordatorio": "Superior ",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [],
+      "presencial": true
+    },
+    "martes": {
+      "recordatorio": "Voleibol ",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    },
+    "jueves": {
+      "recordatorio": "Voleibol ",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    },
+    "viernes": {
+      "recordatorio": "Pierna",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    }
   }
 }

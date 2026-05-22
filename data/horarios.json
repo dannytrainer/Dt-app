@@ -48,6 +48,16 @@
       "fin": "06:30",
       "color": "#e31e24",
       "fecha": "2026-05-16"
+    },
+    {
+      "id": "1779423943995",
+      "clienteId": "",
+      "nombreCliente": "🟢 Clase libre",
+      "desc": "Clase libre",
+      "inicio": "14:00",
+      "fin": "15:00",
+      "color": "#4caf50",
+      "fecha": "2026-05-20"
     }
   ]
 }

@@ -70,6 +70,31 @@ async function enviarMensaje(telefono, mensaje) {
 
 const DIAS = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
 
+// Backup automático cada noche a las 2am
+cron.schedule('0 2 * * *', () => {
+  try {
+    const fecha = new Date().toISOString().split('T')[0];
+    const origen = path.join(__dirname, 'data');
+    const destino = path.join(__dirname, 'backups', fecha);
+    fs.mkdirSync(destino, { recursive: true });
+    const archivos = fs.readdirSync(origen).filter(f => f.endsWith('.json'));
+    archivos.forEach(archivo => {
+      fs.copyFileSync(path.join(origen, archivo), path.join(destino, archivo));
+    });
+    // Eliminar backups de más de 7 días
+    const backupsDir = path.join(__dirname, 'backups');
+    const carpetas = fs.readdirSync(backupsDir);
+    carpetas.forEach(carpeta => {
+      const fechaCarpeta = new Date(carpeta);
+      const dias = (new Date() - fechaCarpeta) / (1000 * 60 * 60 * 24);
+      if (dias > 7) fs.rmSync(path.join(backupsDir, carpeta), { recursive: true });
+    });
+    console.log('✅ Backup completado:', fecha);
+  } catch(e) {
+    console.error('❌ Error en backup:', e.message);
+  }
+});
+
 cron.schedule('* * * * *', async () => {
   // Auto actualizar estado de pago
   try {
@@ -128,26 +153,36 @@ cron.schedule('* * * * *', async () => {
               if (logs[hoy][usuario.id]) continue;
               const d = rutinaUsuario[diaActual];
               let lineas = [];
-              if (d.recordatorio) { lineas.push(d.recordatorio); lineas.push(''); }
+              lineas.push('*Rutina de ' + usuario.nombre + '*');
+              lineas.push('');
+              lineas.push('🔥 ' + diaActual.toUpperCase());
+              lineas.push('');
+              if (d.recordatorio) { lineas.push('📝 ' + d.recordatorio); lineas.push(''); }
               const ejs = d.ejercicios && d.ejercicios.filter(e=>e.nombre).length > 0 ? d.ejercicios : null;
               if (ejs) {
                 ejs.forEach(e => {
                   if (e.nombre) {
-                    lineas.push('*' + e.nombre + '*');
-                    lineas.push('Series: ' + (e.series||'-') + ' | Reps: ' + (e.reps||'-') + ' | RIR: ' + (e.rir||'-'));
-                    if (e.desc) lineas.push('Descanso: ' + e.desc);
-                    if (e.var) lineas.push('Variacion: ' + e.var);
+                    lineas.push('┌───────────────────┐');
+                    lineas.push('│ ' + e.nombre.substring(0,17).padEnd(17) + '│');
+                    lineas.push('├───────────────────┤');
+                    lineas.push('│ Series: ' + (e.series||'-').toString().padEnd(11) + '│');
+                    lineas.push('│ Reps:   ' + (e.reps||'-').toString().padEnd(11) + '│');
+                    lineas.push('│ RIR:    ' + (e.rir||'-').toString().padEnd(11) + '│');
+                    lineas.push('│ DESC:   ' + (e.desc||'-').toString().padEnd(11) + '│');
+                    lineas.push('│ VAR:    ' + (e.var||'').toString().padEnd(11) + '│');
+                    lineas.push('└───────────────────┘');
                     lineas.push('');
                   }
                 });
               }
-              if (d.rutina) lineas.push(d.rutina);
+              if (d.rutina) { lineas.push('📌 ' + d.rutina); lineas.push(''); }
               if (Array.isArray(d.cardio) && d.cardio.length > 0) {
-                lineas.push('--- CARDIO ---');
+                lineas.push('🏃 CARDIO');
                 d.cardio.forEach(cx => {
-                  if (cx.ejercicio) lineas.push(cx.ejercicio);
-                  if (cx.tiempo) lineas.push('Tiempo: ' + cx.tiempo + ' min');
+                  if (cx.ejercicio) lineas.push('• ' + cx.ejercicio);
+                  if (cx.tiempo) lineas.push('  Tiempo: ' + cx.tiempo + ' min');
                 });
+                lineas.push('');
               }
               const mensaje = lineas.join('\n');
               if (!mensaje.trim()) continue;
@@ -176,7 +211,14 @@ cron.schedule('* * * * *', async () => {
     }
 
     guardarJSON('logs.json', logs);
-  } catch(e) { console.error('Cron envios:', e); }
+  } catch(e) {
+    console.error('Cron envios:', e);
+    try {
+      const logErr = path.join(__dirname, 'data', 'errores.log');
+      const linea = new Date().toISOString() + ' | CRON ERROR: ' + e.message + '\n';
+      fs.appendFileSync(logErr, linea);
+    } catch(e2) {}
+  }
 });
 
 app.get('/api/usuarios', (req, res) => res.json(cargarJSON('usuarios.json')));
@@ -196,6 +238,20 @@ app.post('/api/usuarios', (req, res) => {
   guardarJSON('usuarios.json', usuarios);
   res.json(nuevo);
 });
+app.post('/api/usuarios/:id/perfil-cliente', (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  const { nombre, fecha_nacimiento, altura, etiqueta } = req.body;
+  if (nombre) usuarios[idx].nombre = nombre;
+  if (!usuarios[idx].perfil) usuarios[idx].perfil = {};
+  if (fecha_nacimiento) usuarios[idx].perfil.fecha_nacimiento = fecha_nacimiento;
+  if (altura) usuarios[idx].perfil.altura = altura;
+  if (etiqueta) usuarios[idx].perfil.etiqueta = etiqueta;
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+
 app.put('/api/usuarios/:id', (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
   const idx = usuarios.findIndex(u => u.id === req.params.id);

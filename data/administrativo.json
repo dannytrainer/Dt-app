@@ -5,7 +5,18 @@
       "moneda": "COP",
       "msg_recordatorio": "",
       "msg_prellenado": true,
-      "pagos": [],
+      "pagos": [
+        {
+          "monto": 200000,
+          "metodo": "transferencia",
+          "moneda": "COP",
+          "novedad": "",
+          "descuento_tipo": "",
+          "descuento_valor": 0,
+          "descuento_motivo": "",
+          "fecha": "2026-05-22"
+        }
+      ],
       "msg_pago": "Prueba de cobro auto"
     },
     "1778377380425": {
@@ -86,7 +97,18 @@
       "moneda": "COP",
       "msg_recordatorio": "",
       "msg_prellenado": true,
-      "pagos": [],
+      "pagos": [
+        {
+          "monto": 250000,
+          "metodo": "transferencia",
+          "moneda": "COP",
+          "novedad": "",
+          "descuento_tipo": "",
+          "descuento_valor": 0,
+          "descuento_motivo": "",
+          "fecha": "2026-05-21"
+        }
+      ],
       "descuento_tipo": "pct",
       "descuento_valor": 0,
       "descuento_motivo": ""

@@ -280,7 +280,7 @@ module.exports = function(app, fs) {
           for (const a of comida.alimentos) {
             h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--gris-borde)">';
             h += '<div style="font-size:10px;color:var(--blanco-suave)">' + a.nombre + ' <span style="color:var(--texto-secundario)">(' + a.preparacion + ')</span></div>';
-            h += '<div style="font-size:10px;font-weight:700;color:var(--blanco)">' + a.porcion_g + 'g</div></div>';
+            h += '<div style="font-size:10px;font-weight:700;color:var(--blanco)">' + (a.unidad ? a.unidad.texto : a.porcion_g + 'g') + '</div></div>';
           }
           h += '</div>';
           h += '<div style="padding:6px 10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">';
@@ -413,7 +413,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
   body{font-family:'DM Sans',sans-serif;background:#1c1c1c;color:#fff;font-size:13px;}
   .pagina{width:900px;margin:0 auto;background:var(--negro);position:relative;overflow:visible;}
   .marca-agua{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden;}
-  .marca-agua-inner{position:absolute;top:-200px;left:-200px;width:200%;height:200%;transform:rotate(-30deg);display:flex;flex-direction:column;gap:60px;}
+  .marca-agua-inner{position:absolute;top:-100px;left:-100px;width:200%;height:200%;transform:rotate(-30deg);display:flex;flex-direction:column;gap:60px;}
   .header{background:var(--negro);border-bottom:3px solid var(--rojo);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
   .logo-cuadro{width:48px;height:48px;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;border-radius:4px;}
   .logo-texto h1{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;line-height:1;}
@@ -480,7 +480,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
 </style>
 </head>
 <body>
-<div class="marca-agua"><div class="marca-agua-inner">${Array(40).fill('<div style="white-space:nowrap;font-family:DM Sans,sans-serif;font-size:18px;font-weight:900;color:rgba(255,255,255,0.07);letter-spacing:3px;text-transform:uppercase;">' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · DT-APP @danny_trainer__    ' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · DT-APP @danny_trainer__    ' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · DT-APP @danny_trainer__</div>').join('')}</div></div>
+<div class="marca-agua"><div class="marca-agua-inner">${Array(40).fill('<div style="white-space:nowrap;font-family:DM Sans,sans-serif;font-size:18px;font-weight:900;color:rgba(255,255,255,0.07);letter-spacing:3px;text-transform:uppercase;">' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · ' + nombreEntrenador + ' · ' + (cfg.instagram_entrenador||'') + '    ' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · ' + nombreEntrenador + ' · ' + (cfg.instagram_entrenador||'') + '    ' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · ' + nombreEntrenador + ' · ' + (cfg.instagram_entrenador||'') + '</div>').join('')}</div></div>
 <div class="pagina">
 
   <!-- HEADER -->
@@ -777,7 +777,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1;">DT-APP</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">ASISTENTE PARA ENTRENADORES</div>
-          <div style="font-size:10px;color:var(--rojo);margin-top:2px;font-weight:600;">@danny_trainer__</div>
+          <a href="https://www.instagram.com/danny_trainer__" style="font-size:10px;color:var(--rojo);font-weight:600;text-decoration:none;margin-top:2px;display:inline-block;">@danny_trainer__</a>
         </div>
       </div>
       <div style="text-align:center;">
