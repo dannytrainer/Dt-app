@@ -117,7 +117,12 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
   <div style="font-size:24px;font-weight:900;color:#fff">👤 Cliente</div>
   <div style="font-size:13px;color:#555">Ingresa tu número de teléfono</div>
   <input id="input-tel-cliente" type="tel" placeholder="+57 300 000 0000" style="width:80%;max-width:320px;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:16px;outline:none;text-align:center"/>
+  <div id="vinc-code-box" style="display:none;width:80%;max-width:320px">
+    <div style="font-size:12px;color:#aaa;margin-bottom:8px;text-align:center">Número nuevo — ingresa el código de tu entrenador</div>
+    <input id="input-codigo-vinc" type="text" placeholder="DT-XXXXXX" style="width:100%;padding:14px;border-radius:12px;border:2px solid #e31e24;background:#111;color:#e31e24;font-size:16px;outline:none;text-align:center;letter-spacing:4px;text-transform:uppercase;box-sizing:border-box"/>
+  </div>
   <div id="error-tel" style="color:#e31e24;font-size:12px;display:none">Número no encontrado</div>
+  <div id="error-vinc" style="color:#e31e24;font-size:12px;display:none">Código inválido</div>
   <button onclick="loginCliente()" style="width:80%;max-width:320px;padding:14px;border-radius:12px;border:none;background:#e31e24;color:#fff;font-size:15px;font-weight:700;cursor:pointer">Entrar</button>
   <button onclick="volverRol()" style="background:transparent;border:none;color:#555;font-size:13px;cursor:pointer">← Volver</button>
 </div>
@@ -415,12 +420,8 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div style="font-size:13px;font-weight:700;color:var(--texto)">Competencias</div>
 <div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Rankings y comparativas</div>
 </div>
-<div class="card" onclick="showHerramienta('sonidos')" style="cursor:pointer;text-align:center;padding:20px 10px">
-<div style="font-size:32px;margin-bottom:8px">🔊</div>
-<div style="font-size:13px;font-weight:700;color:var(--texto)">Sonidos</div>
-<div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Configura alertas</div>
-</div>
-<div class="card" onclick="showHerramienta('juegos')" style="cursor:pointer;text-align:center;padding:20px 10px;grid-column:1/-1"><div style="font-size:32px;margin-bottom:8px">🎮</div><div style="font-size:13px;font-weight:700;color:var(--texto)">Juegos</div><div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Mientras esperas a tu cliente</div></div>
+
+<div class="card" onclick="showHerramienta('ruleta')" style="cursor:pointer;text-align:center;padding:20px 10px"><div style="font-size:32px;margin-bottom:8px">🎯</div><div style="font-size:13px;font-weight:700;color:var(--texto)">Ruleta DT</div><div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Elige ejercicio al azar</div></div><div class="card" onclick="showHerramienta('juegos')" style="cursor:pointer;text-align:center;padding:20px 10px;grid-column:1/-1"><div style="font-size:32px;margin-bottom:8px">🎮</div><div style="font-size:13px;font-weight:700;color:var(--texto)">Juegos</div><div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Mientras esperas a tu cliente</div></div>
 </div>
 </div>
 <div id="herramienta-panel" style="display:none;margin-top:12px">
@@ -498,7 +499,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div class="ig"><label>Fecha de nacimiento</label><input type="date" id="cliente-fnac"></div>
 <div class="ig"><label>Estatura (cm)</label><input type="number" id="cliente-altura" placeholder="Ej: 172"></div>
 <div class="ig"><label>Sexo</label><select id="cliente-sexo"><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
-<div class="ig"><label>Objetivo</label><select id="cliente-objetivo"><option value="perdida">Pérdida de grasa</option><option value="musculo">Ganar músculo</option><option value="rendimiento">Rendimiento deportivo</option><option value="salud">Salud general</option><option value="otro">Otro</option></select></div>
+<div class="ig"><label>Objetivo</label><select id="cliente-objetivo"><option value="perdida">Pérdida de grasa</option><option value="musculo">Ganar músculo</option><option value="hipertrofia">Hipertrofia</option><option value="rendimiento">Rendimiento deportivo</option><option value="salud">Salud general</option><option value="rehabilitacion">Rehabilitación</option><option value="otro">Otro</option></select></div>
 <div class="ig"><label>Observaciones / Lesiones</label><textarea id="cliente-notas" placeholder="Lesiones, limitaciones..." style="min-height:60px"></textarea></div>
 <div class="ig"><label>Condiciones médicas</label><textarea id="cliente-condiciones" placeholder="Celiaquía, tiroides, diabetes..." style="min-height:60px"></textarea></div>
 <div class="ig"><label>Preferencias alimentarias</label><textarea id="cliente-alimentacion" placeholder="Vegano, intolerancias, alergias..." style="min-height:60px"></textarea></div>
@@ -531,6 +532,17 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
   <!-- MACROS BASE -->
   <div style="background:var(--card);border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
     <div style="font-size:12px;font-weight:700;color:var(--texto-medio);margin-bottom:10px">⚖️ PESOS Y MACROS</div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;color:var(--texto-secundario);margin-bottom:4px">Objetivo</div>
+      <select id="ali-objetivo" onchange="mostrarRecomendacionesMacros()" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto-suave);font-size:14px;outline:none">
+        <option value="perdida">Pérdida de grasa</option>
+        <option value="musculo">Ganar músculo</option>
+        <option value="hipertrofia">Hipertrofia</option>
+        <option value="rendimiento">Rendimiento deportivo</option>
+        <option value="rehabilitacion">Rehabilitación</option>
+        <option value="salud">Salud general</option>
+      </select>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div>
         <div style="font-size:10px;color:var(--texto-secundario);margin-bottom:4px">Peso actual (kg)</div>
@@ -542,15 +554,15 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
       </div>
       <div>
         <div style="font-size:10px;color:var(--texto-secundario);margin-bottom:4px">Proteína (g/kg)</div>
-        <input id="ali-proteina" type="number" step="0.1" placeholder="0" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto-suave);font-size:14px;outline:none">
+        <input id="ali-proteina" type="number" step="0.1" placeholder="0" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto-suave);font-size:14px;outline:none" oninput="actualizarMacros()"><div id="rec-proteina" style="font-size:9px;color:#e31e24;margin-top:3px">💡 Rec: 2.0–2.5 g/kg</div>
       </div>
       <div>
         <div style="font-size:10px;color:var(--texto-secundario);margin-bottom:4px">Carbohidratos (g/kg)</div>
-        <input id="ali-carbos" type="number" step="0.1" placeholder="0" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto-suave);font-size:14px;outline:none">
+        <input id="ali-carbos" type="number" step="0.1" placeholder="0" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto-suave);font-size:14px;outline:none" oninput="actualizarMacros()"><div id="rec-carbos" style="font-size:9px;color:#f0a500;margin-top:3px">💡 Rec: 1.5–2.5 g/kg</div>
       </div>
       <div>
         <div style="font-size:10px;color:var(--texto-secundario);margin-bottom:4px">Grasas (g/kg)</div>
-        <input id="ali-grasas" type="number" step="0.1" placeholder="0" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto-suave);font-size:14px;outline:none">
+        <input id="ali-grasas" type="number" step="0.1" placeholder="0" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto-suave);font-size:14px;outline:none" oninput="actualizarMacros()"><div id="rec-grasas" style="font-size:9px;color:#4caf50;margin-top:3px">💡 Rec: 0.8–1.0 g/kg</div>
       </div>
       <div>
         <div style="font-size:10px;color:var(--texto-secundario);margin-bottom:4px">Comidas al día</div>
@@ -1028,7 +1040,7 @@ function showAdminTab(tab){
   if(tab==='dashboard') c.innerHTML=renderAdminDashboard();
   else if(tab==='clientes') c.innerHTML=renderAdminClientes();
   else if(tab==='promos') c.innerHTML=renderAdminPromos();
-  else if(tab==='config') c.innerHTML=renderAdminConfig();
+  else if(tab==='config') { c.innerHTML=renderAdminConfig(); cargarCodigoVinc(); }
 }
 
 function _adminPanelMetodos(met,pagos,color){
@@ -1369,6 +1381,19 @@ function renderAdminConfig(){
   html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">Abrir chat con mensaje o vacío</div></div>';
   html+='<label class="switch"><input type="checkbox" id="admin-prellenado"'+(cfg.msg_prellenado?' checked':'')+' onchange="guardarAdminConfig()"><span class="slider"></span></label></div>';
   html+='<button onclick="guardarAdminConfig()" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:var(--texto);font-size:14px;font-weight:700;padding:12px;cursor:pointer">💾 Guardar configuración</button>';
+
+  // CÓDIGO DE VINCULACIÓN
+  const codigoActual = cfg.codigo_vinculacion || '';
+  html+='<div style="background:var(--gris);border-radius:14px;padding:16px;margin-top:10px">';
+  html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:6px">🔗 Código de vinculación</div>';
+  html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">Comparte este código con tus clientes para que puedan registrarse.</div>';
+  html+='<div style="background:var(--card);border:2px solid #e31e24;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
+  html+='<div style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">' + (codigoActual || '——') + '</div>';
+  html+='<div style="font-size:10px;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:1px">Código actual</div>';
+  html+='</div>';
+  html+='<button onclick="generarCodigoVinculacion()" style="width:100%;background:#1a0000;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:10px;cursor:pointer">🔄 Generar nuevo código</button>';
+  html+='</div>';
+
   html+='<div style="height:1px;background:var(--gris2);margin:16px 0"></div>';
 
   // SECCIÓN PROMOCIONES PERSONALIZADAS
@@ -1481,6 +1506,73 @@ function borrarPromoCustom(i){
   localStorage.setItem('dt_promos_custom',JSON.stringify(promos));
   toast('🗑️ Promoción eliminada');
   showAdminTab('config');
+}
+
+function toggleLockCodigo() {
+  const bloqueado = localStorage.getItem('vinc-bloqueado') === '1';
+  localStorage.setItem('vinc-bloqueado', bloqueado ? '0' : '1');
+  const btn = document.getElementById('btn-lock-vinc');
+  const btnGen = document.getElementById('btn-generar-vinc');
+  if (btn) btn.textContent = bloqueado ? '🔓' : '🔒';
+  if (btnGen) { btnGen.disabled = !bloqueado; btnGen.style.opacity = bloqueado ? '1' : '0.4'; }
+  toast(bloqueado ? '🔓 Código desbloqueado' : '🔒 Código bloqueado');
+}
+
+async function generarCodigoVinc() {
+  if (localStorage.getItem('vinc-bloqueado') === '1') { toast('🔒 Desbloquea primero el código'); return; }
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let sufijo = '';
+  for (let i = 0; i < 6; i++) sufijo += chars[Math.floor(Math.random() * chars.length)];
+  const codigo = 'DT-' + sufijo;
+  const res = await fetch('/api/config', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({codigo_vinculacion: codigo})
+  });
+  if (res.ok) {
+    if (!window._adminData) window._adminData = {};
+    if (!window._adminData.config) window._adminData.config = {};
+    window._adminData.config.codigo_vinculacion = codigo;
+    const el = document.getElementById('vinc-codigo-txt');
+    if (el) el.textContent = codigo;
+    toast('✅ Código generado: ' + codigo);
+  }
+}
+
+function copiarCodigoVinc() {
+  const el = document.getElementById('vinc-codigo-txt');
+  if (!el || el.textContent === '——————') { toast('Primero genera un código'); return; }
+  navigator.clipboard.writeText(el.textContent).then(() => toast('📋 Código copiado'));
+}
+
+// Cargar código guardado al abrir config
+function cargarCodigoVinc() {
+  const cfg = (window._adminData || {}).config || {};
+  const el = document.getElementById('vinc-codigo-txt');
+  if (el && cfg.codigo_vinculacion) el.textContent = cfg.codigo_vinculacion;
+  const bloqueado = localStorage.getItem('vinc-bloqueado') === '1';
+  const btn = document.getElementById('btn-lock-vinc');
+  const btnGen = document.getElementById('btn-generar-vinc');
+  if (btn) btn.textContent = bloqueado ? '🔒' : '🔓';
+  if (btnGen) { btnGen.disabled = bloqueado; btnGen.style.opacity = bloqueado ? '0.4' : '1'; }
+}
+
+async function generarCodigoVinculacion() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let codigo = '';
+  for (let i = 0; i < 6; i++) codigo += chars[Math.floor(Math.random() * chars.length)];
+  const res = await fetch('/api/config', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({codigo_vinculacion: codigo})
+  });
+  if (res.ok) {
+    if (!window._adminData) window._adminData = {};
+    if (!window._adminData.config) window._adminData.config = {};
+    window._adminData.config.codigo_vinculacion = codigo;
+    showAdminTab('config');
+    toast('✅ Código generado: ' + codigo);
+  }
 }
 
 async function guardarAdminConfig(){
@@ -2615,6 +2707,7 @@ function switchRutinaTab(tab){
   document.getElementById('tab-alimentacion').style.background = esEnt ? 'transparent' : 'var(--rojo)';
   document.getElementById('tab-alimentacion').style.color = esEnt ? '#666' : '#fff';
   document.getElementById('btns-rutina').style.display = esEnt ? 'flex' : 'none';
+  if(!esEnt) mostrarRecomendacionesMacros();
 }
 async function abrirRutina(id,nombre){
 window._clienteActual=id;
@@ -2648,6 +2741,15 @@ async function cargarAlimentacion(id){
       if(d.pretreno_pos) document.getElementById('ali-pretreno-pos').value = d.pretreno_pos;
     }
     if(d.nivel_eco) selectEco(d.nivel_eco);
+    // Cargar objetivo desde perfil del usuario
+    try {
+      const ru = await fetch('/api/usuarios/' + id);
+      const du = await ru.json();
+      const etiqueta = du && du.perfil ? du.perfil.etiqueta : '';
+      const selObj = document.getElementById('ali-objetivo');
+      if(selObj && etiqueta) selObj.value = etiqueta;
+    } catch(e) {}
+    mostrarRecomendacionesMacros();
     if(d.medico)   d.medico.forEach(item   => { const el = [...document.querySelectorAll('#chips-medico button')].find(b=>b.textContent===item);   if(el) toggleChip(el,'medico',item); });
     if(d.vida)     d.vida.forEach(item     => { const el = [...document.querySelectorAll('#chips-vida button')].find(b=>b.textContent===item);     if(el) toggleChip(el,'vida',item); });
     if(d.alergias) d.alergias.forEach(item => { const el = [...document.querySelectorAll('#chips-alergia button')].find(b=>b.textContent===item); if(el) toggleChip(el,'alergia',item); });
@@ -2822,6 +2924,7 @@ function showHerramienta(nombre){
   else if(nombre==='calculadoras') renderCalculadoras(c);
   else if(nombre==='sonidos') renderSonidos(c);
   else if(nombre==='competencias') renderCompetencias(c);
+  else if(nombre==='ruleta') renderRuleta(c);
   else if(nombre==='juegos') renderJuegos(c);
   else c.innerHTML='<p style="color:var(--texto-secundario);text-align:center;padding:40px">🚧 Próximamente: '+nombre+'</p>';
 }
@@ -2829,7 +2932,18 @@ function showHerramienta(nombre){
 // ═══════════════════════════════════════════
 // 🎮 JUEGOS
 // ═══════════════════════════════════════════
+function bloquearSwipe() {
+  document.body.setAttribute('data-swipe-bloqueado','1');
+}
+function desbloquearSwipe() {
+  document.body.removeAttribute('data-swipe-bloqueado');
+}
+function _swipeBlockFn(e) {
+  if(document.body.getAttribute('data-swipe-bloqueado')==='1') e.preventDefault();
+}
+
 function renderJuegos(c) {
+  bloquearSwipe();
   c.innerHTML = `
     <div style="margin-bottom:16px">
       <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;margin-bottom:12px">🎮 Juegos</div>
@@ -2839,20 +2953,20 @@ function renderJuegos(c) {
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Triqui</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">2 jugadores</div>
         </div>
-        <div class="card" style="cursor:pointer;text-align:center;padding:16px 10px;opacity:0.4">
+        <div class="card" onclick="renderSnake(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
           <div style="font-size:28px;margin-bottom:6px">🐍</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Snake</div>
-          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Próximamente</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Esquiva y crece</div>
         </div>
         <div class="card" onclick="renderMemoria(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
           <div style="font-size:28px;margin-bottom:6px">🧠</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Memoria</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Encuentra los pares</div>
         </div>
-        <div class="card" style="cursor:pointer;text-align:center;padding:16px 10px;opacity:0.4">
+        <div class="card" onclick="renderPenaltis(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
           <div style="font-size:28px;margin-bottom:6px">⚽</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Penaltis</div>
-          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Próximamente</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Lanza y marca</div>
         </div>
         <div class="card" onclick="renderReflejos(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
           <div style="font-size:28px;margin-bottom:6px">🎯</div>
@@ -2864,16 +2978,17 @@ function renderJuegos(c) {
           <div style="font-size:13px;font-weight:700;color:var(--texto)">DT Hockey</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">2 jugadores</div>
         </div>
-        <div class="card" style="cursor:pointer;text-align:center;padding:16px 10px;opacity:0.4;grid-column:1/-1">
+        <div class="card" onclick="renderInvaders(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px;grid-column:1/-1">
           <div style="font-size:28px;margin-bottom:6px">👾</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">DT Invaders</div>
-          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Próximamente</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">100 niveles — Derrota al Sedentario Supremo</div>
         </div>
       </div>
     </div>`;
 }
 
 function renderHockey(c) {
+  bloquearSwipe();
   c.innerHTML = `
     <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -3032,12 +3147,12 @@ function hkDraw() {
   ctx.beginPath(); ctx.moveTo(gx, H); ctx.lineTo(gx + _hk.goalH, H); ctx.stroke();
   // Disco gym (puck)
   var p = _hk.puck;
-  ctx.fillStyle = '#888';
-  ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#555';
-  ctx.beginPath(); ctx.arc(p.x, p.y, p.r*0.55, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#666';
-  ctx.beginPath(); ctx.arc(p.x, p.y, p.r*0.2, 0, Math.PI*2); ctx.fill();
+  if (!window._hkDiscoImg) { window._hkDiscoImg = new Image(); window._hkDiscoImg.src = '/images/Disco10.png'; }
+  if (window._hkDiscoImg.complete) {
+    ctx.save(); ctx.translate(p.x, p.y); ctx.drawImage(window._hkDiscoImg, -p.r, -p.r, p.r*2, p.r*2); ctx.restore();
+  } else {
+    ctx.fillStyle = '#888'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+  }
   // Jugadores
   [_hk.p1, _hk.p2].forEach(function(pl) {
     ctx.fillStyle = pl.color;
@@ -3050,7 +3165,1166 @@ function hkDraw() {
   });
 }
 
+function renderInvaders(c) {
+  bloquearSwipe();
+  if(_inv.loop) cancelAnimationFrame(_inv.loop);
+  var reps = parseInt(localStorage.getItem('inv_monedas')||0);
+  var nivelGuardado = parseInt(localStorage.getItem('inv_nivel')||1);
+  var scoreGuardado = parseInt(localStorage.getItem('inv_score')||0);
+  var mejor = parseInt(localStorage.getItem('inv_mejor')||0);
+  c.innerHTML = `
+    <button onclick="desbloquearSwipe();renderJuegos(document.getElementById('herramienta-contenido'));invStop();" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:12px">← Juegos</button>
+    <div style="text-align:center;padding:16px 0 8px">
+      <div style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:2px;text-shadow:0 0 20px #e31e2488">DT INVADERS</div>
+      <div style="font-size:11px;color:#666;margin-top:4px;letter-spacing:1px">DERROTA AL SEDENTARIO SUPREMO</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0">
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:#e31e24">${nivelGuardado}</div>
+        <div style="font-size:10px;color:#666;margin-top:2px">NIVEL</div>
+      </div>
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:#f59e0b">${reps} 💪</div>
+        <div style="font-size:10px;color:#666;margin-top:2px">REPS</div>
+      </div>
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:#22c55e">${mejor}</div>
+        <div style="font-size:10px;color:#666;margin-top:2px">MEJOR</div>
+      </div>
+    </div>
+    <div style="background:#1a1a1a;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:16px">
+      <div style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Mundo actual</div>
+      <div id="inv-mundo-label" style="font-size:13px;font-weight:700;color:#e31e24"></div>
+      <div style="display:flex;gap:4px;margin-top:8px">
+        ${[1,2,3,4,5].map((m,i) => '<div style="flex:1;height:4px;border-radius:2px;background:'+(nivelGuardado>(i*20)?'#e31e24':'#333')+'"></div>').join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:#444;margin-top:4px">
+        <span>Gym</span><span>Calle</span><span>Fast Food</span><span>Vicios</span><span>Final</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <button onclick="invIrTienda()" style="background:#1a1a1a;color:#f59e0b;border:1px solid #f59e0b;border-radius:10px;padding:14px;font-size:13px;font-weight:700;cursor:pointer">🏪 Tienda</button>
+      <button onclick="invIrNiveles()" style="background:#1a1a1a;color:#3b82f6;border:1px solid #3b82f6;border-radius:10px;padding:14px;font-size:13px;font-weight:700;cursor:pointer">🗺️ Niveles</button>
+    </div>
+    <button onclick="invEmpezar()" style="width:100%;background:#e31e24;color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:2px">▶ JUGAR — NIVEL ${nivelGuardado}</button>
+    <div id="inv-contenido"></div>`;
+  var mundo = Math.min(4, Math.floor((nivelGuardado-1)/20));
+  var mundos = ['🏋️ Gym Novato','🚶 Calle','🍔 Fast Food','🥃 Vicios Avanzados','👹 Jefe Final'];
+  var ml = document.getElementById('inv-mundo-label');
+  if(ml) ml.textContent = mundos[mundo];
+}
+
+function invIrNiveles() {
+  var c = document.getElementById('inv-contenido');
+  if(!c) return;
+  var nivelActual = parseInt(localStorage.getItem('inv_nivel')||1);
+  var mundos = [
+    {nombre:'Gym Novato', color:'#e31e24', desde:1, hasta:20},
+    {nombre:'Calle', color:'#f59e0b', desde:21, hasta:40},
+    {nombre:'Fast Food', color:'#22c55e', desde:41, hasta:60},
+    {nombre:'Vicios', color:'#a855f7', desde:61, hasta:80},
+    {nombre:'Jefe Final', color:'#fff', desde:81, hasta:100}
+  ];
+  var div = document.createElement('div');
+  div.style.marginTop = '12px';
+
+  var btnVolver = document.createElement('button');
+  btnVolver.textContent = '← Inicio';
+  btnVolver.style.cssText = 'background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:12px';
+  btnVolver.onclick = function(){ c.innerHTML=''; };
+  div.appendChild(btnVolver);
+
+  mundos.forEach(function(m) {
+    var sec = document.createElement('div');
+    sec.style.marginBottom = '16px';
+    var titulo = document.createElement('div');
+    titulo.style.cssText = 'font-size:12px;font-weight:700;color:'+m.color+';margin-bottom:8px;display:flex;justify-content:space-between';
+    titulo.innerHTML = '<span>'+m.nombre+'</span><span style="color:#555;font-weight:400">'+m.desde+'-'+m.hasta+'</span>';
+    sec.appendChild(titulo);
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:6px';
+    for(var n=m.desde; n<=m.hasta; n++) {
+      var desbloqueado = n <= nivelActual;
+      var esActual = n === nivelActual;
+      var esJefe = n % 10 === 0;
+      var celda = document.createElement('div');
+      celda.style.cssText = 'background:'+(esActual?m.color:'#1a1a1a')+';border:1px solid '+(esActual?m.color:desbloqueado?'#333':'#1a1a1a')+';border-radius:8px;padding:6px 2px;text-align:center;cursor:'+(desbloqueado?'pointer':'default');
+      celda.innerHTML = '<div style="font-size:14px">'+(esJefe?'👹':desbloqueado?'✅':'🔒')+'</div><div style="font-size:10px;color:'+(esActual?'#fff':desbloqueado?'#aaa':'#333')+';font-weight:'+(esActual?'700':'400')+'">'+n+'</div>';
+      if(desbloqueado) {
+        (function(nivel){ celda.onclick = function(){ invJugarNivel(nivel); }; })(n);
+      }
+      grid.appendChild(celda);
+    }
+    sec.appendChild(grid);
+    div.appendChild(sec);
+  });
+  c.innerHTML = '';
+  c.appendChild(div);
+}
+
+function invJugarNivel(n) {
+  localStorage.setItem('inv_nivel', n);
+  invEmpezar();
+}
+
+function invIrTienda() {
+  var c = document.getElementById('inv-contenido');
+  if(!c) return;
+  var reps = parseInt(localStorage.getItem('inv_monedas')||0);
+  var upgrades = JSON.parse(localStorage.getItem('inv_upgrades')||'{}');
+  var items = [
+    {key:'velocidad', emoji:'💨', nombre:'Velocidad nave', desc:'Muévete más rápido', costo:30},
+    {key:'cadencia', emoji:'⚡', nombre:'Cadencia disparo', desc:'Dispara más seguido', costo:40},
+    {key:'vida_max', emoji:'❤️', nombre:'Vida máxima', desc:'+1 vida permanente', costo:50},
+    {key:'dano', emoji:'🏋️', nombre:'Barra 100kg', desc:'Daño especial masivo', costo:60},
+    {key:'escudo', emoji:'🛡️', nombre:'Escudo pasivo', desc:'Absorbe 1 golpe cada 15s', costo:80},
+    {key:'cobertura', emoji:'🧱', nombre:'Coberturas GYM DT', desc:'2 bloques protectores por nivel', costo:45}
+  ];
+  var div = document.createElement('div');
+  div.style.marginTop = '12px';
+
+  var btnVolver = document.createElement('button');
+  btnVolver.textContent = '← Inicio';
+  btnVolver.style.cssText = 'background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:12px';
+  btnVolver.onclick = function(){ c.innerHTML=''; };
+  div.appendChild(btnVolver);
+
+  var header = document.createElement('div');
+  header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px';
+  var titulo = document.createElement('div');
+  titulo.style.cssText = 'font-size:14px;font-weight:700;color:#f59e0b';
+  titulo.textContent = '🏪 Tienda';
+  var repsEl = document.createElement('div');
+  repsEl.id = 'inv-tienda-reps';
+  repsEl.style.cssText = 'font-size:13px;color:#f59e0b;font-weight:700';
+  repsEl.textContent = reps+' 💪 reps';
+  header.appendChild(titulo); header.appendChild(repsEl);
+  div.appendChild(header);
+
+  items.forEach(function(item) {
+    var nv = upgrades[item.key]||0;
+    var max = 5;
+    var costo = item.costo + nv*20;
+    var puede = reps >= costo && nv < max;
+    var fila = document.createElement('div');
+    fila.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px';
+    var emojiEl = document.createElement('div');
+    emojiEl.style.fontSize = '24px';
+    emojiEl.textContent = item.emoji;
+    var info = document.createElement('div');
+    info.style.flex = '1';
+    var barras = '';
+    for(var i=0;i<max;i++) barras += '<div style="width:16px;height:3px;border-radius:2px;background:'+(i<nv?'#f59e0b':'#333')+'"></div>';
+    info.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff">'+item.nombre+'</div><div style="font-size:10px;color:#666;margin-bottom:4px">'+item.desc+'</div><div style="display:flex;gap:2px">'+barras+'</div>';
+    fila.appendChild(emojiEl); fila.appendChild(info);
+    if(nv >= max) {
+      var maxEl = document.createElement('div');
+      maxEl.style.cssText = 'font-size:10px;color:#22c55e;font-weight:700;white-space:nowrap';
+      maxEl.textContent = 'MAX ✅';
+      fila.appendChild(maxEl);
+    } else {
+      var btn = document.createElement('button');
+      btn.style.cssText = 'background:'+(puede?'#e31e24':'#2a2a2a')+';color:'+(puede?'#fff':'#555')+';border:none;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700;cursor:'+(puede?'pointer':'not-allowed')+';white-space:nowrap';
+      btn.textContent = costo+' 💪';
+      if(puede) {
+        (function(k,co){ btn.onclick = function(){ invComprarItem(k,co); }; })(item.key, costo);
+      }
+      fila.appendChild(btn);
+    }
+    div.appendChild(fila);
+  });
+  c.innerHTML = '';
+  c.appendChild(div);
+}
+
+function invComprarItem(key, costo) {
+  var reps = parseInt(localStorage.getItem('inv_monedas')||0);
+  var upgrades = JSON.parse(localStorage.getItem('inv_upgrades')||'{}');
+  if(reps < costo || (upgrades[key]||0) >= 5) return;
+  upgrades[key] = (upgrades[key]||0) + 1;
+  reps -= costo;
+  localStorage.setItem('inv_monedas', reps);
+  localStorage.setItem('inv_upgrades', JSON.stringify(upgrades));
+  invIrTienda();
+}
+
+function invEmpezar() {
+  var c = document.getElementById('inv-contenido');
+  if(!c) return;
+  c.innerHTML = `
+    <button onclick="desbloquearSwipe();renderJuegos(document.getElementById('herramienta-contenido'));invStop();"  style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:8px">← Juegos</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="font-size:11px;color:var(--texto-secundario)">Nivel <span id="inv-nivel" style="color:#e31e24;font-weight:700">1</span></div>
+      <div style="font-size:13px;font-weight:700;color:#f59e0b">⭐ <span id="inv-score">0</span></div>
+      <div style="font-size:11px;color:var(--texto-secundario)">❤️ <span id="inv-vidas" style="font-weight:700">3</span></div>
+    </div>
+    <canvas id="inv-canvas" style="width:100%;border-radius:12px;display:block;background:#000;touch-action:none"></canvas>
+    <div style="display:flex;gap:6px;margin-top:8px;justify-content:center">
+      <div id="inv-btn-fuego" style="background:#e31e24;color:#fff;border:none;border-radius:8px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;flex:1;text-align:center">🔫 FUEGO</div>
+    </div>
+    <div style="text-align:center;font-size:10px;color:var(--texto-secundario);margin-top:6px">Desliza en el canvas para mover · Toca FUEGO para disparar</div>
+    <div id="inv-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px">
+      <div id="inv-overlay-title" style="font-size:24px;font-weight:700;color:#e31e24;text-align:center"></div>
+      <div id="inv-overlay-sub" style="font-size:14px;color:#aaa;text-align:center"></div>
+      <button id="inv-overlay-btn" style="background:#e31e24;color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px"></button>
+    </div>`;
+  invInit();
+}
+
+var _inv = {
+  loop: null, corriendo: false,
+  W: 0, H: 0,
+  nave: { x: 0, y: 0, w: 36, h: 20, vel: 0, speed: 5 },
+  balas: [], enemigas: [], powerups: [], particulas: [],
+  enemigos: [], obstaculos: [],
+  score: 0, nivel: 1, vidas: 3,
+  dirMover: 0, ultimoBalaEnemigo: 0, ultimoFrame: 0,
+  mundos: [
+    { nombre:'Gym Novato', color:'#e31e24', emojis:['🍺','🍟','🚬'] },
+    { nombre:'Calle', color:'#f59e0b', emojis:['🧍','🛋️','🎮'] },
+    { nombre:'Fast Food', color:'#22c55e', emojis:['🍔','🥤','🍩'] },
+    { nombre:'Vicios', color:'#a855f7', emojis:['🥃','🚬','💊'] },
+    { nombre:'Final', color:'#e31e24', emojis:['👹','💀','😈'] }
+  ]
+};
+
+function invInit() {
+  var canvas = document.getElementById('inv-canvas');
+  if(!canvas) return;
+  var W = canvas.offsetWidth;
+  canvas.width = W;
+  canvas.height = Math.round(W * 1.5);
+  _inv.W = W; _inv.H = canvas.height;
+  _inv.nave.x = W/2;
+  _inv.nave.y = _inv.H - 50;
+  _inv.score = parseInt(localStorage.getItem('inv_score')||0);
+  _inv.nivel = parseInt(localStorage.getItem('inv_nivel')||1);
+  // Aplicar upgrades comprados
+  var up = JSON.parse(localStorage.getItem('inv_upgrades')||'{}');
+  _inv.nave.speed = 5 + (up.velocidad||0) * 1.2;
+  _inv.cadenciaMs = Math.max(100, 300 - (up.cadencia||0) * 35);
+  _inv.vidas = 3 + (up.vida_max||0);
+  _inv.danoBarra = 1 + (up.dano||0) * 0.5;
+  _inv.escudoPasivo = (up.escudo||0) > 0;
+  _inv.coberturas = (up.cobertura||0) > 0;
+  _inv.escudoPasivoTimer = 0;
+  _inv.balas = []; _inv.powerups = []; _inv.particulas = [];
+  document.getElementById('inv-score').textContent = _inv.score;
+  document.getElementById('inv-nivel').textContent = _inv.nivel;
+  document.getElementById('inv-vidas').textContent = _inv.vidas;
+  invCrearEnemigos();
+  if(_inv.coberturas) invCrearCoberturas();
+  setTimeout(invBindControles, 100);
+  _inv.corriendo = true;
+  invLoop();
+}
+
+function invCrearCoberturas() {
+  _inv.coberturasArr = [
+    {x: _inv.W*0.25, y: _inv.H*0.72, vida: 3, maxVida: 3},
+    {x: _inv.W*0.75, y: _inv.H*0.72, vida: 3, maxVida: 3}
+  ];
+}
+
+function invCrearEnemigos() {
+  _inv.enemigos = [];
+  var mundo = Math.min(4, Math.floor((_inv.nivel-1)/20));
+  var emojis = _inv.mundos[mundo].emojis;
+  var filas = Math.min(3 + Math.floor(_inv.nivel/8), 6);
+  var cols = Math.min(4 + Math.floor(_inv.nivel/12), 8);
+  var espX = (_inv.W - 20) / cols;
+  var espY = 36;
+  for(var f=0; f<filas; f++) {
+    for(var c=0; c<cols; c++) {
+      _inv.enemigos.push({
+        x: 12 + c*espX + espX/2,
+        y: 40 + f*espY,
+        w: 24, h: 24,
+        emoji: emojis[Math.floor(Math.random()*emojis.length)],
+        vida: f===0 ? 2 : 1,
+        dx: 1 + _inv.nivel*0.08
+      });
+    }
+  }
+  _inv.dirEnemigos = 1;
+  _inv.velEnemigos = 0.5 + _inv.nivel*0.05;
+  _inv.bajadaEnemigos = false;
+}
+
+function invBindControles() {
+  var canvas = document.getElementById('inv-canvas');
+  var fuego = document.getElementById('inv-btn-fuego');
+  if(!canvas) return;
+  var lastTouchX = null;
+  var lastTouchY = null;
+  var esHorizontal = false;
+  canvas.addEventListener('touchstart', function(e){
+    lastTouchX = e.touches[0].clientX;
+    lastTouchY = e.touches[0].clientY;
+    esHorizontal = false;
+  }, {passive:true});
+  canvas.addEventListener('touchmove', function(e){
+    if(lastTouchX === null) return;
+    var dx = e.touches[0].clientX - lastTouchX;
+    var dy = e.touches[0].clientY - lastTouchY;
+    if(!esHorizontal && Math.abs(dx) > Math.abs(dy)) esHorizontal = true;
+    if(esHorizontal) {
+      e.preventDefault();
+      _inv.nave.x += dx * 1.8;
+      _inv.nave.x = Math.max(20, Math.min(_inv.W-20, _inv.nave.x));
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+    }
+  }, {passive:false});
+  canvas.addEventListener('touchend', function(e){
+    lastTouchX = null; lastTouchY = null; esHorizontal = false;
+  }, {passive:true});
+  if(fuego) {
+    fuego.addEventListener('touchstart', function(e){
+      e.preventDefault();
+      invDisparar();
+      _inv.autoFuego = setInterval(invDisparar, 250);
+    }, {passive:false});
+    fuego.addEventListener('touchend', function(e){
+      e.preventDefault();
+      clearInterval(_inv.autoFuego);
+    }, {passive:false});
+    fuego.addEventListener('click', function(){ invDisparar(); });
+  }
+}
+
+function invStop() {
+  _inv.corriendo = false;
+  if(_inv.loop) cancelAnimationFrame(_inv.loop);
+}
+
+function invMover(dir) { _inv.dirMover = dir; }
+function invPararMover() { _inv.dirMover = 0; }
+
+function invDisparar() {
+  if(!_inv.corriendo) return;
+  var ahora = Date.now();
+  if(ahora - (_inv.ultimoBala||0) < (_inv.cadenciaMs||300)) return;
+  _inv.ultimoBala = ahora;
+  _inv.balas.push({ x:_inv.nave.x, y:_inv.nave.y-10, dy:-8, w:4, h:12, esNave:true });
+}
+
+function invLoop() {
+  if(!_inv.corriendo) return;
+  if(!document.getElementById('inv-canvas')) { _inv.corriendo=false; return; }
+  invUpdate();
+  invDraw();
+  _inv.loop = requestAnimationFrame(invLoop);
+}
+
+function invUpdate() {
+  var W=_inv.W, H=_inv.H;
+  // Mover nave
+  _inv.nave.x += _inv.dirMover * _inv.nave.speed;
+  _inv.nave.x = Math.max(20, Math.min(W-20, _inv.nave.x));
+
+  // Mover balas del jugador
+  _inv.balas = _inv.balas.filter(function(b){
+    b.y += b.dy;
+    return b.y > -20 && b.y < H+20;
+  });
+
+  // Mover enemigos
+  var moverBajar = false;
+  _inv.enemigos.forEach(function(e){
+    e.x += _inv.velEnemigos * _inv.dirEnemigos;
+  });
+  var minX = Math.min.apply(null, _inv.enemigos.map(function(e){return e.x-e.w/2;}));
+  var maxX = Math.max.apply(null, _inv.enemigos.map(function(e){return e.x+e.w/2;}));
+  if(minX < 8 || maxX > W-8) {
+    _inv.dirEnemigos *= -1;
+    _inv.enemigos.forEach(function(e){ e.y += 18; });
+    _inv.velEnemigos = Math.min(_inv.velEnemigos*1.04, 6);
+  }
+
+  // Disparos enemigos aleatorios
+  var ahora = Date.now();
+  var intervalo = Math.max(600, 2000 - _inv.nivel*30);
+  if(ahora - _inv.ultimoBalaEnemigo > intervalo && _inv.enemigos.length > 0) {
+    _inv.ultimoBalaEnemigo = ahora;
+    var e = _inv.enemigos[Math.floor(Math.random()*_inv.enemigos.length)];
+    _inv.balas.push({x:e.x, y:e.y+12, dy:4+_inv.nivel*0.1, w:6, h:10, esNave:false});
+  }
+
+  // Colisiones balas jugador vs enemigos
+  _inv.balas.filter(function(b){return b.esNave;}).forEach(function(b){
+    _inv.enemigos = _inv.enemigos.filter(function(e){
+      var hit = Math.abs(b.x-e.x)<(b.w/2+e.w/2) && Math.abs(b.y-e.y)<(b.h/2+e.h/2);
+      if(hit){
+        e.vida--;
+        b.y = -999;
+        invParticulasExp(e.x, e.y, e.emoji);
+        if(e.vida <= 0){
+          _inv.score += 10 * _inv.nivel;
+          document.getElementById('inv-score').textContent = _inv.score;
+          var reps = parseInt(localStorage.getItem('inv_monedas')||0) + 1;
+          localStorage.setItem('inv_monedas', reps);
+          if(Math.random()<0.2) invSpawnPowerup(e.x, e.y);
+          return false;
+        }
+      }
+      return true;
+    });
+  });
+
+  // Colisiones balas enemigo vs coberturas
+  if(_inv.coberturasArr) {
+    _inv.balas.filter(function(b){return !b.esNave;}).forEach(function(b){
+      _inv.coberturasArr.forEach(function(cb){
+        if(cb.vida<=0) return;
+        if(Math.abs(b.x-cb.x)<28 && Math.abs(b.y-cb.y)<16){
+          b.y=_inv.H+999;
+          cb.vida--;
+        }
+      });
+    });
+  }
+  // Colisiones balas enemigo vs nave
+  _inv.balas.filter(function(b){return !b.esNave;}).forEach(function(b){
+    var n=_inv.nave;
+    if(Math.abs(b.x-n.x)<(b.w/2+n.w/2) && Math.abs(b.y-n.y)<(b.h/2+n.h/2)){
+      b.y=H+999;
+      invPerdidaVida();
+    }
+  });
+
+  // Enemigos llegan a nave
+  _inv.enemigos.forEach(function(e){
+    if(e.y > _inv.nave.y - 30) invPerdidaVida();
+  });
+
+  // Powerups
+  _inv.powerups = _inv.powerups.filter(function(p){
+    p.y += 1.5;
+    var n=_inv.nave;
+    if(Math.abs(p.x-n.x)<30 && Math.abs(p.y-n.y)<30){
+      invAplicarPowerup(p.tipo);
+      return false;
+    }
+    return p.y < H+20;
+  });
+
+  // Partículas
+  _inv.particulas = _inv.particulas.filter(function(p){
+    p.x+=p.vx; p.y+=p.vy; p.vida--;
+    return p.vida>0;
+  });
+
+  // ¿Nivel completado?
+  if(_inv.enemigos.length === 0) invNivelCompletado();
+}
+
+function invPerdidaVida() {
+  _inv.vidas--;
+  document.getElementById('inv-vidas').textContent = Math.max(0,_inv.vidas);
+  invParticulasExp(_inv.nave.x, _inv.nave.y, '💥');
+  if(_inv.escudoPasivo) {
+    var ahora2 = Date.now();
+    if(ahora2 - _inv.escudoPasivoTimer > 15000) {
+      _inv.escudoPasivoTimer = ahora2;
+      invParticulasExp(_inv.nave.x, _inv.nave.y, '🛡️');
+      return;
+    }
+  }
+  if(_inv.vidas <= 0) invGameOver();
+}
+
+function invSpawnPowerup(x, y) {
+  var tipos = ['proteina','creatina','aminoacidos','preentrenoo','barra'];
+  var emojis = {'proteina':'🥛','creatina':'⚡','aminoacidos':'🛡️','preentrenoo':'💊','barra':'🏋️'};
+  var tipo = tipos[Math.floor(Math.random()*tipos.length)];
+  _inv.powerups.push({x:x,y:y,tipo:tipo,emoji:emojis[tipo]});
+}
+
+function invAplicarPowerup(tipo) {
+  if(tipo==='proteina'){ _inv.vidas=Math.min(_inv.vidas+1,5); document.getElementById('inv-vidas').textContent=_inv.vidas; }
+  else if(tipo==='creatina'){ _inv.dobleDisparo=true; setTimeout(function(){_inv.dobleDisparo=false;},5000); }
+  else if(tipo==='aminoacidos'){ _inv.escudo=true; setTimeout(function(){_inv.escudo=false;},5000); }
+  else if(tipo==='preentrenoo'){ _inv.nave.speed=9; setTimeout(function(){_inv.nave.speed=5;},5000); }
+}
+
+function invParticulasExp(x, y, emoji) {
+  for(var i=0;i<8;i++){
+    _inv.particulas.push({
+      x:x,y:y,
+      vx:(Math.random()-0.5)*4,
+      vy:(Math.random()-0.5)*4,
+      vida:20, emoji:emoji
+    });
+  }
+}
+
+function invNivelCompletado() {
+  _inv.corriendo = false;
+  var monedasGanadas = 10 + _inv.nivel * 2;
+  var totalReps = parseInt(localStorage.getItem('inv_monedas')||0) + monedasGanadas;
+  localStorage.setItem('inv_monedas', totalReps);
+  var mejor = parseInt(localStorage.getItem('inv_mejor')||0);
+  if(_inv.score > mejor) { localStorage.setItem('inv_mejor', _inv.score); }
+  _inv.nivel++;
+  localStorage.setItem('inv_nivel', _inv.nivel);
+  localStorage.setItem('inv_score', _inv.score);
+  invMostrarOverlay('🏆 ¡Nivel completado!', '+'+monedasGanadas+' 💪 reps | Total: '+totalReps+' | Nivel '+_inv.nivel, 'Siguiente nivel ▶', function(){
+    _inv.balas=[]; _inv.powerups=[]; _inv.particulas=[];
+    _inv.vidas=3; document.getElementById('inv-vidas').textContent=3;
+    document.getElementById('inv-nivel').textContent=_inv.nivel;
+    invCrearEnemigos();
+    _inv.corriendo=true;
+    invLoop();
+  });
+}
+
+function invGameOver() {
+  _inv.corriendo = false;
+  localStorage.setItem('inv_score', 0);
+  localStorage.setItem('inv_nivel', 1);
+  invMostrarOverlay('💀 GAME OVER', 'Puntaje final: '+_inv.score, '🔄 Reiniciar', function(){
+    _inv.score=0; _inv.nivel=1; _inv.vidas=3;
+    _inv.balas=[]; _inv.powerups=[]; _inv.particulas=[];
+    document.getElementById('inv-score').textContent=0;
+    document.getElementById('inv-nivel').textContent=1;
+    document.getElementById('inv-vidas').textContent=3;
+    invCrearEnemigos();
+    _inv.corriendo=true;
+    invLoop();
+  });
+}
+
+function invMostrarOverlay(titulo, sub, btnTxt, cb) {
+  var ov = document.getElementById('inv-overlay');
+  if(!ov) return;
+  ov.style.display='flex';
+  document.getElementById('inv-overlay-title').textContent=titulo;
+  document.getElementById('inv-overlay-sub').textContent=sub;
+  var btn=document.getElementById('inv-overlay-btn');
+  btn.textContent=btnTxt;
+  btn.onclick=function(){ ov.style.display='none'; cb(); };
+}
+
+function invDraw() {
+  var canvas=document.getElementById('inv-canvas');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var W=_inv.W,H=_inv.H;
+  // Fondo estrellado
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  // Estrellas (estáticas con seed)
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  for(var s=0;s<40;s++){
+    var sx=(s*137.5)%W, sy=(s*97.3)%H;
+    ctx.fillRect(sx,sy,1,1);
+  }
+  // Mundo label
+  var mundo=Math.min(4,Math.floor((_inv.nivel-1)/20));
+  ctx.fillStyle=_inv.mundos[mundo].color+'44';
+  ctx.fillRect(0,0,W,24);
+  ctx.fillStyle=_inv.mundos[mundo].color;
+  ctx.font='10px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Mundo '+(mundo+1)+': '+_inv.mundos[mundo].nombre, 6, 16);
+
+  // Enemigos
+  ctx.font='22px sans-serif'; ctx.textAlign='center';
+  _inv.enemigos.forEach(function(e){
+    ctx.fillText(e.emoji, e.x, e.y+8);
+    if(e.vida>1){
+      ctx.fillStyle='#e31e24';
+      ctx.fillRect(e.x-10, e.y-14, 20, 3);
+      ctx.fillStyle='#22c55e';
+      ctx.fillRect(e.x-10, e.y-14, 20*(e.vida/2), 3);
+    }
+  });
+
+  // Balas
+  _inv.balas.forEach(function(b){
+    ctx.fillStyle = b.esNave ? '#e31e24' : '#f59e0b';
+    ctx.fillRect(b.x-b.w/2, b.y-b.h/2, b.w, b.h);
+  });
+
+  // Powerups
+  ctx.font='18px sans-serif';
+  _inv.powerups.forEach(function(p){
+    ctx.fillText(p.emoji, p.x, p.y);
+  });
+
+  // Partículas
+  _inv.particulas.forEach(function(p){
+    ctx.globalAlpha = p.vida/20;
+    ctx.font='12px sans-serif';
+    ctx.fillText(p.emoji, p.x, p.y);
+  });
+  ctx.globalAlpha=1;
+
+  // Coberturas
+  if(_inv.coberturasArr) {
+    _inv.coberturasArr.forEach(function(cb){
+      if(cb.vida <= 0) return;
+      var alpha = cb.vida / cb.maxVida;
+      ctx.fillStyle = 'rgba(227,30,36,'+alpha+')';
+      ctx.fillRect(cb.x-25, cb.y-12, 50, 24);
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.font = 'bold 9px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('GYM DT', cb.x, cb.y+4);
+    });
+  }
+  // Nave (entrenador)
+  ctx.font='28px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('🏋️',_inv.nave.x,_inv.nave.y+10);
+  if(_inv.escudo){
+    ctx.strokeStyle='#3b82f6'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(_inv.nave.x,_inv.nave.y,22,0,Math.PI*2); ctx.stroke();
+  }
+}
+
+function renderPenaltis(c) {
+  bloquearSwipe();
+  c.innerHTML = `
+    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'));clearInterval(_pen.potTimer);" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
+    <div style="text-align:center;margin-bottom:8px">
+      <div style="font-size:15px;font-weight:700;color:var(--texto)">Penaltis DT</div>
+      <div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">
+        Tiro <span id="pen-tiro">1</span>/5 &nbsp;|&nbsp;
+        Goles: <span id="pen-goles" style="color:#22c55e;font-weight:700">0</span> &nbsp;|&nbsp;
+        Mejor: <span id="pen-mejor" style="color:#f59e0b;font-weight:700">0</span>
+      </div>
+    </div>
+    <canvas id="pen-canvas" style="width:100%;border-radius:12px;display:block;touch-action:none"></canvas>
+    <div style="margin-top:12px;padding:0 4px">
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--texto-secundario);margin-bottom:4px">
+          <span>⬅️ Lateral</span><span id="pen-lat-val" style="color:var(--texto);font-weight:700">Centro</span><span>➡️</span>
+        </div>
+        <input type="range" id="pen-lateral" min="0" max="100" value="50" oninput="penActLateral()" style="width:100%;accent-color:#e31e24">
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--texto-secundario);margin-bottom:4px">
+          <span>⬇️ Altura</span><span id="pen-alt-val" style="color:var(--texto);font-weight:700">Media</span><span>⬆️</span>
+        </div>
+        <input type="range" id="pen-altura" min="0" max="100" value="50" oninput="penActAltura()" style="width:100%;accent-color:#3b82f6">
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--texto-secundario);margin-bottom:6px">
+          <span>💨 Potencia — toca en el momento justo</span><span id="pen-pot-val" style="color:var(--texto);font-weight:700">0%</span>
+        </div>
+        <div id="pen-pot-bar" style="background:#222;border-radius:8px;height:28px;position:relative;overflow:hidden;cursor:pointer;border:1px solid #333" onclick="penPararPotencia()">
+          <div id="pen-pot-fill" style="height:100%;width:0%;border-radius:8px;transition:none"></div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,0.5)">TOCA AQUÍ</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:#444;margin-top:2px">
+          <span>Sin fuerza</span><span style="color:#22c55e">Perfecto</span><span style="color:#f59e0b">Fuerte</span><span style="color:#e31e24">¡Muy fuerte!</span>
+        </div>
+      </div>
+      <button id="pen-btn" onclick="penLanzar()" style="width:100%;background:#e31e24;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px">⚽ LANZAR</button>
+      <div id="pen-resultado" style="text-align:center;margin-top:10px;font-size:18px;font-weight:700;min-height:28px;transition:all .3s"></div>
+    </div>`;
+  penInit();
+}
+
+var _pen = { potTimer:null, potVal:0, potDir:1, animando:false, tiro:1, goles:0, mejor:0, lateral:50, altura:50, potencia:0, W:0, H:0 };
+
+function penInit() {
+  var canvas = document.getElementById('pen-canvas');
+  if(!canvas) return;
+  var W = canvas.offsetWidth;
+  canvas.width = W;
+  canvas.height = Math.round(W * 0.68);
+  _pen.W = W; _pen.H = Math.round(W*0.68);
+  _pen.tiro=1; _pen.goles=0; _pen.animando=false;
+  _pen.mejor = parseInt(localStorage.getItem('pen_mejor')||0);
+  _pen.lateral=50; _pen.altura=50; _pen.potVal=0;
+  document.getElementById('pen-mejor').textContent = _pen.mejor;
+  document.getElementById('pen-tiro').textContent = '1';
+  document.getElementById('pen-goles').textContent = '0';
+  penActLateral(); penActAltura();
+  penStartPotencia();
+  penDrawEstado(null, null, false, false);
+}
+
+function penActLateral() {
+  var v = parseInt(document.getElementById('pen-lateral').value);
+  _pen.lateral = v;
+  var label = v < 25 ? '◀◀ Muy izquierda' : v < 42 ? '◀ Izquierda' : v > 75 ? 'Muy derecha ▶▶' : v > 58 ? 'Derecha ▶' : 'Centro';
+  document.getElementById('pen-lat-val').textContent = label;
+  if(!_pen.animando) penDrawEstado(null, null, false, false);
+}
+
+function penActAltura() {
+  var v = parseInt(document.getElementById('pen-altura').value);
+  _pen.altura = v;
+  var label = v < 25 ? 'Muy raso' : v < 42 ? 'Raso' : v > 75 ? 'Muy alto' : v > 58 ? 'Alto' : 'Media altura';
+  document.getElementById('pen-alt-val').textContent = label;
+  if(!_pen.animando) penDrawEstado(null, null, false, false);
+}
+
+function penStartPotencia() {
+  if(_pen.potTimer) clearInterval(_pen.potTimer);
+  _pen.potVal = 0; _pen.potDir = 1;
+  var velocidad = 18;
+  _pen.potTimer = setInterval(function(){
+    _pen.potVal += _pen.potDir * 2.2;
+    if(_pen.potVal >= 100){ _pen.potVal=100; _pen.potDir=-1; }
+    if(_pen.potVal <= 0){ _pen.potVal=0; _pen.potDir=1; velocidad = Math.max(10, velocidad-1); }
+    var fill = document.getElementById('pen-pot-fill');
+    var val = document.getElementById('pen-pot-val');
+    if(!fill) { clearInterval(_pen.potTimer); return; }
+    var p = _pen.potVal;
+    var color = p < 30 ? '#555' : p < 55 ? '#22c55e' : p < 75 ? '#f59e0b' : '#e31e24';
+    fill.style.width = p+'%';
+    fill.style.background = 'linear-gradient(90deg,#333,'+color+')';
+    if(val) val.textContent = Math.round(p)+'%';
+  }, velocidad);
+}
+
+function penPararPotencia() {
+  _pen.potencia = Math.round(_pen.potVal);
+  clearInterval(_pen.potTimer);
+}
+
+function penLanzar() {
+  if(_pen.animando) return;
+  _pen.potencia = Math.round(_pen.potVal);
+  clearInterval(_pen.potTimer);
+  var lat = _pen.lateral;   // 0=izq extremo, 100=der extremo
+  var alt = _pen.altura;    // 0=raso, 100=muy alto
+  var pot = _pen.potencia;  // 0-100
+
+  // --- Destino del balón ---
+  var W = _pen.W, H = _pen.H;
+  var gx = W*0.18, gy = H*0.05, gw = W*0.64, gh = H*0.30;
+  // Posición en portería según sliders
+  var destX = gx + (lat/100)*gw;
+  var destY = gy + gh - (alt/100)*gh;
+
+  // --- ¿Sale fuera? ---
+  var fueraPorLado = lat < 8 || lat > 92;
+  var fueraPorArriba = alt > 88 && pot > 70;
+  var sinFuerza = pot < 18;
+  var excesoPotencia = pot > 90 && alt > 60;
+
+  // Si sale fuera ajustamos destino visual
+  if(fueraPorLado) { destX = lat < 50 ? gx - W*0.12 : gx + gw + W*0.12; }
+  if(fueraPorArriba || excesoPotencia) { destY = gy - H*0.15; }
+  if(sinFuerza) { destX = W/2; destY = H*0.75; }
+
+  // --- Portero IA ---
+  // Lee parcialmente el lateral (70% acierto) y salta
+  var aciertaLat = Math.random() < 0.62;
+  var zonaLat = lat < 35 ? 'izq' : lat > 65 ? 'der' : 'cen';
+  var porteroZona = aciertaLat ? zonaLat : ['izq','cen','der'][Math.floor(Math.random()*3)];
+  // Portero NO llega a esquinas muy cerradas ni a tiros muy altos
+  var porteroLlega = !(lat < 15 || lat > 85) && !(alt > 72) && pot < 82;
+
+  // --- Resultado ---
+  var gol = false;
+  var motivo = '';
+  if(sinFuerza) { motivo = '😅 ¡Sin potencia! El balón no llegó'; }
+  else if(fueraPorLado) { motivo = lat < 50 ? '↙️ Afuera por la izquierda' : '↘️ Afuera por la derecha'; }
+  else if(fueraPorArriba || excesoPotencia) { motivo = '🚀 ¡Demasiado alto! Por encima del arco'; }
+  else if(porteroZona === zonaLat && porteroLlega) { motivo = '🧤 ¡Atajado! El portero lo leyó'; }
+  else { gol = true; motivo = '⚽ ¡GOOOOL!'; }
+
+  _pen.animando = true;
+  document.getElementById('pen-btn').disabled = true;
+  document.getElementById('pen-resultado').textContent = '';
+
+  penAnimar(destX, destY, pot, gol, porteroZona, porteroLlega, sinFuerza, function(){
+    _pen.animando = false;
+    var res = document.getElementById('pen-resultado');
+    if(res){ res.textContent = motivo; res.style.color = gol ? '#22c55e' : '#e31e24'; }
+    if(gol){ _pen.goles++; document.getElementById('pen-goles').textContent = _pen.goles; }
+    setTimeout(function(){
+      if(_pen.tiro >= 5){ penFin(); return; }
+      _pen.tiro++;
+      document.getElementById('pen-tiro').textContent = _pen.tiro;
+      if(res) res.textContent='';
+      var btn = document.getElementById('pen-btn');
+      if(btn){ btn.disabled=false; btn.textContent='⚽ LANZAR'; }
+      penStartPotencia();
+      penDrawEstado(null, null, false, false);
+    }, 1800);
+  });
+}
+
+function penAnimar(destX, destY, pot, gol, porteroZona, porteroLlega, sinFuerza, cb) {
+  var canvas = document.getElementById('pen-canvas');
+  if(!canvas){ cb(); return; }
+  var W=_pen.W, H=_pen.H;
+  var frames=0, total = sinFuerza ? 20 : Math.max(22, Math.round(40 - pot*0.15));
+  var startX=W/2, startY=H*0.9;
+  // Portero posición inicial al centro, salta a su zona
+  var gx=W*0.18, gw=W*0.64;
+  var portInicX = gx+gw/2;
+  var portDestX = porteroZona==='izq' ? gx+gw*0.12 : porteroZona==='der' ? gx+gw*0.88 : gx+gw*0.5;
+
+  var anim = setInterval(function(){
+    frames++;
+    var t = frames/total;
+    var ease = t<0.5 ? 2*t*t : -1+(4-2*t)*t;
+    // Balón — trayectoria con arco
+    var bx = startX + (destX-startX)*ease;
+    var arc = sinFuerza ? 0 : -H*0.08*Math.sin(Math.PI*t);
+    var by = startY + (destY-startY)*ease + arc;
+    var size = sinFuerza ? 20 : Math.max(8, 22 - t*14);
+    // Portero salta en la segunda mitad
+    var px = t < 0.4 ? portInicX : portInicX + (portDestX-portInicX)*((t-0.4)/0.6);
+    var py_offset = porteroLlega && t > 0.5 ? -Math.sin((t-0.5)*Math.PI)*18 : 0;
+
+    penDrawEstado({x:bx,y:by,size:size}, {x:px,yOff:py_offset}, gol && frames===total, false);
+    if(frames>=total){ clearInterval(anim); cb(); }
+  }, 22);
+}
+
+function penDrawEstado(balon, portero, mostrarGol, preview) {
+  var canvas = document.getElementById('pen-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W=_pen.W, H=_pen.H;
+
+  // Fondo cancha con perspectiva
+  var grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#0d3d0d'); grad.addColorStop(1,'#1a5c1a');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+
+  // Líneas cancha
+  ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1;
+  ctx.strokeRect(W*0.05,H*0.02,W*0.9,H*0.9);
+  ctx.beginPath(); ctx.moveTo(W*0.05,H*0.5); ctx.lineTo(W*0.95,H*0.5); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W/2,H*0.5,W*0.12,0,Math.PI*2); ctx.stroke();
+
+  // Área grande
+  ctx.strokeStyle='rgba(255,255,255,0.2)';
+  ctx.strokeRect(W*0.15,H*0.02,W*0.7,H*0.42);
+
+  // Portería 3D
+  var gx=W*0.18, gy=H*0.05, gw=W*0.64, gh=H*0.30;
+  // Sombra portería
+  ctx.fillStyle='rgba(0,0,0,0.4)';
+  ctx.fillRect(gx+4,gy+4,gw,gh);
+  // Fondo red
+  ctx.fillStyle='rgba(255,255,255,0.04)';
+  ctx.fillRect(gx,gy,gw,gh);
+  // Red
+  ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=0.8;
+  for(var i=1;i<9;i++){ ctx.beginPath();ctx.moveTo(gx+gw/9*i,gy);ctx.lineTo(gx+gw/9*i,gy+gh);ctx.stroke(); }
+  for(var j=1;j<5;j++){ ctx.beginPath();ctx.moveTo(gx,gy+gh/5*j);ctx.lineTo(gx+gw,gy+gh/5*j);ctx.stroke(); }
+  // Marco portería
+  ctx.strokeStyle='#fff'; ctx.lineWidth=3;
+  ctx.strokeRect(gx,gy,gw,gh);
+  // Postes 3D
+  ctx.fillStyle='#ddd';
+  ctx.fillRect(gx-4,gy-4,8,gh+8);
+  ctx.fillRect(gx+gw-4,gy-4,8,gh+8);
+  ctx.fillRect(gx-4,gy-4,gw+8,8);
+
+  // Indicador de puntería (preview)
+  if(!balon) {
+    var lat=_pen.lateral, alt=_pen.altura;
+    var px2=gx+(lat/100)*gw, py2=gy+gh-(alt/100)*gh;
+    var fueraPorLado = lat<8||lat>92;
+    var fueraPorArriba = alt>88;
+    if(!fueraPorLado && !fueraPorArriba){
+      ctx.strokeStyle='rgba(255,255,0,0.4)'; ctx.lineWidth=1;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(W/2,H*0.9); ctx.lineTo(px2,py2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(255,255,0,0.6)';
+      ctx.beginPath(); ctx.arc(px2,py2,6,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  // Punto penal
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(W/2,H*0.86,4,0,Math.PI*2); ctx.fill();
+
+  // Portero
+  var portX = gx+gw/2, portY = gy+gh*0.42, portYoff=0;
+  if(portero){ portX=portero.x; portYoff=portero.yOff||0; }
+  // Cuerpo portero
+  ctx.fillStyle='#f59e0b';
+  ctx.beginPath(); ctx.arc(portX,portY+portYoff,14,0,Math.PI*2); ctx.fill();
+  ctx.font='18px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('🧤',portX,portY+portYoff+6);
+  // Brazos extendidos
+  ctx.strokeStyle='#f59e0b'; ctx.lineWidth=4; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(portX-14,portY+portYoff); ctx.lineTo(portX-28,portY+portYoff-8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(portX+14,portY+portYoff); ctx.lineTo(portX+28,portY+portYoff-8); ctx.stroke();
+
+  // Balón
+  if(balon){
+    ctx.font=balon.size+'px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('⚽',balon.x,balon.y);
+    // Sombra balón
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(balon.x, H*0.93, balon.size*0.4, balon.size*0.12, 0,0,Math.PI*2); ctx.fill();
+  } else {
+    ctx.font='22px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('⚽',W/2,H*0.9);
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(W/2,H*0.94,9,3,0,0,Math.PI*2); ctx.fill();
+  }
+
+  // GOL overlay
+  if(mostrarGol){
+    ctx.fillStyle='rgba(34,197,94,0.25)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#22c55e'; ctx.font='bold 28px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('⚽ GOOOOL!',W/2,H/2);
+  }
+}
+
+function penFin() {
+  clearInterval(_pen.potTimer);
+  if(_pen.goles > _pen.mejor){
+    _pen.mejor=_pen.goles;
+    localStorage.setItem('pen_mejor',_pen.mejor);
+    document.getElementById('pen-mejor').textContent=_pen.mejor;
+  }
+  var canvas=document.getElementById('pen-canvas');
+  if(canvas){
+    var ctx=canvas.getContext('2d');
+    ctx.fillStyle='rgba(0,0,0,0.8)'; ctx.fillRect(0,0,_pen.W,_pen.H);
+    var emoji = _pen.goles>=5?'🏆':_pen.goles>=3?'⚽':'😅';
+    var msg = _pen.goles>=5?'¡Golejada perfecta!':_pen.goles>=3?'¡Buen partido!':'Sigue entrenando...';
+    ctx.fillStyle='#f59e0b'; ctx.font='bold 22px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(emoji+' '+_pen.goles+'/5 goles',_pen.W/2,_pen.H/2-12);
+    ctx.fillStyle='#aaa'; ctx.font='13px sans-serif';
+    ctx.fillText(msg,_pen.W/2,_pen.H/2+14);
+    if(_pen.goles===_pen.mejor && _pen.goles>0){
+      ctx.fillStyle='#f59e0b'; ctx.font='12px sans-serif';
+      ctx.fillText('🌟 ¡Nuevo récord!',_pen.W/2,_pen.H/2+34);
+    }
+  }
+  var btn=document.getElementById('pen-btn');
+  if(btn){
+    btn.textContent='🔄 Jugar de nuevo'; btn.disabled=false;
+    btn.onclick=function(){
+      _pen.tiro=1; _pen.goles=0;
+      document.getElementById('pen-tiro').textContent='1';
+      document.getElementById('pen-goles').textContent='0';
+      document.getElementById('pen-resultado').textContent='';
+      btn.textContent='⚽ LANZAR';
+      btn.onclick=penLanzar;
+      penStartPotencia();
+      penDrawEstado(null,null,false,false);
+    };
+  }
+}
+
+function renderSnake(c) {
+  bloquearSwipe();
+  c.innerHTML = `
+    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
+    <div style="text-align:center;margin-bottom:10px">
+      <div style="font-size:15px;font-weight:700;color:var(--texto)">Snake DT</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:12px;color:var(--texto-secundario)">Puntos: <span id="sk-puntos" style="color:var(--texto);font-weight:700">0</span></div>
+      <div id="sk-nivel-label" style="font-size:12px;font-weight:700;color:#e31e24">PRINCIPIANTE</div>
+      <div style="font-size:12px;color:var(--texto-secundario)">Mejor: <span id="sk-mejor" style="color:#f59e0b;font-weight:700">0</span></div>
+    </div>
+    <canvas id="sk-canvas" style="width:100%;border-radius:12px;display:block;background:#111;border:1px solid #333"></canvas>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;max-width:220px;margin-left:auto;margin-right:auto">
+      <div></div>
+      <button ontouchstart="skDir(0,-1)" onclick="skDir(0,-1)" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:18px;cursor:pointer">▲</button>
+      <div></div>
+      <button ontouchstart="skDir(-1,0)" onclick="skDir(-1,0)" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:18px;cursor:pointer">◀</button>
+      <button ontouchstart="skPause()" onclick="skPause()" style="background:#e31e24;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer" id="sk-btn">▶</button>
+      <button ontouchstart="skDir(1,0)" onclick="skDir(1,0)" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:18px;cursor:pointer">▶</button>
+      <div></div>
+      <button ontouchstart="skDir(0,1)" onclick="skDir(0,1)" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:18px;cursor:pointer">▼</button>
+      <div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;justify-content:center">
+      <button onclick="skSetNivel(1)" style="background:var(--gris);color:#22c55e;border:1px solid #22c55e;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer">🟢 Principiante</button>
+      <button onclick="skSetNivel(2)" style="background:var(--gris);color:#f59e0b;border:1px solid #f59e0b;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer">🟡 Intermedio</button>
+      <button onclick="skSetNivel(3)" style="background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer">🔴 Avanzado</button>
+      <button onclick="skSetNivel(4)" style="background:var(--gris);color:#7c3aed;border:1px solid #7c3aed;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer">💜 Elite</button>
+    </div>`;
+  skInit();
+}
+
+var _sk = {};
+var _skColores = ['#e31e24','#3b82f6','#22c55e','#f59e0b','#a855f7','#ec4899','#14b8a6','#f97316'];
+var _skNiveles = { 1:{vel:200,obs:0,label:'PRINCIPIANTE'}, 2:{vel:130,obs:3,label:'INTERMEDIO'}, 3:{vel:80,obs:6,label:'AVANZADO'}, 4:{vel:50,obs:10,label:'ELITE'} };
+
+function skInit() {
+  var canvas = document.getElementById('sk-canvas');
+  if(!canvas) return;
+  var W = canvas.offsetWidth;
+  canvas.width = W;
+  canvas.height = W;
+  var mejor = parseInt(localStorage.getItem('sk_mejor')||0);
+  document.getElementById('sk-mejor').textContent = mejor;
+  _sk = {
+    W: W, cel: Math.floor(W/20), cols: 20, rows: 20,
+    serpiente: [{x:10,y:10},{x:9,y:10},{x:8,y:10}],
+    dir: {x:1,y:0}, nextDir: {x:1,y:0},
+    comida: null, obstaculos: [],
+    puntos: 0, mejor: mejor,
+    nivel: 1, loop: null, corriendo: false, pausado: false
+  };
+  skGenerarComida();
+  skDraw();
+}
+
+function skSetNivel(n) {
+  if(_sk.loop) clearInterval(_sk.loop);
+  _sk.nivel = n;
+  _sk.serpiente = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  _sk.dir = {x:1,y:0}; _sk.nextDir = {x:1,y:0};
+  _sk.puntos = 0; _sk.corriendo = false; _sk.pausado = false;
+  _sk.obstaculos = [];
+  document.getElementById('sk-puntos').textContent = 0;
+  document.getElementById('sk-nivel-label').textContent = _skNiveles[n].label;
+  document.getElementById('sk-btn').textContent = '▶';
+  skGenerarObstaculos();
+  skGenerarComida();
+  skDraw();
+}
+
+function skGenerarObstaculos() {
+  _sk.obstaculos = [];
+  var cant = _skNiveles[_sk.nivel].obs;
+  for(var i=0; i<cant; i++) {
+    var o;
+    do { o = {x:Math.floor(Math.random()*18)+1, y:Math.floor(Math.random()*18)+1}; }
+    while(_sk.serpiente.some(function(s){return s.x===o.x&&s.y===o.y;}));
+    _sk.obstaculos.push(o);
+  }
+}
+
+function skGenerarComida() {
+  var f;
+  do { f = {x:Math.floor(Math.random()*19)+1, y:Math.floor(Math.random()*19)+1}; }
+  while(_sk.serpiente.some(function(s){return s.x===f.x&&s.y===f.y;}) ||
+        _sk.obstaculos.some(function(o){return o.x===f.x&&o.y===f.y;}));
+  _sk.comida = f;
+}
+
+function skDir(x, y) {
+  if(!_sk.corriendo) { skPause(); return; }
+  if(x!==0 && _sk.dir.x!==0) return;
+  if(y!==0 && _sk.dir.y!==0) return;
+  _sk.nextDir = {x:x,y:y};
+}
+
+function skPause() {
+  if(!_sk.corriendo) {
+    _sk.corriendo = true; _sk.pausado = false;
+    document.getElementById('sk-btn').textContent = '⏸';
+    _sk.loop = setInterval(skStep, _skNiveles[_sk.nivel].vel);
+  } else {
+    _sk.corriendo = false;
+    clearInterval(_sk.loop);
+    document.getElementById('sk-btn').textContent = '▶';
+  }
+}
+
+function skStep() {
+  if(!document.getElementById('sk-canvas')) { clearInterval(_sk.loop); return; }
+  _sk.dir = _sk.nextDir;
+  var cab = {x:_sk.serpiente[0].x+_sk.dir.x, y:_sk.serpiente[0].y+_sk.dir.y};
+  if(cab.x<0||cab.x>=_sk.cols||cab.y<0||cab.y>=_sk.rows) { skGameOver(); return; }
+  if(_sk.serpiente.some(function(s){return s.x===cab.x&&s.y===cab.y;})) { skGameOver(); return; }
+  if(_sk.obstaculos.some(function(o){return o.x===cab.x&&o.y===cab.y;})) { skGameOver(); return; }
+  _sk.serpiente.unshift(cab);
+  if(cab.x===_sk.comida.x && cab.y===_sk.comida.y) {
+    _sk.puntos += _sk.nivel * 10;
+    document.getElementById('sk-puntos').textContent = _sk.puntos;
+    if(_sk.puntos > _sk.mejor) {
+      _sk.mejor = _sk.puntos;
+      localStorage.setItem('sk_mejor', _sk.mejor);
+      document.getElementById('sk-mejor').textContent = _sk.mejor;
+    }
+    skGenerarComida();
+    if(_sk.puntos % 50 === 0) skGenerarObstaculos();
+  } else {
+    _sk.serpiente.pop();
+  }
+  skDraw();
+}
+
+function skGameOver() {
+  clearInterval(_sk.loop);
+  _sk.corriendo = false;
+  var canvas = document.getElementById('sk-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(0,0,_sk.W,_sk.W);
+  ctx.fillStyle = '#e31e24';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('💀 GAME OVER', _sk.W/2, _sk.W/2-16);
+  ctx.fillStyle = '#aaa';
+  ctx.font = '14px sans-serif';
+  ctx.fillText('Puntos: '+_sk.puntos, _sk.W/2, _sk.W/2+10);
+  ctx.fillText('Toca ▶ para reiniciar', _sk.W/2, _sk.W/2+30);
+  document.getElementById('sk-btn').textContent = '▶';
+  _sk.serpiente = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  _sk.dir={x:1,y:0}; _sk.nextDir={x:1,y:0}; _sk.puntos=0;
+  document.getElementById('sk-puntos').textContent=0;
+  skGenerarObstaculos(); skGenerarComida();
+}
+
+function skDraw() {
+  var canvas = document.getElementById('sk-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var cel = _sk.cel;
+  ctx.fillStyle = '#111';
+  ctx.fillRect(0,0,_sk.W,_sk.W);
+  // Grid sutil
+  ctx.strokeStyle = '#1a1a1a';
+  ctx.lineWidth = 0.5;
+  for(var i=0;i<_sk.cols;i++){
+    ctx.beginPath();ctx.moveTo(i*cel,0);ctx.lineTo(i*cel,_sk.W);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,i*cel);ctx.lineTo(_sk.W,i*cel);ctx.stroke();
+  }
+  // Obstáculos
+  _sk.obstaculos.forEach(function(o){
+    ctx.fillStyle = '#333';
+    ctx.fillRect(o.x*cel+1,o.y*cel+1,cel-2,cel-2);
+    ctx.fillStyle = '#555';
+    ctx.font = (cel-4)+'px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('🧱',o.x*cel+cel/2,o.y*cel+cel-2);
+  });
+  // Comida
+  if(_sk.comida){
+    ctx.font = (cel-2)+'px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('🏋️',_sk.comida.x*cel+cel/2,_sk.comida.y*cel+cel-1);
+  }
+  // Serpiente
+  _sk.serpiente.forEach(function(s,i){
+    if(i===0){
+      // Cabeza entrenador
+      ctx.fillStyle = '#e31e24';
+      ctx.beginPath();
+      ctx.arc(s.x*cel+cel/2, s.y*cel+cel/2, cel/2-1, 0, Math.PI*2);
+      ctx.fill();
+      ctx.font = (cel-4)+'px sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText('🏋️',s.x*cel+cel/2,s.y*cel+cel-2);
+    } else {
+      // Cuerpo clientes multicolor
+      var color = _skColores[i % _skColores.length];
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(s.x*cel+cel/2, s.y*cel+cel/2, cel/2-2, 0, Math.PI*2);
+      ctx.fill();
+      var emojis = ['🏃‍♂️','🏃‍♀️','🧑‍🦱','👩‍🦱','🧑‍🦰','👩‍🦰','🧑🏾','👩🏾'];
+      ctx.font = (cel-6)+'px sans-serif';
+      ctx.fillText(emojis[i%emojis.length],s.x*cel+cel/2,s.y*cel+cel-3);
+    }
+  });
+}
+
 function renderMemoria(c) {
+  bloquearSwipe();
   c.innerHTML = `
     <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
     <div style="text-align:center;margin-bottom:12px">
@@ -3083,18 +4357,24 @@ function renderMemoria(c) {
 var _mem = { pares:0, total:0, intentos:0, timer:null, seg:0, volteadas:[], bloqueado:false, nivel:8 };
 
 var _memIconos = [
-  '<svg viewBox="0 0 40 40" fill="none"><rect x="4" y="17" width="8" height="6" rx="2" fill="#e31e24"/><rect x="28" y="17" width="8" height="6" rx="2" fill="#e31e24"/><rect x="12" y="18" width="16" height="4" rx="1" fill="#aaa"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="12" fill="#555"/><circle cx="20" cy="20" r="7" fill="#333"/><circle cx="20" cy="20" r="3" fill="#222"/><rect x="18" y="6" width="4" height="28" rx="1" fill="#777"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><path d="M10 30 Q15 10 20 15 Q25 20 30 10" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="10" cy="30" r="3" fill="#3b82f6"/><circle cx="30" cy="10" r="3" fill="#3b82f6"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><ellipse cx="14" cy="22" rx="8" ry="10" fill="#e31e24"/><ellipse cx="26" cy="22" rx="8" ry="10" fill="#e31e24"/><rect x="12" y="12" width="16" height="6" rx="3" fill="#c01010"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><path d="M20 8 L28 28 Q20 34 12 28 Z" fill="#555"/><circle cx="20" cy="28" r="5" fill="#333"/><circle cx="20" cy="10" r="3" fill="#777"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><rect x="4" y="19" width="32" height="4" rx="1" fill="#aaa"/><rect x="3" y="14" width="6" height="14" rx="2" fill="#777"/><rect x="31" y="14" width="6" height="14" rx="2" fill="#777"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><path d="M8 20 Q14 12 20 20 Q26 28 32 20" stroke="#22c55e" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="8" cy="20" r="3" fill="#22c55e"/><circle cx="32" cy="20" r="3" fill="#22c55e"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><rect x="8" y="14" width="24" height="16" rx="3" fill="#555"/><ellipse cx="20" cy="30" rx="8" ry="3" fill="#333"/><rect x="14" y="10" width="12" height="6" rx="2" fill="#444"/><line x1="12" y1="22" x2="28" y2="22" stroke="#777" stroke-width="1"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><rect x="10" y="26" width="20" height="8" rx="2" fill="#555"/><ellipse cx="14" cy="26" rx="4" ry="4" fill="#444"/><ellipse cx="26" cy="26" rx="4" ry="4" fill="#444"/><rect x="12" y="18" width="16" height="10" rx="2" fill="#666"/><circle cx="20" cy="14" r="5" fill="#555"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" fill="none" stroke="#f59e0b" stroke-width="2"/><line x1="20" y1="8" x2="20" y2="20" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="20" x2="28" y2="24" stroke="#e31e24" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="20" r="2" fill="#f59e0b"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><path d="M10 32 L14 20 L20 24 L26 20 L30 32 Z" fill="#3b82f6"/><ellipse cx="20" cy="16" rx="6" ry="7" fill="#5b9cf6"/><path d="M14 32 L20 28 L26 32" fill="#2563eb"/></svg>',
-  '<svg viewBox="0 0 40 40" fill="none"><rect x="12" y="22" width="16" height="10" rx="3" fill="#e31e24"/><rect x="15" y="18" width="10" height="6" rx="2" fill="#c01010"/><circle cx="17" cy="18" r="2" fill="#aaa"/><circle cx="23" cy="18" r="2" fill="#aaa"/><rect x="10" y="28" width="4" height="6" rx="1" fill="#aaa"/><rect x="26" y="28" width="4" height="6" rx="1" fill="#aaa"/></svg>'
+  '<img src="/images/Fuerza.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Cardio.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Mancuerna.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Proteina.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Shaker.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Termo.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Cronometro.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Correr.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Kettelball.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Guanterojo.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Soga_de_batir.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Trofeo.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Cerebro.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Fuego.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Mira.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Discobasico.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Bolso.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Equismancuerna.png" style="width:56px;height:56px;object-fit:contain">'
 ];
 
 function memCargarMejores() {
@@ -3189,6 +4469,7 @@ function memGanar() {
 }
 
 function renderReflejos(c) {
+  bloquearSwipe();
   c.innerHTML = `
     <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:14px">← Juegos</button>
     <div style="text-align:center;margin-bottom:16px">
@@ -3307,6 +4588,7 @@ function reflejosActualizar() {
 }
 
 function renderTriqui(c) {
+  bloquearSwipe();
   c.innerHTML = `
     <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:14px">← Juegos</button>
     <div style="text-align:center;margin-bottom:12px">
@@ -3323,8 +4605,8 @@ function renderTriqui(c) {
 
 var _triqui = { board: Array(9).fill(null), turno: 0, activo: true };
 var _triquiJugadores = [
-  { nombre: 'Entrenador', emoji: '🏋️', color: '#e31e24' },
-  { nombre: 'Cliente',    emoji: '🥊', color: '#3b82f6' }
+  { nombre: 'Entrenador', emoji: '<img src="/images/Equismancuerna.png" style="width:48px;height:48px;object-fit:contain">', color: '#e31e24' },
+  { nombre: 'Cliente',    emoji: '<img src="/images/Kettelball.png" style="width:48px;height:48px;object-fit:contain">', color: '#3b82f6' }
 ];
 var _triquiGanador = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
@@ -5855,6 +7137,7 @@ document.addEventListener('touchend',function(e){
   const dx=e.changedTouches[0].clientX-_swipeStartX;
   const dy=e.changedTouches[0].clientY-_swipeStartY;
   if(Math.abs(dx)<60||Math.abs(dy)>Math.abs(dx)*0.8)return;
+  if(document.body.getAttribute('data-swipe-bloqueado')==='1')return;
   const pageActiva=_pages.find(p=>document.getElementById('page-'+p)?.classList.contains('active'));
   if(!pageActiva)return;
   const idx=_pages.indexOf(pageActiva);
@@ -6420,6 +7703,23 @@ function filtrarRutinas(){
       <div id="cfg-codigo-status" style="font-size:11px;margin-top:8px;text-align:center"></div>
     </div>
     <div style="height:1px;background:#1e1e1e;margin:4px 0 8px"></div>
+
+    <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:8px 0 10px">🔗 Vinculación</div>
+    <div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:6px">
+      <div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:4px">Código de vinculación</div>
+      <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">Comparte este código con tus clientes para que puedan registrarse en tu app.</div>
+      <div id="vinc-codigo-display" style="background:var(--card);border:2px solid #e31e24;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
+        <div id="vinc-codigo-txt" style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>
+        <div style="font-size:10px;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:1px">Código actual</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="generarCodigoVinc()" id="btn-generar-vinc" style="flex:1;background:#1a0000;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:10px;cursor:pointer">🔄 Generar</button>
+        <button onclick="copiarCodigoVinc()" style="flex:1;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px;cursor:pointer">📋 Copiar</button>
+        <button onclick="toggleLockCodigo()" id="btn-lock-vinc" style="background:#1a1a1a;border:1px solid #333;border-radius:10px;color:#fff;font-size:16px;padding:10px 14px;cursor:pointer">🔓</button>
+      </div>
+    </div>
+
+    <div style="height:1px;background:#1e1e1e;margin:4px 0 8px"></div>
     <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:8px 0 10px">🎨 Apariencia</div>
     <div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:6px">
       <div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:10px">Nombre del entrenador</div>
@@ -6599,6 +7899,7 @@ async function guardarAlimentacion() {
     proteina:      parseFloat(document.getElementById('ali-proteina').value)      || 0,
     carbos:        parseFloat(document.getElementById('ali-carbos').value)        || 0,
     grasas:        parseFloat(document.getElementById('ali-grasas').value)        || 0,
+    objetivo:      document.getElementById('ali-objetivo') ? document.getElementById('ali-objetivo').value : '',
     comidas:       parseInt(document.getElementById('ali-comidas').value),
     pretreno:      document.getElementById('ali-pretreno-check').checked,
     pretreno_pos:  parseInt(document.getElementById('ali-pretreno-pos').value) || 0,
@@ -6786,7 +8087,8 @@ function initRol() {
     mostrarApp();
   } else if (rol === 'cliente') {
     const tel = localStorage.getItem('dt_cliente_tel');
-    if (tel) {
+    const id = localStorage.getItem('dt_cliente_id');
+    if (tel && id) {
       mostrarTerminalCliente(tel);
     } else {
       mostrarPantalla('pantalla-rol');
@@ -6822,15 +8124,41 @@ function loginEntrenador() {
 
 function loginCliente() {
   const tel = document.getElementById('input-tel-cliente').value.replace(/\s/g,'');
+  const codeBox = document.getElementById('vinc-code-box');
+  const errorTel = document.getElementById('error-tel');
+  const errorVinc = document.getElementById('error-vinc');
+  if(errorTel) errorTel.style.display = 'none';
+  if(errorVinc) errorVinc.style.display = 'none';
+
   fetch('/api/usuarios').then(r=>r.json()).then(usuarios => {
     const u = usuarios.find(u => u.telefono && u.telefono.replace(/\s/g,'') === tel && u.activo);
     if (u) {
+      if(codeBox) codeBox.style.display = 'none';
       localStorage.setItem(ROL_KEY, 'cliente');
       localStorage.setItem('dt_cliente_tel', tel);
       localStorage.setItem('dt_cliente_id', u.id);
       mostrarTerminalCliente(tel);
     } else {
-      document.getElementById('error-tel').style.display = 'block';
+      if(codeBox && codeBox.style.display === 'none') {
+        codeBox.style.display = 'block';
+        return;
+      }
+      const codigo = document.getElementById('input-codigo-vinc') ? document.getElementById('input-codigo-vinc').value.trim().toUpperCase() : '';
+      if (!codigo) { if(errorVinc){ errorVinc.style.display='block'; errorVinc.textContent='Ingresa el código de tu entrenador'; } return; }
+      fetch('/api/validar-vinculacion', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({telefono: tel, codigo})
+      }).then(r=>r.json()).then(data => {
+        if (data.ok) {
+          localStorage.setItem(ROL_KEY, 'cliente');
+          localStorage.setItem('dt_cliente_tel', tel);
+          localStorage.setItem('dt_cliente_id', data.id);
+          mostrarTerminalCliente(tel);
+        } else {
+          if(errorVinc){ errorVinc.style.display='block'; errorVinc.textContent = data.error || 'Código inválido'; }
+        }
+      });
     }
   });
 }
@@ -6943,7 +8271,8 @@ function tcRenderRutina(cont) {
   diasHtml += '</div>';
   cont.innerHTML = diasHtml + '<div id="tc-rec-dropdown" style="display:none;background:#1a1a1a;border-left:3px solid #e31e24;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#ccc"></div><div id="tc-dia-contenido"></div>';
   // Verificar si rutina ya fue completada hoy
-  const _resumenHoy = localStorage.getItem('tc-rutina-completa-' + tcFechaHoy());
+  const _uid2 = (_tcUsuario && _tcUsuario.id) || 'x';
+  const _resumenHoy = localStorage.getItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy());
   if (_resumenHoy) {
     try {
       const r = JSON.parse(_resumenHoy);
@@ -7014,7 +8343,15 @@ function tcVerDia(dia) {
   if (dropHoy) { dropHoy.style.display = 'none'; dropHoy._origen = null; }
 
 
-  if (ejercicios.length === 0) {
+  const cardio = diaData && diaData.cardio ? diaData.cardio : [];
+  const presencial = diaData && diaData.presencial;
+
+  if (presencial) {
+    cont.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:64px;margin-bottom:12px">🏟️</div><div style="font-size:18px;font-weight:900;color:#e31e24;margin-bottom:8px">Clase presencial</div><div style="font-size:13px;color:#888;line-height:1.6;padding:0 20px">' + (recordatorio || 'Hoy tienes clase presencial con tu entrenador.') + '</div></div>';
+    return;
+  }
+
+  if (ejercicios.length === 0 && cardio.length === 0) {
     cont.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:12px">😴</div><div style="font-size:16px;font-weight:700;color:#555">Día de descanso</div><div style="font-size:13px;color:#444;margin-top:6px">Recuperación y hidratación</div></div>';
     return;
   }
@@ -7031,7 +8368,6 @@ function tcVerDia(dia) {
 
 
   // CARDIO - mostrar antes de ejercicios
-  const cardio = diaData && diaData.cardio ? diaData.cardio : [];
   if (cardio.length > 0) {
     html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🏃 ' + cardio.length + ' bloques de cardio</div>';
     cardio.forEach((cx, ci) => {
@@ -7120,7 +8456,8 @@ function tcFechaHoy() {
 }
 
 function tcGuardarProgreso() {
-  const key = 'tc-progreso-' + tcFechaHoy();
+  const uid = (_tcUsuario && _tcUsuario.id) || 'x';
+  const key = 'tc-progreso-' + uid + '-' + tcFechaHoy();
   localStorage.setItem(key, JSON.stringify({
     series: _tcSeriesCompletadas,
     cardio: _tcCardioCompletado
@@ -7128,7 +8465,8 @@ function tcGuardarProgreso() {
 }
 
 function tcCargarProgreso() {
-  const key = 'tc-progreso-' + tcFechaHoy();
+  const uid = (_tcUsuario && _tcUsuario.id) || 'x';
+  const key = 'tc-progreso-' + uid + '-' + tcFechaHoy();
   try {
     const d = JSON.parse(localStorage.getItem(key));
     if (d) {
@@ -7228,41 +8566,122 @@ function tcDetenerRutina() {
 function tcConfirmarFinalizar() {
   const conf = document.getElementById('tc-confirm-finalizar');
   if (conf) conf.remove();
-  localStorage.removeItem('tc-timer-inicio');
-  if (_tcTimerRutina) clearInterval(_tcTimerRutina);
-  const banner = document.getElementById('tc-banner-timer');
-  if (banner) banner.style.display = 'none';
-  const btn = document.getElementById('tc-btn-iniciar-rutina');
-  if (btn) { btn.textContent = '▶ Iniciar rutina'; btn.style.color = '#e31e24'; btn.style.border = '1px solid #e31e24'; }
-}
 
-function tcFelicitacion() {
-  const uid = _tcUsuario && _tcUsuario.id;
-  if (uid) fetch('/api/usuarios/' + uid + '/sesion', {method:'POST'}).catch(()=>{});
-  // Guardar resumen del día
+  // Calcular resumen
   const btns = document.querySelectorAll('[id^="tc-btn-serie-"]');
+  const completados = Array.from(btns).filter(b => b.disabled).length;
+  const faltantes = btns.length - completados;
+  const seriesHechas = Object.values(_tcSeriesCompletadas).reduce((a,b)=>a+parseInt(b||0),0);
   const totalSeries = Array.from(btns).reduce((acc,b) => {
     const m = b.getAttribute('onclick') && b.getAttribute('onclick').match(/,(\d+)\)$/);
     return acc + (m ? parseInt(m[1]) : 0);
   }, 0);
+  const seriesFaltantes = totalSeries - seriesHechas;
   const cardiosBtns = document.querySelectorAll('[id^="tc-cardio-btn-"]');
   const cardiosHechos = Array.from(cardiosBtns).filter(b => b.disabled || b.textContent.includes('completado')).length;
   const timerInicio = parseInt(localStorage.getItem('tc-timer-inicio')) || 0;
   const tiempoSeg = timerInicio ? Math.floor((Date.now() - timerInicio) / 1000) : 0;
+  const hh = String(Math.floor(tiempoSeg/3600)).padStart(2,'0');
+  const mm = String(Math.floor((tiempoSeg%3600)/60)).padStart(2,'0');
+  const ss = String(tiempoSeg%60).padStart(2,'0');
+  const completo = faltantes === 0;
+
+  // Guardar en localStorage
+  const uid = (_tcUsuario && _tcUsuario.id) || 'x';
   const resumen = {
     ejercicios: btns.length,
+    ejerciciosHechos: completados,
     series: totalSeries,
+    seriesHechas,
     cardios: cardiosHechos,
     tiempo: tiempoSeg,
+    completo,
     fecha: tcFechaHoy()
   };
-  localStorage.setItem('tc-rutina-completa-' + tcFechaHoy(), JSON.stringify(resumen));
+  localStorage.setItem('tc-rutina-completa-' + uid + '-' + tcFechaHoy(), JSON.stringify(resumen));
+
+  // Registrar sesión si completó al menos algo
+  if (completados > 0 && _tcUsuario && _tcUsuario.id) {
+    fetch('/api/usuarios/' + _tcUsuario.id + '/sesion', {method:'POST'}).catch(()=>{});
+  }
+
+  // Detener timer
+  localStorage.removeItem('tc-timer-inicio');
+  if (_tcTimerRutina) clearInterval(_tcTimerRutina);
+  const banner = document.getElementById('tc-banner-timer');
+  if (banner) banner.style.display = 'none';
+
+  // Mostrar pantalla resumen
   const div = document.createElement('div');
-  div.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px';
-  div.innerHTML = '<div style="font-size:72px">🏆</div><div style="font-size:24px;font-weight:900;color:#4caf50;text-align:center">¡Rutina completada!</div><div style="font-size:14px;color:#888;text-align:center;padding:0 30px">Excelente trabajo. Cada rep te acerca a tu mejor versión.</div><div style="font-size:12px;color:#4caf50">Sesión registrada automáticamente ✅</div><button onclick="this.parentElement.remove()" style="margin-top:16px;background:#1a3a1a;border:1px solid #4caf50;border-radius:12px;color:#4caf50;font-size:14px;font-weight:700;padding:12px 40px;cursor:pointer">💪 ¡Listo!</button>';
+  div.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.97);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px;overflow-y:auto';
+  let inner = '';
+  if (completo) {
+    inner += '<div style="font-size:64px">🏆</div>';
+    inner += '<div style="font-size:22px;font-weight:900;color:#4caf50;text-align:center">¡Rutina completada!</div>';
+    inner += '<div style="font-size:13px;color:#888;text-align:center;line-height:1.6">Cada sesión te acerca más a quien quieres ser. 💪</div>';
+  } else {
+    inner += '<div style="font-size:64px">⚠️</div>';
+    inner += '<div style="font-size:22px;font-weight:900;color:#ff9800;text-align:center">Rutina incompleta</div>';
+    inner += '<div style="font-size:13px;color:#888;text-align:center;line-height:1.6">La próxima vez da el 100%. Tu cuerpo lo agradecerá.</div>';
+  }
+  inner += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;width:100%;max-width:340px;margin-top:8px">';
+  inner += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">📋 Resumen</div>';
+  inner += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+  inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + completados + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Ejercicios hechos</div></div>';
+  if (faltantes > 0) {
+    inner += '<div style="background:#1a0000;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + faltantes + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Ejercicios faltantes</div></div>';
+  }
+  inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + seriesHechas + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series hechas</div></div>';
+  if (seriesFaltantes > 0) {
+    inner += '<div style="background:#1a0000;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + seriesFaltantes + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series faltantes</div></div>';
+  }
+  if (cardiosHechos > 0) {
+    inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + cardiosHechos + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Cardios</div></div>';
+  }
+  if (tiempoSeg > 0) {
+    inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm+':'+ss + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Tiempo</div></div>';
+  }
+  inner += '</div></div>';
+  inner += '<button onclick="this.parentElement.remove();tcMostrarResumenFinal()" style="margin-top:8px;background:' + (completo?'#1a3a1a':'#1a1a00') + ';border:1px solid ' + (completo?'#4caf50':'#ff9800') + ';border-radius:12px;color:' + (completo?'#4caf50':'#ff9800') + ';font-size:14px;font-weight:700;padding:12px 40px;cursor:pointer">' + (completo?'💪 ¡Listo!':'👊 Entendido') + '</button>';
+  div.innerHTML = inner;
   document.body.appendChild(div);
 }
 
+function tcFelicitacion() {
+  tcConfirmarFinalizar();
+}
+
+
+function tcMostrarResumenFinal() {
+  // Recargar la tab de rutina para mostrar pantalla de completado
+  const cont = document.getElementById('tc-contenido');
+  if (!cont) return;
+  const uid = (_tcUsuario && _tcUsuario.id) || 'x';
+  const resumenStr = localStorage.getItem('tc-rutina-completa-' + uid + '-' + tcFechaHoy());
+  if (!resumenStr) return;
+  try {
+    const r = JSON.parse(resumenStr);
+    const hh = String(Math.floor(r.tiempo/3600)).padStart(2,'0');
+    const mm2 = String(Math.floor((r.tiempo%3600)/60)).padStart(2,'0');
+    const ss = String(r.tiempo%60).padStart(2,'0');
+    let html2 = '<div style="text-align:center;padding:30px 20px">';
+    html2 += '<div style="font-size:64px;margin-bottom:12px">' + (r.completo?'🏆':'⚠️') + '</div>';
+    html2 += '<div style="font-size:20px;font-weight:900;color:' + (r.completo?'#4caf50':'#ff9800') + ';margin-bottom:8px">' + (r.completo?'¡Rutina completada!':'Rutina finalizada') + '</div>';
+    html2 += '<div style="font-size:13px;color:#888;margin-bottom:24px;line-height:1.6">' + (r.completo?'Cada sesión te acerca más a quien quieres ser. 💪':'Mañana es una nueva oportunidad.') + '</div>';
+    html2 += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;text-align:left;margin-bottom:12px">';
+    html2 += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">📋 Resumen de hoy</div>';
+    html2 += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+    html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + (r.ejerciciosHechos||r.ejercicios) + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Ejercicios</div></div>';
+    if (r.ejercicios - (r.ejerciciosHechos||r.ejercicios) > 0) html2 += '<div style="flex:1;min-width:80px;background:#1a0000;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#e31e24">' + (r.ejercicios-(r.ejerciciosHechos||r.ejercicios)) + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Faltantes</div></div>';
+    html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + (r.seriesHechas||r.series) + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series</div></div>';
+    if (r.cardios > 0) html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + r.cardios + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Cardios</div></div>';
+    if (r.tiempo > 0) html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm2+':'+ss + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Tiempo</div></div>';
+    html2 += '</div></div>';
+    html2 += '<div style="font-size:11px;color:#333;margin-top:8px">' + r.fecha + '</div>';
+    html2 += '</div>';
+    cont.innerHTML = html2;
+  } catch(e) {}
+}
 
 function tcMostrarBannerTimer() {
   const banner = document.getElementById('tc-banner-timer');
@@ -7602,5 +9021,216 @@ function tcGuardarPerfilCliente() {
   }).catch(()=>alert('❌ Error al guardar'));
 }
 </script>
+
+<script>
+function mostrarRecomendacionesMacros() {
+  const sel = document.getElementById('ali-objetivo');
+  console.log("OBJETIVO ACTUAL:", sel ? sel.value : "NO ENCONTRADO");
+  const objetivo = sel ? sel.value : 'perdida';
+  const recs = {
+    'perdida':        { p:'2.0–2.5', c:'1.5–2.5', g:'0.8–1.0' },
+    'musculo':        { p:'2.2–3.0', c:'3.5–5.0', g:'1.0–1.5' },
+    'hipertrofia':    { p:'2.2–3.0', c:'3.5–5.0', g:'1.0–1.5' },
+    'rendimiento':    { p:'1.8–2.5', c:'4.0–6.0', g:'1.0–1.3' },
+    'rehabilitacion': { p:'2.0–2.5', c:'2.0–3.0', g:'1.0–1.2' },
+    'salud':          { p:'1.6–2.0', c:'2.5–3.5', g:'0.8–1.2' },
+  };
+  const r = recs[objetivo] || recs['perdida'];
+  const rp = document.getElementById('rec-proteina');
+  const rc = document.getElementById('rec-carbos');
+  const rg = document.getElementById('rec-grasas');
+  if(rp) rp.textContent = '💡 Rec: ' + r.p + ' g/kg';
+  if(rc) rc.textContent = '💡 Rec: ' + r.c + ' g/kg';
+  if(rg) rg.textContent = '💡 Rec: ' + r.g + ' g/kg';
+}
+
+// Llamar cuando cambia el objetivo
+document.addEventListener('DOMContentLoaded', function() {
+  const sel = document.getElementById('cliente-objetivo');
+  if(sel) sel.addEventListener('change', mostrarRecomendacionesMacros);
+  const pa = document.getElementById('ali-peso-actual');
+  if(pa) pa.addEventListener('input', mostrarRecomendacionesMacros);
+  const po = document.getElementById('ali-peso-objetivo');
+  if(po) po.addEventListener('input', mostrarRecomendacionesMacros);
+});
+</script>
+
+
+<script>
+var COLORES_RULETA = ['#cc0000','#111111','#cc0000','#111111','#cc0000','#111111','#cc0000','#111111','#cc0000','#111111'];
+
+function renderRuleta(c) {
+  window._ruletas = [];
+  c.innerHTML = '<div style="padding:10px"><h3 style="color:var(--acento);margin:0 0 14px 0;font-size:16px">🎯 Ruleta DT</h3><div id="ruletas-container" style="display:flex;flex-direction:column;gap:20px"></div></div>';
+  var itemsEj = JSON.parse(localStorage.getItem('ruleta_ejercicios')||'["Sentadillas","Flexiones","Burpees","Planchas","Zancadas"]');
+  var itemsTi = JSON.parse(localStorage.getItem('ruleta_tiempos')||'["10 seg","20 seg","30 seg","1 min"]');
+  window._ruletas = [
+    { id: 'ejercicios', titulo: 'Ejercicios', items: itemsEj, dorado: 'Burpees', girando: false, angulo: 0, velocidad: 0, frameId: null },
+    { id: 'tiempos', titulo: 'Tiempos', items: itemsTi, dorado: '1 min', girando: false, angulo: 0, velocidad: 0, frameId: null }
+  ];
+  renderTodasRuletas();
+}
+
+function agregarRuleta() {}
+
+function eliminarRuleta(id) {
+  var r = window._ruletas.find(function(x){ return x.id==id; });
+  if (r && r.frameId) cancelAnimationFrame(r.frameId);
+  window._ruletas = window._ruletas.filter(function(x){ return x.id!=id; });
+  renderTodasRuletas();
+}
+
+function guardarRuleta(r) {
+  localStorage.setItem('ruleta_' + r.id, JSON.stringify(r.items));
+}
+
+function renderTodasRuletas() {
+  var cont = document.getElementById('ruletas-container');
+  if (!cont) return;
+  cont.innerHTML = '';
+  window._ruletas.forEach(function(r, i) {
+    var div = document.createElement('div');
+    div.style.cssText = 'background:var(--gris);border-radius:14px;padding:14px;border:1px solid #333;';
+    var esFija = r.id === 'ejercicios' || r.id === 'tiempos';
+    var cerrar = !esFija ? '<button onclick="eliminarRuleta(\'' +r.id+ '\')" style="background:none;border:none;color:#e31e24;font-size:20px;cursor:pointer;line-height:1">×</button>' : '';
+    var titulo = r.titulo ? r.titulo.toUpperCase() : ('RULETA ' + (i+1));
+    div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:14px;font-weight:700;color:#FFD700;letter-spacing:1px">🎰 '+titulo+'</span>'+cerrar+'</div>'
+      + '<canvas id="cvs'+r.id+'" width="280" height="280" style="display:block;margin:0 auto"></canvas>'
+      + '<div id="res'+r.id+'" style="text-align:center;min-height:30px;margin:12px 0;font-size:16px;font-weight:700;color:#FFD700;text-shadow:0 0 10px #FFD700"></div>'
+      + '<div style="display:flex;gap:8px;margin-bottom:10px"><input id="inp'+r.id+'" type="text" placeholder="Nuevo ítem..." style="flex:1;padding:8px;border-radius:8px;border:1px solid #444;background:#1a1a1a;color:#fff;font-size:13px"><button onclick="agregarItem(\'' +r.id+ '\')" style="padding:8px 14px;background:#FFD700;color:#000;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">+</button></div>'
+      + '<div id="itms'+r.id+'" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>'
+      + '<button onclick="girarRuleta(\'' +r.id+ '\')" style="width:100%;padding:13px;background:linear-gradient(135deg,#cc0000,#ff0000);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;box-shadow:0 4px 15px rgba(204,0,0,0.4)">🎯 GIRAR</button>';
+    cont.appendChild(div);
+    dibujarRuleta(r);
+    renderItems(r);
+  });
+  var btn = document.getElementById('btn-agregar-ruleta');
+  if (btn) btn.style.display = window._ruletas.length >= 3 ? 'none' : 'block';
+}
+
+function agregarItem(id) {
+  var r = window._ruletas.find(function(x){ return x.id==id; });
+  if (!r) return;
+  var inp = document.getElementById('inp'+id);
+  var val = inp.value.trim();
+  if (!val) return;
+  r.items.push(val);
+  inp.value = '';
+  guardarRuleta(r);
+  dibujarRuleta(r);
+  renderItems(r);
+}
+
+function quitarItem(id, idx) {
+  var r = window._ruletas.find(function(x){ return x.id==id; });
+  if (!r || r.items.length <= 2) return;
+  r.items.splice(idx, 1);
+  guardarRuleta(r);
+  dibujarRuleta(r);
+  renderItems(r);
+}
+
+function renderItems(r) {
+  var cont = document.getElementById('itms'+r.id);
+  if (!cont) return;
+  cont.innerHTML = r.items.map(function(item, i) {
+    var x = r.items.length > 2 ? '<button onclick="quitarItem('+r.id+','+i+')" style="background:none;border:none;color:#888;cursor:pointer;font-size:11px;padding:0;margin-left:3px">✕</button>' : '';
+    return '<span style="background:#1a1a1a;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;display:inline-flex;align-items:center">'+item+x+'</span>';
+  }).join('');
+}
+
+function dibujarRuleta(r) {
+  var canvas = document.getElementById('cvs'+r.id);
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var cx = 140, cy = 140, radio = 130;
+  var n = r.items.length;
+  var arco = 2 * Math.PI / n;
+  ctx.clearRect(0, 0, 280, 280);
+  r.items.forEach(function(item, i) {
+    var ini = r.angulo + i * arco;
+    var fin = ini + arco;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radio, ini, fin);
+    ctx.closePath();
+    ctx.fillStyle = i % 2 === 0 ? '#cc0000' : '#111111';
+    ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(ini + arco / 2);
+    ctx.textAlign = 'right';
+    ctx.shadowColor = '#000';
+    ctx.shadowBlur = 4;
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 12px sans-serif';
+    var txt = item.length > 11 ? item.substring(0,10)+'…' : item;
+    ctx.fillText(txt, radio - 8, 5);
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  });
+  // Borde dorado exterior
+  ctx.beginPath();
+  ctx.arc(cx, cy, radio + 6, 0, 2*Math.PI);
+  ctx.strokeStyle = '#FFD700';
+  ctx.lineWidth = 4;
+  ctx.stroke();
+  // Segundo aro dorado
+  ctx.beginPath();
+  ctx.arc(cx, cy, radio + 11, 0, 2*Math.PI);
+  ctx.strokeStyle = '#B8860B';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // Centro dorado
+  ctx.beginPath();
+  ctx.arc(cx, cy, 16, 0, 2*Math.PI);
+  ctx.fillStyle = '#FFD700';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 10, 0, 2*Math.PI);
+  ctx.fillStyle = '#111';
+  ctx.fill();
+  // Puntero dorado apuntando hacia adentro
+  ctx.beginPath();
+  ctx.moveTo(cx + radio - 8, cy);
+  ctx.lineTo(cx + radio + 18, cy - 12);
+  ctx.lineTo(cx + radio + 18, cy + 12);
+  ctx.closePath();
+  ctx.fillStyle = '#FFD700';
+  ctx.strokeStyle = '#B8860B';
+  ctx.lineWidth = 1.5;
+  ctx.fill();
+  ctx.stroke();
+}
+
+function girarRuleta(id) {
+  var r = window._ruletas.find(function(x){ return x.id==id; });
+  if (!r || r.girando) return;
+  r.girando = true;
+  document.getElementById('res'+id).textContent = '';
+  r.velocidad = 0.22 + Math.random() * 0.18;
+  var freno = 180 + Math.floor(Math.random() * 180);
+  var frame = 0;
+  function animar() {
+    frame++;
+    if (frame > freno) r.velocidad *= 0.97;
+    r.angulo += r.velocidad;
+    dibujarRuleta(r);
+    if (r.velocidad < 0.003) {
+      r.girando = false;
+      var n = r.items.length;
+      var arco = 2 * Math.PI / n;
+      var angNorm = ((-r.angulo) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+      var idx = Math.floor(angNorm / arco) % n;
+      document.getElementById('res'+id).textContent = '🏆 ' + r.items[idx];
+      return;
+    }
+    r.frameId = requestAnimationFrame(animar);
+  }
+  r.frameId = requestAnimationFrame(animar);
+}
+</script>
 </body>
-</html>

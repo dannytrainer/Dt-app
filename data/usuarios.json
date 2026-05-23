@@ -14,15 +14,15 @@
       "edad": "30",
       "altura": "172.5",
       "objetivo": "",
-      "etiqueta": "perdida",
+      "etiqueta": "hipertrofia",
       "notas": "Todo",
       "unidades": "kg",
       "fecha_nacimiento": "2026-05-22"
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 22,
-    "sesiones_ciclo": 22,
+    "sesiones_total": 23,
+    "sesiones_ciclo": 23,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague m",
     "msg_q1": "",
@@ -49,7 +49,7 @@
       "sexo": "F",
       "edad": "25",
       "altura": "168",
-      "etiqueta": "hipertrofia",
+      "etiqueta": "perdida",
       "notas": "Lesión en ligamento cruzado rodilla izquierda \n\nLumbalgia ",
       "unidades": "kg"
     },
@@ -78,8 +78,8 @@
       "unidades": "kg"
     },
     "msg_pago": "",
-    "sesiones_total": 1,
-    "sesiones_ciclo": 1,
+    "sesiones_total": 2,
+    "sesiones_ciclo": 2,
     "foto": "data/fotos/1778376855974/perfil.jpg"
   },
   {
@@ -104,8 +104,8 @@
     },
     "msg_pago": "Prueba de cobro automát",
     "foto": "data/fotos/1778377049231/perfil.jpg",
-    "sesiones_total": 1,
-    "sesiones_ciclo": 1
+    "sesiones_total": 2,
+    "sesiones_ciclo": 2
   },
   {
     "id": "1778377208321",

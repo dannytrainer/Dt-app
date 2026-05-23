@@ -504,7 +504,9 @@
   "1778389775722": {
     "lunes": {
       "recordatorio": "Nando hoy toca pecho/espalda ",
-      "rutina": "1. *Press inclinado mancuernas*\n    - Series: 5\n    - Reps: 15 / 12 / 8-10 / 8-10/ 8-10\n    - RIR: 1-2\n\n2. *Press plano*\n    - Series: 4\n    - Reps: 6-8 / 8-10\n    - RIR: 1-2\n\n3. *Remo pesado (neutro cerrado)*\n    - Series: 3+DS\n    - Reps: 8-10\n    - RIR: 1-2\n\n4. *Jalón (neutro amplitud)*\n    - Series: 4+DS\n    - Reps: 8-12\n    - RIR: 1-2\n\n5. *Pullover + vuelos*\n    - Series: 3\n    - Reps: 12-15\n    - RIR: 0-1"
+      "rutina": "1. *Press inclinado mancuernas*\n    - Series: 5\n    - Reps: 15 / 12 / 8-10 / 8-10/ 8-10\n    - RIR: 1-2\n\n2. *Press plano*\n    - Series: 4\n    - Reps: 6-8 / 8-10\n    - RIR: 1-2\n\n3. *Remo pesado (neutro cerrado)*\n    - Series: 3+DS\n    - Reps: 8-10\n    - RIR: 1-2\n\n4. *Jalón (neutro amplitud)*\n    - Series: 4+DS\n    - Reps: 8-12\n    - RIR: 1-2\n\n5. *Pullover + vuelos*\n    - Series: 3\n    - Reps: 12-15\n    - RIR: 0-1",
+      "ejercicios": [],
+      "cardio": []
     },
     "martes": {
       "recordatorio": "Nando hoy toca pata enfocado en femoral",
@@ -520,7 +522,10 @@
     },
     "viernes": {
       "recordatorio": "Nando pata ero énfasis  cuádriceps ",
-      "rutina": "\n\n1. *Aducción + abducción*\n    - Series: 3\n    - Reps: 15-20\n    - RIR: 2\n\n2. *Hack squat*\n    - Series: 3\n    - Reps: 8-10\n    - RIR: 1\n\n3. *Prensa*\n    - Series: 3\n    - Reps: 8-10\n    - RIR: 1\n\n4. *Tijera cajón*\n    - Series: 3\n    - Reps: 10-12\n    - RIR: 1\n\n5. *Extensión bilateral*\n    - Series: 3\n    - Reps: 10-12\n    - RIR: 0-1\n\n6. *Extensión unilateral*\n    - Series: 2\n    - Reps: 12-15\n    - RIR: 0-1\n\n7. *Curl femoral*\n    - Series: 3\n    - Reps: 12-15\n    - RIR: 1\n\n8. *Pantorrilla*\n    - Series: 6-8\n    - Reps: 12-20\n    - RIR: 1-2"
+      "rutina": "\n1. *Aducción + abducción*\n    - Series: 3\n    - Reps: 15-20\n    - RIR: 2\n\n2. *Hack squat*\n    - Series: 3\n    - Reps: 8-10\n    - RIR: 1\n\n3. *Prensa*\n    - Series: 3\n    - Reps: 8-10\n    - RIR: 1\n\n4. *Tijera cajón*\n    - Series: 3\n    - Reps: 10-12\n    - RIR: 1\n\n5. *Extensión bilateral*\n    - Series: 3\n    - Reps: 10-12\n    - RIR: 0-1\n\n6. *Extensión unilateral*\n    - Series: 2\n    - Reps: 12-15\n    - RIR: 0-1\n\n7. *Curl femoral*\n    - Series: 3\n    - Reps: 12-15\n    - RIR: 1\n\n8. *Pantorrilla*\n    - Series: 6-8\n    - Reps: 12-20\n    - RIR: 1-2",
+      "presencial": true,
+      "ejercicios": [],
+      "cardio": []
     },
     "sabado": {
       "recordatorio": "Nando ultimo día de brazo ",
@@ -1216,6 +1221,47 @@
     },
     "viernes": {
       "recordatorio": "Pierna",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    }
+  },
+  "1778376855974": {
+    "lunes": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [],
+      "presencial": true
+    },
+    "viernes": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": []
+    },
+    "sabado": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": []
+    },
+    "jueves": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": false,
+      "cardio": []
+    },
+    "martes": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": []
+    },
+    "miercoles": {
+      "recordatorio": "",
       "rutina": "",
       "ejercicios": [],
       "presencial": true,

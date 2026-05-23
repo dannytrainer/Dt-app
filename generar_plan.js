@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 
-function generarPlanAlimentario(idCliente, dataDir) {
+function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
   dataDir = dataDir || path.join(__dirname, 'data');
 
   // ── 1. Cargar datos ──────────────────────────────────────
@@ -82,9 +82,9 @@ function generarPlanAlimentario(idCliente, dataDir) {
   // Distribución balanceada: desayuno sólido, cena proteica, snacks con carbos reales
   // Porcentajes por tipo de comida
   const pctPorComida = {
-    'Desayuno':    { prot: 0.20, carbs: 0.25, grasa: 0.20 },
-    'Almuerzo':    { prot: 0.32, carbs: 0.35, grasa: 0.28 },
-    'Cena':        { prot: 0.30, carbs: 0.18, grasa: 0.25 },
+    'Desayuno':    { prot: 0.15, carbs: 0.25, grasa: 0.18 },
+    'Almuerzo':    { prot: 0.22, carbs: 0.35, grasa: 0.22 },
+    'Cena':        { prot: 0.40, carbs: 0.18, grasa: 0.28 },
     'Snack 1':     { prot: 0.07, carbs: 0.10, grasa: 0.08 },
     'Snack 2':     { prot: 0.07, carbs: 0.08, grasa: 0.08 },
     'Snack 3':     { prot: 0.06, carbs: 0.07, grasa: 0.06 },
@@ -99,7 +99,7 @@ function generarPlanAlimentario(idCliente, dataDir) {
   const distGrasa = comidasDia.map(c => Math.round(totalGrasa * (pctPorComida[c]?.grasa || 0.10) / sumGrasa));
 
   // ── 5. Filtrar alimentos disponibles ─────────────────────
-  const nivelEco = parseInt(config.nivel_eco) || 0; // 0=eco, 1=medio, 2=premium
+  const nivelEco = (parseInt(config.nivel_eco) || 1) - 1; // 1=eco, 2=medio, 3=premium → 0,1,2
   const niveles  = ['economico','medio','premium'];
   const nivelesPermitidos = niveles.slice(0, nivelEco + 1);
 
@@ -168,7 +168,7 @@ function generarPlanAlimentario(idCliente, dataDir) {
   // pero diferente por cliente
   const hoy = new Date();
   const diaAnio = Math.floor((hoy - new Date(hoy.getFullYear(), 0, 0)) / 86400000);
-  const seed = idCliente.split('').reduce((a,c) => a + c.charCodeAt(0), 0) + (diaAnio * 7);
+  const seed = idCliente.split('').reduce((a,c) => a + c.charCodeAt(0), 0) + (diaAnio * 7) + ((diaOffset||0) * 97);
   function seededRand(arr, offset) {
     if (!arr || arr.length === 0) return null;
     return arr[(seed + offset) % arr.length];
@@ -252,67 +252,130 @@ function generarPlanAlimentario(idCliente, dataDir) {
     // PRE ENTRENO: carbs + proteína moderada
 
     if (nombreComida === 'Desayuno') {
-      const carb  = elegirAlimento('carbohidrato', offset, true, 'desayuno');
-      const prot  = elegirAlimento('proteina', offset+1, true, 'desayuno');
-      const fruta = elegirAlimento('fruta', offset+2, true, 'desayuno');
+      const poolCarbDesayuno = (porCat['carbohidrato'] || []).filter(a => !usados.has(a.varId) && a.subcategoria === 'carb_desayuno').sort((a,b) => (b.prioridad||0) - (a.prioridad||0));
+      const carb = poolCarbDesayuno.length > 0 ? poolCarbDesayuno[0] : null;
+      if(carb) { usados.add(carb.varId); }
+      const protPool = [...(porCat['proteina'] || []), ...(porCat['lacteo'] || [])].filter(a => !usados.has(a.varId) && (!a.comidas_permitidas || a.comidas_permitidas.includes('desayuno'))).sort((a,b) => (b.prioridad||0) - (a.prioridad||0));
+      const prot = protPool.length > 0 ? protPool[0] : null;
+      if(prot) { usados.add(prot.varId); }
+      const poolFrutas = (porCat['fruta'] || []).filter(a => !usados.has(a.varId) && (!a.comidas_permitidas || a.comidas_permitidas.includes('desayuno')));
+      const idsVistosF = new Set();
+      const frutasMix = poolFrutas.filter(v => { if(idsVistosF.has(v.id)) return false; idsVistosF.add(v.id); return true; }).slice(0, 2);
+      frutasMix.forEach(f => usados.add(f.varId));
+      const fruta = frutasMix.length > 0 ? { ...frutasMix[0], _ensalada_frutas: frutasMix } : null;
+      const grasa = elegirAlimento('grasa', offset+3, true, 'desayuno');
       if (carb)  items.push({ ...carb,  porcion_g: calcularPorcion(carb, carbsComida * 0.7, 'carbohidratos'), nota: 'Base energética' });
       if (prot)  items.push({ ...prot,  porcion_g: calcularPorcion(prot, protComida, 'proteina'), nota: 'Proteína matutina' });
-      if (fruta) items.push({ ...fruta, porcion_g: fruta.variante.porcion_g, nota: 'Micronutrientes' });
+      if (fruta) {
+        if (fruta._ensalada_frutas && fruta._ensalada_frutas.length > 1) {
+          const nombresFruta = fruta._ensalada_frutas.map(f => f.nombre).join(', ');
+          items.push({ ...fruta, porcion_g: 150, nota: 'Ensalada de frutas', nombre: 'Ensalada de frutas', _detalle: nombresFruta });
+        } else {
+          items.push({ ...fruta, porcion_g: fruta.variante.porcion_g, nota: 'Micronutrientes' });
+        }
+      }
+      if (grasa) items.push({ ...grasa, porcion_g: calcularPorcion(grasa, grasaComida, 'grasas'), nota: 'Grasa matutina' });
     }
-    else if (nombreComida === 'Almuerzo') { pool = pool; // almuerzo solo usa carbs de almuerzo
-      const EXCLUIR_ALMUERZO = ['avena','cereal','granola','milo'];
+    else if (nombreComida === 'Almuerzo') {
       let poolCarbAlmuerzo = (porCat['carbohidrato'] || []).filter(a =>
-        !usados.has(a.varId) &&
-        !EXCLUIR_ALMUERZO.some(x => a.id.includes(x)) &&
-        !EXCLUIR_ALMUERZO.some(x => (a.variante.preparacion || '').toLowerCase().includes(x))
-      );
-      if (poolCarbAlmuerzo.length === 0) poolCarbAlmuerzo = porCat['carbohidrato'] || [];
-      const prot    = elegirAlimento('proteina', offset, true, 'almuerzo');
-      const carb    = (() => {
-        const elegido = seededRand(poolCarbAlmuerzo, offset+1);
-        if (elegido) { usados.add(elegido.varId); ultimoPorCategoria['carbohidrato'] = elegido.varId; }
-        return elegido;
-      })();
-      const verdura = elegirAlimento('verdura', offset+2, true, 'almuerzo');
+        !usados.has(a.varId) && a.subcategoria === 'carb_almuerzo'
+      ).sort((a,b) => (b.prioridad||0) - (a.prioridad||0));
+      const idxCarb = (seed + (diaOffset||0) * 17) % (poolCarbAlmuerzo.length || 1);
+      const carb = poolCarbAlmuerzo.length > 0 ? poolCarbAlmuerzo[idxCarb] : null;
+      if(carb) { usados.add(carb.varId); ultimoPorCategoria['carbohidrato'] = carb.varId; }
+      // Rotar proteína de almuerzo usando diaOffset
+      const poolProtAlmuerzo = (porCat['proteina'] || []).filter(a => 
+        !usados.has(a.varId) && 
+        a.subcategoria === 'proteina_principal' &&
+        (!a.comidas_permitidas || a.comidas_permitidas.includes('almuerzo'))
+      ).sort((a,b) => (b.prioridad_nutricional||b.prioridad||5) - (a.prioridad_nutricional||a.prioridad||5));
+      const idxProt = (seed + (diaOffset||0) * 13) % (poolProtAlmuerzo.length || 1);
+      const prot = poolProtAlmuerzo.length > 0 ? poolProtAlmuerzo[idxProt] : null;
+      if(prot) { usados.add(prot.varId); ultimoPorCategoria['proteina'] = prot.varId; usosPorAlimento[prot.id] = (usosPorAlimento[prot.id]||0)+1; }
+      // Ensalada variada — tomar hasta 3 verduras diferentes
+      const poolVerduras = (porCat['verdura'] || []).filter(a => !usados.has(a.varId)).sort(() => Math.random() - 0.5);
+      const idsVistos = new Set();
+      const verduras = poolVerduras.filter(v => { if(idsVistos.has(v.id)) return false; idsVistos.add(v.id); return true; }).slice(0, 3);
+      verduras.forEach(v => usados.add(v.varId));
+      const verdura = verduras.length > 0 ? { ...verduras[0], _ensalada: verduras } : null;
       const grasa   = elegirAlimento('grasa', offset+3, true, 'almuerzo');
       if (prot)    items.push({ ...prot,    porcion_g: calcularPorcion(prot, protComida, 'proteina'), nota: 'Proteína principal' });
-      if (prot && prot.complemento_proteina) {
-        const huevo = (porCat['proteina'] || []).find(a => a.id === 'huevo');
-        if (huevo) items.push({ ...huevo, porcion_g: 60, nota: 'Complemento aminoácidos' });
+      const protAportada = prot ? (prot.variante.proteina * calcularPorcion(prot, protComida, 'proteina') / prot.variante.porcion_g) : 0;
+      if (protAportada < protComida * 0.85) {
+        const protFaltante = protComida - protAportada;
+        // Complemento solo si proteína principal no es premium ni pescado
+      const esProteinaPremium = prot && ['salmon','lomo_res','camaron','carne_res','cerdo_lomo'].includes(prot.id);
+      const esProteínaPescado = prot && ['tilapia','bagre','mojarra','sardina','atun_enlatado'].includes(prot.id);
+      const complemento = (esProteinaPremium || esProteínaPescado) ? null : (porCat['proteina'] || []).filter(a => 
+          !usados.has(a.varId) && 
+          a.id !== (prot ? prot.id : '') &&
+          a.subcategoria === 'proteina_complemento'
+        ).sort((a,b) => (b.prioridad||0)-(a.prioridad||0))[0];
+        if (complemento) items.push({ ...complemento, porcion_g: calcularPorcion(complemento, protFaltante, 'proteina'), nota: 'Complemento proteína' });
       }
       if (carb)    items.push({ ...carb,    porcion_g: calcularPorcion(carb, carbsComida, 'carbohidratos'), nota: 'Energía' });
-      if (verdura) items.push({ ...verdura, porcion_g: 100, nota: 'Micronutrientes y fibra' });
-      // Descontar grasa ya aportada por proteina y carb
+      if (verdura) {
+        if (verdura._ensalada && verdura._ensalada.length > 1) {
+          const nombres = verdura._ensalada.map(v => v.nombre).join(', ');
+          items.push({ ...verdura, porcion_g: 100, nota: 'Ensalada variada', nombre: 'Ensalada variada', _detalle: nombres });
+        } else {
+          items.push({ ...verdura, porcion_g: 100, nota: 'Micronutrientes y fibra' });
+        }
+      }
       const grasaImplicita = (prot ? (prot.variante.grasas * calcularPorcion(prot, protComida, 'proteina') / prot.variante.porcion_g) : 0)
                           + (carb ? (carb.variante.grasas * calcularPorcion(carb, carbsComida, 'carbohidratos') / carb.variante.porcion_g) : 0);
-      const grasaRestante = Math.max(0, grasaComida - grasaImplicita);
-      if (grasa && grasaRestante > 3) items.push({ ...grasa, porcion_g: calcularPorcion(grasa, grasaRestante, 'grasas'), nota: 'Grasas saludables' });
+      const grasaNeta = Math.max(0, grasaComida - grasaImplicita);
+      if (grasa && grasaNeta > 3) items.push({ ...grasa, porcion_g: calcularPorcion(grasa, grasaNeta, 'grasas'), nota: 'Grasa saludable' });
     }
     else if (nombreComida === 'Cena') {
-      const prot    = elegirAlimento('proteina', offset, true, 'cena');
-      const carb    = elegirAlimento('carbohidrato', offset+1, true, 'cena');
-      const verdura = elegirAlimento('verdura', offset+2, true, 'cena');
+      const poolProtCena = (porCat['proteina'] || []).filter(a => 
+        !usados.has(a.varId) && 
+        a.subcategoria === 'proteina_principal' &&
+        (!a.comidas_permitidas || a.comidas_permitidas.includes('cena'))
+      ).sort((a,b) => (b.prioridad_nutricional||b.prioridad||5) - (a.prioridad_nutricional||a.prioridad||5));
+      const idxProtCena = (seed + (diaOffset||0) * 31) % (poolProtCena.length || 1);
+      const prot = poolProtCena.length > 0 ? poolProtCena[idxProtCena] : null;
+      if(prot) { usados.add(prot.varId); ultimoPorCategoria['proteina'] = prot.varId; usosPorAlimento[prot.id] = (usosPorAlimento[prot.id]||0)+1; }
+      const poolCarbCena = (porCat['carbohidrato'] || []).filter(a =>
+        !usados.has(a.varId) && a.subcategoria === 'carb_almuerzo'
+      ).sort((a,b) => (b.prioridad||0) - (a.prioridad||0));
+      const carb = poolCarbCena.length > 0 ? poolCarbCena[0] : null;
+      if(carb) { usados.add(carb.varId); }
+      const poolVerdurasCena = (porCat['verdura'] || []).filter(a => !usados.has(a.varId)).sort(() => Math.random() - 0.5);
+      const idsVistosCena = new Set();
+      const verdurasCena = poolVerdurasCena.filter(v => { if(idsVistosCena.has(v.id)) return false; idsVistosCena.add(v.id); return true; }).slice(0, 3);
+      verdurasCena.forEach(v => usados.add(v.varId));
+      const verdura = verdurasCena.length > 0 ? { ...verdurasCena[0], _ensalada: verdurasCena } : null;
       const grasa   = elegirAlimento('grasa', offset+3, true, 'cena');
       if (prot)    items.push({ ...prot,    porcion_g: calcularPorcion(prot, protComida, 'proteina'), nota: 'Alta proteína nocturna' });
       if (carb)    items.push({ ...carb,    porcion_g: calcularPorcion(carb, carbsComida * 0.6, 'carbohidratos'), nota: 'Carbs moderados' });
-      if (verdura) items.push({ ...verdura, porcion_g: 100, nota: 'Fibra y vitaminas' });
+      if (verdura) {
+        if (verdura._ensalada && verdura._ensalada.length > 1) {
+          const nombres = verdura._ensalada.map(v => v.nombre).join(', ');
+          items.push({ ...verdura, porcion_g: 100, nota: 'Ensalada variada', nombre: 'Ensalada variada', _detalle: nombres });
+        } else {
+          items.push({ ...verdura, porcion_g: 100, nota: 'Micronutrientes' });
+        }
+      }
       if (grasa)   items.push({ ...grasa,   porcion_g: calcularPorcion(grasa, grasaComida, 'grasas'), nota: 'Grasa nocturna' });
     }
-    else if (nombreComida.includes('Snack')) {
-      // Snack: máximo 2 items. Primero algo natural (fruta o snack ligero), luego proteína si se requiere
-      const principal = elegirAlimento('fruta', offset, true, 'snack') || elegirAlimento('snack', offset, true, 'snack');
+    else if (nombreComida === 'Snack 1' || nombreComida === 'Snack 2' || nombreComida === 'Snack 3') {
+      const principal = elegirAlimento('fruta', offset, true, 'snack');
       if (principal) items.push({ ...principal, porcion_g: principal.variante.porcion_g, nota: 'Snack principal' });
-      // Agregar proteina siempre que el objetivo lo requiera
       if (protComida > 5) {
-        const catPrincipal = principal ? principal.categoria : null;
-        // Priorizar snack ligero (yogur, galleta, maní) sobre proteína pesada
-        const protSnack = elegirAlimento('snack', offset+1, true, 'snack') || 
-                          (catPrincipal !== 'proteina' ? elegirAlimento('proteina', offset+1, true, 'snack') : null);
+        const protSnack = elegirAlimento('proteina_complemento', offset+1, true, 'snack') ||
+                          elegirAlimento('proteina', offset+1, true, 'snack');
         if (protSnack) items.push({ ...protSnack, porcion_g: calcularPorcion(protSnack, protComida * 0.8, 'proteina'), nota: 'Complemento proteína' });
       }
     }
-    else if (nombreComida === 'Pre entreno') { const carbsPreEntreno = Math.min(carbsComida, 40); const protPreEntreno = Math.min(protComida, 20);
-      const carb = elegirAlimento('carbohidrato', offset, true, 'pre_entreno');
+    else if (nombreComida === 'Pre entreno') {
+      const carbsPreEntreno = Math.min(carbsComida, 40);
+      const protPreEntreno = Math.min(protComida, 20);
+      const poolCarbRapido = (porCat['carbohidrato'] || []).filter(a =>
+        !usados.has(a.varId) && (a.subcategoria === 'carb_rapido' || a.id === 'arroz_blanco')
+      ).sort((a,b) => (b.prioridad||0) - (a.prioridad||0));
+      const carb = poolCarbRapido.length > 0 ? poolCarbRapido[0] : null;
+      if(carb) { usados.add(carb.varId); }
       const prot = elegirAlimento('proteina', offset+1, true, 'pre_entreno');
       if (carb) items.push({ ...carb, porcion_g: calcularPorcion(carb, carbsPreEntreno, 'carbohidratos'), nota: 'Energía pre entreno' });
       if (prot) items.push({ ...prot, porcion_g: calcularPorcion(prot, protPreEntreno, 'proteina'), nota: 'Proteína pre entreno' });
@@ -345,6 +408,7 @@ function generarPlanAlimentario(idCliente, dataDir) {
           calorias:      Math.round(item.variante.calorias      * (item.porcion_g / item.variante.porcion_g))
         },
         nota: item.nota,
+        detalle: item._detalle || null,
         unidad: (() => {
           const uRaw = item.unidad_natural;
           if (!uRaw) return null;
@@ -398,4 +462,12 @@ function generarPlanAlimentario(idCliente, dataDir) {
   };
 }
 
-module.exports = { generarPlanAlimentario };
+function generarPlanSemanal(idCliente, dataDir) {
+  const dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  return dias.map((dia, i) => {
+    const plan = generarPlanAlimentario(idCliente, dataDir, i);
+    return { dia, ...plan };
+  });
+}
+
+module.exports = { generarPlanAlimentario, generarPlanSemanal };
