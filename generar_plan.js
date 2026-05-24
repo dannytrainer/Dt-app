@@ -126,26 +126,28 @@ function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
   // Reglas de exclusión por condición
   const exclusiones = {
     // Diabetes — excluir IG > 55, limitar azúcares simples
-    'diabetes':           a => a.indice_glucemico > 55 || ['arroz_blanco','papa','arepa','platano','banano','aguapanela'].includes(a._id),
+    'diabetes':           a => a.indice_glucemico > 70 || ['aguapanela'].includes(a._id),
     // Hipertensión — sodio bajo, sin sal añadida
-    'hipertension':       a => a.sodio > 300 || ['sal','embutidos'].some(x => a._id.includes(x)),
+    'hipertension':       a => a.sodio > 400 || ['sal','embutidos','tocineta','chorizo'].some(x => a._id.includes(x)),
     // Ácido úrico / gota — purinas bajas, sin vísceras ni mariscos
-    'acido_urico':        a => a.purinas > 100 || ['higado','sardina','camaron','langostino'].some(x => a._id.includes(x)),
-    'gota':               a => a.purinas > 100 || ['higado','sardina','camaron'].some(x => a._id.includes(x)),
+    'acido_urico':        a => a.purinas > 150 || ['higado','sardina','camaron','langostino','anchoa'].some(x => a._id.includes(x)),
+    'gota':               a => a.purinas > 150 || ['higado','sardina','camaron','langostino','anchoa'].some(x => a._id.includes(x)),
     // Enfermedad renal
     'enfermedad_renal':   a => a.proteina > 20 || a.potasio > 300 || a.fosforo > 200,
     // Hipotiroidismo — evitar soja y crucíferas en exceso
     'hipotiroidismo':     a => ['soya'].includes(a._id),
     // Gastritis — evitar irritantes
     'gastritis':          a => ['cafe','alcohol','pimienta','aji'].some(x => a._id.includes(x)),
-    'gota':               a => a.purinas > 150,
+    'colesterol_alto':    a => a.grasas_saturadas > 5 || ['mantequilla','crema','chorizo','tocineta'].some(x => a._id.includes(x)),
+    'colon_irritable':    a => ['leche','lacteo','gluten','pan','pasta','repollo','brocoli','coliflor','cebolla'].some(x => a._id.includes(x)),
+    'higado_graso':       a => a.grasas > 20 || ['alcohol','mantequilla','tocineta','chorizo','crema'].some(x => a._id.includes(x)),
+    'resistencia_insulina': a => a.indice_glucemico > 60 || ['azucar','miel','aguapanela','gaseosa','jugo'].some(x => a._id.includes(x)),
     'calculos_renales':   a => a.oxalato_alto,
-    'enfermedad_renal':   a => a.proteina > 25 || a.potasio > 400,
-    'vegano':             a => ['proteina','lacteo'].includes(a._cat) && 
-                               ['pollo','res','cerdo','pescado','huevo','lacteo'].some(t => a._id.includes(t)),
-    'vegetariano':        a => ['proteina'].includes(a._cat) && 
-                               ['pollo','res','cerdo','pescado','salmon','atun','tilapia','bagre','mojarra','sardina','camaron','langostino','pulpo','calamar','trucha','pavo'].some(t => a._id.includes(t)),
-    'sin_gluten':         a => ['pan','pasta','avena','bulgur','cuscus'].some(t => a._id.includes(t)),
+    'vegano':             a => ['pollo','res','cerdo','pescado','salmon','atun','tilapia','bagre','mojarra','sardina','camaron','langostino','pulpo','calamar','trucha','pavo','huevo','leche','queso','yogur','quesillo','kumis','kefir'].some(t => a._id.includes(t)),
+    'vegetariano':        a => ['pollo','res','cerdo','pescado','salmon','atun','tilapia','bagre','mojarra','sardina','camaron','langostino','pulpo','calamar','trucha','pavo'].some(t => a._id.includes(t)),
+    'keto':               a => a.carbohidratos > 10 || ['arroz','papa','yuca','platano','arepa','pan','pasta','avena','jugo','azucar','miel','aguapanela'].some(t => a._id.includes(t)),
+    'low_carb':           a => a.carbohidratos > 20 || ['azucar','miel','aguapanela','gaseosa','jugo'].some(t => a._id.includes(t)),
+    'sin_gluten':         a => ['pan','pasta','avena','bulgur','cuscus','galleta','harina_trigo'].some(t => a._id.includes(t)),
     'sin_lactosa':        a => a._cat === 'lacteo' && !['kefir','leche_vegetal'].includes(a._id),
     'sin_cerdo':          a => a._id.includes('cerdo'),
     'alergia_huevo':      a => a._id.includes('huevo'),
@@ -160,7 +162,7 @@ function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
     if (!nivelesPermitidos.includes(alimento.nivel)) return false;
     const ctx = { ...variante, _id: alimento.id, _cat: alimento.categoria };
     for (const filtro of todosLosFiltros) {
-      const clave = filtro.toLowerCase().replace(/ /g,'_').replace(/\//g,'_');
+      const clave = filtro.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ /g,'_').replace(/\//g,'_');
       if (exclusiones[clave] && exclusiones[clave](ctx)) return false;
     }
     return true;

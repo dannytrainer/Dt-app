@@ -354,13 +354,16 @@ module.exports = function(app, fs) {
       let fotoAntesB64 = null, fotoDespuesB64 = null;
       try { if (fs.existsSync(fotoAntes))   fotoAntesB64   = fs.readFileSync(fotoAntes).toString('base64'); } catch{}
       try { if (fs.existsSync(fotoDespues)) fotoDespuesB64 = fs.readFileSync(fotoDespues).toString('base64'); } catch{}
+      let iconB64 = null, logoTrainerB64 = null;
+      try { iconB64 = fs.readFileSync(path.join(__dirname,'public','icon.png')).toString('base64'); } catch{}
+      try { logoTrainerB64 = fs.readFileSync(path.join(__dirname,'public','logo_trainer.png')).toString('base64'); } catch{}
 
       // Leer plantilla HTML base y reemplazar sección de rutina y alimentación
       // Por ahora generamos el HTML completo inline
       const html = generarHTMLCompleto({
         usuario, ultima, penultima, primera, medidas,
         testData, alimHtml, diasHtmlFinal, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso,
-        calculos, fotoAntesB64, fotoDespuesB64, registros, nombreEntrenador, cfg
+        calculos, fotoAntesB64, fotoDespuesB64, iconB64, logoTrainerB64, registros, nombreEntrenador, cfg
       });
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -377,7 +380,7 @@ module.exports = function(app, fs) {
 // ============================================================
 // Función generadora del HTML completo
 // ============================================================
-function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtmlFinal, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso, calculos, fotoAntesB64, fotoDespuesB64, registros, nombreEntrenador, cfg }) {
+function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtmlFinal, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso, calculos, fotoAntesB64, fotoDespuesB64, iconB64, logoTrainerB64, registros, nombreEntrenador, cfg }) {
   const perfil = usuario.perfil || {};
   const edad = perfil.edad || usuario.edad || null;
   const altura = perfil.altura || usuario.altura || null;
@@ -530,13 +533,13 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
       <div class="badge-premium" style="margin-top:4px;display:inline-block;">★ TIPO PREMIUM</div>
     </div>
     <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:10px;">
-      <img src="/icon.png" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;"/>
+      ${iconB64 ? `<img src="data:image/png;base64,${iconB64}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;"/>` : ''}
       <div style="text-align:center;">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#fff;line-height:1;">DT-APP</div>
         <div style="font-size:8px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">ASISTENTE PARA ENTRENADORES</div>
         <div style="font-size:10px;color:var(--rojo);font-weight:700;margin-top:2px;">${nombreEntrenador}</div>
       </div>
-      <img src="/logo_trainer.png" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;" onerror="this.style.visibility='hidden'"/>
+      ${logoTrainerB64 ? `<img src="data:image/png;base64,${logoTrainerB64}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;"/>` : ''}
     </div>
     <div style="flex:1;text-align:right;">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1;">REPORTE DE</div>
@@ -812,7 +815,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
     </div>
     <div style="padding:14px 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <img src="/icon.png" style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;"/>
+        ${iconB64 ? `<img src="data:image/png;base64,${iconB64}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;"/>` : ''}
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1;">DT-APP</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">ASISTENTE PARA ENTRENADORES</div>
@@ -829,7 +832,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">Entrenador Personal</div>
           ${cfg.instagram_entrenador ? '<a href="https://www.instagram.com/' + cfg.instagram_entrenador.replace('@','') + '" style="font-size:10px;color:var(--rojo);font-weight:600;text-decoration:none;margin-top:2px;display:inline-block;">📸 ' + cfg.instagram_entrenador + '</a>' : '<span style="font-size:10px;color:#444;margin-top:2px;display:inline-block;">📸 Próximamente</span>'}
         </div>
-        <img src="/logo_trainer.png" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--rojo);flex-shrink:0;" onerror="this.style.visibility='hidden'"/>
+        ${logoTrainerB64 ? `<img src="data:image/png;base64,${logoTrainerB64}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--rojo);flex-shrink:0;"/>` : ''}
       </div>
     </div>
     <div style="background:#0a0a0a;border-top:1px solid #222;padding:6px 24px;display:flex;align-items:center;justify-content:space-between;">

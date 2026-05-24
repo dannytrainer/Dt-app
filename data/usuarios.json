@@ -21,8 +21,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 23,
-    "sesiones_ciclo": 23,
+    "sesiones_total": 24,
+    "sesiones_ciclo": 24,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague m",
     "msg_q1": "",
@@ -31,7 +31,8 @@
     "vinculado": true,
     "dias_desbloqueados": {
       "lunes": [
-        "2026-05-23"
+        "2026-05-23",
+        "2026-05-24"
       ],
       "sabado": [
         "2026-05-23"
@@ -67,7 +68,7 @@
   },
   {
     "id": "1778376855974",
-    "activo": true,
+    "activo": false,
     "nombre": "Ana guarin",
     "telefono": "573107223603",
     "tipo": "personalizado",
@@ -112,8 +113,16 @@
     },
     "msg_pago": "Prueba de cobro automát",
     "foto": "data/fotos/1778377049231/perfil.jpg",
-    "sesiones_total": 2,
-    "sesiones_ciclo": 2
+    "sesiones_total": 3,
+    "sesiones_ciclo": 3,
+    "dias_desbloqueados": {
+      "lunes": [
+        "2026-05-24"
+      ],
+      "martes": [
+        "2026-05-24"
+      ]
+    }
   },
   {
     "id": "1778377208321",
@@ -305,7 +314,12 @@
     "dia_pago": null,
     "dia_pago2": null,
     "estado_pago": "aldia",
-    "foto": "data/fotos/1778389775722/perfil.jpg"
+    "foto": "data/fotos/1778389775722/perfil.jpg",
+    "dias_desbloqueados": {
+      "lunes": [
+        "2026-05-24"
+      ]
+    }
   },
   {
     "id": "1778687454932",
