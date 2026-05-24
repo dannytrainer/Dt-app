@@ -81,12 +81,28 @@ function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
 
   // Distribución balanceada: desayuno sólido, cena proteica, snacks con carbos reales
   // Porcentajes por tipo de comida
-  const pctPorComida = {
+  // Distribución dinámica según número de comidas
+  const n_comidas = comidasDia.length;
+  const pctPorComida = n_comidas <= 3 ? {
+    // 3 comidas — proteína repartida en las 3
+    'Desayuno':    { prot: 0.25, carbs: 0.30, grasa: 0.25 },
+    'Almuerzo':    { prot: 0.38, carbs: 0.40, grasa: 0.35 },
+    'Cena':        { prot: 0.37, carbs: 0.30, grasa: 0.40 },
+    'Pre entreno': { prot: 0.08, carbs: 0.12, grasa: 0.03 }
+  } : n_comidas <= 4 ? {
+    // 4 comidas — proteína alta en almuerzo y cena
+    'Desayuno':    { prot: 0.20, carbs: 0.28, grasa: 0.20 },
+    'Almuerzo':    { prot: 0.30, carbs: 0.35, grasa: 0.28 },
+    'Cena':        { prot: 0.38, carbs: 0.22, grasa: 0.32 },
+    'Snack 1':     { prot: 0.12, carbs: 0.15, grasa: 0.20 },
+    'Pre entreno': { prot: 0.08, carbs: 0.12, grasa: 0.03 }
+  } : {
+    // 5-6 comidas — distribuir más uniformemente
     'Desayuno':    { prot: 0.15, carbs: 0.25, grasa: 0.18 },
-    'Almuerzo':    { prot: 0.22, carbs: 0.35, grasa: 0.22 },
-    'Cena':        { prot: 0.40, carbs: 0.18, grasa: 0.28 },
-    'Snack 1':     { prot: 0.07, carbs: 0.10, grasa: 0.08 },
-    'Snack 2':     { prot: 0.07, carbs: 0.08, grasa: 0.08 },
+    'Almuerzo':    { prot: 0.25, carbs: 0.35, grasa: 0.22 },
+    'Cena':        { prot: 0.35, carbs: 0.18, grasa: 0.28 },
+    'Snack 1':     { prot: 0.10, carbs: 0.10, grasa: 0.12 },
+    'Snack 2':     { prot: 0.08, carbs: 0.08, grasa: 0.10 },
     'Snack 3':     { prot: 0.06, carbs: 0.07, grasa: 0.06 },
     'Pre entreno': { prot: 0.08, carbs: 0.12, grasa: 0.03 }
   };
@@ -109,9 +125,19 @@ function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
 
   // Reglas de exclusión por condición
   const exclusiones = {
-    'diabetes':           a => a.indice_glucemico > 55,
-    'hipertension':       a => a.sodio > 400,
-    'acido_urico':        a => a.purinas > 150,
+    // Diabetes — excluir IG > 55, limitar azúcares simples
+    'diabetes':           a => a.indice_glucemico > 55 || ['arroz_blanco','papa','arepa','platano','banano','aguapanela'].includes(a._id),
+    // Hipertensión — sodio bajo, sin sal añadida
+    'hipertension':       a => a.sodio > 300 || ['sal','embutidos'].some(x => a._id.includes(x)),
+    // Ácido úrico / gota — purinas bajas, sin vísceras ni mariscos
+    'acido_urico':        a => a.purinas > 100 || ['higado','sardina','camaron','langostino'].some(x => a._id.includes(x)),
+    'gota':               a => a.purinas > 100 || ['higado','sardina','camaron'].some(x => a._id.includes(x)),
+    // Enfermedad renal
+    'enfermedad_renal':   a => a.proteina > 20 || a.potasio > 300 || a.fosforo > 200,
+    // Hipotiroidismo — evitar soja y crucíferas en exceso
+    'hipotiroidismo':     a => ['soya'].includes(a._id),
+    // Gastritis — evitar irritantes
+    'gastritis':          a => ['cafe','alcohol','pimienta','aji'].some(x => a._id.includes(x)),
     'gota':               a => a.purinas > 150,
     'calculos_renales':   a => a.oxalato_alto,
     'enfermedad_renal':   a => a.proteina > 25 || a.potasio > 400,
@@ -217,7 +243,7 @@ function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
     return elegido;
   }
 
-  const PORCION_MAX = { 'proteina': 300, 'carbohidrato': 400, 'grasa': 80, 'fruta': 250, 'verdura': 200, 'lacteo': 400 };
+  const PORCION_MAX = { 'proteina': 200, 'carbohidrato': 300, 'grasa': 60, 'fruta': 200, 'verdura': 200, 'lacteo': 300 };
   const PORCION_MIN = { 'proteina': 80, 'carbohidrato': 100, 'grasa': 15, 'fruta': 80 };
 
   function calcularPorcion(alimento, macroObjetivo, macroTipo) {
@@ -348,6 +374,13 @@ function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
       const verdura = verdurasCena.length > 0 ? { ...verdurasCena[0], _ensalada: verdurasCena } : null;
       const grasa   = elegirAlimento('grasa', offset+3, true, 'cena');
       if (prot)    items.push({ ...prot,    porcion_g: calcularPorcion(prot, protComida, 'proteina'), nota: 'Alta proteína nocturna' });
+      const protAportadaCena = prot ? (prot.variante.proteina * calcularPorcion(prot, protComida, 'proteina') / prot.variante.porcion_g) : 0;
+      if (protAportadaCena < protComida * 0.75) {
+        const compCena = (porCat['proteina'] || []).filter(a => 
+          !usados.has(a.varId) && a.subcategoria === 'proteina_complemento'
+        ).sort((a,b) => (b.prioridad||0)-(a.prioridad||0))[0];
+        if(compCena) items.push({ ...compCena, porcion_g: calcularPorcion(compCena, protComida * 0.4, 'proteina'), nota: 'Complemento proteína' });
+      }
       if (carb)    items.push({ ...carb,    porcion_g: calcularPorcion(carb, carbsComida * 0.6, 'carbohidratos'), nota: 'Carbs moderados' });
       if (verdura) {
         if (verdura._ensalada && verdura._ensalada.length > 1) {
@@ -360,12 +393,38 @@ function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
       if (grasa)   items.push({ ...grasa,   porcion_g: calcularPorcion(grasa, grasaComida, 'grasas'), nota: 'Grasa nocturna' });
     }
     else if (nombreComida === 'Snack 1' || nombreComida === 'Snack 2' || nombreComida === 'Snack 3') {
-      const principal = elegirAlimento('fruta', offset, true, 'snack');
-      if (principal) items.push({ ...principal, porcion_g: principal.variante.porcion_g, nota: 'Snack principal' });
-      if (protComida > 5) {
-        const protSnack = elegirAlimento('proteina_complemento', offset+1, true, 'snack') ||
-                          elegirAlimento('proteina', offset+1, true, 'snack');
-        if (protSnack) items.push({ ...protSnack, porcion_g: calcularPorcion(protSnack, protComida * 0.8, 'proteina'), nota: 'Complemento proteína' });
+      const snackIdx = nombreComida === 'Snack 1' ? 0 : 1;
+      const esEnsalada = ((seed + snackIdx) % 10) < 3;
+      
+      if (esEnsalada) {
+        const poolVerdSnack = (porCat['verdura'] || []).filter(a => !usados.has(a.varId));
+        const idsVistosS = new Set();
+        const verdsSnack = poolVerdSnack.filter(v => { if(idsVistosS.has(v.id)) return false; idsVistosS.add(v.id); return true; }).slice(0, 2);
+        verdsSnack.forEach(v => usados.add(v.varId));
+        if(verdsSnack.length > 0) {
+          const nombresVerd = verdsSnack.map(v => v.nombre).join(', ');
+          items.push({ ...verdsSnack[0], porcion_g: 100, nota: 'Snack ensalada', nombre: 'Ensalada snack', _detalle: nombresVerd });
+        }
+        const protLigera = (porCat['proteina'] || []).filter(a =>
+          !usados.has(a.varId) && a.subcategoria === 'proteina_complemento' &&
+          (!a.comidas_permitidas || a.comidas_permitidas.includes('snack'))
+        ).sort((a,b) => (b.prioridad||0)-(a.prioridad||0))[0];
+        if(protLigera) { items.push({ ...protLigera, porcion_g: calcularPorcion(protLigera, protComida, 'proteina'), nota: 'Proteína ensalada snack' }); usados.add(protLigera.varId); }
+      } else {
+        const principal = elegirAlimento('fruta', offset, true, 'snack');
+        if (principal) items.push({ ...principal, porcion_g: principal.variante.porcion_g, nota: 'Snack principal' });
+        const protSnack = (porCat['proteina'] || [...(porCat['lacteo']||[])]).filter(a =>
+          !usados.has(a.varId) && a.subcategoria === 'proteina_complemento' &&
+          (!a.comidas_permitidas || a.comidas_permitidas.includes('snack'))
+        ).sort((a,b) => (b.prioridad||0)-(a.prioridad||0))[0];
+        if (protSnack) { items.push({ ...protSnack, porcion_g: calcularPorcion(protSnack, protComida, 'proteina'), nota: 'Proteína snack' }); usados.add(protSnack.varId); }
+        if (n_comidas <= 4 && nombreComida === 'Snack 1' && kcalComida > 400) {
+          const carbSnack = (porCat['carbohidrato'] || []).filter(a =>
+            !usados.has(a.varId) && a.subcategoria === 'carb_desayuno' &&
+            (!a.comidas_permitidas || a.comidas_permitidas.includes('snack'))
+          ).sort((a,b) => (b.prioridad||0)-(a.prioridad||0))[0];
+          if (carbSnack) items.push({ ...carbSnack, porcion_g: calcularPorcion(carbSnack, carbsComida * 0.5, 'carbohidratos'), nota: 'Energía snack' });
+        }
       }
     }
     else if (nombreComida === 'Pre entreno') {

@@ -28,7 +28,15 @@
     "msg_q1": "",
     "msg_q2": "",
     "foto": "data/fotos/1778216541791/perfil.jpg",
-    "vinculado": true
+    "vinculado": true,
+    "dias_desbloqueados": {
+      "lunes": [
+        "2026-05-23"
+      ],
+      "sabado": [
+        "2026-05-23"
+      ]
+    }
   },
   {
     "id": "1778354312296",
@@ -151,7 +159,12 @@
     "msg_pago": "Cobro robot 🤖",
     "sesiones_total": 1,
     "sesiones_ciclo": 1,
-    "foto": "data/fotos/1778377380425/perfil.jpg"
+    "foto": "data/fotos/1778377380425/perfil.jpg",
+    "dias_desbloqueados": {
+      "lunes": [
+        "2026-05-24"
+      ]
+    }
   },
   {
     "id": "1778377616786",
@@ -174,7 +187,17 @@
     },
     "msg_pago": "Prueba de cobro automático",
     "foto": "data/fotos/1778377616786/perfil.jpg",
-    "vinculado": true
+    "vinculado": true,
+    "dias_desbloqueados": {
+      "lunes": [
+        "2026-05-23"
+      ],
+      "sabado": [
+        "2026-05-23"
+      ]
+    },
+    "sesiones_total": 4,
+    "sesiones_ciclo": 4
   },
   {
     "id": "1778378152347",

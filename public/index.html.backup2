@@ -466,43 +466,6 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 </div>
 </div>
 <button class="fab" onclick="abrirModalCliente()" id="fab-btn">+</button>
-<button onclick="abrirChatEntrenador()" id="chat-ent-fab" style="position:fixed;bottom:90px;left:20px;width:50px;height:50px;border-radius:50%;background:rgba(227,30,36,0.6);border:none;color:#fff;font-size:22px;cursor:pointer;z-index:999;display:none;align-items:center;justify-content:center">💬</button>
-<div id="chat-ent-badge" style="display:none;position:fixed;bottom:128px;left:14px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:1000">0</div>
-<div id="chat-ent-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:99998;flex-direction:column">
-  <div style="background:#111;border-bottom:2px solid #e31e24;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
-    <button onclick="cerrarChatEntrenador()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">←</button>
-    <div style="font-size:16px;font-weight:900;color:#fff;flex:1">💬 Mensajes</div>
-  </div>
-  <div id="chat-ent-lista" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
-    <div style="padding:12px 16px;flex-shrink:0">
-      <input id="chat-ent-buscar" type="text" placeholder="Buscar cliente..." oninput="filtrarChatClientes()" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:10px 14px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"/>
-    </div>
-    <div id="chat-ent-clientes" style="overflow-y:auto;flex:1"></div>
-  </div>
-  <div id="chat-ent-individual" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-    <div style="background:#111;border-bottom:1px solid #1a1a1a;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
-      <button onclick="volverListaChat()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">←</button>
-      <div id="chat-ent-nombre" style="font-size:15px;font-weight:700;color:#fff"></div>
-    </div>
-    <div id="chat-ent-mensajes" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
-    <div style="background:#111;border-top:1px solid #1a1a1a;padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0">
-      <input id="chat-ent-img" type="file" accept="image/*" style="display:none" onchange="chatEntEnviarImagen(this)"/>
-      <input id="chat-ent-cam" type="file" accept="image/*" capture="environment" style="display:none" onchange="chatEntEnviarImagen(this)"/>
-      <input id="chat-ent-vid" type="file" accept="video/*" style="display:none" onchange="chatEntEnviarVideo(this)"/>
-      <div style="position:relative">
-        <button onclick="chatEntToggleMenu()" id="chat-ent-plus" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:50%;width:40px;height:40px;color:#aaa;font-size:22px;cursor:pointer;flex-shrink:0">+</button>
-        <div id="chat-ent-menu" style="display:none;position:absolute;bottom:50px;left:0;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:8px;min-width:160px;z-index:100">
-          <div onclick="document.getElementById('chat-ent-img').click();chatEntToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:10px">🖼️ Galería</div>
-          <div onclick="document.getElementById('chat-ent-cam').click();chatEntToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:10px">📸 Cámara</div>
-          <div onclick="chatEntIniciarVoz();chatEntToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:10px">🎤 Nota de voz</div>
-          <div onclick="document.getElementById('chat-ent-vid').click();chatEntToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:10px">🎥 Video</div>
-        </div>
-      </div>
-      <input id="chat-ent-input" type="text" placeholder="Escribe un mensaje..." style="flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:10px 14px;color:#fff;font-size:13px;outline:none"/>
-      <button onclick="chatEntEnviar()" style="background:#e31e24;border:none;border-radius:50%;width:40px;height:40px;color:#fff;font-size:18px;cursor:pointer;flex-shrink:0">➤</button>
-    </div>
-  </div>
-</div>
 
 <!-- MODAL CLIENTE -->
 <div class="modal" id="modal-cliente">
@@ -1984,8 +1947,11 @@ async function cargarInicio(){
     document.getElementById('hi-stat-asesor').textContent=asesor;
     document.getElementById('hi-stat-pausados').textContent=pausados;
     const badge=document.getElementById('hi-badge-clientes');
-    badge.textContent=activos.length;
-    badge.style.display=activos.length>0?'block':'none';
+    // Badge ahora muestra mensajes no leídos
+    fetch('/api/chat/no-leidos/entrenador').then(r=>r.json()).then(data=>{
+      badge.textContent=data.total;
+      badge.style.display=data.total>0?'block':'none';
+    }).catch(()=>{ badge.style.display='none'; });
     const hoy=new Date();
     _vencIdx=0;_vencidos=[];
     const vencidos=activos.filter(u=>u.estado_pago==='vencido');
@@ -8008,33 +7974,39 @@ async function guardarAlimentacion() {
 
 <script>
 function renderDiaPlan(semana, diaIdx) {
-  window._diaActual = diaIdx;
-  if(!semana || !semana[diaIdx]) return;
+  if(!semana || !semana[diaIdx]) { alert("ERROR: semana="+JSON.stringify(semana)+" idx="+diaIdx); return; }
   var dia = semana[diaIdx];
   var t = dia.totales;
-  var letrasPlanes = ['A','B','C','D','E','F','G'];
-  var tabs = '<div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:none">';
-  semana.forEach(function(d,i) {
-    var activo = i===diaIdx;
-    tabs += '<button onclick="renderDiaPlan(window._planSemana,'+i+')" style="min-width:48px;padding:6px 8px;border-radius:8px;border:none;background:'+(activo?'#e31e24':'var(--gris)')+';color:'+(activo?'#fff':'var(--texto-secundario)')+';font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">Plan '+letrasPlanes[i]+'</button>';
+  var dias = ['L','M','X','J','V','S','D'];
+  var nombDias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
+  var tabs = '<div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:none;-ms-overflow-style:none">';
+  semana.forEach(function(d, i) {
+    var activo = i === diaIdx;
+    tabs += '<button onclick="renderDiaPlan(window._planSemana,'+i+')" style="min-width:38px;padding:6px 8px;border-radius:8px;border:none;background:'+(activo?'#e31e24':'var(--gris)')+';color:'+(activo?'#fff':'var(--texto-secundario)')+';font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">'+dias[i]+'</button>';
   });
   tabs += '</div>';
+
   var totales = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">';
   totales += '<div style="background:var(--gris);border-radius:8px;padding:8px;text-align:center"><div style="font-size:15px;font-weight:800;color:#e31e24">'+t.proteina+'g</div><div style="font-size:9px;color:var(--texto-secundario)">Proteína</div></div>';
   totales += '<div style="background:var(--gris);border-radius:8px;padding:8px;text-align:center"><div style="font-size:15px;font-weight:800;color:#f0a500">'+t.carbohidratos+'g</div><div style="font-size:9px;color:var(--texto-secundario)">Carbos</div></div>';
   totales += '<div style="background:var(--gris);border-radius:8px;padding:8px;text-align:center"><div style="font-size:15px;font-weight:800;color:#4caf50">'+t.grasas+'g</div><div style="font-size:9px;color:var(--texto-secundario)">Grasas</div></div>';
   totales += '<div style="background:var(--gris);border-radius:8px;padding:8px;text-align:center"><div style="font-size:15px;font-weight:800;color:var(--texto)">'+t.calorias+'</div><div style="font-size:9px;color:var(--texto-secundario)">kcal</div></div>';
   totales += '</div>';
-  var letEl = document.getElementById('ali-plan-letra');
-  if(letEl) letEl.textContent = 'Plan '+(letrasPlanes[diaIdx]||diaIdx+1);
+
   var comidas = '';
   dia.comidas.forEach(function(comida) {
     var mr = comida.macros_reales;
     var ico = comida.nombre.indexOf('Desayuno')>=0?'🌅':comida.nombre.indexOf('Snack')>=0?'🍎':comida.nombre.indexOf('Almuerzo')>=0?'🍱':comida.nombre.indexOf('Cena')>=0?'🌙':comida.nombre.indexOf('Pre')>=0?'⚡':'🍽️';
     var h = '<div style="background:var(--card);border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:10px">';
-    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:800;color:var(--texto)">'+ico+' '+comida.nombre+'</div><div style="font-size:12px;color:var(--texto-medio);font-weight:600">'+mr.kcal+' kcal</div></div>';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+    h += '<div style="font-size:14px;font-weight:800;color:var(--texto)">'+ico+' '+comida.nombre+'</div>';
+    h += '<div style="font-size:12px;color:var(--texto-medio);font-weight:600">'+mr.kcal+' kcal</div></div>';
     var p1=Math.round(mr.proteina*10)/10, c1=Math.round(mr.carbos*10)/10, g1=Math.round(mr.grasas*10)/10;
-    h += '<div style="display:flex;gap:6px;margin-bottom:10px"><span style="font-size:10px;background:#1a0a0a;color:#e31e24;border-radius:6px;padding:3px 8px">P: '+p1+'g</span><span style="font-size:10px;background:#1a120a;color:#f0a500;border-radius:6px;padding:3px 8px">C: '+c1+'g</span><span style="font-size:10px;background:#0a1a0a;color:#4caf50;border-radius:6px;padding:3px 8px">G: '+g1+'g</span></div>';
+    h += '<div style="display:flex;gap:6px;margin-bottom:10px">';
+    h += '<span style="font-size:10px;background:#1a0a0a;color:#e31e24;border-radius:6px;padding:3px 8px">P: '+p1+'g</span>';
+    h += '<span style="font-size:10px;background:#1a120a;color:#f0a500;border-radius:6px;padding:3px 8px">C: '+c1+'g</span>';
+    h += '<span style="font-size:10px;background:#0a1a0a;color:#4caf50;border-radius:6px;padding:3px 8px">G: '+g1+'g</span></div>';
     comida.alimentos.forEach(function(al) {
       h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #1a1a1a">';
       h += '<div style="flex:1"><div style="font-size:13px;color:#ddd;font-weight:600">'+al.nombre+(al.detalle?' <span style="color:#666;font-size:10px">('+al.detalle+')</span>':'')+'</div>';
@@ -8045,6 +8017,7 @@ function renderDiaPlan(semana, diaIdx) {
     h += '</div>';
     comidas += h;
   });
+
   document.getElementById('ali-plan-totales').innerHTML = totales;
   document.getElementById('ali-plan-comidas').innerHTML = tabs + comidas;
 }
@@ -8054,30 +8027,33 @@ function generarPlanAlimentario() {
   if (!id) { alert('Abre un cliente primero'); return; }
   var btn = document.querySelector('[onclick="generarPlanAlimentario()"]');
   if (btn) btn.textContent = '⏳ Generando...';
-  window._diaActual = 0;
   Promise.all([
-    fetch('/api/alimentacion/'+id+'/plan',{method:'POST'}).then(function(r){return r.json();}),
-    fetch('/api/alimentacion/'+id+'/semana').then(function(r){return r.json();})
+    fetch('/api/alimentacion/' + id + '/plan', { method: 'POST' }).then(function(r){ return r.json(); }),
+    fetch('/api/alimentacion/' + id + '/semana').then(function(r){ return r.json(); })
   ]).then(function(results) {
-    window._planActual = results[0];
-    window._planSemana = results[1];
-    var fecha = new Date(results[0].generado);
-    document.getElementById('ali-plan-fecha').textContent = fecha.toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'});
-    renderDiaPlan(results[1], 0);
+    var plan = results[0];
+    var semana = results[1];
+    window._planActual = plan;
+    window._planSemana = semana;
+    var fecha = new Date(plan.generado);
+    document.getElementById('ali-plan-fecha').textContent = fecha.toLocaleDateString('es-CO', {day:'2-digit', month:'short', year:'numeric'});
+    var hoy = new Date().getDay();
+    var idxHoy = hoy === 0 ? 6 : hoy - 1;
+    renderDiaPlan(semana, idxHoy);
     document.getElementById('modal-plan-ali').style.display = 'block';
     if (btn) btn.textContent = '⚡ Generar plan automático';
   }).catch(function(e) {
-    alert('Error: '+e.message);
+    alert('Error generando plan: ' + e.message + ' | ' + e.stack);
     if (btn) btn.textContent = '⚡ Generar plan automático';
   });
 }
+    });
+}
 
 function compartirPlanWA() {
-  var diaIdx = window._diaActual || 0;
-  var plan = (window._planSemana && window._planSemana[diaIdx]) ? window._planSemana[diaIdx] : window._planActual;
+  var plan = window._planActual;
   if (!plan) { alert('Genera el plan primero'); return; }
-  var letras = ['A','B','C','D','E','F','G'];
-  var letra = letras[diaIdx] || '';
+  // Obtener teléfono del cliente desde la API
   var id = window.clienteMedidasId;
   fetch('/api/usuarios/' + id)
     .then(function(r) { return r.json(); })
@@ -8150,27 +8126,19 @@ function compartirPlanWA() {
 
   <!-- CONTENIDO -->
   <div id="tc-contenido" style="flex:1;overflow-y:auto;padding:16px"></div>
-  <button id="tc-chat-fab" onclick="tcToggleChat()" style="position:fixed;bottom:90px;left:20px;width:50px;height:50px;border-radius:50%;background:#e31e24;border:none;color:#fff;font-size:22px;cursor:pointer;z-index:10000;display:none;align-items:center;justify-content:center">💬</button>
-  <div id="tc-chat-badge" style="display:none;position:fixed;bottom:128px;left:14px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
-  <div id="tc-chat-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:99999;flex-direction:column">
+
+  <!-- CHAT FLOTANTE -->
+  <button id="tc-chat-fab" onclick="tcToggleChat()" style="position:fixed;bottom:90px;left:20px;width:54px;height:54px;border-radius:50%;background:#e31e24;border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(227,30,36,.4);z-index:10000;display:flex;align-items:center;justify-content:center">💬</button>
+  <div id="tc-chat-badge" style="display:none;position:fixed;bottom:128px;left:16px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
+
+  <!-- PANEL CHAT -->
+  <div id="tc-chat-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:9999;flex-direction:column">
     <div style="background:#111;border-bottom:2px solid #e31e24;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
       <button onclick="tcToggleChat()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">←</button>
       <div style="font-size:16px;font-weight:900;color:#fff">💬 Chat con tu entrenador</div>
     </div>
     <div id="tc-chat-mensajes" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="background:#111;border-top:1px solid #1a1a1a;padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0">
-      <input id="tc-chat-img" type="file" accept="image/*" style="display:none" onchange="tcEnviarImagen(this)"/>
-      <input id="tc-chat-cam" type="file" accept="image/*" capture="environment" style="display:none" onchange="tcEnviarImagen(this)"/>
-      <input id="tc-chat-vid" type="file" accept="video/*" style="display:none" onchange="tcEnviarVideo(this)"/>
-      <div style="position:relative">
-        <button onclick="tcToggleMenu()" id="tc-chat-plus" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:50%;width:40px;height:40px;color:#aaa;font-size:22px;cursor:pointer;flex-shrink:0">+</button>
-        <div id="tc-chat-menu" style="display:none;position:absolute;bottom:50px;left:0;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:8px;min-width:160px;z-index:100">
-          <div onclick="document.getElementById('tc-chat-img').click();tcToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:10px">🖼️ Galería</div>
-          <div onclick="document.getElementById('tc-chat-cam').click();tcToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:10px">📸 Cámara</div>
-          <div onclick="tcIniciarVoz();tcToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:10px">🎤 Nota de voz</div>
-          <div onclick="document.getElementById('tc-chat-vid').click();tcToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:10px">🎥 Video</div>
-        </div>
-      </div>
       <input id="tc-chat-input" type="text" placeholder="Escribe un mensaje..." style="flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:10px 14px;color:#fff;font-size:13px;outline:none"/>
       <button onclick="tcEnviarMensaje()" style="background:#e31e24;border:none;border-radius:50%;width:40px;height:40px;color:#fff;font-size:18px;cursor:pointer;flex-shrink:0">➤</button>
     </div>
@@ -8270,20 +8238,12 @@ function mostrarApp() {
     document.getElementById(p).style.display = 'none';
   });
   document.getElementById('app-entrenador').style.display = 'block';
-  const ef = document.getElementById('chat-ent-fab');
-  if (ef) ef.style.display = 'flex';
-  const cf = document.getElementById('tc-chat-fab');
-  if (cf) cf.style.display = 'none';
 }
 
 function mostrarTerminalCliente(tel) {
   ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente'].forEach(p => {
     document.getElementById(p).style.display = 'none';
   });
-  const cf = document.getElementById('tc-chat-fab');
-  if (cf) cf.style.display = 'flex';
-  const ef = document.getElementById('chat-ent-fab');
-  if (ef) ef.style.display = 'none';
   iniciarTerminalCliente();
 }
 
@@ -8343,15 +8303,6 @@ async function iniciarTerminalCliente() {
   _tcDia = DIAS_ES[new Date().getDay()];
 
   tcTab('rutina');
-  // Verificar mensajes no leídos
-  setTimeout(async () => {
-    if (_tcUsuario && _tcUsuario.id) {
-      const msgs = await fetch('/api/chat/' + _tcUsuario.id).then(r=>r.json()).catch(()=>[]);
-      const nl = msgs.filter(m => m.autor === 'entrenador' && !m.leido).length;
-      const b = document.getElementById('tc-chat-badge');
-      if (b) { b.textContent = nl; b.style.display = nl > 0 ? 'block' : 'none'; }
-    }
-  }, 1000);
 }
 
 function tcTab(tab) {
@@ -8857,8 +8808,85 @@ function tcMostrarBannerTimer() {
 window.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('tc-timer-inicio')) tcMostrarBannerTimer();
 });
+
+// Polling mensajes nuevos cada 30 segundos
+setInterval(() => {
+  if (_tcUsuario) tcVerificarMensajesNuevos();
+}, 30000);
 // ---- FIN TIMER RUTINA ----
 
+
+// ---- CHAT CLIENTE ----
+let _tcChatAbierto = false;
+
+function tcToggleChat() {
+  _tcChatAbierto = !_tcChatAbierto;
+  const panel = document.getElementById('tc-chat-panel');
+  if (panel) {
+    panel.style.display = _tcChatAbierto ? 'flex' : 'none';
+    if (_tcChatAbierto) tcCargarMensajes();
+  }
+}
+
+async function tcCargarMensajes() {
+  const uid = _tcUsuario && _tcUsuario.id;
+  if (!uid) return;
+  // Marcar como leídos
+  await fetch('/api/chat/' + uid + '/leer', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({autor: 'cliente'})
+  }).catch(()=>{});
+  // Ocultar badge
+  const badge = document.getElementById('tc-chat-badge');
+  if (badge) badge.style.display = 'none';
+
+  const msgs = await fetch('/api/chat/' + uid).then(r=>r.json()).catch(()=>[]);
+  const cont = document.getElementById('tc-chat-mensajes');
+  if (!cont) return;
+  if (msgs.length === 0) {
+    cont.innerHTML = '<div style="text-align:center;color:#333;font-size:13px;margin-top:40px">Sin mensajes aún.<br>¡Escribe algo a tu entrenador!</div>';
+    return;
+  }
+  cont.innerHTML = msgs.map(m => {
+    const esCliente = m.autor === 'cliente';
+    const hora = new Date(m.fecha).toLocaleTimeString('es-CO', {hour:'2-digit',minute:'2-digit'});
+    return '<div style="display:flex;justify-content:' + (esCliente?'flex-end':'flex-start') + '">' +
+      '<div style="max-width:75%;background:' + (esCliente?'#e31e24':'#1a1a1a') + ';border-radius:' + (esCliente?'14px 14px 4px 14px':'14px 14px 14px 4px') + ';padding:10px 14px">' +
+      '<div style="font-size:13px;color:#fff;line-height:1.5">' + m.contenido + '</div>' +
+      '<div style="font-size:10px;color:' + (esCliente?'rgba(255,255,255,0.6)':'#444') + ';margin-top:4px;text-align:right">' + hora + '</div>' +
+      '</div></div>';
+  }).join('');
+  cont.scrollTop = cont.scrollHeight;
+}
+
+async function tcEnviarMensaje() {
+  const input = document.getElementById('tc-chat-input');
+  const uid = _tcUsuario && _tcUsuario.id;
+  if (!input || !uid) return;
+  const texto = input.value.trim();
+  if (!texto) return;
+  input.value = '';
+  await fetch('/api/chat/' + uid, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({autor: 'cliente', tipo: 'texto', contenido: texto})
+  });
+  tcCargarMensajes();
+}
+
+async function tcVerificarMensajesNuevos() {
+  const uid = _tcUsuario && _tcUsuario.id;
+  if (!uid || _tcChatAbierto) return;
+  const msgs = await fetch('/api/chat/' + uid).then(r=>r.json()).catch(()=>[]);
+  const noLeidos = msgs.filter(m => m.autor === 'entrenador' && !m.leido).length;
+  const badge = document.getElementById('tc-chat-badge');
+  if (badge) {
+    badge.textContent = noLeidos;
+    badge.style.display = noLeidos > 0 ? 'block' : 'none';
+  }
+}
+// ---- FIN CHAT CLIENTE ----
 
 function tcScrollNotas() {
   const cont = document.getElementById("tc-contenido");
@@ -9387,346 +9415,3 @@ function girarRuleta(id) {
 }
 </script>
 </body>
-<script>
-// ======== CHAT CLIENTE ========
-let _tcChatAbierto = false;
-
-function tcToggleChat() {
-  _tcChatAbierto = !_tcChatAbierto;
-  const panel = document.getElementById('tc-chat-panel');
-  if (!panel) return;
-  panel.style.display = _tcChatAbierto ? 'flex' : 'none';
-  if (_tcChatAbierto) { panel.style.flexDirection = 'column'; tcCargarMensajes(); }
-}
-
-async function tcCargarMensajes() {
-  const uid = _tcUsuario && _tcUsuario.id;
-  if (!uid) return;
-  await fetch('/api/chat/' + uid + '/leer', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'cliente'})}).catch(()=>{});
-  const badge = document.getElementById('tc-chat-badge');
-  if (badge) badge.style.display = 'none';
-  const msgs = await fetch('/api/chat/' + uid).then(r=>r.json()).catch(()=>[]);
-  const cont = document.getElementById('tc-chat-mensajes');
-  if (!cont) return;
-  if (msgs.length === 0) { cont.innerHTML = '<div style="text-align:center;color:#333;font-size:13px;margin-top:40px">Sin mensajes aún.</div>'; return; }
-  cont.innerHTML = msgs.map(m => {
-    const esC = m.autor === 'cliente';
-    const hora = new Date(m.fecha).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
-    const body = m.tipo === 'imagen' ? '<img src="' + m.contenido + '" style="max-width:100%;border-radius:8px;display:block"/>' : m.tipo === 'audio' ? '<audio controls src="' + m.contenido + '" style="max-width:100%;border-radius:8px"></audio>' : m.tipo === 'video' ? '<video controls src="' + m.contenido + '" style="max-width:100%;border-radius:8px"></video>' : '<div style="font-size:13px;color:#fff">' + m.contenido + '</div>';
-    const pad = m.tipo === 'imagen' ? '4px' : '10px 14px';
-    return '<div style="display:flex;justify-content:' + (esC?'flex-end':'flex-start') + '"><div style="max-width:75%;background:' + (esC?'#e31e24':'#1a1a1a') + ';border-radius:14px;padding:' + pad + '">' + body + '<div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;text-align:right;padding:0 4px">' + hora + '</div></div></div>';
-  }).join('');
-  cont.scrollTop = cont.scrollHeight;
-}
-
-async function tcEnviarMensaje() {
-  const input = document.getElementById('tc-chat-input');
-  const uid = _tcUsuario && _tcUsuario.id;
-  if (!input || !uid) return;
-  const texto = input.value.trim();
-  if (!texto) return;
-  input.value = '';
-  await fetch('/api/chat/' + uid, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'cliente',tipo:'texto',contenido:texto})});
-  tcCargarMensajes();
-}
-
-setInterval(() => { if (_tcUsuario) { fetch('/api/chat/' + _tcUsuario.id).then(r=>r.json()).then(msgs => { const nl = msgs.filter(m=>m.autor==='entrenador'&&!m.leido).length; const b = document.getElementById('tc-chat-badge'); if(b){b.textContent=nl;b.style.display=nl>0?'block':'none';} }).catch(()=>{}); } }, 30000);
-
-// ======== CHAT ENTRENADOR ========
-let _chatEntClienteId = null;
-
-async function abrirChatEntrenador() {
-  const panel = document.getElementById('chat-ent-panel');
-  if (!panel) return;
-  panel.style.display = 'flex';
-  panel.style.flexDirection = 'column';
-  document.getElementById('chat-ent-lista').style.display = 'flex';
-  document.getElementById('chat-ent-lista').style.flexDirection = 'column';
-  document.getElementById('chat-ent-individual').style.display = 'none';
-  if (!window._adminUsuarios || window._adminUsuarios.length === 0) {
-    window._adminUsuarios = await fetch('/api/usuarios').then(r=>r.json()).catch(()=>[]);
-  }
-  cargarListaChatClientes();
-}
-
-function cerrarChatEntrenador() {
-  const panel = document.getElementById('chat-ent-panel');
-  if (panel) panel.style.display = 'none';
-}
-
-function volverListaChat() {
-  document.getElementById('chat-ent-lista').style.display = 'flex';
-  document.getElementById('chat-ent-lista').style.flexDirection = 'column';
-  document.getElementById('chat-ent-individual').style.display = 'none';
-  cargarListaChatClientes();
-}
-
-async function cargarListaChatClientes() {
-  const usuarios = window._adminUsuarios || [];
-  const noLeidos = await fetch('/api/chat/no-leidos/entrenador').then(r=>r.json()).catch(()=>({total:0,porCliente:{}}));
-  const cont = document.getElementById('chat-ent-clientes');
-  if (!cont) return;
-  const buscar = (document.getElementById('chat-ent-buscar')||{}).value || '';
-  const filtrados = usuarios.filter(u => u.activo && u.nombre.toLowerCase().includes(buscar.toLowerCase()));
-  filtrados.sort((a,b) => (noLeidos.porCliente[b.id]||0) - (noLeidos.porCliente[a.id]||0));
-  cont.innerHTML = filtrados.map(u => {
-    const nl = noLeidos.porCliente[u.id] || 0;
-    return '<div onclick="abrirChatCliente(\'' + u.id + '\',\'' + u.nombre.replace(/'/g,"\\'") + '\')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #111;cursor:pointer"><div style="width:40px;height:40px;border-radius:50%;background:#1a1a1a;border:2px solid ' + (nl>0?'#e31e24':'#2a2a2a') + ';display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:#fff">' + u.nombre + '</div></div>' + (nl>0?'<div style="background:#e31e24;color:#fff;font-size:11px;font-weight:900;padding:3px 8px;border-radius:10px">' + nl + '</div>':'<div style="font-size:18px;color:#333">›</div>') + '</div>';
-  }).join('') || '<div style="text-align:center;color:#333;padding:30px;font-size:13px">Sin clientes</div>';
-}
-
-function filtrarChatClientes() { cargarListaChatClientes(); }
-
-async function abrirChatCliente(id, nombre) {
-  _chatEntClienteId = id;
-  document.getElementById('chat-ent-lista').style.display = 'none';
-  document.getElementById('chat-ent-individual').style.display = 'flex';
-  document.getElementById('chat-ent-individual').style.flexDirection = 'column';
-  document.getElementById('chat-ent-nombre').textContent = nombre;
-  await fetch('/api/chat/' + id + '/leer', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'entrenador'})}).catch(()=>{});
-  cargarMensajesEntrenador();
-}
-
-async function cargarMensajesEntrenador() {
-  if (!_chatEntClienteId) return;
-  const msgs = await fetch('/api/chat/' + _chatEntClienteId).then(r=>r.json()).catch(()=>[]);
-  const cont = document.getElementById('chat-ent-mensajes');
-  if (!cont) return;
-  if (msgs.length === 0) { cont.innerHTML = '<div style="text-align:center;color:#333;font-size:13px;margin-top:40px">Sin mensajes aún.</div>'; return; }
-  cont.innerHTML = msgs.map(m => {
-    const esE = m.autor === 'entrenador';
-    const hora = new Date(m.fecha).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
-    const bodyE = m.tipo === 'imagen' ? '<img src="' + m.contenido + '" style="max-width:100%;border-radius:8px;display:block"/>' : m.tipo === 'audio' ? '<audio controls src="' + m.contenido + '" style="max-width:100%;border-radius:8px"></audio>' : m.tipo === 'video' ? '<video controls src="' + m.contenido + '" style="max-width:100%;border-radius:8px"></video>' : '<div style="font-size:13px;color:#fff">' + m.contenido + '</div>';
-    const padE = m.tipo === 'imagen' ? '4px' : '10px 14px';
-    return '<div style="display:flex;justify-content:' + (esE?'flex-end':'flex-start') + '"><div style="max-width:75%;background:' + (esE?'#e31e24':'#1a1a1a') + ';border-radius:14px;padding:' + padE + '">' + bodyE + '<div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;text-align:right;padding:0 4px">' + hora + '</div></div></div>';
-  }).join('');
-  cont.scrollTop = cont.scrollHeight;
-}
-
-async function chatEntEnviar() {
-  const input = document.getElementById('chat-ent-input');
-  if (!input || !_chatEntClienteId) return;
-  const texto = input.value.trim();
-  if (!texto) return;
-  input.value = '';
-  await fetch('/api/chat/' + _chatEntClienteId, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'entrenador',tipo:'texto',contenido:texto})});
-  cargarMensajesEntrenador();
-}
-
-async function actualizarBadgeEntrenador() {
-  const data = await fetch('/api/chat/no-leidos/entrenador').then(r=>r.json()).catch(()=>({total:0}));
-  const badge = document.getElementById('chat-ent-badge');
-  if (badge) { badge.textContent = data.total; badge.style.display = data.total > 0 ? 'block' : 'none'; }
-}
-
-setInterval(actualizarBadgeEntrenador, 30000);
-</script>
-<script>
-// Activar badges al iniciar
-const _origMostrarApp = mostrarApp;
-mostrarApp = function() {
-  _origMostrarApp();
-  actualizarBadgeEntrenador();
-};
-
-const _origIniciarTC = iniciarTerminalCliente;
-iniciarTerminalCliente = async function() {
-  await _origIniciarTC();
-  // Verificar mensajes nuevos al entrar
-  setTimeout(async () => {
-    if (_tcUsuario) {
-      const msgs = await fetch('/api/chat/' + _tcUsuario.id).then(r=>r.json()).catch(()=>[]);
-      const nl = msgs.filter(m=>m.autor==='entrenador'&&!m.leido).length;
-      const b = document.getElementById('tc-chat-badge');
-      if (b) { b.textContent = nl; b.style.display = nl > 0 ? 'block' : 'none'; }
-    }
-  }, 2000);
-};
-</script>
-<script>
-async function tcEnviarImagen(input) {
-  const uid = _tcUsuario && _tcUsuario.id;
-  if (!input.files[0] || !uid) return;
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    const base64 = e.target.result;
-    await fetch('/api/chat/' + uid, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({autor:'cliente', tipo:'imagen', contenido: base64})
-    });
-    tcCargarMensajes();
-  };
-  reader.readAsDataURL(file);
-  input.value = '';
-}
-
-async function chatEntEnviarImagen(input) {
-  if (!input.files[0] || !_chatEntClienteId) return;
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    const base64 = e.target.result;
-    await fetch('/api/chat/' + _chatEntClienteId, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({autor:'entrenador', tipo:'imagen', contenido: base64})
-    });
-    cargarMensajesEntrenador();
-  };
-  reader.readAsDataURL(file);
-  input.value = '';
-}
-</script>
-<script>
-function comprimirImagen(file, callback) {
-  const canvas = document.createElement('canvas');
-  const img = new Image();
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    img.onload = function() {
-      const maxW = 800;
-      let w = img.width, h = img.height;
-      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      callback(canvas.toDataURL('image/jpeg', 0.7));
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-// Reemplazar funciones de imagen con versión comprimida
-async function tcEnviarImagen(input) {
-  const uid = _tcUsuario && _tcUsuario.id;
-  if (!input.files[0] || !uid) return;
-  comprimirImagen(input.files[0], async function(base64) {
-    await fetch('/api/chat/' + uid, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({autor:'cliente', tipo:'imagen', contenido: base64})
-    });
-    tcCargarMensajes();
-  });
-  input.value = '';
-}
-
-async function chatEntEnviarImagen(input) {
-  if (!input.files[0] || !_chatEntClienteId) return;
-  comprimirImagen(input.files[0], async function(base64) {
-    await fetch('/api/chat/' + _chatEntClienteId, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({autor:'entrenador', tipo:'imagen', contenido: base64})
-    });
-    cargarMensajesEntrenador();
-  });
-  input.value = '';
-}
-</script>
-<script>
-// Menú + cliente
-function tcToggleMenu() {
-  const m = document.getElementById('tc-chat-menu');
-  if (m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
-}
-
-// Menú + entrenador
-function chatEntToggleMenu() {
-  const m = document.getElementById('chat-ent-menu');
-  if (m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
-}
-
-// Video cliente
-async function tcEnviarVideo(input) {
-  const uid = _tcUsuario && _tcUsuario.id;
-  if (!input.files[0] || !uid) return;
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    await fetch('/api/chat/' + uid, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'cliente',tipo:'video',contenido:e.target.result})});
-    tcCargarMensajes();
-  };
-  reader.readAsDataURL(input.files[0]);
-  input.value = '';
-}
-
-// Video entrenador
-async function chatEntEnviarVideo(input) {
-  if (!input.files[0] || !_chatEntClienteId) return;
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    await fetch('/api/chat/' + _chatEntClienteId, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'entrenador',tipo:'video',contenido:e.target.result})});
-    cargarMensajesEntrenador();
-  };
-  reader.readAsDataURL(input.files[0]);
-  input.value = '';
-}
-
-// Nota de voz cliente
-let _tcMediaRec = null;
-let _tcAudioChunks = [];
-
-async function tcIniciarVoz() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    _tcAudioChunks = [];
-    _tcMediaRec = new MediaRecorder(stream);
-    _tcMediaRec.ondataavailable = e => _tcAudioChunks.push(e.data);
-    _tcMediaRec.onstop = async () => {
-      const blob = new Blob(_tcAudioChunks, {type:'audio/webm'});
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        const uid = _tcUsuario && _tcUsuario.id;
-        await fetch('/api/chat/' + uid, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'cliente',tipo:'audio',contenido:e.target.result})});
-        tcCargarMensajes();
-      };
-      reader.readAsDataURL(blob);
-      stream.getTracks().forEach(t=>t.stop());
-    };
-    _tcMediaRec.start();
-    // Mostrar botón parar
-    const btn = document.getElementById('tc-chat-plus');
-    if (btn) { btn.textContent = '⏹'; btn.onclick = tcDetenerVoz; btn.style.background = '#e31e24'; }
-  } catch(e) { alert('No se pudo acceder al micrófono'); }
-}
-
-function tcDetenerVoz() {
-  if (_tcMediaRec) _tcMediaRec.stop();
-  const btn = document.getElementById('tc-chat-plus');
-  if (btn) { btn.textContent = '+'; btn.onclick = tcToggleMenu; btn.style.background = '#1a1a1a'; }
-}
-
-// Nota de voz entrenador
-let _entMediaRec = null;
-let _entAudioChunks = [];
-
-async function chatEntIniciarVoz() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    _entAudioChunks = [];
-    _entMediaRec = new MediaRecorder(stream);
-    _entMediaRec.ondataavailable = e => _entAudioChunks.push(e.data);
-    _entMediaRec.onstop = async () => {
-      const blob = new Blob(_entAudioChunks, {type:'audio/webm'});
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        await fetch('/api/chat/' + _chatEntClienteId, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'entrenador',tipo:'audio',contenido:e.target.result})});
-        cargarMensajesEntrenador();
-      };
-      reader.readAsDataURL(blob);
-      stream.getTracks().forEach(t=>t.stop());
-    };
-    _entMediaRec.start();
-    const btn = document.getElementById('chat-ent-plus');
-    if (btn) { btn.textContent = '⏹'; btn.onclick = chatEntDetenerVoz; btn.style.background = '#e31e24'; }
-  } catch(e) { alert('No se pudo acceder al micrófono'); }
-}
-
-function chatEntDetenerVoz() {
-  if (_entMediaRec) _entMediaRec.stop();
-  const btn = document.getElementById('chat-ent-plus');
-  if (btn) { btn.textContent = '+'; btn.onclick = chatEntToggleMenu; btn.style.background = '#1a1a1a'; }
-}
-</script>

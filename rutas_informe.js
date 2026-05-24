@@ -231,11 +231,42 @@ module.exports = function(app, fs) {
               </div>
             </div>
           </div>`;
-      }).join('');
+      });
+      
+      // Convertir diasHtml a pestañas
+      const diasNombres = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
+      const diasConEjercicio = diasSemana.map((dia,i) => {
+        const ejs = (rutina[dia] && rutina[dia].ejercicios) ? rutina[dia].ejercicios : [];
+        const cardio = (rutina[dia] && rutina[dia].cardio) ? rutina[dia].cardio : [];
+        const presencial = (rutina[dia] && rutina[dia].presencial) ? true : false;
+        return ejs.length > 0 || cardio.length > 0 || presencial;
+      });
+      
+      let tabsRutina = '<div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;margin-bottom:0;scrollbar-width:none">';
+      diasSemana.forEach((dia,i) => {
+        const tieneContenido = diasConEjercicio[i];
+        tabsRutina += '<button onclick="rutTab('+i+')" id="rtab'+i+'" style="min-width:44px;padding:6px 8px;border-radius:8px 8px 0 0;border:none;background:'+(i===0?'var(--rojo)':'var(--gris-medio)')+';color:'+(i===0?'#fff':tieneContenido?'#aaa':'#555')+';font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:Bebas Neue,sans-serif;letter-spacing:1px">'+diasNombres[i]+'</button>';
+      });
+      tabsRutina += '</div>';
+      
+      let contenidoRutina = '';
+      diasHtml.forEach((diaHtml, i) => {
+        contenidoRutina += '<div id="rdia'+i+'" style="display:'+(i===0?'block':'none')+'">' + diaHtml + '</div>';
+      });
+      
+      const diasHtmlFinal = tabsRutina + contenidoRutina + '<scr'+'ipt>function rutTab(i){for(var j=0;j<7;j++){var p=document.getElementById("rdia"+j);var t=document.getElementById("rtab"+j);if(p)p.style.display=j===i?"block":"none";if(t){t.style.background=j===i?"var(--rojo)":"var(--gris-medio)";t.style.color=j===i?"#fff":"#aaa";}}}</script>';
 
       // Generar sección de alimentación
       const alimHtml = (() => {
         if (!alimCliente || !alimCliente.plan_generado) return '<div style="text-align:center;padding:30px;color:#444"><div style="font-size:28px">🍽️</div><div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;color:#555">PLAN NUTRICIONAL PERSONALIZADO</div><div style="font-size:11px;margin-top:6px">Próximamente disponible</div></div>';
+        
+        // Generar plan semanal
+        let planSemana = [];
+        try {
+          const { generarPlanSemanal } = require('./generar_plan.js');
+          planSemana = generarPlanSemanal(id);
+        } catch(e) { planSemana = []; }
+        
         const plan = alimCliente.plan_generado;
         const tot = plan.totales;
         const iconos = {'Desayuno':'☀️','Snack 1':'🍎','Almuerzo':'🍱','Snack 2':'🍊','Pre entreno':'⚡','Cena':'🌙'};
@@ -267,34 +298,42 @@ module.exports = function(app, fs) {
         h += '<div style="width:' + grasaPct + '%;background:#4caf50"></div></div>';
         h += '<div style="display:flex;gap:10px;font-size:9px;color:var(--texto-secundario)">';
         h += '<span>🔴 Prot ' + protPct + '%</span><span>🟡 Carbs ' + carbsPct + '%</span><span>🟢 Grasas ' + grasaPct + '%</span></div></div>';
-        h += '<div style="display:grid;grid-template-columns:' + cols + ';gap:8px">';
-        for (const comida of plan.comidas) {
-          const icono = iconos[comida.nombre] || '🍽️';
-          const mr = comida.macros_reales;
-          h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;overflow:hidden">';
-          h += '<div style="background:var(--gris-medio);padding:8px 10px;display:flex;justify-content:space-between;align-items:center">';
-          h += '<div style="font-family:Bebas Neue,sans-serif;font-size:13px;letter-spacing:1px;color:var(--blanco)">' + icono + ' ' + comida.nombre + '</div>';
-          h += '<div style="font-size:10px;color:var(--rojo);font-weight:700">' + Math.round(mr.kcal) + ' kcal</div></div>';
-          
-          h += '<div style="padding:6px 10px">';
-          for (const a of comida.alimentos) {
-            h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--gris-borde)">';
-            h += '<div style="font-size:10px;color:var(--blanco-suave)">' + a.nombre + ' <span style="color:var(--texto-secundario)">(' + a.preparacion + ')</span></div>';
-            h += '<div style="font-size:10px;font-weight:700;color:var(--blanco)">' + (a.unidad ? a.unidad.texto : a.porcion_g + 'g') + '</div></div>';
-          }
-          h += '</div>';
-          h += '<div style="padding:6px 10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">';
-          h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px">';
-          h += '<div style="font-size:12px;font-weight:700;color:var(--rojo)">' + Math.round(mr.proteina) + 'g</div>';
-          h += '<div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Prot.</div></div>';
-          h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px">';
-          h += '<div style="font-size:12px;font-weight:700;color:#f0a500">' + Math.round(mr.carbos) + 'g</div>';
-          h += '<div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Carbs</div></div>';
-          h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px">';
-          h += '<div style="font-size:12px;font-weight:700;color:#4caf50">' + Math.round(mr.grasas) + 'g</div>';
-          h += '<div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Grasas</div></div></div></div>';
-        }
+        // Tabs Plan A-G
+        const letrasInf = ['A','B','C','D','E','F','G'];
+        const planesInf = planSemana.length > 0 ? planSemana : [plan];
+        h += '<div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:none">';
+        planesInf.forEach((p,i) => {
+          h += '<button onclick="infTab('+i+')" id="itab'+i+'" style="min-width:52px;padding:6px 8px;border-radius:8px;border:none;background:'+(i===0?'var(--rojo)':'var(--gris-medio)')+';color:'+(i===0?'#fff':'#888')+';font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:Bebas Neue,sans-serif;letter-spacing:1px">Plan '+letrasInf[i]+'</button>';
+        });
         h += '</div>';
+        planesInf.forEach((planDia, pi) => {
+          const n2 = planDia.comidas.length;
+          const cols2 = n2 <= 2 ? '1fr' : n2 <= 4 ? '1fr 1fr' : '1fr 1fr 1fr';
+          h += '<div id="iplan'+pi+'" style="display:'+(pi===0?'block':'none')+'">';
+          h += '<div style="display:grid;grid-template-columns:'+cols2+';gap:8px">';
+          for (const comida of planDia.comidas) {
+            const icono = iconos[comida.nombre] || '🍽️';
+            const mr = comida.macros_reales;
+            h += '<div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:10px;overflow:hidden">';
+            h += '<div style="background:var(--gris-medio);padding:8px 10px;display:flex;justify-content:space-between;align-items:center">';
+            h += '<div style="font-family:Bebas Neue,sans-serif;font-size:13px;letter-spacing:1px;color:var(--blanco)">' + icono + ' ' + comida.nombre + '</div>';
+            h += '<div style="font-size:10px;color:var(--rojo);font-weight:700">' + Math.round(mr.kcal) + ' kcal</div></div>';
+            h += '<div style="padding:6px 10px">';
+            for (const a of comida.alimentos) {
+              h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--gris-borde)">';
+              h += '<div style="font-size:10px;color:var(--blanco-suave)">' + a.nombre + (a.detalle?' <span style="color:#555;font-size:9px">('+a.detalle+')</span>':'') + '</div>';
+              h += '<div style="font-size:10px;font-weight:700;color:var(--blanco)">' + (a.unidad ? a.unidad.texto : a.porcion_g + 'g') + '</div></div>';
+            }
+            h += '</div>';
+            h += '<div style="padding:6px 10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">';
+            h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px"><div style="font-size:12px;font-weight:700;color:var(--rojo)">' + Math.round(mr.proteina) + 'g</div><div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Prot.</div></div>';
+            h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px"><div style="font-size:12px;font-weight:700;color:#f0a500">' + Math.round(mr.carbos) + 'g</div><div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Carbs</div></div>';
+            h += '<div style="text-align:center;background:var(--gris-medio);border-radius:4px;padding:4px"><div style="font-size:12px;font-weight:700;color:#4caf50">' + Math.round(mr.grasas) + 'g</div><div style="font-size:8px;color:var(--texto-secundario);text-transform:uppercase">Grasas</div></div>';
+            h += '</div></div>';
+          }
+          h += '</div></div>';
+        });
+        h += '<scr'+'ipt>function infTab(i){for(var j=0;j<7;j++){var p=document.getElementById("iplan"+j);var t=document.getElementById("itab"+j);if(p)p.style.display=j===i?"block":"none";if(t){t.style.background=j===i?"var(--rojo)":"var(--gris-medio)";t.style.color=j===i?"#fff":"#888";}}}</scr'+'ipt>';
         return h;
       })();
 
@@ -320,7 +359,7 @@ module.exports = function(app, fs) {
       // Por ahora generamos el HTML completo inline
       const html = generarHTMLCompleto({
         usuario, ultima, penultima, primera, medidas,
-        testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso,
+        testData, alimHtml, diasHtmlFinal, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso,
         calculos, fotoAntesB64, fotoDespuesB64, registros, nombreEntrenador, cfg
       });
 
@@ -338,7 +377,7 @@ module.exports = function(app, fs) {
 // ============================================================
 // Función generadora del HTML completo
 // ============================================================
-function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtml, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso, calculos, fotoAntesB64, fotoDespuesB64, registros, nombreEntrenador, cfg }) {
+function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtmlFinal, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso, calculos, fotoAntesB64, fotoDespuesB64, registros, nombreEntrenador, cfg }) {
   const perfil = usuario.perfil || {};
   const edad = perfil.edad || usuario.edad || null;
   const altura = perfil.altura || usuario.altura || null;
@@ -762,7 +801,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
         <span>⏱️ <strong style="color:#fff">DESC</strong> = Descanso</span>
         <span>▶ <strong style="color:#fff">VIDEO</strong> = Ver ejercicio</span>
       </div>
-      ${diasHtml}
+      ${diasHtmlFinal}
     </div>
   </div>
 

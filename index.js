@@ -238,6 +238,118 @@ app.post('/api/usuarios', (req, res) => {
   guardarJSON('usuarios.json', usuarios);
   res.json(nuevo);
 });
+// ---- CHAT INTERNO ----
+app.get('/api/chat/:id', (req, res) => {
+  const chats = cargarJSON('chats.json', {});
+  res.json(chats[req.params.id] || []);
+});
+
+app.post('/api/chat/:id', (req, res) => {
+  const { mensaje, tipo, autor, contenido } = req.body;
+  const chats = cargarJSON('chats.json', {});
+  if (!chats[req.params.id]) chats[req.params.id] = [];
+  const msg = {
+    id: Date.now().toString(),
+    autor, // 'cliente' o 'entrenador'
+    tipo: tipo || 'texto', // 'texto', 'imagen', 'voz'
+    contenido: contenido || mensaje,
+    fecha: new Date().toISOString(),
+    leido: false // se marca leído cuando el destinatario abre el chat
+  };
+  chats[req.params.id].push(msg);
+  guardarJSON('chats.json', chats);
+  res.json({ ok: true, msg });
+});
+
+app.post('/api/chat/:id/leer', (req, res) => {
+  const { autor } = req.body;
+  const chats = cargarJSON('chats.json', {});
+  if (chats[req.params.id]) {
+    chats[req.params.id] = chats[req.params.id].map(m => {
+      if (m.autor !== autor) m.leido = true;
+      return m;
+    });
+    guardarJSON('chats.json', chats);
+  }
+  res.json({ ok: true });
+});
+
+app.get('/api/chat/no-leidos/entrenador', (req, res) => {
+  const chats = cargarJSON('chats.json', {});
+  let total = 0;
+  const porCliente = {};
+  Object.keys(chats).forEach(id => {
+    const noLeidos = chats[id].filter(m => m.autor === 'cliente' && !m.leido).length;
+    if (noLeidos > 0) { porCliente[id] = noLeidos; total += noLeidos; }
+  });
+  res.json({ total, porCliente });
+});
+// ---- FIN CHAT ----
+
+// ---- CHAT INTERNO ----
+app.get('/api/chat/:id', (req, res) => {
+  const chats = cargarJSON('chats.json', {});
+  res.json(chats[req.params.id] || []);
+});
+
+app.post('/api/chat/:id', (req, res) => {
+  const { mensaje, tipo, autor, contenido } = req.body;
+  const chats = cargarJSON('chats.json', {});
+  if (!chats[req.params.id]) chats[req.params.id] = [];
+  const msg = {
+    id: Date.now().toString(),
+    autor, // 'cliente' o 'entrenador'
+    tipo: tipo || 'texto', // 'texto', 'imagen', 'voz'
+    contenido: contenido || mensaje,
+    fecha: new Date().toISOString(),
+    leido: false // se marca leído cuando el destinatario abre el chat
+  };
+  chats[req.params.id].push(msg);
+  guardarJSON('chats.json', chats);
+  res.json({ ok: true, msg });
+});
+
+app.post('/api/chat/:id/leer', (req, res) => {
+  const { autor } = req.body;
+  const chats = cargarJSON('chats.json', {});
+  if (chats[req.params.id]) {
+    chats[req.params.id] = chats[req.params.id].map(m => {
+      if (m.autor !== autor) m.leido = true;
+      return m;
+    });
+    guardarJSON('chats.json', chats);
+  }
+  res.json({ ok: true });
+});
+
+app.get('/api/chat/no-leidos/entrenador', (req, res) => {
+  const chats = cargarJSON('chats.json', {});
+  let total = 0;
+  const porCliente = {};
+  Object.keys(chats).forEach(id => {
+    const noLeidos = chats[id].filter(m => m.autor === 'cliente' && !m.leido).length;
+    if (noLeidos > 0) { porCliente[id] = noLeidos; total += noLeidos; }
+  });
+  res.json({ total, porCliente });
+});
+// ---- FIN CHAT ----
+
+app.post('/api/usuarios/:id/desbloquear-dia', (req, res) => {
+  const { dia } = req.body;
+  if (!dia) return res.status(400).json({ error: 'Falta dia' });
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  if (!usuarios[idx].dias_desbloqueados) usuarios[idx].dias_desbloqueados = {};
+  const fecha = new Date().toISOString().split('T')[0];
+  if (!usuarios[idx].dias_desbloqueados[dia]) usuarios[idx].dias_desbloqueados[dia] = [];
+  if (!usuarios[idx].dias_desbloqueados[dia].includes(fecha)) {
+    usuarios[idx].dias_desbloqueados[dia].push(fecha);
+  }
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+
 app.post('/api/usuarios/:id/perfil-cliente', (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
   const idx = usuarios.findIndex(u => u.id === req.params.id);
@@ -398,6 +510,16 @@ app.post('/api/alimentacion/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+
+app.get('/api/alimentacion/:id/semana', (req, res) => {
+  try {
+    const { generarPlanSemanal } = require('./generar_plan.js');
+    const semana = generarPlanSemanal(req.params.id);
+    res.json(semana);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 app.post('/api/alimentacion/:id/plan', (req, res) => {
   try {
