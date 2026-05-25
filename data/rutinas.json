@@ -1274,5 +1274,30 @@
       "presencial": true,
       "cardio": []
     }
+  },
+  "1778377208321": {
+    "lunes": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [
+        {
+          "nombre": "Haz clavicular barra ",
+          "series": "2",
+          "reps": "15/12/8/8/8",
+          "rir": "3",
+          "desc": "33",
+          "var": ""
+        },
+        {
+          "nombre": "",
+          "series": "",
+          "reps": "",
+          "rir": "",
+          "desc": "",
+          "var": ""
+        }
+      ],
+      "cardio": []
+    }
   }
 }

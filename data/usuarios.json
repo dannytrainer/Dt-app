@@ -32,7 +32,8 @@
     "dias_desbloqueados": {
       "lunes": [
         "2026-05-23",
-        "2026-05-24"
+        "2026-05-24",
+        "2026-05-25"
       ],
       "sabado": [
         "2026-05-23"
@@ -144,7 +145,12 @@
       "notas": ""
     },
     "sesiones_total": 1,
-    "sesiones_ciclo": 1
+    "sesiones_ciclo": 1,
+    "dias_desbloqueados": {
+      "lunes": [
+        "2026-05-25"
+      ]
+    }
   },
   {
     "id": "1778377380425",
