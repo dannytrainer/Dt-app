@@ -25,7 +25,8 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-app.use(express.json());
+app.use(express.json({limit:'50mb'}));
+app.use(express.urlencoded({extended:true, limit:'50mb'}));
 app.use(express.static('public'));
 app.use('/data/fotos', express.static(path.join(__dirname,'data/fotos')));
 
@@ -254,7 +255,9 @@ app.post('/api/chat/:id', (req, res) => {
     tipo: tipo || 'texto', // 'texto', 'imagen', 'voz'
     contenido: contenido || mensaje,
     fecha: new Date().toISOString(),
-    leido: false // se marca leído cuando el destinatario abre el chat
+    leido: false,
+    leidoCliente: autor === 'cliente',
+    leidoEntrenador: autor === 'entrenador'
   };
   chats[req.params.id].push(msg);
   guardarJSON('chats.json', chats);
@@ -266,7 +269,8 @@ app.post('/api/chat/:id/leer', (req, res) => {
   const chats = cargarJSON('chats.json', {});
   if (chats[req.params.id]) {
     chats[req.params.id] = chats[req.params.id].map(m => {
-      if (m.autor !== autor) m.leido = true;
+      if (autor === 'cliente' && m.autor !== 'cliente') m.leidoCliente = true;
+      if (autor === 'entrenador' && m.autor !== 'entrenador') m.leidoEntrenador = true;
       return m;
     });
     guardarJSON('chats.json', chats);
@@ -279,7 +283,7 @@ app.get('/api/chat/no-leidos/entrenador', (req, res) => {
   let total = 0;
   const porCliente = {};
   Object.keys(chats).forEach(id => {
-    const noLeidos = chats[id].filter(m => m.autor === 'cliente' && !m.leido).length;
+    const noLeidos = chats[id].filter(m => m.autor === 'cliente' && !m.leidoEntrenador).length;
     if (noLeidos > 0) { porCliente[id] = noLeidos; total += noLeidos; }
   });
   res.json({ total, porCliente });
@@ -302,7 +306,9 @@ app.post('/api/chat/:id', (req, res) => {
     tipo: tipo || 'texto', // 'texto', 'imagen', 'voz'
     contenido: contenido || mensaje,
     fecha: new Date().toISOString(),
-    leido: false // se marca leído cuando el destinatario abre el chat
+    leido: false,
+    leidoCliente: autor === 'cliente',
+    leidoEntrenador: autor === 'entrenador'
   };
   chats[req.params.id].push(msg);
   guardarJSON('chats.json', chats);
@@ -314,7 +320,8 @@ app.post('/api/chat/:id/leer', (req, res) => {
   const chats = cargarJSON('chats.json', {});
   if (chats[req.params.id]) {
     chats[req.params.id] = chats[req.params.id].map(m => {
-      if (m.autor !== autor) m.leido = true;
+      if (autor === 'cliente' && m.autor !== 'cliente') m.leidoCliente = true;
+      if (autor === 'entrenador' && m.autor !== 'entrenador') m.leidoEntrenador = true;
       return m;
     });
     guardarJSON('chats.json', chats);
@@ -327,7 +334,7 @@ app.get('/api/chat/no-leidos/entrenador', (req, res) => {
   let total = 0;
   const porCliente = {};
   Object.keys(chats).forEach(id => {
-    const noLeidos = chats[id].filter(m => m.autor === 'cliente' && !m.leido).length;
+    const noLeidos = chats[id].filter(m => m.autor === 'cliente' && !m.leidoEntrenador).length;
     if (noLeidos > 0) { porCliente[id] = noLeidos; total += noLeidos; }
   });
   res.json({ total, porCliente });

@@ -533,13 +533,13 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
       <div class="badge-premium" style="margin-top:4px;display:inline-block;">★ TIPO PREMIUM</div>
     </div>
     <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:10px;">
-      ${iconB64 ? `<img src="data:image/png;base64,${iconB64}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;"/>` : ''}
+      ${iconB64 ? `<img src="data:image/png;base64,${iconB64}" style="width:72px;height:72px;border-radius:0;object-fit:contain;flex-shrink:0;margin-top:16px;"/>` : ''}
       <div style="text-align:center;">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#fff;line-height:1;">DT-APP</div>
         <div style="font-size:8px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">ASISTENTE PARA ENTRENADORES</div>
         <div style="font-size:10px;color:var(--rojo);font-weight:700;margin-top:2px;">${nombreEntrenador}</div>
       </div>
-      ${logoTrainerB64 ? `<img src="data:image/png;base64,${logoTrainerB64}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;"/>` : ''}
+      ${logoTrainerB64 ? `<img src="data:image/png;base64,${logoTrainerB64}" style="width:66px;height:66px;border-radius:0;object-fit:contain;flex-shrink:0;margin-top:16px;"/>` : ''}
     </div>
     <div style="flex:1;text-align:right;">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1;">REPORTE DE</div>

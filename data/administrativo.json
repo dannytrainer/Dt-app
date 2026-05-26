@@ -51,7 +51,18 @@
       "moneda": "COP",
       "msg_recordatorio": "",
       "msg_prellenado": true,
-      "pagos": []
+      "pagos": [
+        {
+          "monto": 350000,
+          "metodo": "efectivo",
+          "moneda": "COP",
+          "novedad": "",
+          "descuento_tipo": "",
+          "descuento_valor": 0,
+          "descuento_motivo": "",
+          "fecha": "2026-05-26"
+        }
+      ]
     },
     "1778377616786": {
       "precio": 150000,
@@ -116,7 +127,28 @@
     "1778216541791": {
       "precio": 0,
       "moneda": "COP",
-      "pagos": [],
+      "pagos": [
+        {
+          "monto": 1000,
+          "metodo": "efectivo",
+          "moneda": "COP",
+          "novedad": "",
+          "descuento_tipo": "",
+          "descuento_valor": 0,
+          "descuento_motivo": "",
+          "fecha": "2026-05-25"
+        },
+        {
+          "monto": 340000,
+          "metodo": "transferencia",
+          "moneda": "COP",
+          "novedad": "Prueba. Recibo con descuento",
+          "descuento_tipo": "pct",
+          "descuento_valor": 15,
+          "descuento_motivo": "",
+          "fecha": "2026-05-25"
+        }
+      ],
       "descuento_tipo": "pct",
       "descuento_valor": 0,
       "descuento_motivo": ""

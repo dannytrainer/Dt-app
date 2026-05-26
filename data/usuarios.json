@@ -21,8 +21,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 24,
-    "sesiones_ciclo": 24,
+    "sesiones_total": 37,
+    "sesiones_ciclo": 37,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague m",
     "msg_q1": "",
@@ -33,7 +33,8 @@
       "lunes": [
         "2026-05-23",
         "2026-05-24",
-        "2026-05-25"
+        "2026-05-25",
+        "2026-05-26"
       ],
       "sabado": [
         "2026-05-23"
@@ -88,8 +89,8 @@
       "unidades": "kg"
     },
     "msg_pago": "",
-    "sesiones_total": 2,
-    "sesiones_ciclo": 2,
+    "sesiones_total": 3,
+    "sesiones_ciclo": 3,
     "foto": "data/fotos/1778376855974/perfil.jpg"
   },
   {
@@ -285,7 +286,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 20,
     "dia_pago2": null,
-    "estado_pago": "vencido",
+    "estado_pago": "aldia",
     "perfil": {
       "fecha_inicio": "2026-04-15",
       "sexo": "M",
@@ -368,6 +369,86 @@
       "etiqueta": "hipertrofia",
       "notas": "Mocosa ",
       "unidades": "kg"
+    }
+  },
+  {
+    "id": "test_001",
+    "nombre": "Test Hipertrofia H",
+    "perfil": {
+      "sexo": "M",
+      "edad": 25
+    }
+  },
+  {
+    "id": "test_002",
+    "nombre": "Test Pérdida Peso M",
+    "perfil": {
+      "sexo": "F",
+      "edad": 35
+    }
+  },
+  {
+    "id": "test_003",
+    "nombre": "Test Económico 2c",
+    "perfil": {
+      "sexo": "M",
+      "edad": 28
+    }
+  },
+  {
+    "id": "test_004",
+    "nombre": "Test Premium 6c",
+    "perfil": {
+      "sexo": "F",
+      "edad": 30
+    }
+  },
+  {
+    "id": "test_005",
+    "nombre": "Test Medio 3c",
+    "perfil": {
+      "sexo": "M",
+      "edad": 40
+    }
+  },
+  {
+    "id": "test_006",
+    "nombre": "Test Alto Peso",
+    "perfil": {
+      "sexo": "M",
+      "edad": 22
+    }
+  },
+  {
+    "id": "test_007",
+    "nombre": "Test Bajo Peso",
+    "perfil": {
+      "sexo": "F",
+      "edad": 20
+    }
+  },
+  {
+    "id": "test_008",
+    "nombre": "Test Mayor Edad",
+    "perfil": {
+      "sexo": "F",
+      "edad": 55
+    }
+  },
+  {
+    "id": "test_009",
+    "nombre": "Test Vegano",
+    "perfil": {
+      "sexo": "M",
+      "edad": 27
+    }
+  },
+  {
+    "id": "test_010",
+    "nombre": "Test Diabetes HTA",
+    "perfil": {
+      "sexo": "F",
+      "edad": 45
     }
   }
 ]
