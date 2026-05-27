@@ -68,5 +68,17 @@
     ],
     "descFinSerie": 60,
     "descFinCircuito": 600
+  },
+  {
+    "id": 1779844792675,
+    "nombre": "Intervalos",
+    "preparacion": 10,
+    "trabajo": 30,
+    "descanso": 15,
+    "rondas": 8,
+    "sets": 1,
+    "descEntreSets": 60,
+    "finalizacion": 5,
+    "tipo": "intervalo"
   }
 ]

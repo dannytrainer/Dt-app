@@ -492,6 +492,88 @@
           "score": 40
         },
         "scoreTotal": 57
+      },
+      {
+        "fecha": "2026-05-26",
+        "tipo": "fuerza",
+        "peso": 73,
+        "pecho": {
+          "kg": 95,
+          "reps": 5,
+          "rm": 111,
+          "score": 80
+        },
+        "espalda": {
+          "kg": 80,
+          "reps": 3,
+          "rm": 88,
+          "score": 60
+        },
+        "biceps": {
+          "kg": 35,
+          "reps": 7,
+          "rm": 43,
+          "score": 60
+        },
+        "triceps": {
+          "kg": 40,
+          "reps": 10,
+          "rm": 53,
+          "score": 80
+        },
+        "femoral": {
+          "kg": 150,
+          "reps": 1,
+          "rm": 150,
+          "score": 60
+        },
+        "cuad": {
+          "kg": 130,
+          "reps": 6,
+          "rm": 156,
+          "score": 80
+        },
+        "gluteo": {
+          "kg": 190,
+          "reps": 10,
+          "rm": 253,
+          "score": 100
+        },
+        "scoreTotal": 74
+      },
+      {
+        "fecha": "2026-05-26",
+        "tipo": "especif",
+        "peso": 73,
+        "cooper": {
+          "valor": 3000,
+          "score": 100
+        },
+        "leger": {
+          "valor": 9,
+          "score": 60
+        },
+        "sitreach": {
+          "valor": 6,
+          "score": 40
+        },
+        "hombro": {
+          "valor": -9,
+          "score": 20
+        },
+        "saltoL": {
+          "valor": 235,
+          "score": 100
+        },
+        "saltoV": {
+          "valor": 50,
+          "score": 80
+        },
+        "vel30": {
+          "valor": 5,
+          "score": 40
+        },
+        "scoreTotal": 63
       }
     ]
   },
@@ -1625,6 +1707,48 @@
           "score": 60
         },
         "scoreTotal": 65
+      },
+      {
+        "fecha": "2026-05-26",
+        "tipo": "fuerza",
+        "peso": 87.2,
+        "pecho": {
+          "kg": 72,
+          "reps": 6,
+          "rm": 86,
+          "score": 40
+        },
+        "espalda": {
+          "kg": 86,
+          "reps": 6,
+          "rm": 103,
+          "score": 60
+        },
+        "femoral": {
+          "kg": 120,
+          "reps": 6,
+          "rm": 144,
+          "score": 40
+        },
+        "cuad": {
+          "kg": 100,
+          "reps": 5,
+          "rm": 117,
+          "score": 40
+        },
+        "gluteo": {
+          "kg": 90,
+          "reps": 8,
+          "rm": 114,
+          "score": 40
+        },
+        "scoreTotal": 44
+      },
+      {
+        "fecha": "2026-05-26",
+        "tipo": "especif",
+        "peso": 87.2,
+        "scoreTotal": 0
       }
     ]
   }

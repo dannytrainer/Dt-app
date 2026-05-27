@@ -21,8 +21,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 37,
-    "sesiones_ciclo": 37,
+    "sesiones_total": 38,
+    "sesiones_ciclo": 38,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague m",
     "msg_q1": "",
@@ -111,12 +111,13 @@
       "altura": "155",
       "etiqueta": "hipertrofia",
       "notas": "Hernia inguinal ",
-      "unidades": "kg"
+      "unidades": "kg",
+      "fecha_nacimiento": "2002-05-08"
     },
     "msg_pago": "Prueba de cobro automát",
     "foto": "data/fotos/1778377049231/perfil.jpg",
-    "sesiones_total": 3,
-    "sesiones_ciclo": 3,
+    "sesiones_total": 4,
+    "sesiones_ciclo": 4,
     "dias_desbloqueados": {
       "lunes": [
         "2026-05-24"
@@ -212,8 +213,8 @@
         "2026-05-23"
       ]
     },
-    "sesiones_total": 4,
-    "sesiones_ciclo": 4
+    "sesiones_total": 5,
+    "sesiones_ciclo": 5
   },
   {
     "id": "1778378152347",
@@ -326,6 +327,16 @@
       "lunes": [
         "2026-05-24"
       ]
+    },
+    "perfil": {
+      "fecha_inicio": "2026-05-26",
+      "sexo": "M",
+      "edad": "31",
+      "altura": "174",
+      "etiqueta": "hipertrofia",
+      "notas": "",
+      "unidades": "kg",
+      "fecha_nacimiento": "1995-06-16"
     }
   },
   {

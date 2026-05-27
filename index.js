@@ -60,7 +60,21 @@ async function conectarWhatsApp() {
 async function enviarMensaje(telefono, mensaje) {
   if(global.waConectado===false) return false;
   try {
-    const jid = telefono + '@s.whatsapp.net';
+    let jid;
+    if(String(telefono).startsWith('grupo:')){
+      const codigo = telefono.replace('grupo:','');
+      try {
+        const info = await sock.groupGetInviteInfo(codigo);
+        jid = info.id;
+      } catch(e) {
+        console.log('groupGetInviteInfo error:', e.message);
+        return false;
+      }
+    } else if(String(telefono).endsWith('@g.us')){
+      jid = telefono;
+    } else {
+      jid = telefono + '@s.whatsapp.net';
+    }
     await sock.sendMessage(jid, { text: mensaje });
     return true;
   } catch (e) {
@@ -548,6 +562,18 @@ app.get('/api/horarios', (req, res) => res.json(cargarJSON('horarios.json')));
 app.post('/api/horarios', (req, res) => {
   guardarJSON('horarios.json', req.body);
   res.json({ok:true});
+});
+
+app.post('/api/grupo-info', async (req, res) => {
+  const { link } = req.body;
+  if(!link) return res.json({ok:false, error:'Sin link'});
+  try {
+    const codigo = link.split('/').pop();
+    const info = await sock.groupGetInviteInfo(codigo);
+    res.json({ok:true, jid:info.id, nombre:info.subject, participantes:info.size});
+  } catch(e) {
+    res.json({ok:false, error:e.message});
+  }
 });
 
 app.get('/api/status',(req,res)=>res.json({conectado:global.waConectado||false}));

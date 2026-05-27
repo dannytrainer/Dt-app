@@ -741,7 +741,11 @@ let rutinaActual={},diaSeleccionado='lunes';
 
 function showPage(p){
 const hPanel=document.getElementById('herramienta-panel');
-if(hPanel&&hPanel.style.display!=='none'){hPanel.style.display='none';}
+if(hPanel&&hPanel.style.display!=='none'){
+  hPanel.style.display='none';
+  const st=document.querySelector('#page-logs .st');
+  if(st){st.style.display='block';if(st.nextElementSibling)st.nextElementSibling.style.display='grid';}
+}
 desbloquearSwipe();
 // Detener todos los loops de juegos
 window._juegoActivo=false;
@@ -2373,6 +2377,14 @@ dia_pago2:parseInt(document.getElementById('cliente-pago2').value)||null,
 estado_pago:document.getElementById('cliente-estado-pago').value,
 
 };
+// Manejar destino grupo
+if(window._destinoWA==='grupo'){
+  const link=document.getElementById('cliente-grupo-link')?document.getElementById('cliente-grupo-link').value.trim():'';
+  if(!link){toast('Pega el link del grupo',false);return;}
+  const codigo=link.split('/').pop();
+  datos.telefono='grupo:'+codigo;
+  datos.es_grupo=true;
+}
 if(!datos.nombre||!datos.telefono){toast('Completa nombre y teléfono',false);return;}
 const perfilDatos={
   fecha_nacimiento:document.getElementById('cliente-fnac')?document.getElementById('cliente-fnac').value:'',
@@ -3142,7 +3154,7 @@ function _swipeBlockFn(e) {
 }
 
 function renderJuegos(c) {
-  bloquearSwipe();
+  desbloquearSwipe();
   c.innerHTML = `
     <div style="margin-bottom:16px">
       <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;margin-bottom:12px">🎮 Juegos</div>
@@ -7275,7 +7287,12 @@ function calcRenderConversores(c){
 // ═══════════════════════════════
 let _hiitCircuitos=[];
 async function hiitCargar(){
-  try{const r=await fetch('/api/hiit');_hiitCircuitos=await r.json();}catch(e){}
+  try{
+    const r=await fetch('/api/hiit');
+    const todos=await r.json();
+    _hiitCircuitos=todos.filter(x=>x.tipo!=='intervalo');
+    _intervCircuitos=todos.filter(x=>x.tipo==='intervalo');
+  }catch(e){}
 }
 hiitCargar();
 let _hiitActual=null;
@@ -7383,7 +7400,7 @@ function intervRenderLista(c) {
         '<div style="display:flex;gap:6px">' +
         '<button onclick="_intervActual=JSON.parse(JSON.stringify(_intervCircuitos[' + i + ']));intervMostrar(\'ejecutar\')" style="flex:2;background:#e31e24;color:var(--texto);border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">▶️ Iniciar</button>' +
         '<button onclick="_intervActual=JSON.parse(JSON.stringify(_intervCircuitos[' + i + ']));intervMostrar(\'editor\')" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>' +
-        '<button onclick="_intervCircuitos.splice(' + i + ',1);intervMostrar(\'lista\')" style="flex:1;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>' +
+        '<button onclick="intervEliminar(' + i + ')" style="flex:1;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>' +
         '</div>' +
         '</div>';
     }).join('');
@@ -7426,12 +7443,25 @@ function _intervCampo(label, val, onchange) {
     '</div>';
 }
 
-function intervGuardar() {
+async function intervGuardar() {
   var iv = _intervActual;
   if (!iv.nombre.trim()) { alert('Ponle un nombre'); return; }
+  iv.tipo = 'intervalo';
+  if (!iv.id) iv.id = Date.now();
+  await fetch('/api/hiit', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(iv)});
   var idx = _intervCircuitos.findIndex(function(x){return x.id===iv.id;});
   if (idx >= 0) _intervCircuitos[idx] = iv;
   else _intervCircuitos.push(iv);
+  toast('💾 Intervalo guardado');
+  intervMostrar('lista');
+}
+
+async function intervEliminar(i) {
+  var iv = _intervCircuitos[i];
+  if (!iv) return;
+  await fetch('/api/hiit/' + iv.id, {method:'DELETE'});
+  _intervCircuitos.splice(i, 1);
+  toast('🗑️ Eliminado');
   intervMostrar('lista');
 }
 
@@ -8128,7 +8158,7 @@ function dtSonido(tipo){
 
 let _dtSonidoConfig={
   crono:{inicio:'campana'},
-  timer:{inicio:'alarma',fin:'triple_campana'},
+  timer:{inicio:'alarma',fin:'doble_pip'},
   hiit:{inicio:'silbato',descanso:'doble_pip',preparacion:'pip',final:'descenso'}
 };
 let _cronoTab='individual';
@@ -8939,6 +8969,7 @@ function compartirPlanWA() {
   <div style="background:#111;border-bottom:1px solid #1a1a1a;display:flex;flex-shrink:0">
     <button onclick="tcTab('rutina')" id="tc-tab-rutina" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#e31e24;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid #e31e24">📋 Rutina</button>
     <button onclick="tcTab('alimentacion')" id="tc-tab-alimentacion" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">🍖 Nutrición</button>
+    <button onclick="tcTab('tools')" id="tc-tab-tools" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">🛠 Tools</button>
     <button onclick="tcTab('progreso')" id="tc-tab-progreso" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">📊 Progreso</button>
     <button onclick="tcTab('perfil')" id="tc-tab-perfil" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">👤 Perfil</button>
   </div>
@@ -8947,8 +8978,8 @@ function compartirPlanWA() {
   <div id="tc-contenido" style="flex:1;overflow-y:auto;padding:16px"></div>
 
   <!-- CHAT FLOTANTE -->
-  <button id="tc-chat-fab" onclick="tcToggleChat()" style="position:fixed;bottom:90px;left:20px;width:54px;height:54px;border-radius:50%;background:#e31e24;border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(227,30,36,.4);z-index:10000;display:flex;align-items:center;justify-content:center">💬</button>
-  <div id="tc-chat-badge" style="display:none;position:fixed;bottom:128px;left:16px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
+  <button id="tc-chat-fab" onclick="tcToggleChat()" style="position:fixed;bottom:90px;left:20px;width:54px;height:54px;border-radius:50%;background:rgba(227,30,36,0.35);border:none;color:rgba(255,255,255,0.6);font-size:24px;cursor:pointer;box-shadow:none;z-index:10000;display:flex;align-items:center;justify-content:center">💬</button>
+  <div id="tc-chat-badge" style="display:none;position:fixed;bottom:128px;left:16px;background:rgba(255,152,0,0.25);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
 
   <!-- PANEL CHAT -->
   <div id="tc-chat-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:9999;flex-direction:column">
@@ -9153,8 +9184,9 @@ async function iniciarTerminalCliente() {
 }
 
 function tcTab(tab) {
-  ['rutina','alimentacion','progreso','perfil'].forEach(t => {
+  ['rutina','alimentacion','tools','progreso','perfil'].forEach(t => {
     const btn = document.getElementById('tc-tab-' + t);
+    if (!btn) return;
     btn.style.color = t === tab ? '#e31e24' : '#555';
     btn.style.borderBottom = t === tab ? '2px solid #e31e24' : '2px solid transparent';
   });
@@ -9162,6 +9194,7 @@ function tcTab(tab) {
   const cont = document.getElementById('tc-contenido');
 
   if (tab === 'rutina') tcRenderRutina(cont);
+  else if (tab === 'tools') tcRenderTools(cont);
   else if (tab === 'alimentacion') tcRenderAlimentacion(cont);
   else if (tab === 'progreso') tcRenderProgreso(cont);
   else if (tab === 'perfil') tcRenderPerfil(cont);
@@ -9258,6 +9291,10 @@ function tcVerDia(dia) {
     _tcSeriesCompletadas = {};
     _tcCardioCompletado = {};
     _tcLog = [];
+    localStorage.removeItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy());
+  } else {
+    var _logGuardado = localStorage.getItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy());
+    if (_logGuardado) try { _tcLog = JSON.parse(_logGuardado); } catch(e) { _tcLog = []; }
   }
   tcCargarProgreso();
   const diaData = _tcRutina && _tcRutina[dia];
@@ -9433,6 +9470,7 @@ function tcSerie(ejIdx, descanso, totalSeries) {
   // Log cronológico
   const _ejNombre = (_tcEjercicios && _tcEjercicios[ejIdx]) ? (_tcEjercicios[ejIdx].nombre || 'Ejercicio') : 'Ejercicio';
   _tcLog.push({tipo:'serie', ejIdx, serieNum: completadas + 1, nombre: _ejNombre, ts: Date.now()});
+  localStorage.setItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy(), JSON.stringify(_tcLog));
   const nuevas = _tcSeriesCompletadas[ejIdx];
   const btn = document.getElementById('tc-btn-serie-' + ejIdx);
   if (nuevas >= totalSeries) {
@@ -9462,6 +9500,7 @@ function tcSerie(ejIdx, descanso, totalSeries) {
     const txt = document.getElementById('tc-timer-txt');
     if (seg <= 0) {
       clearInterval(_tcTimer);
+      dtSonarEvento('timer','fin');
       if (_tcToast) { _tcToast.style.borderColor='#4caf50'; _tcToast.innerHTML='✅ ¡A la siguiente serie!'; setTimeout(()=>{if(_tcToast){_tcToast.remove();_tcToast=null;}},2000); }
     } else {
       if (txt) txt.textContent = seg;
@@ -9485,6 +9524,7 @@ function tcCardioHecho(ci) {
     // Log cronológico
     const _cxNombre = (_tcRutina && _tcRutina[_tcDia] && _tcRutina[_tcDia].cardio && _tcRutina[_tcDia].cardio[ci]) ? (_tcRutina[_tcDia].cardio[ci].momento || 'Cardio') : 'Cardio';
     _tcLog.push({tipo:'cardio', ci, nombre: _cxNombre, ts: Date.now()});
+    localStorage.setItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy(), JSON.stringify(_tcLog));
     btn.style.background = '#0a1a0a';
     btn.style.color = '#4caf50';
     btn.style.border = '1px solid #4caf50';
@@ -10165,6 +10205,218 @@ function tcGuardarPerfilCliente() {
     }
   }).catch(()=>alert('❌ Error al guardar'));
 }
+
+function tcRenderTools(cont) {
+  var html = '';
+  html += '<div style="padding:4px 0 16px 0">';
+  html += '<div style="font-size:13px;color:#666;margin-bottom:16px;text-align:center;letter-spacing:1px;text-transform:uppercase">Herramientas</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  html += '<div onclick="tcToolAbrirHerr(&quot;cronometros&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="font-size:32px;margin-bottom:8px">&#9201;</div><div style="font-size:13px;font-weight:700;color:#fff">Cron&oacute;metro</div><div style="font-size:10px;color:#555;margin-top:4px">Series y tiempos</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&quot;temporizadores&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="font-size:32px;margin-bottom:8px">&#9203;</div><div style="font-size:13px;font-weight:700;color:#fff">Temporizador</div><div style="font-size:10px;color:#555;margin-top:4px">Descansos</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&quot;juegos&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="font-size:32px;margin-bottom:8px">&#127918;</div><div style="font-size:13px;font-weight:700;color:#fff">Juegos</div><div style="font-size:10px;color:#555;margin-top:4px">Mientras esperas</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&quot;ruleta&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="font-size:32px;margin-bottom:8px">&#127905;</div><div style="font-size:13px;font-weight:700;color:#fff">Ruleta DT</div><div style="font-size:10px;color:#555;margin-top:4px">Ejercicio aleatorio</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&quot;conversores&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="font-size:32px;margin-bottom:8px">&#9878;</div><div style="font-size:13px;font-weight:700;color:#fff">Conversores</div><div style="font-size:10px;color:#555;margin-top:4px">kg &middot; lb &middot; cm &middot; in</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&quot;competencias&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="font-size:32px;margin-bottom:8px">&#127942;</div><div style="font-size:13px;font-weight:700;color:#fff">Competencias</div><div style="font-size:10px;color:#555;margin-top:4px">Ver ranking</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&quot;enciclopedia&quot;)" style="background:#111;border:1px solid #222;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer;grid-column:1/-1"><div style="font-size:32px;margin-bottom:8px">&#128218;</div><div style="font-size:13px;font-weight:700;color:#fff">Enciclopedia</div><div style="font-size:10px;color:#555;margin-top:4px">Ejercicios &middot; T&eacute;cnica &middot; Nutrici&oacute;n</div></div>';
+  html += '</div></div>';
+  cont.innerHTML = html;
+}
+
+function tcToolAbrirHerr(nombre) {
+  const cont = document.getElementById('tc-contenido');
+  if (!cont) return;
+
+  cont.innerHTML = '<div style="padding:4px 0"><button onclick="tcTab(\x27tools\x27)" style="display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#e31e24;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;padding:0">← Volver</button><div id="tc-herr-contenido"></div></div>';
+  const c = document.getElementById('tc-herr-contenido');
+
+  if (nombre === 'cronometros') renderCronometros(c);
+  else if (nombre === 'temporizadores') renderTemporizadores(c);
+  else if (nombre === 'juegos') {
+    renderJuegos(c);
+    setTimeout(function(){
+      var btns = c.querySelectorAll('[onclick]');
+      btns.forEach(function(b){
+        var oc = b.getAttribute('onclick');
+        if(oc && oc.indexOf('herramienta-contenido') !== -1){
+          b.setAttribute('onclick', oc.replace(/herramienta-contenido/g, 'tc-herr-contenido'));
+        }
+        if(oc && oc.indexOf('volverHerramientas') !== -1){
+          b.setAttribute('onclick', "tcTab('tools')");
+        }
+      });
+    }, 100);
+    // Parchar funciones de juegos para usar contenedor cliente
+    window._tcJuegosOrig = window._tcJuegosOrig || {};
+    var juegos = ['renderTriqui','renderSnake','renderMemoria','renderHockey','renderInvaders'];
+    juegos.forEach(function(fn){
+      if(window[fn] && !window._tcJuegosOrig[fn]){
+        window._tcJuegosOrig[fn] = window[fn];
+        window[fn] = function(){
+          var cj = document.getElementById('tc-herr-contenido');
+          if(!cj) cj = document.getElementById('herramienta-contenido');
+          window._tcJuegosOrig[fn](cj);
+          setTimeout(function(){
+            var volver = cj.querySelector('button');
+            if(volver) volver.setAttribute('onclick', "tcToolAbrirHerr('juegos')");
+          }, 100);
+        };
+      }
+    });
+  }
+  else if (nombre === 'ruleta') renderRuleta(c);
+  else if (nombre === 'competencias') {
+    renderCompetencias(c);
+    // Ocultar botones de edicion del entrenador
+    setTimeout(function(){
+      var btns = c.querySelectorAll('button');
+      btns.forEach(function(b){
+        if(b.textContent.indexOf('Competencia entre') !== -1 || b.textContent.indexOf('Tu Propia') !== -1) {
+          b.parentNode.style.display = 'none';
+        }
+      });
+    }, 100);
+  }
+  else if (nombre === 'conversores') tcRenderConversores(c);
+  else if (nombre === 'enciclopedia') tcRenderEnciclopedia(c);
+}
+
+function tcRenderConversores(c) {
+  var edad = 0;
+  var fnac = null;
+  if(window._tcUsuario) {
+    fnac = (window._tcUsuario.perfil && window._tcUsuario.perfil.fecha_nacimiento) || window._tcUsuario.fecha_nacimiento || null;
+    if(!fnac && window._tcUsuario.perfil && window._tcUsuario.perfil.edad) {
+      edad = parseInt(window._tcUsuario.perfil.edad) || 0;
+    }
+  }
+  if(!fnac && !edad) {
+    var _idCv = localStorage.getItem('dt_cliente_id');
+    if(_idCv) {
+      fetch('/api/usuarios/' + _idCv).then(function(r){return r.json();}).then(function(u){
+        if(u && u.perfil && u.perfil.fecha_nacimiento) {
+          window._tcUsuario = window._tcUsuario || u;
+          tcRenderConversores(c);
+        }
+      });
+      c.innerHTML = '<div style="padding:20px;text-align:center;color:#555">Cargando...</div>';
+      return;
+    }
+  }
+  if(fnac) {
+    var hoy = new Date();
+    var nac = new Date(fnac);
+    edad = hoy.getFullYear() - nac.getFullYear();
+    if(hoy < new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate())) edad--;
+  }
+  var fcmax = edad > 0 ? 220 - edad : null;
+
+  var h = '<div style="display:flex;flex-direction:column;gap:12px">';
+
+  // PESO
+  h += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:16px">';
+  h += '<div style="font-size:12px;font-weight:700;color:#e31e24;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Peso</div>';
+  h += '<div style="display:flex;gap:8px;align-items:center">';
+  h += '<input id="cv-kg" type="number" placeholder="kg" oninput="cvKgLb()" style="flex:1;min-width:0;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:15px;text-align:center">';
+  h += '<span style="color:#555;font-weight:700;flex-shrink:0">&#8644;</span>';
+  h += '<input id="cv-lb" type="number" placeholder="lb" oninput="cvLbKg()" style="flex:1;min-width:0;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:15px;text-align:center">';
+  h += '</div>';
+  h += '<div style="display:flex;justify-content:space-between;margin-top:6px">';
+  h += '<span style="font-size:10px;color:#444">kilogramos</span><span style="font-size:10px;color:#444">libras</span>';
+  h += '</div></div>';
+
+  // ALTURA
+  h += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:16px">';
+  h += '<div style="font-size:12px;font-weight:700;color:#e31e24;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Altura</div>';
+  h += '<div style="display:flex;gap:8px;align-items:center">';
+  h += '<input id="cv-cm" type="number" placeholder="cm" oninput="cvCmIn()" style="flex:1;min-width:0;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:15px;text-align:center">';
+  h += '<span style="color:#555;font-weight:700;flex-shrink:0">&#8644;</span>';
+  h += '<input id="cv-in" type="number" placeholder="in" oninput="cvInCm()" style="flex:1;min-width:0;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:15px;text-align:center">';
+  h += '</div>';
+  h += '<div style="display:flex;justify-content:space-between;margin-top:6px">';
+  h += '<span style="font-size:10px;color:#444">cent&iacute;metros</span><span style="font-size:10px;color:#444">pulgadas</span>';
+  h += '</div>';
+  h += '<div id="cv-cm-ft" style="text-align:center;margin-top:8px;font-size:12px;color:#666"></div>';
+  h += '</div>';
+
+  // DISTANCIA
+  h += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:16px">';
+  h += '<div style="font-size:12px;font-weight:700;color:#e31e24;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">&#128663; Distancia</div>';
+  h += '<div style="display:flex;gap:8px;align-items:center">';
+  h += '<input id="cv-km" type="number" placeholder="km" oninput="cvKmMi()" style="flex:1;min-width:0;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:15px;text-align:center">';
+  h += '<span style="color:#555;font-weight:700;flex-shrink:0">&#8644;</span>';
+  h += '<input id="cv-mi" type="number" placeholder="mi" oninput="cvMiKm()" style="flex:1;min-width:0;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;font-size:15px;text-align:center">';
+  h += '</div>';
+  h += '<div style="display:flex;justify-content:space-between;margin-top:6px">';
+  h += '<span style="font-size:10px;color:#444">kil&oacute;metros</span><span style="font-size:10px;color:#444">millas</span>';
+  h += '</div></div>';
+
+  // FRECUENCIA CARDIACA
+  h += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:16px">';
+  h += '<div style="font-size:12px;font-weight:700;color:#e31e24;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">&#128147; Frecuencia Cardiaca</div>';
+  if(edad > 0) {
+    h += '<div style="font-size:11px;color:#555;margin-bottom:12px">Edad: ' + edad + ' a&ntilde;os &middot; FCm&aacute;x: ' + fcmax + ' bpm</div>';
+    var zonas = [
+      {nombre:'Zona 1 &mdash; Recuperaci&oacute;n', pct:'50-60%', min:Math.round(fcmax*0.50), max:Math.round(fcmax*0.60), color:'#4caf50'},
+      {nombre:'Zona 2 &mdash; Quema grasa',         pct:'60-70%', min:Math.round(fcmax*0.60), max:Math.round(fcmax*0.70), color:'#8bc34a'},
+      {nombre:'Zona 3 &mdash; Aer&oacute;bica',     pct:'70-80%', min:Math.round(fcmax*0.70), max:Math.round(fcmax*0.80), color:'#ff9800'},
+      {nombre:'Zona 4 &mdash; Anaer&oacute;bica',   pct:'80-90%', min:Math.round(fcmax*0.80), max:Math.round(fcmax*0.90), color:'#f44336'},
+      {nombre:'Zona 5 &mdash; M&aacute;ximo',       pct:'90-100%',min:Math.round(fcmax*0.90), max:fcmax,                  color:'#e31e24'}
+    ];
+    zonas.forEach(function(z) {
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a">';
+      h += '<div><div style="font-size:11px;font-weight:700;color:' + z.color + '">' + z.nombre + '</div>';
+      h += '<div style="font-size:10px;color:#555">' + z.pct + ' FCm&aacute;x</div></div>';
+      h += '<div style="font-size:13px;font-weight:700;color:#fff">' + z.min + '-' + z.max + ' <span style="font-size:10px;color:#555">bpm</span></div>';
+      h += '</div>';
+    });
+  } else {
+    h += '<div style="font-size:12px;color:#555;padding:8px 0">Agrega tu fecha de nacimiento en Perfil para ver tus zonas.</div>';
+  }
+  h += '</div>';
+
+  h += '</div>';
+  c.innerHTML = h;
+}
+
+
+function cvKgLb() {
+  const v = parseFloat(document.getElementById('cv-kg').value);
+  if (!isNaN(v)) document.getElementById('cv-lb').value = (v * 2.20462).toFixed(2);
+}
+function cvLbKg() {
+  const v = parseFloat(document.getElementById('cv-lb').value);
+  if (!isNaN(v)) document.getElementById('cv-kg').value = (v / 2.20462).toFixed(2);
+}
+function cvCmIn() {
+  const v = parseFloat(document.getElementById('cv-cm').value);
+  if (!isNaN(v)) {
+    document.getElementById('cv-in').value = (v / 2.54).toFixed(2);
+    const ft = Math.floor(v / 30.48);
+    const inn = Math.round((v / 2.54) % 12);
+    document.getElementById('cv-cm-ft').textContent = ft + ' ft ' + inn + ' in';
+  }
+}
+function cvKmMi() {
+  const v = parseFloat(document.getElementById('cv-km').value);
+  if (!isNaN(v)) document.getElementById('cv-mi').value = (v * 0.621371).toFixed(3);
+}
+function cvMiKm() {
+  const v = parseFloat(document.getElementById('cv-mi').value);
+  if (!isNaN(v)) document.getElementById('cv-km').value = (v / 0.621371).toFixed(3);
+}
+function cvInCm() {
+  const v = parseFloat(document.getElementById('cv-in').value);
+  if (!isNaN(v)) {
+    document.getElementById('cv-cm').value = (v * 2.54).toFixed(2);
+    const ft = Math.floor(v / 12);
+    const inn = Math.round(v % 12);
+    document.getElementById('cv-cm-ft').textContent = ft + ' ft ' + inn + ' in';
+  }
+}
+
+function tcRenderEnciclopedia(c) {
+  c.innerHTML = '<div style="padding:20px;text-align:center;color:#555"><div style="font-size:48px;margin-bottom:12px">📚</div><div style="font-size:14px">Enciclopedia próximamente</div><div style="font-size:12px;margin-top:8px;color:#333">Ejercicios · Técnica · Nutrición</div></div>';
+}
 </script>
 
 <script>
@@ -10377,7 +10629,10 @@ function girarRuleta(id) {
   }
   r.frameId = requestAnimationFrame(animar);
 }
+
+
 </script>
+
 </body>
 <script>
 // ======== IMAGEN Y VOZ CHAT ========

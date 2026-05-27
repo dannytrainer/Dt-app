@@ -368,5 +368,52 @@
         }
       }
     ]
+  },
+  "1778389775722": {
+    "peso": [
+      {
+        "fecha": "2026-05-26",
+        "valor": 87.2
+      }
+    ],
+    "medidas": [
+      {
+        "fecha": "2026-05-26",
+        "cintura": 94,
+        "cadera": 103,
+        "pecho": 96,
+        "brazo": 37,
+        "pierna": 64,
+        "pantorrilla": 39,
+        "triceps": 16,
+        "subescapular": 26,
+        "abdominal": 27,
+        "suprailiaco": 16,
+        "analisis": {
+          "pctGrasa": 27.2,
+          "kgGrasa": 23.7,
+          "kgMusculo": 63.5
+        }
+      },
+      {
+        "fecha": "2026-05-26",
+        "cintura": 94,
+        "cadera": 103,
+        "pecho": 96,
+        "brazo": 37,
+        "pierna": 64,
+        "hombros": 124,
+        "pantorrilla": 39,
+        "triceps": 16,
+        "subescapular": 26,
+        "abdominal": 27,
+        "suprailiaco": 16,
+        "analisis": {
+          "pctGrasa": 27.2,
+          "kgGrasa": 23.7,
+          "kgMusculo": 63.5
+        }
+      }
+    ]
   }
 }
