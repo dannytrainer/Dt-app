@@ -723,6 +723,59 @@ lineas.push('');    });
 });
 require("./sincronizar");
 require("./rutas_historial")(app, fs);
+// ── ENCICLOPEDIA ──
+app.get('/api/enciclopedia', (req, res) => {
+  const oficiales = cargarJSON('enciclopedia.json', []);
+  const custom = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  let todos = [...oficiales, ...(custom.ejercicios || [])];
+  if (req.query.grupo) todos = todos.filter(e => e.grupo === req.query.grupo);
+  if (req.query.equipamiento) todos = todos.filter(e => e.equipamiento === req.query.equipamiento);
+  if (req.query.nivel) todos = todos.filter(e => e.nivel === req.query.nivel);
+  if (req.query.q) {
+    const q = req.query.q.toLowerCase();
+    todos = todos.filter(e =>
+      e.nombre.toLowerCase().includes(q) ||
+      (e.musculos_principales||[]).some(m => m.toLowerCase().includes(q)) ||
+      (e.tags||[]).some(t => t.toLowerCase().includes(q))
+    );
+  }
+  res.json(todos);
+});
+
+app.get('/api/enciclopedia/personalizados', (req, res) => {
+  const data = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  res.json(data.ejercicios || []);
+});
+
+app.post('/api/enciclopedia/personalizados', (req, res) => {
+  const config = cargarJSON('config.json', {});
+  const plan = config.plan || 'free';
+  const data = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  if (!data.ejercicios) data.ejercicios = [];
+  if (plan === 'free' && data.ejercicios.length >= 10)
+    return res.status(403).json({ error: 'Límite del plan Free alcanzado (10 ejercicios)' });
+  const nuevo = { ...req.body, id: 'custom-' + Date.now(), es_personalizado: true };
+  data.ejercicios.push(nuevo);
+  guardarJSON('enciclopedia_personalizados.json', data);
+  res.json(nuevo);
+});
+
+app.put('/api/enciclopedia/personalizados/:id', (req, res) => {
+  const data = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const idx = (data.ejercicios||[]).findIndex(e => e.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  data.ejercicios[idx] = { ...data.ejercicios[idx], ...req.body };
+  guardarJSON('enciclopedia_personalizados.json', data);
+  res.json(data.ejercicios[idx]);
+});
+
+app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
+  const data = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  data.ejercicios = (data.ejercicios||[]).filter(e => e.id !== req.params.id);
+  guardarJSON('enciclopedia_personalizados.json', data);
+  res.json({ ok: true });
+});
+
 conectarWhatsApp();
 app.listen(3000, () => console.log('Interfaz en http://localhost:3000'));
 require('./rutas_informe')(app, fs);
