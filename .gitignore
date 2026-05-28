@@ -1,6 +1,7 @@
 node_modules/
 auth/
 data/
+!data/enciclopedia.json
 backups/
 *.log
 backup_log.txt
@@ -12,3 +13,5 @@ fix2.js
 patch_*.py
 check.py
 dt-app/
+!public/enciclopedia/
+!public/images/
