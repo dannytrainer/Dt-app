@@ -435,8 +435,8 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div class="card">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar1" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar1()" onfocus="mostrarDrop1()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar1" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente"></div>
 <button class="btn br" style="width:100%" onclick="enviarRutinaCompleta()">💪 Enviar rutina completa</button>
-<button class="btn br" style="width:100%;margin-top:8px;background:#7c3aed" onclick="enviarInformePremium()">👑 Enviar PDF premium</button>
-<button class="btn br" style="width:100%;margin-top:8px;background:#065f46" onclick="descargarInformePremium()">👑 Descargar PDF premium</button>
+<button class="btn br" style="width:100%;margin-top:8px;background:#7c3aed" onclick="enviarInformePremium()">👑 Enviar Informe Premium</button>
+<button class="btn br" style="width:100%;margin-top:8px;background:#065f46" onclick="descargarInformePremium()">👑 Descargar Informe Premium</button>
 </div>
 <div class="card" style="margin-top:8px">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar2" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar2()" onfocus="mostrarDrop2()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar2" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente-dia"></div>
@@ -8334,6 +8334,11 @@ function cronoMultiTodos(accion){
   renderCronoMultiPanel();
 }
 function volverHerramientas(){
+  if (window._encDesdeRutina) {
+    window._encDesdeRutina = false;
+    tcTab('rutina');
+    return;
+  }
   document.getElementById('herramienta-panel').style.display='none';
   document.querySelector('#page-logs .st').style.display='block';
   document.querySelector('#page-logs .st').nextElementSibling.style.display='grid';
@@ -8945,7 +8950,10 @@ function compartirPlanWA() {
         <div id="tc-nombre-cliente" style="font-size:11px;color:#aaa;font-weight:600"></div>
       </div>
     </div>
-    <button onclick="cerrarSesion()" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#666;font-size:12px;font-weight:700;cursor:pointer;padding:6px 10px">🚪 Salir</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="tcAbrirConfig()" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#666;font-size:16px;cursor:pointer;padding:6px 10px">&#9881;&#65039;</button>
+      <button onclick="cerrarSesion()" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#666;font-size:12px;font-weight:700;cursor:pointer;padding:6px 10px">&#128682; Salir</button>
+    </div>
   </div>
 
   <!-- BANNER TIMER RUTINA -->
@@ -9377,6 +9385,19 @@ function tcVerDia(dia) {
     html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
     html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-size:15px;font-weight:700;color:#fff">' + (ej.nombre||'Ejercicio') + '</div><div style="font-size:11px;color:#555;margin-top:2px">' + (ej.grupo||'') + '</div></div>';
     html += ej.video ? '<a href="' + ej.video + '" target="_blank" style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:5px 10px;color:#e31e24;font-size:11px;font-weight:700;text-decoration:none">▶ Video</a>' : '';
+    // Botón Ver enciclopedia
+    fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(ej.nombre||''), {method:'GET'})
+      .then(function(r){return r.json();})
+      .then(function(res){
+        if (res.encontrado) {
+          var btn = document.getElementById('tc-enc-btn-' + i);
+          if (btn) {
+            btn.style.display = 'flex';
+            btn.onclick = function(){ tcVerEnciclopedia(res.ejercicio.id); };
+          }
+        }
+      }).catch(function(){});
+    html += '<div id="tc-enc-btn-' + i + '" style="display:none;background:#111;border:1px solid #333;border-radius:8px;padding:5px 10px;color:#aaa;font-size:11px;font-weight:700;cursor:pointer;align-items:center;gap:4px">&#128065; Ver</div>';
     html += '</div>';
     html += '<div style="display:flex;gap:6px;margin-bottom:12px">';
     html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.series||'—') + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series</div></div>';
@@ -10228,7 +10249,8 @@ function tcToolAbrirHerr(nombre) {
   const cont = document.getElementById('tc-contenido');
   if (!cont) return;
 
-  cont.innerHTML = '<div style="padding:4px 0"><button onclick="tcTab(\x27tools\x27)" style="display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#e31e24;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;padding:0">← Volver</button><div id="tc-herr-contenido"></div></div>';
+  var volverDestino = window._encDesdeRutina ? 'rutina' : 'tools';
+  cont.innerHTML = '<div style="padding:4px 0"><button onclick="window._encDesdeRutina=false;tcTab(\'' + volverDestino + '\')" style="display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#e31e24;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;padding:0">← Volver</button><div id="tc-herr-contenido"></div></div>';
   const c = document.getElementById('tc-herr-contenido');
 
   if (nombre === 'enciclopedia') renderEnciclopedia(c);
@@ -10418,7 +10440,22 @@ function cvInCm() {
 }
 
 function tcRenderEnciclopedia(c) {
-  c.innerHTML = '<div style="padding:20px;text-align:center;color:#555"><div style="font-size:48px;margin-bottom:12px">📚</div><div style="font-size:14px">Enciclopedia próximamente</div><div style="font-size:12px;margin-top:8px;color:#333">Ejercicios · Técnica · Nutrición</div></div>';
+  renderEnciclopedia(c);
+}
+
+function tcVerEnciclopedia(id) {
+  window._encDesdeRutina = true;
+  tcTab('tools');
+  setTimeout(function(){
+    tcToolAbrirHerr('enciclopedia');
+    setTimeout(function(){
+      if (window._encEjercicios && window._encEjercicios.length > 0) {
+        encAbrirFicha(id);
+      } else {
+        setTimeout(function(){ encAbrirFicha(id); }, 1500);
+      }
+    }, 500);
+  }, 200);
 }
 </script>
 
@@ -10689,6 +10726,21 @@ function encMostrarGrupos() {
   html += "<div><div style=\"font-size:14px;font-weight:700;color:#ffab40\">Mis Personalizados</div>";
   html += "<div style=\"font-size:11px;color:#666;margin-top:2px\" id=\"enc-custom-count\">...</div></div>";
   html += "</div>";
+
+  // Glosario
+  html += "<div onclick=\"encAbrirGlosario()\" style=\"background:#111;border:1px solid #001a2a;border-radius:12px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px;margin-top:10px\">";
+  html += "<span style=\"font-size:24px\">&#128218;</span>";
+  html += "<div><div style=\"font-size:14px;font-weight:700;color:#64b5f6\">Glosario Deportivo</div>";
+  html += "<div style=\"font-size:11px;color:#666;margin-top:2px\">Métodos y terminología</div></div>";
+  html += "</div>";
+
+  // Mis ejercicios
+  html += "<div onclick=\"encAgregarPersonalizado()\" style=\"background:#111;border:1px solid #1a2a00;border-radius:12px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px;margin-top:10px\">";
+  html += "<span style=\"font-size:24px\">&#43;&#9998;</span>";
+  html += "<div><div style=\"font-size:14px;font-weight:700;color:#aed581\">Mis ejercicios</div>";
+  html += "<div style=\"font-size:11px;color:#666;margin-top:2px\">Agregar ejercicio propio</div></div>";
+  html += "</div>";
+
   cont.innerHTML = html;
   var personalizados = (window._encEjercicios||[]).filter(function(e){return e.es_personalizado;});
   var el = document.getElementById("enc-custom-count");
@@ -10764,6 +10816,60 @@ function encBuscar() {
   return lista.sort(function(a,b){return a.nombre.localeCompare(b.nombre,"es");});
 }
 
+function encEditarFicha(id) {
+  var e = (window._encEjercicios||[]).find(function(x){return x.id===id;});
+  if (!e) return;
+  var cont = document.getElementById("enc-contenido");
+  if (!cont) return;
+
+  var html = "<div style=\"padding:10px\">";
+  html += "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:16px\">";
+  html += "<button onclick=\"encAbrirFicha(&quot;" + id + "&quot;)\" style=\"background:#1a1a1a;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:14px\">&#8592;</button>";
+  html += "<span style=\"font-size:14px;font-weight:700;color:#e31e24\">&#9998; Editando ejercicio</span>";
+  html += "</div>";
+
+  html += "<div style=\"margin-bottom:12px\">";
+  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Nombre</div>";
+  html += "<input id=\"enc-edit-nombre\" value=\"" + e.nombre + "\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none\">";
+  html += "</div>";
+
+  html += "<div style=\"margin-bottom:12px\">";
+  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Pasos de ejecucion</div>";
+  (e.ejecucion||[]).forEach(function(paso, i) {
+    html += "<div style=\"display:flex;gap:6px;margin-bottom:6px;align-items:flex-start\">";
+    html += "<div style=\"width:22px;height:22px;background:#e31e24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:6px\">" + (i+1) + "</div>";
+    html += "<textarea id=\"enc-edit-paso-" + i + "\" rows=\"2\" style=\"flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px;color:#fff;font-size:13px;outline:none;resize:none\">" + paso + "</textarea>";
+    html += "</div>";
+  });
+  html += "</div>";
+
+  html += "<button onclick=\"encGuardarEdicion(&quot;" + id + "&quot;," + (e.ejecucion||[]).length + ")\" style=\"width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;padding:12px;font-size:14px;font-weight:700;cursor:pointer\">&#10003; Guardar cambios</button>";
+  html += "</div>";
+
+  cont.innerHTML = html;
+}
+
+function encGuardarEdicion(id, numPasos) {
+  var e = (window._encEjercicios||[]).find(function(x){return x.id===id;});
+  if (!e) return;
+
+  e.nombre = document.getElementById("enc-edit-nombre").value;
+  var pasos = [];
+  for (var i = 0; i < numPasos; i++) {
+    var el = document.getElementById("enc-edit-paso-" + i);
+    if (el) pasos.push(el.value);
+  }
+  e.ejecucion = pasos;
+
+  fetch("/api/enciclopedia/editar/" + id, {
+    method: "PUT",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({nombre: e.nombre, ejecucion: e.ejecucion})
+  }).then(function(r){return r.json();}).then(function(){
+    encAbrirFicha(id);
+  });
+}
+
 function encSetFiltro(tipo, valor) {
   window._encFiltros[tipo] = valor === "" ? null : valor;
   encMostrarLista();
@@ -10793,14 +10899,17 @@ function encAbrirFicha(id) {
   var nc = e.nivel==="principiante"?"#64b5f6":e.nivel==="avanzado"?"#e31e24":"#4caf50";
   var nb = e.nivel==="principiante"?"#1a2a3a":e.nivel==="avanzado"?"#3a1a1a":"#1a3a1a";
   var html = "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px\">";
-  html += "<button onclick=\"encMostrarLista()\" style=\"background:#1a1a1a;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:14px\">&#8592;</button>";
-  html += "<span style=\"font-size:13px;color:#666\">Ficha tecnica</span></div>";
+  var volverFn = window._encDesdeRutina ? "window._encDesdeRutina=false;tcTab('rutina')" : "encMostrarLista()";
+  html += "<button onclick=\"" + volverFn + "\" style=\"background:#1a1a1a;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:14px\">&#8592;</button>";
+  html += "<span style=\"font-size:13px;color:#666;flex:1\">Ficha tecnica</span>";
+  html += "<button onclick=\"encEditarFicha(&quot;" + e.id + "&quot;)\" style=\"background:#1a1a1a;border:1px solid #e31e24;border-radius:8px;color:#e31e24;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700\">&#9998; Editar</button>";
+  html += "</div>";
   if (e.video_youtube) {
     html += "<div style=\"position:relative;width:100%;padding-bottom:56.25%;margin-bottom:12px;border-radius:10px;overflow:hidden\"><iframe src=\"" + e.video_youtube + "\" style=\"position:absolute;top:0;left:0;width:100%;height:100%;border:none\" allowfullscreen></iframe></div>";
   } else if (e.imagen) {
     var img2 = e.imagen2 || e.imagen;
     html += "<div style=\"background:#1a1a1a;border-radius:10px;overflow:hidden;margin-bottom:12px;text-align:center;padding:16px;position:relative\">";
-    html += "<img id=\"enc-anim-img\" src=\"" + e.imagen + "\" style=\"max-width:100%;max-height:200px;filter:invert(1)\" data-img1=\"" + e.imagen + "\" data-img2=\"" + img2 + "\">";
+    html += "<img id=\"enc-anim-img\" src=\"" + e.imagen + "\" style=\"max-width:100%;height:350px;width:auto;object-fit:contain;object-position:center bottom;filter:invert(1)\" data-img1=\"" + e.imagen + "\" data-img2=\"" + img2 + "\">";
     html += "<div style=\"position:absolute;bottom:6px;right:8px;font-size:10px;color:#e31e24;font-weight:700;opacity:0.7\">DT-APP</div></div>";
     setTimeout(function() {
       var img = document.getElementById("enc-anim-img");
@@ -10851,6 +10960,182 @@ function encAbrirFicha(id) {
   cont.innerHTML = html;
 }
 </script>
+
+<script>
+function tcAbrirConfig() {
+  if (document.getElementById("tc-config-panel")) { document.getElementById("tc-config-panel").remove(); return; }
+  var tema = localStorage.getItem("dt_tema") === "claro";
+  var sonidos = localStorage.getItem("tc-sonidos") !== "off";
+  var uid = localStorage.getItem("dt_cliente_id");
+  var el = document.createElement("div");
+  el.id = "tc-config-panel";
+  el.style.position = "fixed";
+  el.style.top = "0";
+  el.style.left = "0";
+  el.style.right = "0";
+  el.style.bottom = "0";
+  el.style.background = "#0a0a0a";
+  el.style.zIndex = "99999";
+  el.style.overflowY = "auto";
+  el.style.display = "flex";
+  el.style.flexDirection = "column";
+
+  var header = document.createElement("div");
+  header.style.cssText = "background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0";
+  var btnVolver = document.createElement("button");
+  btnVolver.innerHTML = "&#8592;";
+  btnVolver.style.cssText = "background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer";
+  btnVolver.onclick = function(){ document.getElementById("tc-config-panel").remove(); };
+  var titulo = document.createElement("span");
+  titulo.style.cssText = "font-size:15px;font-weight:700;color:#fff";
+  titulo.textContent = "Configuración";
+  header.appendChild(btnVolver);
+  header.appendChild(titulo);
+  el.appendChild(header);
+
+  var body = document.createElement("div");
+  body.style.cssText = "padding:16px;display:flex;flex-direction:column;gap:12px";
+
+  function seccion(txt) {
+    var d = document.createElement("div");
+    d.style.cssText = "font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-top:8px";
+    d.innerHTML = txt;
+    body.appendChild(d);
+  }
+
+  function fila(titulo, sub, btnTxt, btnBg, btnId, fnClick) {
+    var d = document.createElement("div");
+    d.style.cssText = "background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center";
+    var izq = document.createElement("div");
+    var t = document.createElement("div");
+    t.style.cssText = "font-size:13px;font-weight:700;color:#fff";
+    t.innerHTML = titulo;
+    izq.appendChild(t);
+    if (sub) {
+      var s = document.createElement("div");
+      s.style.cssText = "font-size:11px;color:#555";
+      s.innerHTML = sub;
+      if (btnId) s.id = btnId + "-lbl";
+      izq.appendChild(s);
+    }
+    d.appendChild(izq);
+    var btn = document.createElement("button");
+    btn.style.cssText = "background:" + btnBg + ";border:1px solid #333;border-radius:20px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:6px 16px";
+    btn.innerHTML = btnTxt;
+    if (btnId) btn.id = btnId;
+    if (fnClick) btn.onclick = function(){ fnClick(btn); };
+    d.appendChild(btn);
+    body.appendChild(d);
+  }
+
+  function filaInfo(titulo, sub) {
+    var d = document.createElement("div");
+    d.style.cssText = "background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center";
+    var t = document.createElement("div");
+    t.style.cssText = "font-size:13px;font-weight:700;color:#fff";
+    t.innerHTML = titulo;
+    d.appendChild(t);
+    var s = document.createElement("span");
+    s.style.cssText = "font-size:11px;color:" + (sub === "ok" ? "#4caf50" : "#555");
+    s.innerHTML = sub === "ok" ? "&#10003;" : sub;
+    d.appendChild(s);
+    body.appendChild(d);
+  }
+
+  seccion("&#127912; Personalización");
+  fila("Tema", tema?"Modo claro":"Modo oscuro", tema?"&#9728; Claro":"&#127769; Oscuro", tema?"#e31e24":"#1a1a1a", "tc-cfg-tema-btn", tcToggleTema);
+  fila("Sonidos", "Beeps y alertas", sonidos?"&#128276; On":"&#128277; Off", sonidos?"#e31e24":"#1a1a1a", "tc-cfg-sonido-btn", tcToggleSonidos);
+
+  seccion("&#128179; Mi Cuenta");
+  var pagoCont = document.createElement("div");
+  pagoCont.id = "tc-config-pago-ent";
+  pagoCont.style.cssText = "background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px";
+  pagoCont.innerHTML = "<div style='font-size:13px;font-weight:700;color:#fff;margin-bottom:4px'>Pago al entrenador</div><div style='font-size:12px;color:#555'>Cargando...</div>";
+  body.appendChild(pagoCont);
+  fila("Plan Premium", "Acceso completo a la app", "Próximamente", "#1a1a1a", null, null);
+  fila("&#127942; Aportar al Premium", "Contribuye al plan Premium del entrenador", "Próximamente", "#1a1a1a", null, null);
+
+  seccion("&#128221; Información");
+  fila("Términos y condiciones", null, "&#8250;", "transparent", "tc-cfg-terms-btn", function(){ tcVerTerminos(); });
+  filaInfo("DT-APP &middot; Versión 1.0", "ok");
+
+  el.appendChild(body);
+  document.body.appendChild(el);
+
+  if (uid) {
+    fetch("/api/admin/" + uid).then(function(r){ return r.json(); }).then(function(d) {
+      var box = document.getElementById("tc-config-pago-ent");
+      if (!box) return;
+      var usr = window._tcUsuario || {};
+      var estado = usr.estado_pago || "aldia";
+      var color = estado==="aldia"?"#4caf50":estado==="proximo"?"#ff9800":"#f44336";
+      var label = estado==="aldia"?"&#9989; Al día":estado==="proximo"?"&#9888; Próximo":"&#10060; Vencido";
+      var precio = (d && d.precio) ? d.precio + " " + (d.moneda||"") : "";
+      box.innerHTML = "<div style='font-size:13px;font-weight:700;color:#fff;margin-bottom:8px'>Pago al entrenador</div><div style='display:flex;justify-content:space-between'><span style='font-size:12px;color:#555'>" + precio + "</span><span style='font-size:12px;font-weight:700;color:" + color + "'>" + label + "</span></div>";
+    }).catch(function(){});
+  }
+}
+
+
+function tcVerTerminos() {
+  var panel = document.getElementById("tc-terminos-panel");
+  if (panel) { panel.remove(); return; }
+  var el = document.createElement("div");
+  el.id = "tc-terminos-panel";
+  el.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:100000;overflow-y:auto;display:flex;flex-direction:column";
+  var h = "";
+  h += "<div style='background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0'>";
+  h += "<button onclick='document.getElementById("tc-terminos-panel").remove()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
+  h += "<span style='font-size:15px;font-weight:700;color:#fff'>Términos y Condiciones</span></div>";
+  h += "<div style='padding:20px;color:#ccc;font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:20px'>";
+  h += "<div style='font-size:11px;color:#555;text-align:center'>DT-APP · @dt_entrenamientos · Colombia · 2026</div>";
+
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>1. Sobre la aplicación</div>";
+  h += "DT-APP es una herramienta digital de gestión y planeación deportiva que facilita la comunicación entre entrenadores y sus clientes. No constituye una entidad de salud ni reemplaza la atención médica o nutricional profesional.</div>";
+
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>2. Responsabilidad del entrenamiento</div>";
+  h += "El contenido de las rutinas, ejercicios y planes de entrenamiento es responsabilidad exclusiva del entrenador que los diseña y del usuario que los ejecuta. DT-APP no se hace responsable por lesiones, daños o perjuicios derivados de la práctica incorrecta de los ejercicios. Se recomienda consultar con un profesional de la salud antes de iniciar cualquier programa de entrenamiento.</div>";
+
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>3. Recomendaciones nutricionales</div>";
+  h += "Los planes alimentarios disponibles en la app son recomendaciones generales elaboradas por el entrenador. No reemplazan la consulta con un nutricionista certificado para casos específicos de salud, patologías o condiciones médicas particulares.</div>";
+
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>4. Pagos y suscripciones</div>";
+  h += "Los pagos al entrenador son acuerdos directos entre el cliente y el profesional. DT-APP no intermedia ni es responsable de dichas transacciones. Los aportes al Plan Premium de la aplicación se destinan al desarrollo y mantenimiento de DT-APP. Todos los pagos son voluntarios y no reembolsables salvo acuerdo expreso.</div>";
+
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>5. Datos personales</div>";
+  h += "La información ingresada en DT-APP (medidas, fotos, historial de entrenamientos) se almacena localmente en el dispositivo del entrenador. No se comparte con terceros ni se sube a servidores externos. El usuario autoriza al entrenador a visualizar sus datos con fines de seguimiento deportivo.</div>";
+
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>6. Uso adecuado</div>";
+  h += "El usuario se compromete a usar DT-APP de manera responsable y respetuosa. Queda prohibido el uso de la plataforma para fines distintos al entrenamiento deportivo y la comunicación entre entrenador y cliente.</div>";
+
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>7. Jurisdicción</div>";
+  h += "Estos términos se rigen por las leyes de la República de Colombia. Cualquier disputa será resuelta bajo la jurisdicción de los tribunales colombianos competentes.</div>";
+
+  h += "<div style='font-size:11px;color:#444;text-align:center;margin-top:8px'>Al usar DT-APP aceptas estos términos y condiciones.</div>";
+  h += "</div>";
+  el.innerHTML = h;
+  document.body.appendChild(el);
+}
+
+function tcToggleTema(btn) {
+  document.body.classList.toggle("modo-claro");
+  var claro = document.body.classList.contains("modo-claro");
+  localStorage.setItem("dt_tema", claro ? "claro" : "oscuro");
+  btn.innerHTML = claro ? "&#9728; Claro" : "&#127769; Oscuro";
+  btn.style.background = claro ? "#e31e24" : "#1a1a1a";
+  var lbl = document.getElementById("tc-cfg-tema-btn-lbl");
+  if (lbl) lbl.textContent = claro ? "Modo claro" : "Modo oscuro";
+}
+
+function tcToggleSonidos(btn) {
+  var sonidos = localStorage.getItem("tc-sonidos") !== "off";
+  sonidos = !sonidos;
+  localStorage.setItem("tc-sonidos", sonidos ? "on" : "off");
+  btn.innerHTML = sonidos ? "&#128276; On" : "&#128277; Off";
+  btn.style.background = sonidos ? "#e31e24" : "#1a1a1a";
+}
+</script>
+
 </body>
 <script>
 // ======== IMAGEN Y VOZ CHAT ========

@@ -724,6 +724,110 @@ lineas.push('');    });
 require("./sincronizar");
 require("./rutas_historial")(app, fs);
 // ── ENCICLOPEDIA ──
+app.get('/ejercicio/:id', (req, res) => {
+  const oficiales = cargarJSON('enciclopedia.json', []);
+  const custom = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const todos = [...oficiales, ...(custom.ejercicios || [])];
+  const ej = todos.find(e => e.id === req.params.id);
+  if (!ej) return res.status(404).send('<h2>Ejercicio no encontrado</h2>');
+  
+  res.send(`<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${ej.nombre} — DT-APP</title>
+<style>
+  body { background:#0a0a0a; color:#fff; font-family:sans-serif; max-width:500px; margin:0 auto; padding:16px; }
+  h1 { font-size:24px; text-transform:uppercase; margin:0 0 8px; }
+  .grupo { color:#e31e24; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+  .badge { display:inline-block; padding:3px 8px; border-radius:4px; font-size:11px; margin-right:4px; }
+  .badge-nivel { background:#1a3a1a; color:#4caf50; }
+  .badge-equip { background:#1e1e1e; color:#aaa; border:1px solid #333; }
+  .seccion { font-size:11px; color:#e31e24; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin:16px 0 8px; border-bottom:1px solid #2a2a2a; padding-bottom:4px; }
+  .paso { display:flex; gap:10px; margin-bottom:10px; }
+  .paso-num { width:24px; height:24px; background:#e31e24; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+  .paso-txt { font-size:13px; color:#ccc; line-height:1.5; }
+  .error { display:flex; gap:8px; margin-bottom:8px; font-size:13px; color:#ccc; }
+  img { max-width:100%; border-radius:10px; filter:invert(1); margin-bottom:12px; }
+  .musculo { display:inline-block; padding:4px 10px; border-radius:6px; font-size:12px; margin:3px; }
+  .principal { background:rgba(227,30,36,0.15); border:1px solid rgba(227,30,36,0.4); color:#ff6b6b; }
+  .secundario { background:#1a1a1a; border:1px solid #2a2a2a; color:#ccc; }
+</style>
+</head>
+<body>
+<div class="grupo">${ej.grupo}${ej.subgrupo ? ' · ' + ej.subgrupo : ''}</div>
+<h1>${ej.nombre}</h1>
+<div style="margin-bottom:12px">
+  <span class="badge badge-nivel">${ej.nivel || 'intermedio'}</span>
+  <span class="badge badge-equip">${ej.equipamiento || ''}</span>
+</div>
+${ej.imagen ? `<img src="${ej.imagen}" alt="${ej.nombre}">` : ''}
+${(ej.musculos_principales||[]).length > 0 ? `
+<div class="seccion">Músculos</div>
+<div>
+  ${(ej.musculos_principales||[]).map(m => `<span class="musculo principal">⭐ ${m}</span>`).join('')}
+  ${(ej.musculos_secundarios||[]).map(m => `<span class="musculo secundario">${m}</span>`).join('')}
+</div>` : ''}
+${(ej.ejecucion||[]).length > 0 ? `
+<div class="seccion">Ejecución</div>
+${ej.ejecucion.map((p,i) => `<div class="paso"><div class="paso-num">${i+1}</div><div class="paso-txt">${p}</div></div>`).join('')}` : ''}
+${(ej.errores_comunes||[]).length > 0 ? `
+<div class="seccion">Errores comunes</div>
+${ej.errores_comunes.map(e => `<div class="error"><span>⚠️</span><span>${e}</span></div>`).join('')}` : ''}
+<div style="text-align:center;margin-top:24px;font-size:11px;color:#333">DT-APP · Enciclopedia</div>
+</body>
+</html>`);
+});
+
+
+app.get('/api/enciclopedia/buscar-match/:nombre', (req, res) => {
+  const oficiales = cargarJSON('enciclopedia.json', []);
+  const custom = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const todos = [...oficiales, ...(custom.ejercicios || [])];
+  
+  const nombre = decodeURIComponent(req.params.nombre).toLowerCase().trim();
+  
+  let mejor = null;
+  let mejorScore = 0;
+  
+  todos.forEach(e => {
+    const enombre = e.nombre.toLowerCase();
+    // Coincidencia exacta primero
+    if (enombre === nombre) { mejor = e; mejorScore = 1; return; }
+    const palabrasBusq = nombre.split(' ').filter(p => p.length > 2);
+    const palabrasEj = enombre.split(' ');
+    let coincidencias = 0;
+    palabrasBusq.forEach(p => {
+      if (palabrasEj.some(pe => pe.includes(p) || p.includes(pe))) coincidencias++;
+    });
+    // Penalizar si el ejercicio tiene más palabras que la búsqueda
+    const extra = Math.max(0, palabrasEj.length - palabrasBusq.length);
+    const score = palabrasBusq.length > 0 ? (coincidencias / palabrasBusq.length) - (extra * 0.1) : 0;
+    if (score > mejorScore) {
+      mejorScore = score;
+      mejor = e;
+    }
+  });
+  
+  if (mejor && mejorScore >= 0.5) {
+    res.json({ encontrado: true, ejercicio: mejor });
+  } else {
+    res.json({ encontrado: false });
+  }
+});
+
+
+app.put('/api/enciclopedia/editar/:id', (req, res) => {
+  const data = cargarJSON('enciclopedia.json', []);
+  const idx = data.findIndex(e => e.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  data[idx] = { ...data[idx], ...req.body };
+  guardarJSON('enciclopedia.json', data);
+  res.json({ ok: true });
+});
+
+
 app.get('/api/enciclopedia', (req, res) => {
   const oficiales = cargarJSON('enciclopedia.json', []);
   const custom = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });

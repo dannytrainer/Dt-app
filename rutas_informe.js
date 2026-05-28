@@ -23,6 +23,9 @@ module.exports = function(app, fs) {
       const historial   = cargarJSON('historial.json');
       const tests       = cargarJSON('tests.json');
       const alimentacion = cargarJSON('alimentacion.json');
+      const enciclopedia = cargarJSON('enciclopedia.json', []);
+      const encCustom = cargarJSON('enciclopedia_personalizados.json', {ejercicios:[]});
+      const encTodos = [...enciclopedia, ...(encCustom.ejercicios||[])];
 
       const usuario = usuarios.find(u => u.id == id || u.telefono == id);
       if (!usuario) return res.status(404).json({ ok: false, error: 'Cliente no encontrado' });
@@ -76,6 +79,9 @@ module.exports = function(app, fs) {
       const historial    = cargarJSON('historial.json');
       const tests        = cargarJSON('tests.json');
       const alimentacion = cargarJSON('alimentacion.json');
+      const enciclopedia = cargarJSON('enciclopedia.json', []);
+      const encCustom = cargarJSON('enciclopedia_personalizados.json', {ejercicios:[]});
+      const encTodos = [...enciclopedia, ...(encCustom.ejercicios||[])];
       const cfg = cargarJSON('config.json', {});
       const nombreEntrenador = (cfg.nombre_entrenador || 'DANNY TRAINER').toUpperCase();
 
@@ -181,17 +187,57 @@ module.exports = function(app, fs) {
           </div>`;
         }
 
-        const filasEj = ejercicios.map(ej => `
-          <tr>
-            <td><div class="ej-nombre">${ej.nombre || '—'}</div><div class="ej-grupo">${ej.grupo || ''}</div></td>
-            <td class="ej-cell"><div class="ej-val">${ej.series || '—'}</div></td>
-            <td class="ej-cell"><div class="ej-val">${ej.reps || '—'}</div></td>
-            <td class="ej-cell"><span class="rir-badge">RIR ${ej.rir || '—'}</span></td>
-            <td class="ej-cell"><span class="desc-badge">${ej.desc || '—'}</span></td>
+        const filasEj = ejercicios.map((ej, ejIdx) => { const ejId = dia + '-' + ejIdx;
+          let encMatch = encTodos.find(e => e.id === ej.enciclopedia_id);
+          if (!encMatch) {
+            const palabras = (ej.nombre||'').toLowerCase().split(' ').filter(p=>p.length>2);
+            let mejor = null, mejorScore = 0;
+            encTodos.forEach(e => {
+              const en = e.nombre.toLowerCase();
+              let hits = 0;
+              palabras.forEach(p => { if(en.includes(p)) hits++; });
+              const score = palabras.length > 0 ? hits/palabras.length : 0;
+              const extra = Math.max(0, en.split(' ').length - palabras.length);
+              const sc = score - extra*0.1;
+              if(sc > mejorScore){ mejorScore=sc; mejor=e; }
+            });
+            if(mejorScore >= 0.5) encMatch = mejor;
+          }
+
+          let fichaHtml = '';
+          if (encMatch) {
+            const musculos = [...(encMatch.musculos_principales||[]).map(m=>`<span style="background:rgba(227,30,36,0.15);border:1px solid rgba(227,30,36,0.4);color:#ff6b6b;padding:2px 6px;border-radius:4px;font-size:10px;margin:2px;display:inline-block">&#11088; ${m}</span>`),
+              ...(encMatch.musculos_secundarios||[]).map(m=>`<span style="background:#1a1a1a;border:1px solid #2a2a2a;color:#aaa;padding:2px 6px;border-radius:4px;font-size:10px;margin:2px;display:inline-block">${m}</span>`)].join('');
+            const pasos = (encMatch.ejecucion||[]).map((p,pi)=>`<div style="display:flex;gap:6px;margin-bottom:6px"><div style="width:18px;height:18px;background:#e31e24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${pi+1}</div><div style="font-size:11px;color:#ccc;line-height:1.4">${p}</div></div>`).join('');
+            fichaHtml = `<tr id="ficha-${ejId}" style="display:none"><td colspan="8" style="padding:4px 0"><div style="background:#0d0d0d;border:1px solid #2a2a2a;border-radius:8px;padding:12px;display:flex;gap:12px">
+              ${encMatch.imagen ? `<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+                <img src="${encMatch.imagen}" style="width:80px;height:80px;object-fit:contain;filter:invert(1);border-radius:6px;background:#111" onerror="this.style.display='none'">
+                ${encMatch.imagen2 ? `<img src="${encMatch.imagen2}" style="width:80px;height:80px;object-fit:contain;filter:invert(1);border-radius:6px;background:#111" onerror="this.style.display='none'">` : ''}
+              </div>` : ''}
+              <div style="flex:1">
+                <div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${encMatch.grupo||''}</div>
+                <div style="font-size:14px;font-weight:900;color:#fff;text-transform:uppercase;margin-bottom:6px">${encMatch.nombre}</div>
+                ${musculos ? `<div style="margin-bottom:8px">${musculos}</div>` : ''}
+                ${pasos ? `<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Ejecucion</div>${pasos}` : ''}
+              </div>
+            </div></td></tr>`;
+          }
+
+          const btnVer = encMatch ?
+            `<button onclick="var r=document.getElementById('ficha-${ejId}');r.style.display=r.style.display==='none'?'table-row':'none'" style="background:#111;border:1px solid #333;border-radius:6px;padding:4px 8px;color:#aaa;font-size:11px;font-weight:700;cursor:pointer">&#128065; Ver</button>` :
+            `<span style="color:#333;font-size:11px">&#8212;</span>`;
+
+          return `<tr>
+            <td><div class="ej-nombre">${ej.nombre || '&#8212;'}</div><div class="ej-grupo">${ej.grupo || ''}</div></td>
+            <td class="ej-cell"><div class="ej-val">${ej.series || '&#8212;'}</div></td>
+            <td class="ej-cell"><div class="ej-val">${ej.reps || '&#8212;'}</div></td>
+            <td class="ej-cell"><span class="rir-badge">RIR ${ej.rir || '&#8212;'}</span></td>
+            <td class="ej-cell"><span class="desc-badge">${ej.desc || '&#8212;'}</span></td>
             <td class="ej-cell" style="font-size:10px;color:var(--texto-secundario);">${ej.var || ''}</td>
             <td style="font-size:9px;color:var(--texto-secundario);font-style:italic;text-align:center;">${ej.notas || ''}</td>
-            <td style="text-align:center"><a href="${ej.video || '#'}" class="btn-video"><span class="play-icon">▶</span> Ver video</a></td>
-          </tr>`).join('');
+            <td style="text-align:center">${btnVer}</td>
+          </tr>${fichaHtml}`;
+        }).join('');
 
         const cardio = (rutina[dia] && rutina[dia].cardio) ? rutina[dia].cardio : [];
         const cardioHtml = cardio.length > 0 ? `

@@ -179,14 +179,6 @@ function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
     return top[((seed * 13) + offset * 29) % top.length];
   }
 
-  function elegirMagro(arr, offset) {
-    if (!arr || arr.length === 0) return null;
-    // Ordenar por menor grasa por 100g
-    const sorted = arr.slice().sort((a, b) => (a.variante.grasas || 99) - (b.variante.grasas || 99));
-    const top = sorted.slice(0, Math.min(6, sorted.length));
-    return top[((seed * 13) + offset * 29) % top.length];
-  }
-
   function elegirSin(arr, excluirIds, offset) {
     const filtrado = (arr || []).filter(a => !excluirIds.has(a.id));
     return elegir(filtrado.length > 0 ? filtrado : arr, offset);
@@ -479,14 +471,7 @@ function generarPlanAlimentario(idCliente, dataDir, diaOffset) {
     planComidas.forEach(comida => {
       comida.alimentos = comida.alimentos.map(item => {
         let escala = 1;
-        if (item.categoria === 'proteina' || item.categoria === 'lacteo') {
-          escala = escalaP;
-          // Si grasa alta y proteína es grasa (>10g/100g), escalar también por grasa
-          const grasaPor100 = item.macros.grasas / (item.porcion_g / 100);
-          if (errG > 0.15 && grasaPor100 > 10) {
-            escala = Math.min(escala, escalaG);
-          }
-        }
+        if (item.categoria === 'proteina' || item.categoria === 'lacteo') escala = escalaP;
         else if (item.categoria === 'carbohidrato' || item.categoria === 'legumbre') escala = escalaC;
         else if (item.categoria === 'grasa') escala = escalaG;
         if (escala === 1) return item;
