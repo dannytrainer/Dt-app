@@ -10,13 +10,22 @@ pkg install -y -q nodejs git
 
 if [ -d "$HOME/Dt-app/.git" ]; then
   echo "🔄 Actualizando..."
-  cd ~/Dt-app && git pull origin main
+  cd ~/Dt-app
+  git stash 2>/dev/null
+  git pull origin main
 else
   echo "📥 Clonando..."
-  cd ~ && git clone https://github.com/dannytrainer/Dt-app.git
+  cd ~
+  git clone https://github.com/dannytrainer/Dt-app.git
   cd ~/Dt-app
 fi
 
+echo "🖼️  Descargando imágenes enciclopedia..."
+cd ~/Dt-app
+git checkout origin/main -- public/enciclopedia/imgs/ 2>/dev/null
+echo "   ✅ $(ls public/enciclopedia/imgs/ 2>/dev/null | wc -l) imágenes"
+
+echo "📦 npm install..."
 npm install --silent
 
 mkdir -p ~/Dt-app/data/fotos ~/Dt-app/backups ~/Dt-app/auth
@@ -37,8 +46,10 @@ mkdir -p ~/Dt-app/data/fotos ~/Dt-app/backups ~/Dt-app/auth
 [ ! -f ~/Dt-app/data/alimentos.json ]      && echo '[]' > ~/Dt-app/data/alimentos.json
 
 if [ ! -f ~/Dt-app/data/config.json ]; then
-  read -p "Nombre del entrenador: " NOMBRE
-  read -p "Contraseña de acceso:  " PASS
+  echo ""
+  echo "⚙️  Configuración inicial"
+  read -p "   Nombre del entrenador: " NOMBRE
+  read -p "   Contraseña de acceso:  " PASS
   CODIGO="DT-$(cat /dev/urandom | tr -dc 'A-Z0-9' | head -c6)"
   cat > ~/Dt-app/data/config.json << JSONEOF
 {
@@ -52,7 +63,7 @@ if [ ! -f ~/Dt-app/data/config.json ]; then
   "plan": "free"
 }
 JSONEOF
-  echo "✅ Código de vinculación: $CODIGO"
+  echo "   ✅ Código: $CODIGO"
 fi
 
 if ! grep -q "alias dt=" ~/.bashrc 2>/dev/null; then
@@ -61,13 +72,17 @@ if ! grep -q "alias dt=" ~/.bashrc 2>/dev/null; then
 # ── DT-APP ──────────────────────────────
 alias dt='cd ~/Dt-app && node index.js'
 alias dtr='pkill -f "node index" 2>/dev/null; sleep 1; dt'
-alias update='cd ~/Dt-app && git pull origin main && npm install --silent && echo "✅ App actualizada"'
-alias bk='cp ~/Dt-app/public/index.html "/sdcard/Download/index_bk_$(date +%H-%M).html" 2>/dev/null && echo "✅ HTML guardado" || echo "⚠️ Sin acceso a sdcard"'
+alias update='cd ~/Dt-app && git stash 2>/dev/null; git pull origin main && git checkout origin/main -- public/enciclopedia/imgs/ 2>/dev/null && npm install --silent && echo "✅ Actualizada"'
+alias bk='cp ~/Dt-app/public/index.html "/sdcard/Download/index_bk_$(date +%H-%M).html" 2>/dev/null && echo "✅ HTML guardado" || echo "⚠️ Sin sdcard"'
 # ────────────────────────────────────────
 BASHEOF
 fi
 
 echo ""
-echo "✅ LISTO"
-echo "   Ejecuta: source ~/.bashrc && dt"
-echo "   Para actualizar luego: update"
+echo "╔══════════════════════════════════════╗"
+echo "║      ✅  INSTALACIÓN COMPLETA        ║"
+echo "╠══════════════════════════════════════╣"
+echo "║  Arrancar:   source ~/.bashrc && dt  ║"
+echo "║  Actualizar: update                  ║"
+echo "║  Escanea el QR con WhatsApp          ║"
+echo "╚══════════════════════════════════════╝"
