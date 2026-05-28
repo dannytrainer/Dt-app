@@ -721,6 +721,82 @@ lineas.push('');    });
 
   res.json({ ok: resultado });
 });
+// ── ENCICLOPEDIA ──────────────────────────────
+const encPath = path.join(__dirname, 'data', 'enciclopedia.json');
+const encCustomPath = path.join(__dirname, 'data', 'enciclopedia_personalizados.json');
+
+function cargarEnciclopedia() {
+  if (!fs.existsSync(encPath)) return [];
+  try { return JSON.parse(fs.readFileSync(encPath, 'utf8')); } catch(e) { return []; }
+}
+
+function cargarPersonalizados() {
+  if (!fs.existsSync(encCustomPath)) return { limite_free: 10, ejercicios: [] };
+  try { return JSON.parse(fs.readFileSync(encCustomPath, 'utf8')); } catch(e) { return { limite_free: 10, ejercicios: [] }; }
+}
+
+// GET /api/enciclopedia — lista con filtros opcionales
+app.get('/api/enciclopedia', (req, res) => {
+  let lista = cargarEnciclopedia();
+  const { grupo, equipamiento, nivel } = req.query;
+  if (grupo) lista = lista.filter(e => e.grupo === grupo);
+  if (equipamiento) lista = lista.filter(e => e.equipamiento === equipamiento);
+  if (nivel) lista = lista.filter(e => e.nivel === nivel);
+  res.json(lista);
+});
+
+// GET /api/enciclopedia/personalizados — lista personalizados
+app.get('/api/enciclopedia/personalizados', (req, res) => {
+  const data = cargarPersonalizados();
+  res.json(data.ejercicios || []);
+});
+
+// GET /api/enciclopedia/:id — un ejercicio por ID
+app.get('/api/enciclopedia/:id', (req, res) => {
+  const id = req.params.id;
+  let ej = cargarEnciclopedia().find(e => e.id === id);
+  if (!ej) {
+    const custom = cargarPersonalizados();
+    ej = (custom.ejercicios || []).find(e => e.id === id);
+  }
+  if (!ej) return res.status(404).json({ error: 'No encontrado' });
+  res.json(ej);
+});
+
+// POST /api/enciclopedia/personalizados — crear personalizado
+app.post('/api/enciclopedia/personalizados', (req, res) => {
+  const cfg = cargarJSON('config.json', {});
+  const plan = cfg.plan || 'free';
+  const data = cargarPersonalizados();
+  const ejercicios = data.ejercicios || [];
+  if (plan === 'free' && ejercicios.length >= 10) {
+    return res.status(403).json({ error: 'Límite del plan Free alcanzado. Actualiza a Premium.' });
+  }
+  const nuevo = { ...req.body, id: 'custom-' + Date.now(), es_personalizado: true };
+  ejercicios.push(nuevo);
+  fs.writeFileSync(encCustomPath, JSON.stringify({ limite_free: 10, ejercicios }, null, 2));
+  res.json({ ok: true, ejercicio: nuevo });
+});
+
+// PUT /api/enciclopedia/personalizados/:id — editar personalizado
+app.put('/api/enciclopedia/personalizados/:id', (req, res) => {
+  const data = cargarPersonalizados();
+  const idx = (data.ejercicios || []).findIndex(e => e.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  data.ejercicios[idx] = { ...data.ejercicios[idx], ...req.body, id: req.params.id, es_personalizado: true };
+  fs.writeFileSync(encCustomPath, JSON.stringify(data, null, 2));
+  res.json({ ok: true });
+});
+
+// DELETE /api/enciclopedia/personalizados/:id — eliminar personalizado
+app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
+  const data = cargarPersonalizados();
+  data.ejercicios = (data.ejercicios || []).filter(e => e.id !== req.params.id);
+  fs.writeFileSync(encCustomPath, JSON.stringify(data, null, 2));
+  res.json({ ok: true });
+});
+// ──────────────────────────────────────────────
+
 require("./sincronizar");
 require("./rutas_historial")(app, fs);
 // ── ENCICLOPEDIA ──
