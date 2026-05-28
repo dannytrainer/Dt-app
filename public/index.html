@@ -10726,21 +10726,6 @@ function encMostrarGrupos() {
   html += "<div><div style=\"font-size:14px;font-weight:700;color:#ffab40\">Mis Personalizados</div>";
   html += "<div style=\"font-size:11px;color:#666;margin-top:2px\" id=\"enc-custom-count\">...</div></div>";
   html += "</div>";
-
-  // Glosario
-  html += "<div onclick=\"encAbrirGlosario()\" style=\"background:#111;border:1px solid #001a2a;border-radius:12px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px;margin-top:10px\">";
-  html += "<span style=\"font-size:24px\">&#128218;</span>";
-  html += "<div><div style=\"font-size:14px;font-weight:700;color:#64b5f6\">Glosario Deportivo</div>";
-  html += "<div style=\"font-size:11px;color:#666;margin-top:2px\">Métodos y terminología</div></div>";
-  html += "</div>";
-
-  // Mis ejercicios
-  html += "<div onclick=\"encAgregarPersonalizado()\" style=\"background:#111;border:1px solid #1a2a00;border-radius:12px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px;margin-top:10px\">";
-  html += "<span style=\"font-size:24px\">&#43;&#9998;</span>";
-  html += "<div><div style=\"font-size:14px;font-weight:700;color:#aed581\">Mis ejercicios</div>";
-  html += "<div style=\"font-size:11px;color:#666;margin-top:2px\">Agregar ejercicio propio</div></div>";
-  html += "</div>";
-
   cont.innerHTML = html;
   var personalizados = (window._encEjercicios||[]).filter(function(e){return e.es_personalizado;});
   var el = document.getElementById("enc-custom-count");
@@ -11053,10 +11038,10 @@ function tcAbrirConfig() {
   pagoCont.innerHTML = "<div style='font-size:13px;font-weight:700;color:#fff;margin-bottom:4px'>Pago al entrenador</div><div style='font-size:12px;color:#555'>Cargando...</div>";
   body.appendChild(pagoCont);
   fila("Plan Premium", "Acceso completo a la app", "Próximamente", "#1a1a1a", null, null);
-  fila("&#127942; Aportar al Premium", "Contribuye al plan Premium del entrenador", "Próximamente", "#1a1a1a", null, null);
+  fila("&#127942; Aportar al premio", "Contribuye al premio del entrenador", "Próximamente", "#1a1a1a", null, null);
 
   seccion("&#128221; Información");
-  fila("Términos y condiciones", null, "&#8250;", "transparent", "tc-cfg-terms-btn", function(){ tcVerTerminos(); });
+  filaInfo("Términos y condiciones", "&#8250;");
   filaInfo("DT-APP &middot; Versión 1.0", "ok");
 
   el.appendChild(body);
