@@ -72,7 +72,7 @@ if ! grep -q "alias dt=" ~/.bashrc 2>/dev/null; then
 # ── DT-APP ──────────────────────────────
 alias dt='cd ~/Dt-app && node index.js'
 alias dtr='pkill -f "node index" 2>/dev/null; sleep 1; dt'
-alias update='cd ~/Dt-app && git stash 2>/dev/null; git pull origin main && git checkout origin/main -- public/enciclopedia/imgs/ 2>/dev/null && npm install --silent && echo "✅ Actualizada"'
+alias update='cd ~/Dt-app && git stash 2>/dev/null; git gc --quiet 2>/dev/null; git pull origin main && git checkout origin/main -- public/enciclopedia/imgs/ 2>/dev/null && npm install --silent && echo "✅ App actualizada"'
 alias bk='cp ~/Dt-app/public/index.html "/sdcard/Download/index_bk_$(date +%H-%M).html" 2>/dev/null && echo "✅ HTML guardado" || echo "⚠️ Sin sdcard"'
 # ────────────────────────────────────────
 BASHEOF
