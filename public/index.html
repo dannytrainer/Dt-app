@@ -2089,15 +2089,11 @@ async function cargarNombreEntrenador(){
     }
   }catch(e){console.error('cargarNombreEntrenador',e);}
 }
-function abrirConfig(){mostrarTabColores("general");
-  const ov=document.getElementById('config-overlay');
+function abrirConfig(){
   const sh=document.getElementById('config-sheet');
-  ov.style.display='block';
-  sh.style.display='block';
-  requestAnimationFrame(()=>{
-    ov.style.opacity='1';
-    sh.style.transform='translateY(0)';
-  });
+  sh.style.display='flex';
+  cargarNombreEntrenador();
+  cargarCodigoVinc();
 }
 function validarCodigoPremium(){
   const input = document.getElementById('cfg-codigo-premium');
@@ -2115,12 +2111,54 @@ function validarCodigoPremium(){
     status.textContent='❌ Código inválido';
   }
 }
+function entToggleTema(btn) {
+  document.body.classList.toggle("modo-claro");
+  var claro = document.body.classList.contains("modo-claro");
+  localStorage.setItem("dt_tema", claro ? "claro" : "oscuro");
+  btn.innerHTML = claro ? "&#9728; Claro" : "&#127769; Oscuro";
+  btn.style.background = claro ? "#e31e24" : "#1a1a1a";
+  var lbl = document.getElementById("ent-cfg-tema-lbl");
+  if (lbl) lbl.textContent = claro ? "Modo claro" : "Modo oscuro";
+  // Actualizar fondo del panel config
+  var sh = document.getElementById("config-sheet");
+  if (sh) sh.style.background = claro ? "#f5f5f5" : "#050505";
+}
+
+function entCerrarTerminos() { var p = document.getElementById("ent-terminos-panel"); if(p) p.remove(); }
+
+function entVerTerminos() {
+  var el = document.createElement("div");
+  el.id = "ent-terminos-panel";
+  el.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:100000;overflow-y:auto;display:flex;flex-direction:column";
+  var h = "";
+  h += "<div style='background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0'>";
+  h += "<button onclick='entCerrarTerminos()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
+  h += "<span style='font-size:15px;font-weight:700;color:#fff'>Términos y Condiciones</span></div>";
+  h += "<div style='padding:20px;color:#ccc;font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:20px'>";
+  h += "<div style='font-size:11px;color:#555;text-align:center'>DT-APP · @dt_entrenamientos · Colombia · 2026</div>";
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>1. Sobre la aplicación</div>";
+  h += "DT-APP es una herramienta digital de gestión y planeación deportiva. No constituye una entidad de salud ni reemplaza la atención médica o nutricional profesional.</div>";
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>2. Responsabilidad del entrenador</div>";
+  h += "El entrenador que usa DT-APP es el único responsable del contenido de las rutinas, planes alimentarios y recomendaciones que entrega a sus clientes. DT-APP no avala ni respalda la práctica de entrenadores sin certificación, ni se hace responsable por planes genéricos o sin fundamento técnico. Cada entrenador debe contar con la formación y licencias requeridas por la normativa colombiana.</div>";
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>3. Individualidad del entrenamiento</div>";
+  h += "DT-APP promueve el principio de individualidad. El entrenador se compromete a diseñar planes personalizados para cada cliente, evitando rutinas repetitivas o genéricas que no consideren las condiciones físicas, objetivos y limitaciones individuales.</div>";
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>4. Recomendaciones nutricionales</div>";
+  h += "Los planes alimentarios son recomendaciones generales. No reemplazan la consulta con un nutricionista certificado para casos específicos de salud o condiciones médicas.</div>";
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>5. Datos de clientes</div>";
+  h += "El entrenador es responsable de la custodia y uso adecuado de los datos personales de sus clientes registrados en DT-APP. Debe obtener el consentimiento de sus clientes para el manejo de dicha información conforme a la Ley 1581 de 2012 de Colombia.</div>";
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>6. Pagos</div>";
+  h += "Los pagos de los clientes al entrenador son acuerdos directos entre las partes. Los aportes al Plan Premium de DT-APP se destinan al desarrollo de la plataforma y no son reembolsables.</div>";
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>7. Jurisdicción</div>";
+  h += "Estos términos se rigen por las leyes de la República de Colombia.</div>";
+  h += "<div style='font-size:11px;color:#444;text-align:center;margin-top:8px'>Al usar DT-APP aceptas estos términos y condiciones.</div>";
+  h += "</div>";
+  el.innerHTML = h;
+  document.body.appendChild(el);
+}
+
 function cerrarConfig(){
-  const ov=document.getElementById('config-overlay');
   const sh=document.getElementById('config-sheet');
-  ov.style.opacity='0';
-  sh.style.transform='translateY(100%)';
-  setTimeout(()=>{ov.style.display='none';sh.style.display='none';},350);
+  sh.style.display='none';
 }
 // ═══════════════════════════════
 // PANTALLA INICIO
@@ -8574,97 +8612,110 @@ function filtrarRutinas(){
 
 <!-- CONFIG BOTTOM SHEET -->
 <div id="config-overlay" onclick="cerrarConfig()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;opacity:0;transition:opacity .3s"></div>
-<div id="config-sheet" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid #2a2a2a;z-index:201;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,1,.23,1);max-height:60vh;overflow-y:auto">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 12px">
-    <div>
-      <div style="font-size:16px;font-weight:800;color:var(--texto);letter-spacing:.5px">⚙️ Configuración</div>
-      <div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">Danny Trainer App</div>
+<div id="config-sheet" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#050505;z-index:201;overflow-y:auto;flex-direction:column">
+  <!-- HEADER -->
+  <div style="background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:2">
+    <button onclick="cerrarConfig()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">&#8592;</button>
+    <div style="flex:1">
+      <div style="font-size:15px;font-weight:700;color:#fff">&#9881;&#65039; Configuraci&oacute;n</div>
+      <div style="font-size:11px;color:#555;margin-top:1px">DT-APP &middot; Danny Trainer</div>
     </div>
-    <button onclick="cerrarConfig()" style="background:var(--gris);border:1px solid #2a2a2a;border-radius:10px;color:var(--texto-medio);font-size:16px;padding:6px 10px;cursor:pointer">✕</button>
   </div>
-  <div style="height:1px;background:#1e1e1e;margin:0 20px"></div>
-  <div style="padding:16px 20px;display:flex;flex-direction:column;gap:4px">
-    <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:8px 0 10px">🔑 PREMIUM</div>
-    <div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:6px">
-      <div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:4px">Código de acceso</div>
-      <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">Ingresa tu código para desbloquear funciones premium</div>
+
+  <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+
+    <!-- PREMIUM -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128273; Premium</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">C&oacute;digo de acceso</div>
+      <div style="font-size:11px;color:#555;margin-bottom:12px">Ingresa tu c&oacute;digo para desbloquear funciones premium</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="cfg-codigo-premium" type="text" placeholder="Ingresa tu código..." style="flex:1;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px 12px;color:var(--texto);font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">
-        <button onclick="validarCodigoPremium()" style="background:#e31e24;border:none;border-radius:10px;color:var(--texto);font-size:13px;font-weight:700;padding:9px 14px;cursor:pointer">Activar</button>
+        <input id="cfg-codigo-premium" type="text" placeholder="INGRESA TU C&Oacute;DIGO..." style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">
+        <button onclick="validarCodigoPremium()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Activar</button>
       </div>
       <div id="cfg-codigo-status" style="font-size:11px;margin-top:8px;text-align:center"></div>
     </div>
-    <div style="height:1px;background:#1e1e1e;margin:4px 0 8px"></div>
 
-    <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:8px 0 10px">🔗 Vinculación</div>
-    <div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:6px">
-      <div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:4px">Código de vinculación</div>
-      <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">Comparte este código con tus clientes para que puedan registrarse en tu app.</div>
-      <div id="vinc-codigo-display" style="background:var(--card);border:2px solid #e31e24;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
+    <!-- VINCULACION -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128279; Vinculaci&oacute;n</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">C&oacute;digo de vinculaci&oacute;n</div>
+      <div style="font-size:11px;color:#555;margin-bottom:12px">Comparte este c&oacute;digo con tus clientes para que puedan registrarse en tu app.</div>
+      <div id="vinc-codigo-display" style="background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
         <div id="vinc-codigo-txt" style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>
-        <div style="font-size:10px;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:1px">Código actual</div>
+        <div style="font-size:10px;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:1px">C&oacute;digo actual</div>
       </div>
       <div style="display:flex;gap:8px">
-        <button onclick="generarCodigoVinc()" id="btn-generar-vinc" style="flex:1;background:#1a0000;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:10px;cursor:pointer">🔄 Generar</button>
-        <button onclick="copiarCodigoVinc()" style="flex:1;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px;cursor:pointer">📋 Copiar</button>
-        <button onclick="toggleLockCodigo()" id="btn-lock-vinc" style="background:#1a1a1a;border:1px solid #333;border-radius:10px;color:#fff;font-size:16px;padding:10px 14px;cursor:pointer">🔓</button>
+        <button onclick="generarCodigoVinc()" id="btn-generar-vinc" style="flex:1;background:#1a0000;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:10px;cursor:pointer">&#128260; Generar</button>
+        <button onclick="copiarCodigoVinc()" style="flex:1;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px;cursor:pointer">&#128203; Copiar</button>
+        <button onclick="toggleLockCodigo()" id="btn-lock-vinc" style="background:#1a1a1a;border:1px solid #333;border-radius:10px;color:#fff;font-size:16px;padding:10px 14px;cursor:pointer">&#128275;</button>
       </div>
     </div>
 
-    <div style="height:1px;background:#1e1e1e;margin:4px 0 8px"></div>
-    <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:8px 0 10px">🎨 Apariencia</div>
-    <div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:6px">
-      <div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:10px">Nombre del entrenador</div>
+    <!-- APARIENCIA -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#127912; Apariencia</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">Nombre del entrenador</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="cfg-nombre" type="text" placeholder="Tu nombre..." value="Danny Trainer" style="flex:1;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px 12px;color:var(--texto);font-size:13px;outline:none">
-        <button onclick="guardarNombreEntrenador()" style="background:#e31e24;border:none;border-radius:10px;color:var(--texto);font-size:13px;font-weight:700;padding:9px 14px;cursor:pointer">Guardar</button>
+        <input id="cfg-nombre" type="text" placeholder="Tu nombre..." value="Danny Trainer" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none">
+        <button onclick="guardarNombreEntrenador()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Guardar</button>
       </div>
     </div>
-    <div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:6px">
-      <div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:10px">Logo de la app</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">Logo de la app</div>
       <div style="display:flex;align-items:center;gap:12px">
         <img id="cfg-logo-preview" src="/logo_trainer.png" style="width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid #2a2a2a" onerror="this.src='/icon.png'">
         <div style="flex:1">
           <input type="file" id="cfg-logo-input" accept="image/*" style="display:none" onchange="subirLogo(this)">
-          <button onclick="document.getElementById('cfg-logo-input').click()" style="background:#e31e24;border:none;border-radius:10px;color:var(--texto);font-size:13px;font-weight:700;padding:9px 16px;cursor:pointer;width:100%">📷 Logo del entrenador</button>
-          <div style="font-size:10px;color:var(--texto-secundario);margin-top:6px;text-align:center">PNG o JPG · máx 5MB</div>
+          <button onclick="document.getElementById('cfg-logo-input').click()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer;width:100%">&#128247; Logo del entrenador</button>
+          <div style="font-size:10px;color:#555;margin-top:6px;text-align:center">PNG o JPG &middot; m&aacute;x 5MB</div>
         </div>
       </div>
     </div>
-    <div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:6px">
-      <div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:10px">📸 Instagram del entrenador</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">&#128247; Instagram del entrenador</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="cfg-instagram" type="text" placeholder="@tu_instagram" style="flex:1;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px 12px;color:var(--texto);font-size:13px;outline:none">
-        <button onclick="guardarInstagram()" style="background:#e31e24;border:none;border-radius:10px;color:var(--texto);font-size:13px;font-weight:700;padding:9px 14px;cursor:pointer">Guardar</button>
+        <input id="cfg-instagram" type="text" placeholder="@tu_instagram" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none">
+        <button onclick="guardarInstagram()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Guardar</button>
       </div>
     </div>
-    <div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:6px">
-      <div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:12px">🎨 Colores de la app</div>
-      <div style="display:flex;gap:6px;margin-bottom:12px">
-        <button onclick="mostrarTabColores('general')" id="tab-col-general" style="flex:1;padding:7px;border-radius:8px;border:none;background:#e31e24;color:var(--texto);font-size:11px;font-weight:700;cursor:pointer">General</button>
-        <button onclick="mostrarTabColores('chips')" id="tab-col-chips" style="flex:1;padding:7px;border-radius:8px;border:none;background:var(--gris2);color:var(--texto-medio);font-size:11px;font-weight:700;cursor:pointer">Chips</button>
-        <button onclick="mostrarTabColores('tests')" id="tab-col-tests" style="flex:1;padding:7px;border-radius:8px;border:none;background:var(--gris2);color:var(--texto-medio);font-size:11px;font-weight:700;cursor:pointer">Tests</button>
-      </div>
-      <div id="tab-colores-content"></div>
-      <button onclick="guardarColores()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:var(--texto);font-size:13px;font-weight:700;padding:10px;cursor:pointer;margin-top:10px">💾 Guardar colores</button>
-    </div>
-    <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin:12px 0 10px">🔊 Sistema</div>
-    <div style="background:var(--gris);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer" onclick="cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100);">
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center">
       <div>
-        <div style="font-size:14px;color:var(--texto);font-weight:600">Configurar sonidos</div>
-        <div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">Cronos · Timers · HIIT</div>
+        <div style="font-size:13px;font-weight:700;color:#fff">Tema</div>
+        <div id="ent-cfg-tema-lbl" style="font-size:11px;color:#555">Modo oscuro</div>
       </div>
-      <span style="color:var(--texto-secundario);font-size:18px">›</span>
+      <button id="ent-cfg-tema-btn" onclick="entToggleTema(this)" style="background:#1a1a1a;border:1px solid #333;border-radius:20px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:6px 16px">&#127769; Oscuro</button>
     </div>
-    <div style="background:var(--gris);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer" onclick="cerrarConfig();showPage('festivos');">
+
+    <!-- SISTEMA -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128266; Sistema</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100)">
       <div>
-        <div style="font-size:14px;color:var(--texto);font-weight:600">Días festivos</div>
-        <div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">Sin envío automático</div>
+        <div style="font-size:13px;font-weight:700;color:#fff">Configurar sonidos</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">Cronos &middot; Timers &middot; HIIT</div>
       </div>
-      <span style="color:var(--texto-secundario);font-size:18px">›</span>
+      <span style="color:#555;font-size:18px">&#8250;</span>
     </div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('festivos')">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff">D&iacute;as festivos</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">Sin env&iacute;o autom&aacute;tico</div>
+      </div>
+      <span style="color:#555;font-size:18px">&#8250;</span>
+    </div>
+
+    <!-- LEGAL -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128221; Legal</div>
+    <div onclick="entVerTerminos()" style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff">T&eacute;rminos y condiciones</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">DT-APP &middot; Colombia &middot; 2026</div>
+      </div>
+      <span style="color:#555;font-size:18px">&#8250;</span>
+    </div>
+
     <div style="height:30px"></div>
-  </div>
+  </div></div>
 </div>
 
 <script>
@@ -10721,10 +10772,19 @@ function encMostrarGrupos() {
     html += "</div>";
   });
   html += "</div>";
-  html += "<div onclick=\"encSeleccionarGrupo(&quot;personalizado&quot;)\" style=\"background:#111;border:1px solid #2a1a00;border-radius:12px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px\">";
-  html += "<span style=\"font-size:24px\">&#11088;</span>";
-  html += "<div><div style=\"font-size:14px;font-weight:700;color:#ffab40\">Mis Personalizados</div>";
-  html += "<div style=\"font-size:11px;color:#666;margin-top:2px\" id=\"enc-custom-count\">...</div></div>";
+    html += "</div>";
+  // Segunda fila: Glosario y Mis ejercicios
+  html += "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px\">";
+  html += "<div onclick=\"encAbrirGlosario()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
+  html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Glosariodt.png\" style=\"width:56px;height:56px;object-fit:contain;border-radius:8px\"></div>";
+  html += "<div style=\"font-size:14px;font-weight:700;color:#64b5f6\">Glosario</div>";
+  html += "<div style=\"font-size:11px;color:#666;margin-top:3px\">Métodos y términos</div>";
+  html += "</div>";
+  html += "<div onclick=\"encAgregarPersonalizado()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
+  html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Creardt.png\" style=\"width:56px;height:56px;object-fit:contain;border-radius:8px\"></div>";
+  html += "<div style=\"font-size:14px;font-weight:700;color:#aed581\">Mis ejercicios</div>";
+  html += "<div style=\"font-size:11px;color:#666;margin-top:3px\" id=\"enc-custom-count\">0 / 10</div>";
+  html += "</div>";
   html += "</div>";
   cont.innerHTML = html;
   var personalizados = (window._encEjercicios||[]).filter(function(e){return e.es_personalizado;});
@@ -10853,6 +10913,57 @@ function encGuardarEdicion(id, numPasos) {
   }).then(function(r){return r.json();}).then(function(){
     encAbrirFicha(id);
   });
+}
+
+function encAbrirGlosario() {
+  var cont = document.getElementById("enc-contenido");
+  if (!cont) return;
+  cont.innerHTML = "<div style=\"text-align:center;padding:20px;color:#666\">Cargando...</div>";
+  fetch("/api/glosario").then(function(r){return r.json();}).then(function(data){
+    window._glosario = data;
+    encMostrarGlosario(null);
+  });
+}
+
+function encMostrarGlosario(cat) {
+  var cont = document.getElementById("enc-contenido");
+  if (!cont) return;
+  var cats = [
+    {id:null,label:"Todos",col:"#fff"},
+    {id:"metodos",label:"Metodos",col:"#e31e24"},
+    {id:"terminologia",label:"Terminos",col:"#64b5f6"},
+    {id:"agarres",label:"Agarres",col:"#ffab40"},
+    {id:"posiciones",label:"Posiciones",col:"#aed581"},
+    {id:"patrones",label:"Patrones",col:"#ce93d8"},
+    {id:"biomecánica",label:"Biomecanica",col:"#80deea"},
+    {id:"planificacion",label:"Planif.",col:"#f48fb1"},
+    {id:"nutricion",label:"Nutricion",col:"#a5d6a7"},
+    {id:"lesiones",label:"Lesiones",col:"#ff8a65"},
+    {id:"tests",label:"Tests",col:"#ffe082"}
+  ];
+  var html = "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:10px\">";
+  html += "<button onclick=\"encMostrarGrupos()\" style=\"background:#1a1a1a;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:14px\">&#8592;</button>";
+  html += "<span style=\"font-size:15px;font-weight:700;color:#64b5f6\">&#128218; Glosario</span></div>";
+  html += "<div style=\"display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;margin-bottom:12px\">";
+  cats.forEach(function(c) {
+    var act = cat === c.id;
+    html += "<div onclick=\"encMostrarGlosario(" + (c.id ? "'" + c.id + "'" : "null") + ")\" style=\"flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid " + (act?c.col:"#2a2a2a") + ";background:#111;color:" + (act?c.col:"#888") + ";font-size:12px;font-weight:600;cursor:pointer\">" + c.label + "</div>";
+  });
+  html += "</div>";
+  var lista = window._glosario || [];
+  if (cat) lista = lista.filter(function(t){return t.categoria===cat;});
+  lista.forEach(function(t) {
+    var ci = cats.find(function(c){return c.id===t.categoria;});
+    var col = ci ? ci.col : "#aaa";
+    html += "<div style=\"background:#111;border:1px solid #2a2a2a;border-radius:10px;padding:12px 14px;margin-bottom:8px;\">";
+    html += "<div onclick=\"var d=document.getElementById('gd" + t.id + "');d.style.display=d.style.display==='none'?'block':'none'\" style=\"display:flex;justify-content:space-between;align-items:center;cursor:pointer\">";
+    html += "<div style=\"font-size:14px;font-weight:700;color:#fff\">" + t.titulo + "</div>";
+    html += "<span style=\"background:#1a1a1a;border:1px solid " + col + ";color:" + col + ";padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;flex-shrink:0;margin-left:8px\">" + (ci?ci.label:"") + "</span>";
+    html += "</div>";
+    html += "<div id=\"gd" + t.id + "\" style=\"display:none;font-size:13px;color:#ccc;line-height:1.6;margin-top:8px;border-top:1px solid #2a2a2a;padding-top:8px\">" + t.descripcion + "</div>";
+    html += "</div>";
+  });
+  cont.innerHTML = html;
 }
 
 function encSetFiltro(tipo, valor) {
@@ -11041,7 +11152,7 @@ function tcAbrirConfig() {
   fila("&#127942; Aportar al premio", "Contribuye al premio del entrenador", "Próximamente", "#1a1a1a", null, null);
 
   seccion("&#128221; Información");
-  filaInfo("Términos y condiciones", "&#8250;");
+  fila("Términos y condiciones", null, "&#8250;", "transparent", null, function(){ tcVerTerminos(); });
   filaInfo("DT-APP &middot; Versión 1.0", "ok");
 
   el.appendChild(body);
@@ -11062,6 +11173,8 @@ function tcAbrirConfig() {
 }
 
 
+function tcCerrarTerminos() { var p = document.getElementById("tc-terminos-panel"); if(p) p.remove(); }
+
 function tcVerTerminos() {
   var panel = document.getElementById("tc-terminos-panel");
   if (panel) { panel.remove(); return; }
@@ -11070,7 +11183,7 @@ function tcVerTerminos() {
   el.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:100000;overflow-y:auto;display:flex;flex-direction:column";
   var h = "";
   h += "<div style='background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0'>";
-  h += "<button onclick='document.getElementById("tc-terminos-panel").remove()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
+  h += "<button onclick='tcCerrarTerminos()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
   h += "<span style='font-size:15px;font-weight:700;color:#fff'>Términos y Condiciones</span></div>";
   h += "<div style='padding:20px;color:#ccc;font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:20px'>";
   h += "<div style='font-size:11px;color:#555;text-align:center'>DT-APP · @dt_entrenamientos · Colombia · 2026</div>";
@@ -11093,7 +11206,7 @@ function tcVerTerminos() {
   h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>6. Uso adecuado</div>";
   h += "El usuario se compromete a usar DT-APP de manera responsable y respetuosa. Queda prohibido el uso de la plataforma para fines distintos al entrenamiento deportivo y la comunicación entre entrenador y cliente.</div>";
 
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>7. Jurisdicción</div>";
+  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>7. Calidad del entrenador</div>";h += "DT-APP recomienda siempre verificar las certificaciones, licencias y formación profesional del entrenador antes de contratar sus servicios. Un entrenador certificado debe contar con estudios en ciencias del deporte, educación física o disciplinas afines, y debe aplicar el principio de individualidad en cada plan de entrenamiento. DT-APP no avala ni respalda la práctica de entrenadores sin certificación, ni se hace responsable por planes genéricos, repetitivos o sin fundamento técnico. La calidad del servicio de entrenamiento es responsabilidad exclusiva del profesional contratado.</div>";h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>8. Jurisdicción</div>";
   h += "Estos términos se rigen por las leyes de la República de Colombia. Cualquier disputa será resuelta bajo la jurisdicción de los tribunales colombianos competentes.</div>";
 
   h += "<div style='font-size:11px;color:#444;text-align:center;margin-top:8px'>Al usar DT-APP aceptas estos términos y condiciones.</div>";

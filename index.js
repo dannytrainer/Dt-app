@@ -721,7 +721,12 @@ lineas.push('');    });
 
   res.json({ ok: resultado });
 });
-// ── ENCICLOPEDIA ──────────────────────────────
+// ── ENCICLOPEDIA ──
+app.get('/api/glosario', (req, res) => {
+  const data = cargarJSON('glosario.json', []);
+  res.json(data);
+});
+
 const encPath = path.join(__dirname, 'data', 'enciclopedia.json');
 const encCustomPath = path.join(__dirname, 'data', 'enciclopedia_personalizados.json');
 
