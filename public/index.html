@@ -10960,7 +10960,7 @@ function encMostrarGlosario(cat) {
     html += "<div style=\"font-size:14px;font-weight:700;color:#fff\">" + t.titulo + "</div>";
     html += "<span style=\"background:#1a1a1a;border:1px solid " + col + ";color:" + col + ";padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;flex-shrink:0;margin-left:8px\">" + (ci?ci.label:"") + "</span>";
     html += "</div>";
-    html += "<div id=\"gd" + t.id + "\" style=\"display:none;font-size:13px;color:#ccc;line-height:1.6;margin-top:8px;border-top:1px solid #2a2a2a;padding-top:8px\">" + t.descripcion + "</div>";
+    html += "<div id=\"gd" + t.id + "\" style=\"display:none;font-size:13px;color:#ccc;line-height:1.6;margin-top:8px;border-top:1px solid #2a2a2a;padding-top:8px\">" + t.descripcion + (t.imagen ? "<br><img src=\"/images/glosario/" + t.imagen + "\" style=\"max-width:100%;border-radius:8px;margin-top:8px\" onerror=\"this.style.display='none'\">":"") + "</div>";
     html += "</div>";
   });
   cont.innerHTML = html;

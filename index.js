@@ -28,6 +28,7 @@ const app = express();
 app.use(express.json({limit:'50mb'}));
 app.use(express.urlencoded({extended:true, limit:'50mb'}));
 app.use(express.static('public'));
+app.use('/images/glosario', express.static('public/images/glosario'));
 app.use('/data/fotos', express.static(path.join(__dirname,'data/fotos')));
 
 const cargarJSON = (archivo, def=[]) => {
