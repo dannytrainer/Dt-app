@@ -39,7 +39,7 @@
           "var": ""
         },
         {
-          "nombre": "Press plano barra ",
+          "nombre": "Press de pecho plano barra ",
           "series": "3",
           "reps": "8",
           "rir": "0-1",
@@ -782,7 +782,7 @@
           "var": ""
         },
         {
-          "nombre": "Flexiones de pecho ",
+          "nombre": "Push up",
           "series": "4",
           "reps": "12",
           "rir": "2",
@@ -1297,6 +1297,347 @@
           "var": ""
         }
       ],
+      "cardio": []
+    }
+  },
+  "1780069487489": {
+    "lunes": {
+      "recordatorio": "Nati buenas días hoy empezamos con pierna ",
+      "rutina": "V1 = primer circuito \nV2 = segundo circuito ",
+      "ejercicios": [
+        {
+          "nombre": "Sentadilla",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "-",
+          "var": "V1"
+        },
+        {
+          "nombre": "Curl femoral ",
+          "series": "3",
+          "reps": "15",
+          "rir": "1",
+          "desc": "-",
+          "var": "V1"
+        },
+        {
+          "nombre": "Zancada ",
+          "series": "3",
+          "reps": "10",
+          "rir": "1",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Peso muerto",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "-",
+          "var": "V2"
+        },
+        {
+          "nombre": "Extensión rodilla",
+          "series": "3",
+          "reps": "15",
+          "rir": "1",
+          "desc": "-",
+          "var": "V2"
+        },
+        {
+          "nombre": "Puente de cadera ",
+          "series": "3",
+          "reps": "10",
+          "rir": "1",
+          "desc": "60",
+          "var": "V2"
+        }
+      ],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Banda",
+          "tiempo": "10",
+          "notas": "Aumento de intensidad desde 60% hasta 90%"
+        },
+        {
+          "momento": "Mitad de rutina ",
+          "ejercicio": "Bicicleta ",
+          "tiempo": "5",
+          "notas": "Hitt intervalos 10(fuertes)20(suaves)"
+        },
+        {
+          "momento": "Final ",
+          "ejercicio": "Banda ",
+          "tiempo": "10",
+          "notas": "Velocidad constante al 75%de intensidad "
+        }
+      ]
+    },
+    "martes": {
+      "recordatorio": "Nati buenos días hoy toca superior ",
+      "rutina": "V1= primer circuito \nV2 = segundo circuito ",
+      "ejercicios": [
+        {
+          "nombre": "Press de pecho inclinado",
+          "series": "4",
+          "reps": "15",
+          "rir": "2",
+          "desc": "-",
+          "var": "V2"
+        },
+        {
+          "nombre": "Remo con barra ",
+          "series": "4",
+          "reps": "10",
+          "rir": "1",
+          "desc": "-",
+          "var": "V1"
+        },
+        {
+          "nombre": "Abdominales ",
+          "series": "4",
+          "reps": "20",
+          "rir": "1",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Jalón abierto ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "-",
+          "var": "V2"
+        },
+        {
+          "nombre": "Extensión codo ",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "-",
+          "var": "V2"
+        },
+        {
+          "nombre": "Curl martillo",
+          "series": "3",
+          "reps": "20",
+          "rir": "2",
+          "desc": "-",
+          "var": "V2"
+        },
+        {
+          "nombre": "Plancha isométrica",
+          "series": "3",
+          "reps": "30seg",
+          "rir": "-",
+          "desc": "60",
+          "var": "V2"
+        }
+      ],
+      "cardio": []
+    },
+    "miercoles": {
+      "recordatorio": "Nati buenas días de cardio ",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Banda ",
+          "tiempo": "10",
+          "notas": "Inicias a 60% aumentar progresivos hasta 90%"
+        },
+        {
+          "momento": "Hiit 1 ",
+          "ejercicio": "Escalador",
+          "tiempo": "10",
+          "notas": "Cambios de velocidad 20\"x20\""
+        },
+        {
+          "momento": "Hit 2",
+          "ejercicio": "Escalador ",
+          "tiempo": "10",
+          "notas": "30\"× 30\""
+        },
+        {
+          "momento": "Cardio final",
+          "ejercicio": "Banda ",
+          "tiempo": "10",
+          "notas": "Velocidad constante al 70%"
+        }
+      ]
+    },
+    "jueves": {
+      "recordatorio": "Nadie 2 ronda pierna ",
+      "rutina": "V1= circuito 1\nV2 = circuito 2",
+      "ejercicios": [
+        {
+          "nombre": "Peso muerto",
+          "series": "3",
+          "reps": "10",
+          "rir": "1",
+          "desc": "-",
+          "var": "V1"
+        },
+        {
+          "nombre": "Extensión de rodilla ",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "-",
+          "var": "V1"
+        },
+        {
+          "nombre": "Empuje de cadera",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Sentadilla ",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "-",
+          "var": "V3"
+        },
+        {
+          "nombre": "Curl femoral ",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "-",
+          "var": "V2"
+        },
+        {
+          "nombre": "Zancada ",
+          "series": "3",
+          "reps": "10",
+          "rir": "1",
+          "desc": "60",
+          "var": "V2"
+        }
+      ],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Elíptica ",
+          "tiempo": "10",
+          "notas": "Iniciar al 60% aumento de intensidad "
+        },
+        {
+          "momento": "Cardio mitad ",
+          "ejercicio": "Bici",
+          "tiempo": "5",
+          "notas": "Hitt 20/20"
+        }
+      ]
+    },
+    "viernes": {
+      "recordatorio": "Nati último día de la semana superior ",
+      "rutina": "V1= primer circuito \nV2= segundo circuito ",
+      "ejercicios": [
+        {
+          "nombre": "Remo barra",
+          "series": "4",
+          "reps": "10",
+          "rir": "2",
+          "desc": "-",
+          "var": "V1"
+        },
+        {
+          "nombre": "Push up ",
+          "series": "4",
+          "reps": "10",
+          "rir": "0",
+          "desc": "-",
+          "var": "V1"
+        },
+        {
+          "nombre": "Abdominales ",
+          "series": "4",
+          "reps": "20",
+          "rir": "1",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Jalon",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "-",
+          "var": "V2"
+        },
+        {
+          "nombre": "Curl de bíceps martillo",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "-",
+          "var": "V2"
+        },
+        {
+          "nombre": "Fondos en banco ",
+          "series": "3",
+          "reps": "15",
+          "rir": "2",
+          "desc": "60",
+          "var": "V2"
+        }
+      ],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Banda",
+          "tiempo": "10",
+          "notas": "Aumento de intensidad "
+        },
+        {
+          "momento": "Cardio mitad",
+          "ejercicio": "Cualquier opción",
+          "tiempo": "5",
+          "notas": "Intervalos 20\"/20\""
+        },
+        {
+          "momento": "Cardio final ",
+          "ejercicio": "Banda",
+          "tiempo": "15",
+          "notas": "Mantener intensidad 75% 10 minutos. Lgo ir bajando hasta terminar "
+        }
+      ]
+    }
+  },
+  "1778379130440": {
+    "lunes": {
+      "recordatorio": "Hola vale confirmamos clase ?",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [],
+      "presencial": true
+    },
+    "miercoles": {
+      "recordatorio": "Hola vale confirmamos clase ?",
+      "rutina": "",
+      "ejercicios": [],
+      "cardio": [],
+      "presencial": true
+    },
+    "viernes": {
+      "recordatorio": "Hola vale confirmamos clase ?",
+      "rutina": "",
+      "ejercicios": [],
+      "presencial": true,
+      "cardio": []
+    },
+    "martes": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [],
       "cardio": []
     }
   }

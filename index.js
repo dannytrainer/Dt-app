@@ -497,6 +497,41 @@ app.post('/api/config', (req, res) => {
   res.json({ok:true});
 });
 
+
+
+
+const storageFotoEjercicio = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const dir = require('path').join(__dirname, 'public/enciclopedia/imgs');
+    require('fs').mkdirSync(dir, {recursive: true});
+    cb(null, dir);
+  },
+  filename: function(req, file, cb) {
+    const ext = file.originalname.split('.').pop();
+    const tipo = req.params.tipo || 'inicio';
+    cb(null, req.params.id + '-' + tipo + '.' + ext);
+  }
+});
+const uploadFotoEjercicio = multer({storage: storageFotoEjercicio, limits: {fileSize: 5*1024*1024}});
+
+app.post('/api/enciclopedia/personalizados/:id/foto/:tipo', uploadFotoEjercicio.single('foto'), function(req, res) {
+  try {
+    var id = req.params.id;
+    var tipo = req.params.tipo;
+    var ext = req.file.originalname.split('.').pop();
+    var ruta = '/enciclopedia/imgs/' + id + '-' + tipo + '.' + ext;
+    var data = JSON.parse(require('fs').readFileSync('./data/enciclopedia_personalizados.json'));
+    var idx = data.ejercicios.findIndex(function(e) { return e.id === id; });
+    if (idx === -1) return res.status(404).json({ok: false});
+    if (tipo === 'inicio') data.ejercicios[idx].imagen_inicio = ruta;
+    else data.ejercicios[idx].imagen_fin = ruta;
+    require('fs').writeFileSync('./data/enciclopedia_personalizados.json', JSON.stringify(data, null, 2));
+    res.json({ok: true, imagen: ruta});
+  } catch(e) {
+    res.status(500).json({ok: false, error: e.message});
+  }
+});
+
 app.post('/api/foto-cliente/:id', uploadFoto.single('foto'), (req, res) => {
   try {
     const id = req.params.id;
@@ -1052,3 +1087,5 @@ app.post('/api/habilitar-dia/:id', (req, res) => {
   guardarJSON('usuarios.json', usuarios);
   res.json({ ok: true });
 });
+
+app.listen(3000, () => console.log('DT-APP corriendo en puerto 3000'));

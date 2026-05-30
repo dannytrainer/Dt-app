@@ -152,6 +152,22 @@
       "descuento_tipo": "pct",
       "descuento_valor": 0,
       "descuento_motivo": ""
+    },
+    "1780069487489": {
+      "precio": 150000,
+      "moneda": "COP",
+      "pagos": [],
+      "descuento_tipo": "pct",
+      "descuento_valor": 0,
+      "descuento_motivo": ""
+    },
+    "1778379130440": {
+      "precio": 300000,
+      "moneda": "COP",
+      "pagos": [],
+      "descuento_tipo": "pct",
+      "descuento_valor": 0,
+      "descuento_motivo": ""
     }
   },
   "config": {

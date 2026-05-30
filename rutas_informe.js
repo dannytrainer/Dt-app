@@ -244,17 +244,43 @@ module.exports = function(app, fs) {
             <div style="padding:10px 16px 14px;border-top:1px solid var(--gris-borde);background:var(--negro);">
               <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#f0a500;margin-bottom:8px;font-weight:700;">🏃 Cardio</div>
               <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;">
-                ${cardio.map(c => `
-                <div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:8px;overflow:hidden;">
-                  <div style="background:var(--gris-medio);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;">
-                    <div style="font-size:11px;font-weight:700;color:var(--blanco)">${c.momento || '—'}</div>
-                    <div style="font-size:10px;color:#f0a500;font-weight:700">${c.tiempo || '—'} min</div>
-                  </div>
-                  <div style="padding:6px 10px;">
-                    <div style="font-size:11px;color:var(--blanco-suave);margin-bottom:4px;">🏋️ ${c.ejercicio || '—'}</div>
-                    <div style="font-size:9px;color:var(--texto-secundario);line-height:1.4;">${(c.notas || '').replace(/\n/g,'<br>')}</div>
-                  </div>
-                </div>`).join('')}
+                ${cardio.map((c,ci) => {
+                  const palabrasC = (c.ejercicio||'').toLowerCase().split(' ').filter(p=>p.length>2);
+                  let encMatchC = null, mejorScoreC = 0;
+                  encTodos.forEach(e => {
+                    const en = e.nombre.toLowerCase();
+                    let hits = 0;
+                    palabrasC.forEach(p => { if(en.includes(p)) hits++; });
+                    const score = palabrasC.length > 0 ? hits/palabrasC.length : 0;
+                    if(score > mejorScoreC){ mejorScoreC=score; encMatchC=e; }
+                  });
+                  if(mejorScoreC < 0.5) encMatchC = null;
+                  const cardioId = dia + '-cardio-' + ci;
+                  const imgCardio = encMatchC && encMatchC.imagen ? `<img src="${encMatchC.imagen}" style="width:60px;height:60px;object-fit:contain;border-radius:6px;background:#111;filter:${encMatchC.es_personalizado?'none':'invert(1)'}" onerror="this.style.display='none'">` : '';
+                  const btnVerCardio = encMatchC ? `<button onclick="var r=document.getElementById('ficha-${cardioId}');r.style.display=r.style.display==='none'?'block':'none'" style="background:#111;border:1px solid #333;border-radius:6px;padding:3px 7px;color:#aaa;font-size:10px;font-weight:700;cursor:pointer;margin-top:4px">&#128065; Ver</button>` : '';
+                  const fichaCardio = encMatchC ? `<div id="ficha-${cardioId}" style="display:none;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:8px;padding:10px;margin-top:6px;grid-column:1/-1">
+                    <div style="font-size:12px;font-weight:900;color:#fff;margin-bottom:6px">${encMatchC.nombre}</div>
+                    ${(encMatchC.ejecucion||[]).map((p,pi)=>`<div style="display:flex;gap:6px;margin-bottom:4px"><div style="width:16px;height:16px;background:#e31e24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">${pi+1}</div><div style="font-size:10px;color:#ccc">${p}</div></div>`).join('')}
+                  </div>` : '';
+                  return `
+                  <div style="background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:8px;overflow:hidden;">
+                    <div style="background:var(--gris-medio);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;">
+                      <div style="font-size:11px;font-weight:700;color:var(--blanco)">${c.momento || '—'}</div>
+                      <div style="font-size:10px;color:#f0a500;font-weight:700">${c.tiempo || '—'} min</div>
+                    </div>
+                    <div style="padding:6px 10px;">
+                      <div style="display:flex;gap:8px;align-items:center">
+                        ${imgCardio}
+                        <div>
+                          <div style="font-size:11px;color:var(--blanco-suave);margin-bottom:4px;">🏋️ ${c.ejercicio || '—'}</div>
+                          ${btnVerCardio}
+                        </div>
+                      </div>
+                      <div style="font-size:9px;color:var(--texto-secundario);line-height:1.4;margin-top:4px">${(c.notas || '').replace(/\n/g,'<br>')}</div>
+                      ${fichaCardio}
+                    </div>
+                  </div>`;
+                }).join('')}
               </div>
             </div>` : '';
 
@@ -300,7 +326,7 @@ module.exports = function(app, fs) {
         contenidoRutina += '<div id="rdia'+i+'" style="display:'+(i===0?'block':'none')+'">' + diaHtml + '</div>';
       });
       
-      const diasHtmlFinal = tabsRutina + contenidoRutina + '<scr'+'ipt>function rutTab(i){for(var j=0;j<7;j++){var p=document.getElementById("rdia"+j);var t=document.getElementById("rtab"+j);if(p)p.style.display=j===i?"block":"none";if(t){t.style.background=j===i?"var(--rojo)":"var(--gris-medio)";t.style.color=j===i?"#fff":"#aaa";}}}</script>';
+      const diasHtmlFinal = tabsRutina + contenidoRutina;
 
       // Generar sección de alimentación
       const alimHtml = (() => {
@@ -379,7 +405,7 @@ module.exports = function(app, fs) {
           }
           h += '</div></div>';
         });
-        h += '<scr'+'ipt>function infTab(i){for(var j=0;j<7;j++){var p=document.getElementById("iplan"+j);var t=document.getElementById("itab"+j);if(p)p.style.display=j===i?"block":"none";if(t){t.style.background=j===i?"var(--rojo)":"var(--gris-medio)";t.style.color=j===i?"#fff":"#888";}}}</scr'+'ipt>';
+        // funciones movidas al HTML base
         return h;
       })();
 
@@ -888,6 +914,25 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
   </div>
 
 </div>
+<script>
+function rutTab(i){
+  for(var j=0;j<7;j++){
+    var p=document.getElementById('rdia'+j);
+    var t=document.getElementById('rtab'+j);
+    if(p)p.style.display=j===i?'block':'none';
+    if(t){t.style.background=j===i?'var(--rojo)':'var(--gris-medio)';t.style.color=j===i?'#fff':'#aaa';}
+  }
+}
+function infTab(i){
+  for(var j=0;j<7;j++){
+    var p=document.getElementById('iplan'+j);
+    var t=document.getElementById('itab'+j);
+    if(p)p.style.display=j===i?'block':'none';
+    if(t){t.style.background=j===i?'var(--rojo)':'var(--gris-medio)';t.style.color=j===i?'#fff':'#888';}
+  }
+}
+// onclick directo en botones
+</script>
 </body>
 </html>`;
 

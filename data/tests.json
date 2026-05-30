@@ -1781,5 +1781,41 @@
         "scoreTotal": 0
       }
     ]
+  },
+  "1780069487489": {
+    "registros": [
+      {
+        "fecha": "2026-05-29",
+        "tipo": "especif",
+        "peso": 81,
+        "sitreach": {
+          "valor": 7,
+          "score": 40
+        },
+        "hombro": {
+          "valor": -1,
+          "score": 40
+        },
+        "scoreTotal": 40
+      }
+    ]
+  },
+  "1778379130440": {
+    "registros": [
+      {
+        "fecha": "2026-05-29",
+        "tipo": "especif",
+        "peso": 82,
+        "sitreach": {
+          "valor": -2,
+          "score": 20
+        },
+        "hombro": {
+          "valor": -10,
+          "score": 20
+        },
+        "scoreTotal": 20
+      }
+    ]
   }
 }

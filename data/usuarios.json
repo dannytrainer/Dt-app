@@ -21,8 +21,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 39,
-    "sesiones_ciclo": 39,
+    "sesiones_total": 40,
+    "sesiones_ciclo": 40,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague m",
     "msg_q1": "",
@@ -34,7 +34,8 @@
         "2026-05-23",
         "2026-05-24",
         "2026-05-25",
-        "2026-05-26"
+        "2026-05-26",
+        "2026-05-30"
       ],
       "sabado": [
         "2026-05-23"
@@ -207,7 +208,8 @@
     "vinculado": true,
     "dias_desbloqueados": {
       "lunes": [
-        "2026-05-23"
+        "2026-05-23",
+        "2026-05-30"
       ],
       "sabado": [
         "2026-05-23"
@@ -239,23 +241,25 @@
   },
   {
     "id": "1778379130440",
-    "activo": false,
-    "nombre": "Valentina ruiz",
+    "activo": true,
+    "nombre": "Valentina Ruiz",
     "telefono": "573013510474",
     "tipo": "personalizado",
     "hora_envio": "07:00",
-    "tipo_pago": "mensual",
-    "dia_pago": null,
-    "dia_pago2": null,
+    "tipo_pago": "quincenal",
+    "dia_pago": 1,
+    "dia_pago2": 16,
     "estado_pago": "proximo",
     "perfil": {
       "fecha_inicio": "2026-05-09",
       "sexo": "F",
       "edad": "25",
-      "altura": "165",
+      "altura": "166",
       "etiqueta": "rehabilitacion",
-      "notas": "De todo y mala suerte "
-    }
+      "notas": "Columna \nCadera\nMédula ",
+      "unidades": "kg"
+    },
+    "msg_pago": "Hola Ale para recordarte que ya viene quincena 🤖🤭"
   },
   {
     "id": "1778379342983",
@@ -381,5 +385,27 @@
       "notas": "Mocosa ",
       "unidades": "kg"
     }
+  },
+  {
+    "id": "1780069487489",
+    "activo": true,
+    "nombre": "Natalia Sepúlveda",
+    "telefono": "573006039585",
+    "tipo": "asesorado",
+    "hora_envio": "04:00",
+    "tipo_pago": "mensual",
+    "dia_pago": 1,
+    "dia_pago2": null,
+    "estado_pago": "vencido",
+    "perfil": {
+      "fecha_inicio": "2026-05-29",
+      "sexo": "F",
+      "edad": "30",
+      "altura": "168",
+      "etiqueta": "perdida",
+      "notas": "Tobillo",
+      "unidades": "kg"
+    },
+    "msg_pago": "Hola NATI pro acá Daniel bot recordando  que se cumple la fecha el.dia 30🤖🤭"
   }
 ]

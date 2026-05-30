@@ -1,7 +1,7 @@
 [
   {
     "id": "bench-press",
-    "nombre": "Prensa de banca",
+    "nombre": "Press de pecho ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -126,7 +126,7 @@
     "equipamiento": "maquina",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0003-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Siéntate erguido con la espalda apoyada en la silla y contrae los abdominales.",
@@ -139,7 +139,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0003-relaxation.png"
   },
   {
     "id": "seated-military-press",
@@ -211,7 +211,7 @@
     "equipamiento": "dumbbells",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0006-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Siéntate en un banco plano, con los pies apuntando hacia adelante y los abdominales contraídos.",
@@ -227,7 +227,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0006-relaxation.png"
   },
   {
     "id": "front-barbell-raises",
@@ -243,7 +243,7 @@
     "equipamiento": "barra",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0007-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sujete una barra con un agarre por encima de la cabeza (con las palmas de las manos hacia abajo).",
@@ -257,7 +257,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0007-relaxation.png"
   },
   {
     "id": "front-cable-raises",
@@ -335,7 +335,7 @@
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0010-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Párate con los pies separados a la altura de los hombros, los abdominales contraídos y las rodillas ligeramente flexionadas.",
@@ -351,7 +351,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0010-relaxation.png"
   },
   {
     "id": "barbell-shoulder-press",
@@ -367,7 +367,7 @@
     "equipamiento": "barra",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0011-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sentado en un banco con un soporte para barra, agarre la barra con un agarre de 3 a 4 pulgadas más ancho que sus hombros.",
@@ -381,7 +381,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0011-relaxation.png"
   },
   {
     "id": "dumbbell-shoulder-press",
@@ -397,7 +397,7 @@
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0012-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sentado en un banco, con los abdominales contraídos, agarre una mancuerna en cada mano, con las palmas hacia adelante.",
@@ -413,7 +413,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0012-relaxation.png"
   },
   {
     "id": "smith-machine-upright-row",
@@ -1131,7 +1131,7 @@
     "equipamiento": "dumbbells",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/cuban-dumbbell-press-1.png",
     "video_youtube": "",
     "ejecucion": [
       "Sujete las mancuernas en cada mano con un agarre en pronación (las palmas mirando hacia atrás y el hombro girado hacia adelante).",
@@ -1147,7 +1147,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/cuban-dumbbell-press-2.png"
   },
   {
     "id": "lying-one-arm-rear-lateral-raise",
@@ -1252,7 +1252,7 @@
     "equipamiento": "dumbbells",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0040-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Párese erguido con los pies separados a la altura de los hombros y una ligera flexión de las rodillas.",
@@ -1267,7 +1267,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0040-relaxation.png"
   },
   {
     "id": "smith-machine-shoulder-shrugs",
@@ -1433,7 +1433,7 @@
     "equipamiento": "butterfly machine",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0047-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Ajuste la máquina para que esté sentado a la altura del pecho con las almohadillas.",
@@ -1449,7 +1449,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0047-relaxation.png"
   },
   {
     "id": "cable-crossover",
@@ -1483,7 +1483,7 @@
   },
   {
     "id": "close-grip-barbell-bench-press",
-    "nombre": "Agarre cerrado Barra Prensa de banca",
+    "nombre": " Press de banca con agarre cerrado ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1499,8 +1499,8 @@
     "video_youtube": "",
     "ejecucion": [
       "Acuéstese en un banco plano con los pies apoyados en el suelo y mantenga la espalda apoyada en el banco.",
-      "Sujete la barra con fuerza (aproximadamente a 14 pulgadas de distancia).",
-      "Levanta la barra por encima de tu cuerpo y muévela sobre la mitad de tu pecho, esta es tu posición inicial.",
+      "Sujete la barra con fuerza (aproximadamente a 5cm de amplitud)",
+      "Levanta la barra y muévela sobre la mitad de tu pecho, esta es tu posición inicial.",
       "Baja la barra hasta que toque tu pecho.",
       "Levanta la barra hasta que tus brazos estén completamente extendidos y tus codos bloqueados.",
       "Regresar a la posición inicial."
@@ -1515,7 +1515,7 @@
   },
   {
     "id": "crossover-bands",
-    "nombre": "Cruce con bandas",
+    "nombre": "Cruce con bandas elástica ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1531,7 +1531,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Este es un ejercicio para fortalecer el pecho, los bíceps y los hombros.",
-      "Asegure un ejercicio a un poste (o poste seguro) y sosténgalo en cada mano.",
+      "Asegure la banda a una máquina  (o poste seguro) y sostenga en cada mano.",
       "Da un paso adelante para que la banda tenga algo de tensión, de espaldas al poste.",
       "Con los brazos a la altura de la mitad del pecho y hacia los lados, con las palmas hacia adelante, esta es su posición inicial.",
       "Junta tus manos frente a ti.",
@@ -1547,7 +1547,7 @@
   },
   {
     "id": "decline-barbell-bench-press",
-    "nombre": "Declinado Barra Press de banca",
+    "nombre": " Press de banca declinado barra",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1563,7 +1563,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Acuéstese en un banco inclinado con la cabeza más baja que los pies.",
-      "Sujete la barra con un agarre de 3 a 6 pulgadas más ancho que sus hombros.",
+      "Sujete la barra con un agarre de 3 a 6 cm más ancho que sus hombros.",
       "Levanta la barra por encima de tu pecho, manteniendo los codos cerca.",
       "Lentamente y con control baja la barra directamente hasta la parte inferior del pecho.",
       "Vuelve a levantar la barra hasta la posición inicial con la barra justo encima de tu pecho.",
@@ -1579,7 +1579,7 @@
   },
   {
     "id": "decline-dumbbell-bench-press",
-    "nombre": "Declinado Mancuerna Press de banca",
+    "nombre": "Press de banca declinado mancuerna",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1609,7 +1609,7 @@
   },
   {
     "id": "decline-dumbbell-flys",
-    "nombre": "Declinado Mancuerna Aperturas",
+    "nombre": "Aperturas con mancuernas en banco declinado ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1735,7 +1735,7 @@
   },
   {
     "id": "flat-bench-cable-flys",
-    "nombre": "Aperturass de cable de banco plano",
+    "nombre": "Aperturas con cable de banco plano",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1749,13 +1749,11 @@
     "imagen": "/enciclopedia/imgs/0057-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "<h3> Pasos</h3>",
+      "Ubique el banco a la misma distancia entre ambas poleas",
       "Acuéstese en un banco plano entre dos torres de cable y con los pies firmemente apoyados en el suelo.",
       "Sujete una polea en cada mano con las palmas hacia arriba.",
       "Con una ligera flexión de los codos, aprieta el pecho y junta los cables que se encuentran en el medio del pecho.",
-      "Mantén la posición por un momento y luego baja lentamente las manos hasta la posición inicial a la altura del banco.",
-      "<h3>Consejo</h3>",
-      "Asegúrese de que su espalda y caderas permanezcan en contacto con el banco en todo momento durante este ejercicio."
+      "Mantén la posición por un momento y luego baja lentamente las manos hasta la posición inicial a la altura del banco."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -1767,7 +1765,7 @@
   },
   {
     "id": "barbell-front-raise-pullover",
-    "nombre": "Barra Frontal Elevación y pullover ",
+    "nombre": "Pull over con barra completo ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1949,7 +1947,7 @@
   },
   {
     "id": "wide-grip-decline-barbell-pullover",
-    "nombre": "Agarre abierto Declinado Barra",
+    "nombre": "Pull over con barra agarre abierto",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2207,7 +2205,7 @@
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0073-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Para realizar una flexión con agarre cerrado, acuéstese boca abajo en el suelo o en una colchoneta, con los pies juntos ligeramente doblados para que se levante sobre la punta de los pies.",
@@ -2224,7 +2222,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0073-relaxation.png"
   },
   {
     "id": "push-up-feet-elevated",
@@ -2267,7 +2265,7 @@
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0301-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Coloque los pies en un banco al menos a 18” del suelo.",
@@ -2282,7 +2280,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0301-relaxation.png"
   },
   {
     "id": "push-ups-with-feet-on-exercise-ball",
@@ -2316,7 +2314,7 @@
   },
   {
     "id": "push-ups",
-    "nombre": "Flexibilidad",
+    "nombre": "Push up",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2501,7 +2499,7 @@
   },
   {
     "id": "wide-grip-bench-press",
-    "nombre": "Agarre abierto Press de banca",
+    "nombre": " Press de banca agarre abierto ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2577,7 +2575,7 @@
     "equipamiento": "chest machine",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0084-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Ajuste el asiento de la máquina de modo que las manijas queden cerca de la parte superior de su pecho.",
@@ -2590,7 +2588,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0084-relaxation.png"
   },
   {
     "id": "decline-chest-press",
@@ -2675,8 +2673,8 @@
       "Levante el torso hasta que la barra toque la parte superior del pecho llevando los hombros y la parte superior de los brazos hacia abajo y hacia atrás. Exhala mientras realizas esta parte del movimiento.",
       "Después de un segundo en la posición contraída, comience a inhalar y baje lentamente el torso hasta la posición inicial cuando los brazos estén completamente extendidos y los dorsales completamente estirados.",
       "Repita este movimiento.",
-      "<h3> Consejo</h3>",
-      "Concéntrate en apretar los músculos de la espalda una vez que alcances la posición completamente contraída. La parte superior del torso debe permanecer estacionaria mientras se mueve por el espacio y solo deben moverse los brazos. Los antebrazos no deben realizar ningún otro trabajo más que sujetar la barra."
+      "",
+      "CONSEJO\nConcéntrate en apretar los músculos de la espalda una vez que alcances la posición completamente contraída. La parte superior del torso debe permanecer estacionaria mientras se mueve por el espacio y solo deben moverse los brazos. Los antebrazos no deben realizar ningún otro trabajo más que sujetar la barra."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -2700,7 +2698,7 @@
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0088-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sujete la barra de dominadas con un agarre por debajo del ancho de los hombros.",
@@ -2716,7 +2714,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0088-relaxation.png"
   },
   {
     "id": "chin-ups",
@@ -2732,7 +2730,7 @@
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0089-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sujete la barra con un agarre supinado (por encima de la cabeza).",
@@ -2746,7 +2744,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0089-relaxation.png"
   },
   {
     "id": "narrow-parallel-grip-chin-ups",
@@ -2970,7 +2968,7 @@
     "equipamiento": "cable machine",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0097-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Siéntese frente a una máquina de tracción por cable equipada con una barra ancha.",
@@ -2985,7 +2983,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0097-relaxation.png"
   },
   {
     "id": "pullover-stability-ball-weight",
@@ -4990,7 +4988,7 @@
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0167-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Párese con los pies separados a la altura de los hombros, la espalda recta y los abdominales contraídos.",
@@ -5005,7 +5003,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0167-relaxation.png"
   },
   {
     "id": "decline-close-grip-bench-to-skull-crusher",
@@ -5923,7 +5921,7 @@
     "equipamiento": "dumbell",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0200-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Párese con los pies separados a la altura de los hombros, la espalda recta y los abdominales contraídos.",
@@ -5939,7 +5937,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0200-relaxation.png"
   },
   {
     "id": "standing-overhead-triceps-extension-with-barbell",
@@ -6812,7 +6810,7 @@
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0230-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Este ejercicio utiliza un banco inclinado para cambiar la posición de su cuerpo mientras realiza Curl de bíceps. El movimiento es muy similar a un Preacher Curl.",
@@ -6829,7 +6827,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0230-relaxation.png"
   },
   {
     "id": "incline-inner-biceps-curl-with-dumbbell-2",
@@ -8090,7 +8088,7 @@
     "equipamiento": "balance board",
     "nivel": "intermedio",
     "patron": "compuesto",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0271-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Coloque una tabla de equilibrio en el suelo.",
@@ -8103,7 +8101,7 @@
       "compuesto"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0271-relaxation.png"
   },
   {
     "id": "seated-calf-raise-with-barbell",
@@ -8423,7 +8421,7 @@
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0283-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Coloque un bloque o dos discos de peso libre en el suelo.",
@@ -8438,7 +8436,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0283-relaxation.png"
   },
   {
     "id": "air-bike",
@@ -8834,7 +8832,7 @@
     "equipamiento": "barra",
     "nivel": "intermedio",
     "patron": "compuesto",
-    "imagen": "",
+    "imagen": "/enciclopedia/imgs/0298-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Separe los pies a la altura de los hombros.",
@@ -8851,6 +8849,507 @@
       "compuesto"
     ],
     "es_personalizado": false,
-    "imagen2": ""
+    "imagen2": "/enciclopedia/imgs/0298-relaxation.png"
+  },
+  {
+    "id": "bicicleta-estatica",
+    "nombre": "Bicicleta estática",
+    "grupo": "cardio",
+    "subgrupo": "cardio máquina",
+    "musculos_principales": [
+      "cuádriceps",
+      "isquiotibiales",
+      "gemelos"
+    ],
+    "musculos_secundarios": [
+      "glúteos",
+      "core"
+    ],
+    "equipamiento": "maquina",
+    "nivel": "principiante",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/stationary-bike.png",
+    "imagen2": "/enciclopedia/imgs/stationary-bike.png",
+    "ejecucion": [
+      "Ajusta el asiento a la altura de tus caderas cuando estés de pie.",
+      "Coloca los pies en los pedales y asegura las correas.",
+      "Mantén la espalda recta y los codos ligeramente flexionados.",
+      "Pedalea a un ritmo constante manteniendo tensión en los pedales.",
+      "Controla la resistencia según tu nivel de entrenamiento."
+    ],
+    "errores_comunes": [
+      "Encorvarse hacia adelante poniendo tensión en la espalda baja.",
+      "Pedalear solo con la punta del pie en lugar de todo el pie.",
+      "Asiento demasiado bajo causando estrés en las rodillas."
+    ],
+    "tags": [
+      "cardio",
+      "resistencia",
+      "bajo impacto"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "eliptica",
+    "nombre": "Elíptica",
+    "grupo": "cardio",
+    "subgrupo": "cardio máquina",
+    "musculos_principales": [
+      "cuádriceps",
+      "isquiotibiales",
+      "glúteos"
+    ],
+    "musculos_secundarios": [
+      "core",
+      "brazos"
+    ],
+    "equipamiento": "maquina",
+    "nivel": "principiante",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/elliptical.png",
+    "imagen2": "/enciclopedia/imgs/elliptical.png",
+    "ejecucion": [
+      "Sube a la máquina y coloca los pies en las plataformas.",
+      "Toma los manubrios con ambas manos.",
+      "Mantén la espalda recta y el core activo.",
+      "Mueve las piernas en movimiento elíptico empujando y jalando los manubrios.",
+      "Mantén un ritmo constante sin apoyarte demasiado en los manubrios."
+    ],
+    "errores_comunes": [
+      "Apoyarse demasiado en los manubrios quitando trabajo a las piernas.",
+      "Inclinar el cuerpo hacia adelante.",
+      "Dar zancadas demasiado cortas reduciendo la efectividad."
+    ],
+    "tags": [
+      "cardio",
+      "resistencia",
+      "bajo impacto",
+      "cuerpo completo"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "caminadora-caminar",
+    "nombre": "Caminadora — Caminar",
+    "grupo": "cardio",
+    "subgrupo": "cardio máquina",
+    "musculos_principales": [
+      "cuádriceps",
+      "isquiotibiales",
+      "gemelos"
+    ],
+    "musculos_secundarios": [
+      "glúteos",
+      "core"
+    ],
+    "equipamiento": "maquina",
+    "nivel": "principiante",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/walking.png",
+    "imagen2": "/enciclopedia/imgs/walking.png",
+    "ejecucion": [
+      "Sube a la cinta y agarra los manubrios laterales para arrancar.",
+      "Comienza a una velocidad baja entre 3 y 5 km/h.",
+      "Mantén la espalda erguida y los brazos balanceándose naturalmente.",
+      "Camina con el talón tocando primero y rodando hacia la punta.",
+      "Suelta los manubrios cuando te sientas estable."
+    ],
+    "errores_comunes": [
+      "Agarrarse de los manubrios constantemente reduciendo el gasto calórico.",
+      "Mirar hacia abajo en lugar de al frente.",
+      "Dar pasos demasiado cortos o arrastrando los pies."
+    ],
+    "tags": [
+      "cardio",
+      "resistencia",
+      "bajo impacto"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "caminadora-trotar",
+    "nombre": "Caminadora — Trotar",
+    "grupo": "cardio",
+    "subgrupo": "cardio máquina",
+    "musculos_principales": [
+      "cuádriceps",
+      "isquiotibiales",
+      "gemelos"
+    ],
+    "musculos_secundarios": [
+      "glúteos",
+      "core"
+    ],
+    "equipamiento": "maquina",
+    "nivel": "intermedio",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/treadmill.png",
+    "imagen2": "/enciclopedia/imgs/treadmill.png",
+    "ejecucion": [
+      "Ajusta la velocidad entre 6 y 9 km/h.",
+      "Mantén el torso erguido y ligeramente inclinado hacia adelante.",
+      "Aterriza con el mediopié, no con el talón.",
+      "Mueve los brazos en ángulo de 90 grados al ritmo de las piernas.",
+      "Respira de forma rítmica y controlada."
+    ],
+    "errores_comunes": [
+      "Aterrizar con el talón generando impacto en las rodillas.",
+      "Tensar los hombros y el cuello.",
+      "Mirar hacia abajo afectando la postura."
+    ],
+    "tags": [
+      "cardio",
+      "resistencia",
+      "moderado impacto"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "caminadora-correr",
+    "nombre": "Caminadora — Correr",
+    "grupo": "cardio",
+    "subgrupo": "cardio máquina",
+    "musculos_principales": [
+      "cuádriceps",
+      "isquiotibiales",
+      "gemelos"
+    ],
+    "musculos_secundarios": [
+      "glúteos",
+      "core"
+    ],
+    "equipamiento": "maquina",
+    "nivel": "avanzado",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/running.png",
+    "imagen2": "/enciclopedia/imgs/running.png",
+    "ejecucion": [
+      "Ajusta la velocidad a más de 9 km/h según tu capacidad.",
+      "Inclina ligeramente el torso hacia adelante.",
+      "Aterriza con el mediopié y empuja con la punta.",
+      "Mantén los brazos en 90 grados moviéndolos de forma coordinada.",
+      "Mantén la respiración rítmica y el core activo."
+    ],
+    "errores_comunes": [
+      "Dar zancadas demasiado largas aterrizando con el talón.",
+      "Tensar los hombros y los puños.",
+      "No calentar antes de correr a alta velocidad."
+    ],
+    "tags": [
+      "cardio",
+      "resistencia",
+      "alto impacto"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "escaladora-stairmaster",
+    "nombre": "Escaladora (StairMaster)",
+    "grupo": "cardio",
+    "subgrupo": "cardio máquina",
+    "musculos_principales": [
+      "glúteos",
+      "cuádriceps",
+      "isquiotibiales"
+    ],
+    "musculos_secundarios": [
+      "gemelos",
+      "core"
+    ],
+    "equipamiento": "maquina",
+    "nivel": "intermedio",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/stair-stepper.png",
+    "imagen2": "/enciclopedia/imgs/stair-stepper.png",
+    "ejecucion": [
+      "Sube a la máquina y ajusta la velocidad a un nivel bajo para calentar.",
+      "Coloca las manos suavemente en los manubrios sin apoyarte.",
+      "Mantén el torso erguido y el core activo.",
+      "Pisa con todo el pie en cada escalón para activar más el glúteo.",
+      "Mantén un ritmo constante durante toda la sesión."
+    ],
+    "errores_comunes": [
+      "Apoyarse en los manubrios reduciendo el esfuerzo.",
+      "Pisar solo con la punta activando menos el glúteo.",
+      "Encorvarse hacia adelante."
+    ],
+    "tags": [
+      "cardio",
+      "glúteos",
+      "resistencia",
+      "moderado impacto"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "remo-ergometro",
+    "nombre": "Remo ergómetro",
+    "grupo": "cardio",
+    "subgrupo": "cardio máquina",
+    "musculos_principales": [
+      "espalda",
+      "isquiotibiales",
+      "glúteos"
+    ],
+    "musculos_secundarios": [
+      "bíceps",
+      "core",
+      "hombros"
+    ],
+    "equipamiento": "maquina",
+    "nivel": "intermedio",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/rowing.png",
+    "imagen2": "/enciclopedia/imgs/rowing.png",
+    "ejecucion": [
+      "Siéntate en el remo y ajusta los pies en las correas.",
+      "Toma el manubrio con ambas manos en agarre prono.",
+      "Comienza con las piernas flexionadas y el torso ligeramente inclinado.",
+      "Empuja con las piernas primero, luego inclina el torso hacia atrás y jala el manubrio hacia el abdomen.",
+      "Regresa en orden inverso: brazos, torso, piernas."
+    ],
+    "errores_comunes": [
+      "Jalar primero con los brazos en lugar de empujar con las piernas.",
+      "Redondear la espalda baja.",
+      "Hacer el movimiento demasiado rápido perdiendo la técnica."
+    ],
+    "tags": [
+      "cardio",
+      "cuerpo completo",
+      "resistencia"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "saltar-cuerda",
+    "nombre": "Saltar cuerda",
+    "grupo": "cardio",
+    "subgrupo": "cardio libre",
+    "musculos_principales": [
+      "gemelos",
+      "cuádriceps"
+    ],
+    "musculos_secundarios": [
+      "core",
+      "hombros"
+    ],
+    "equipamiento": "peso corporal",
+    "nivel": "intermedio",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/aerobics.png",
+    "imagen2": "/enciclopedia/imgs/aerobics.png",
+    "ejecucion": [
+      "Toma los extremos de la cuerda con cada mano.",
+      "Mantén los codos cerca del cuerpo y mueve la cuerda con las muñecas.",
+      "Salta con ambos pies juntos aterrizando suavemente en la punta.",
+      "Mantén una altura de salto mínima, solo la necesaria para pasar la cuerda.",
+      "Mantén el core activo y la mirada al frente."
+    ],
+    "errores_comunes": [
+      "Saltar demasiado alto generando más impacto del necesario.",
+      "Mover los brazos en lugar de solo las muñecas.",
+      "Aterrizar con los talones."
+    ],
+    "tags": [
+      "cardio",
+      "coordinación",
+      "alto impacto"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "burpees",
+    "nombre": "Burpees",
+    "grupo": "cardio",
+    "subgrupo": "cardio libre",
+    "musculos_principales": [
+      "cuádriceps",
+      "pecho",
+      "core"
+    ],
+    "musculos_secundarios": [
+      "glúteos",
+      "hombros",
+      "tríceps"
+    ],
+    "equipamiento": "peso corporal",
+    "nivel": "avanzado",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/aerobics.png",
+    "imagen2": "/enciclopedia/imgs/aerobics.png",
+    "ejecucion": [
+      "De pie, baja en cuclillas y coloca las manos en el suelo.",
+      "Salta los pies hacia atrás quedando en posición de plancha.",
+      "Haz una flexión completa.",
+      "Salta los pies hacia las manos volviendo a cuclillas.",
+      "Salta hacia arriba con los brazos extendidos sobre la cabeza."
+    ],
+    "errores_comunes": [
+      "No hacer la flexión completa.",
+      "Dejar caer las caderas en la plancha.",
+      "No extender completamente el cuerpo en el salto final."
+    ],
+    "tags": [
+      "cardio",
+      "cuerpo completo",
+      "alto impacto",
+      "funcional"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "mountain-climbers",
+    "nombre": "Mountain Climbers",
+    "grupo": "cardio",
+    "subgrupo": "cardio libre",
+    "musculos_principales": [
+      "core",
+      "cuádriceps"
+    ],
+    "musculos_secundarios": [
+      "hombros",
+      "glúteos"
+    ],
+    "equipamiento": "peso corporal",
+    "nivel": "intermedio",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/aerobics.png",
+    "imagen2": "/enciclopedia/imgs/aerobics.png",
+    "ejecucion": [
+      "Comienza en posición de plancha alta con los brazos extendidos.",
+      "Mantén el core activo y las caderas niveladas.",
+      "Lleva una rodilla hacia el pecho de forma explosiva.",
+      "Regresa esa pierna y lleva la otra rodilla al pecho.",
+      "Alterna las piernas de forma rápida y continua."
+    ],
+    "errores_comunes": [
+      "Elevar las caderas perdiendo la posición de plancha.",
+      "Mover los hombros hacia adelante y atrás.",
+      "No mantener el core activo durante el movimiento."
+    ],
+    "tags": [
+      "cardio",
+      "core",
+      "alto impacto",
+      "funcional"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "jumping-jacks",
+    "nombre": "Jumping Jacks",
+    "grupo": "cardio",
+    "subgrupo": "cardio libre",
+    "musculos_principales": [
+      "cuádriceps",
+      "gemelos"
+    ],
+    "musculos_secundarios": [
+      "glúteos",
+      "hombros",
+      "core"
+    ],
+    "equipamiento": "peso corporal",
+    "nivel": "principiante",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/aerobics.png",
+    "imagen2": "/enciclopedia/imgs/aerobics.png",
+    "ejecucion": [
+      "De pie con los pies juntos y los brazos a los lados.",
+      "Salta abriendo los pies al ancho de los hombros.",
+      "Simultáneamente lleva los brazos por encima de la cabeza.",
+      "Salta de vuelta a la posición inicial juntando pies y bajando brazos.",
+      "Repite de forma continua a un ritmo constante."
+    ],
+    "errores_comunes": [
+      "Aterrizar con los talones generando impacto excesivo.",
+      "No coordinar brazos y piernas al mismo tiempo.",
+      "Hacer el movimiento demasiado lento perdiendo el efecto cardio."
+    ],
+    "tags": [
+      "cardio",
+      "coordinación",
+      "bajo impacto"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "box-jumps",
+    "nombre": "Saltos al cajón (Box Jumps)",
+    "grupo": "cardio",
+    "subgrupo": "cardio libre",
+    "musculos_principales": [
+      "cuádriceps",
+      "glúteos",
+      "gemelos"
+    ],
+    "musculos_secundarios": [
+      "core",
+      "isquiotibiales"
+    ],
+    "equipamiento": "otro",
+    "nivel": "avanzado",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/field-sport.png",
+    "imagen2": "/enciclopedia/imgs/field-sport.png",
+    "ejecucion": [
+      "De pie frente al cajón con los pies al ancho de los hombros.",
+      "Flexiona las rodillas y balancea los brazos hacia atrás.",
+      "Salta explosivamente hacia el cajón llevando los brazos hacia adelante.",
+      "Aterriza suavemente con ambos pies en el centro del cajón.",
+      "Baja del cajón con cuidado y repite."
+    ],
+    "errores_comunes": [
+      "Aterrizar con las rodillas hacia adentro.",
+      "No flexionar las rodillas al aterrizar aumentando el impacto.",
+      "Usar un cajón demasiado alto para el nivel actual."
+    ],
+    "tags": [
+      "cardio",
+      "potencia",
+      "alto impacto",
+      "funcional"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "natacion-libre",
+    "nombre": "Natación libre",
+    "grupo": "cardio",
+    "subgrupo": "cardio libre",
+    "musculos_principales": [
+      "espalda",
+      "hombros",
+      "core"
+    ],
+    "musculos_secundarios": [
+      "cuádriceps",
+      "isquiotibiales",
+      "tríceps"
+    ],
+    "equipamiento": "otro",
+    "nivel": "intermedio",
+    "patron": "cardio",
+    "imagen": "/enciclopedia/imgs/swimming.png",
+    "imagen2": "/enciclopedia/imgs/swimming.png",
+    "ejecucion": [
+      "Entra al agua y comienza con una patada de calentamiento.",
+      "Extiende el brazo hacia adelante sumergiendo la mano primero.",
+      "Jala el agua hacia atrás rotando el cuerpo levemente.",
+      "Gira la cabeza para respirar al sacar el brazo del agua.",
+      "Mantén el cuerpo horizontal y el core activo durante toda la brazada."
+    ],
+    "errores_comunes": [
+      "Levantar demasiado la cabeza para respirar rompiendo la hidrodinámica.",
+      "No rotar el cuerpo reduciendo el alcance de la brazada.",
+      "Patear desde las rodillas en lugar de desde las caderas."
+    ],
+    "tags": [
+      "cardio",
+      "cuerpo completo",
+      "bajo impacto",
+      "resistencia"
+    ],
+    "es_personalizado": false
   }
 ]
