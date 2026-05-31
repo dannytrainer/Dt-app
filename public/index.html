@@ -10865,6 +10865,23 @@ function encEditarFicha(id) {
   html += "<input id=\"enc-edit-nombre\" value=\"" + e.nombre + "\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none\">";
   html += "</div>";
 
+  var grupos = ["pecho","espalda","hombros","brazos","piernas","gluteos","core","cardio"];
+  html += "<div style=\"margin-bottom:12px\">";
+  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Grupo</div>";
+  html += "<select id=\"enc-edit-grupo\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box\">";
+  grupos.forEach(function(g){ html += "<option value=\"" + g + "\"" + (e.grupo===g?" selected":"") + ">" + g.charAt(0).toUpperCase()+g.slice(1) + "</option>"; });
+  html += "</select></div>";
+
+  html += "<div style=\"margin-bottom:12px\">";
+  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">M&uacute;sculos principales (separados por coma)</div>";
+  html += "<input id=\"enc-edit-musculos-p\" value=\"" + (e.musculos_principales||[]).join(', ') + "\" placeholder=\"Ej: cuádriceps, glúteos\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box\">";
+  html += "</div>";
+
+  html += "<div style=\"margin-bottom:12px\">";
+  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">M&uacute;sculos secundarios (separados por coma)</div>";
+  html += "<input id=\"enc-edit-musculos-s\" value=\"" + (e.musculos_secundarios||[]).join(', ') + "\" placeholder=\"Ej: core, lumbares\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box\">";
+  html += "</div>";
+
   html += "<div style=\"margin-bottom:12px\">";
   html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Pasos de ejecucion</div>";
   window._encEditPasosCount = (e.ejecucion||[]).length;
@@ -10906,6 +10923,11 @@ function encGuardarEdicionV2(id) {
   var e = (window._encEjercicios||[]).find(function(x){return x.id===id;});
   if (!e) return;
   e.nombre = document.getElementById("enc-edit-nombre").value;
+  e.grupo = document.getElementById("enc-edit-grupo").value;
+  var mp = document.getElementById("enc-edit-musculos-p").value;
+  var ms = document.getElementById("enc-edit-musculos-s").value;
+  e.musculos_principales = mp.split(",").map(function(m){return m.trim();}).filter(Boolean);
+  e.musculos_secundarios = ms.split(",").map(function(m){return m.trim();}).filter(Boolean);
   var pasos = [];
   var i = 0;
   while (document.getElementById("enc-edit-paso-" + i)) {
@@ -10917,7 +10939,7 @@ function encGuardarEdicionV2(id) {
   fetch("/api/enciclopedia/editar/" + id, {
     method: "PUT",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({nombre: e.nombre, ejecucion: e.ejecucion})
+    body: JSON.stringify({nombre: e.nombre, grupo: e.grupo, ejecucion: e.ejecucion, musculos_principales: e.musculos_principales, musculos_secundarios: e.musculos_secundarios})
   }).then(function(r){return r.json();}).then(function(){
     encAbrirFicha(id);
   });

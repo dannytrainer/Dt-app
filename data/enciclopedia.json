@@ -115,7 +115,7 @@
   },
   {
     "id": "seated-shoulder-press-machine",
-    "nombre": "Sentado Hombro Press Máquina",
+    "nombre": "Press  de hombro en máquina sentado",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -143,7 +143,7 @@
   },
   {
     "id": "seated-military-press",
-    "nombre": "Sentado Prensa Militar",
+    "nombre": "Press Militar sentado ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -200,7 +200,7 @@
   },
   {
     "id": "arnold-press",
-    "nombre": "Prensa Arnold",
+    "nombre": "Press Arnold",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -261,14 +261,14 @@
   },
   {
     "id": "front-cable-raises",
-    "nombre": "Elevaciones Cable Frontal",
+    "nombre": "Elevaciones Frontales polea ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
     "musculos_secundarios": [
       "pectoral",
-      "forearm"
+      "antebrazo"
     ],
     "equipamiento": "cable machine",
     "nivel": "intermedio",
@@ -278,7 +278,7 @@
     "ejecucion": [
       "Coloque la polea en el lugar justo encima del suelo.",
       "Párese con los pies separados a la altura de los hombros, los abdominales contraídos y las rodillas ligeramente dobladas.",
-      "Comenzando a la altura de la cintura, tome la polea con la mano izquierda, con la palma hacia el suelo con un agarre por encima de la cabeza, y levante el brazo estirado hacia el hombro izquierdo.",
+      "Comenzando a la altura de la cintura, tome la polea con la mano, con la palma hacia el suelo con un agarre por encima de la cabeza, y levante el brazo estirado hacia el hombro.",
       "A la altura de los hombros, haga una pausa por un momento.",
       "Con un movimiento controlado resiste el peso y baja lentamente el brazo hasta la posición inicial en la cintura.",
       "Repite el ejercicio con tu brazo derecho."
@@ -293,10 +293,10 @@
   },
   {
     "id": "cable-shoulder-shrugs",
-    "nombre": "Cable Hombro Encogimientos",
+    "nombre": " Encogimientos de hombros polea ",
     "grupo": "espalda",
     "musculos_principales": [
-      "trapezius"
+      "trapecio"
     ],
     "musculos_secundarios": [
       "hombros"
@@ -355,7 +355,7 @@
   },
   {
     "id": "barbell-shoulder-press",
-    "nombre": "Prensa Sentado Barra Hombro",
+    "nombre": "Press de Hombro sentado barra ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -370,7 +370,7 @@
     "imagen": "/enciclopedia/imgs/0011-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Sentado en un banco con un soporte para barra, agarre la barra con un agarre de 3 a 4 pulgadas más ancho que sus hombros.",
+      "Sentado en un banco con un soporte para barra, agarre la barra con un agarre más ancho que sus hombros.",
       "Levante la barra del estante y bájela justo a la altura de sus hombros.",
       "Mientras mantienes una buena postura, estira los brazos y levanta la barra por encima de tu cabeza.",
       "Haz una pausa por un momento y luego con un movimiento controlado baja la barra hasta la posición inicial."
@@ -385,7 +385,7 @@
   },
   {
     "id": "dumbbell-shoulder-press",
-    "nombre": "Prensa Mancuerna Hombro",
+    "nombre": "Press de hombro mancuerna ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -417,14 +417,14 @@
   },
   {
     "id": "smith-machine-upright-row",
-    "nombre": "Smith Máquina Vertical Remo",
+    "nombre": "Remo mentón en máquina Smith ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
     "musculos_secundarios": [
       "biceps",
-      "upper back"
+      "trapecios"
     ],
     "equipamiento": "smith machine",
     "nivel": "intermedio",
@@ -448,14 +448,14 @@
   },
   {
     "id": "upright-barbell-rows",
-    "nombre": "Barra Remos Vertical",
+    "nombre": "Remo meton barra ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
     "musculos_secundarios": [
       "biceps",
-      "upper back"
+      "trapecios"
     ],
     "equipamiento": "barra",
     "nivel": "intermedio",
@@ -480,13 +480,13 @@
   },
   {
     "id": "upright-cable-row",
-    "nombre": "Remoción de cable vertical",
+    "nombre": "Remo al mentón  polea ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
     "musculos_secundarios": [
-      "upper back",
+      "Trapecios",
       "biceps"
     ],
     "equipamiento": "cable machine",
@@ -512,7 +512,7 @@
   },
   {
     "id": "dumbbell-upright-rows",
-    "nombre": "Mancuerna Remos Verticales",
+    "nombre": "Remo mentón mancuerna ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -544,14 +544,14 @@
   },
   {
     "id": "bent-over-lateral-cable-raises",
-    "nombre": "Elevaciones de Cable Lateral Inclinado",
+    "nombre": "Elevaciones Lateral con polea Inclinado",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
     "musculos_secundarios": [
-      "trapezius",
-      "middle back"
+      "Trapecio",
+      "antebrazo"
     ],
     "equipamiento": "cable machine",
     "nivel": "intermedio",
@@ -560,11 +560,11 @@
     "video_youtube": "",
     "ejecucion": [
       "Sujete el mango de la polea baja con la mano derecha.",
-      "Inclínese hacia adelante desde la cintura; La parte superior de tu cuerpo debe estar casi paralela al suelo. Doble ligeramente las rodillas y coloque la mano izquierda sobre el muslo izquierdo. Deje que su brazo derecho cuelgue de su hombro frente a usted con el codo ligeramente doblado. Esta es tu posición inicial.",
+      "Inclínese hacia adelante desde la cintura; La parte superior de tu cuerpo debe estar casi paralela al suelo. Doble ligeramente las rodillas y coloque la mano sobre el muslo . Deje que su brazo derecho cuelgue de su hombro frente a usted con el codo ligeramente doblado. Esta es tu posición inicial.",
       "Levanta el brazo derecho manteniendo el codo ligeramente flexionado.",
-      "Continúe moviendo el brazo hasta que quede paralelo al suelo, alineado con la oreja derecha.",
+      "Continúe moviendo el brazo hasta que quede paralelo al suelo, alineado con la oreja.",
       "Baje lentamente el peso a la posición inicial.",
-      "Realice el ejercicio en el brazo izquierdo y luego repita."
+      "Realice el ejercicio en el brazo y luego repita."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -576,13 +576,13 @@
   },
   {
     "id": "lateral-dumbbell-raises",
-    "nombre": "Elevaciones laterales de Mancuerna",
+    "nombre": "Elevaciones laterales con Mancuerna",
     "grupo": "hombros",
     "musculos_principales": [
       "lateral deltoid"
     ],
     "musculos_secundarios": [
-      "forearm",
+      "Antebrazo",
       "hombros"
     ],
     "equipamiento": "dumbbells",
@@ -608,7 +608,7 @@
   },
   {
     "id": "ball-wall-circles",
-    "nombre": "Círculos de pared de bolas",
+    "nombre": "Círculos de pared con balon",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -624,7 +624,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Párese erguido con los pies separados a la altura de los hombros.",
-      "Coloca una pelota suiza a la altura del pecho contra una pared y con la mano izquierda haz rodar la pelota en pequeños círculos contra la pared.",
+      "Coloca una pelota a la altura del pecho contra una pared y con la mano izquierda haz rodar la pelota en pequeños círculos contra la pared.",
       "Mantenga el brazo completamente extendido con una ligera flexión del codo.",
       "Invierte la dirección de los círculos.",
       "Cambia de brazo."
@@ -639,14 +639,14 @@
   },
   {
     "id": "back-flys-exercise-band",
-    "nombre": "Espalda Aperturas con Banda de Ejercicio",
+    "nombre": "Adducion escapular de pie ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
     "musculos_secundarios": [
-      "triceps",
-      "middle back"
+      "Espalda media",
+      "triceps"
     ],
     "equipamiento": "exercise band",
     "nivel": "intermedio",
@@ -654,9 +654,9 @@
     "imagen": "/enciclopedia/imgs/0020-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Coloque una banda de ejercicio alrededor de un poste o máquina a la altura de la mitad del pecho.",
+      "Coloque una banda en un poste o use el sistema crossover de poleas",
       "Párate con los pies separados a la altura de los hombros, los abdominales contraídos y las rodillas ligeramente flexionadas.",
-      "Aléjese del poste para que haya tensión en la banda, agarrando la banda con los brazos extendidos frente a usted y una ligera flexión de los codos; esta es tu posición inicial.",
+      "Aléjese del punto de inicio tomado los agarres  con los brazos extendidos frente a usted y una ligera flexión de los codos; esta es tu posición inicial.",
       "Lleve los brazos hacia atrás con un movimiento controlado hasta que queden paralelos a los costados y alineados con los hombros.",
       "Regrese lentamente los brazos a la posición inicial frente a su pecho.",
       "Repetir."
@@ -671,10 +671,10 @@
   },
   {
     "id": "flat-bench-leg-raises",
-    "nombre": "Elevaciones de patas de banco plano",
+    "nombre": "Elevaciones de piernas ",
     "grupo": "core",
     "musculos_principales": [
-      "lower abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "body",
@@ -683,7 +683,7 @@
     "imagen": "/enciclopedia/imgs/0021-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Acuéstese en un banco plano con las manos debajo de las caderas apoyando la espalda.",
+      "Acuéstese con las manos debajo de las caderas apoyando la espalda.",
       "Tus piernas no deben estar apoyadas en el banco por debajo de las rodillas.",
       "Con los pies juntos y los dedos flexionados hacia arriba, levante las piernas estiradas unos centímetros del banco; Ambas piernas no deben tener contacto con el banco. Esta es tu posición inicial.",
       "Mantenga las piernas rectas con una ligera flexión de las rodillas y levante las piernas justo antes de los 90 grados con las caderas.",
@@ -700,10 +700,10 @@
   },
   {
     "id": "smith-machine-rear-deltoid-row",
-    "nombre": "Smith Máquina Remo Deltoides Trasero",
-    "grupo": "hombros",
+    "nombre": "Remo en máquina smith ",
+    "grupo": "espalda",
     "musculos_principales": [
-      "rear deltoid"
+      "Hombro posterior"
     ],
     "musculos_secundarios": [
       "espalda",
@@ -735,7 +735,7 @@
   },
   {
     "id": "lying-rear-lateral-raise",
-    "nombre": "Elevación lateral trasera Acostado",
+    "nombre": "Elevación posterior Acostado",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -764,15 +764,16 @@
   },
   {
     "id": "rear-deltoid-row-dumbbell",
-    "nombre": "Deltoides Posterior Remo Mancuerna",
-    "grupo": "hombros",
+    "nombre": "Remo Mancuerna",
+    "grupo": "espalda",
     "musculos_principales": [
-      "posterior deltoid"
+      "Dorsal"
     ],
     "musculos_secundarios": [
-      "lateral deltoid",
-      "biceps",
-      "trapezius"
+      "Hombro posterior",
+      "hombro lateral",
+      "bíceps",
+      "trapecio"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -780,7 +781,7 @@
     "imagen": "/enciclopedia/imgs/0024-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Coloque el pie derecho en el suelo, apoye la rodilla y la mano izquierdas en un banco plano.",
+      "Coloque el un pie en el suelo, apoye la rodilla y la mano contraria en un banco plano.",
       "Inclínese hacia adelante para que el peso de su cuerpo quede apoyado en el brazo y la rodilla izquierdos.",
       "Manteniendo la espalda plana, agáchese y levante la mancuerna con la mano derecha.",
       "Levante el brazo derecho lo más cerca posible del pecho; mientras dobla y lleva el codo hacia atrás lo más que pueda.",
@@ -798,10 +799,10 @@
   },
   {
     "id": "seated-cable-rows",
-    "nombre": "Sentado Cable Remos",
+    "nombre": "Remo en polea ",
     "grupo": "espalda",
     "musculos_principales": [
-      "middle back"
+      "Espalda media"
     ],
     "musculos_secundarios": [
       "biceps",
@@ -814,7 +815,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Siéntate en una máquina de polea baja con los pies apoyados en los reposapiés y las rodillas ligeramente flexionadas.",
-      "Con los abdominales contraídos y la espalda recta, inclínese ligeramente hacia adelante para agarrar las poleas con un agarre por encima de la cabeza (con las palmas hacia abajo).",
+      "Con los abdominales contraídos y la espalda recta, inclínese ligeramente hacia adelante para agarrar las poleas con un agarre firme (prono/supino/neutro)",
       "Lleve lentamente las poleas hacia los abdominales mientras está sentado erguido y mantenga los codos cerca del pecho.",
       "Haga una pausa por un momento y luego regrese lentamente las poleas a la posición inicial.",
       "Repetir."
@@ -829,10 +830,10 @@
   },
   {
     "id": "reverse-grips-bent-over-barbell-rows",
-    "nombre": "Puños Inverso Inclinados Sobre Barra Remos",
+    "nombre": "Remo barra con agarre supino",
     "grupo": "espalda",
     "musculos_principales": [
-      "middle back"
+      "Espalda media"
     ],
     "musculos_secundarios": [
       "biceps"
@@ -844,10 +845,10 @@
     "video_youtube": "",
     "ejecucion": [
       "Inclínese sobre una barra en un ligero ángulo con las rodillas dobladas y la espalda recta.",
-      "Sujete la barra con un agarre inverso (con las palmas hacia arriba) y tire lentamente de la barra hacia los abdominales, manteniendo los codos cerca de los costados.",
-      "Haga una pausa por un momento en la cima.",
-      "Regresa la barra a la posición inicial.",
-      "Repetir."
+      "Tome la barra con un agarre supino (palmas arriba)",
+      "Reaccione hasta que la barra esté casi tocando tu cuerpo",
+      "Baja la barra controlando la velocidad  hasta la posición inicial",
+      "Repetir"
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -859,10 +860,10 @@
   },
   {
     "id": "stationary-abdominal-draw-in",
-    "nombre": "Aspiración abdominal estacionaria",
+    "nombre": "Hipopresivos abdominales ",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdomen transverso"
     ],
     "musculos_secundarios": [
       "core"
@@ -875,8 +876,8 @@
     "ejecucion": [
       "Colóquese sobre una colchoneta sobre sus manos y rodillas, formando un rectángulo o un cuadrado de cuatro puntas.",
       "Mantenga la espalda recta y las caderas y la pelvis en una posición neutral.",
-      "Contraiga los abdominales, contrayéndolos mientras mantiene la espalda quieta.",
-      "Mantén presionado por un momento y luego suelta volviendo a la posición inicial.",
+      "Contraiga los abdominales, contrayéndolos mientras mantiene exhala.",
+      "Mantén presionado por un momento y luego suelta volviendo a tomar aire.",
       "Repetir."
     ],
     "errores_comunes": [],
@@ -889,7 +890,7 @@
   },
   {
     "id": "rear-deltoid-row-barbell",
-    "nombre": "Deltoides Trasero Remo Barra",
+    "nombre": "Remo con barra para hombro post",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -920,10 +921,10 @@
   },
   {
     "id": "t-bar-rows",
-    "nombre": "Remos con barra en T",
+    "nombre": "Remo T",
     "grupo": "espalda",
     "musculos_principales": [
-      "middle back"
+      "Espalda media"
     ],
     "musculos_secundarios": [
       "biceps",
@@ -951,10 +952,10 @@
   },
   {
     "id": "barbell-shrugs",
-    "nombre": "Barra Encogimientos",
+    "nombre": "Encogimientos de hombro con barra ",
     "grupo": "espalda",
     "musculos_principales": [
-      "trapezius"
+      "trapecios"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -980,12 +981,14 @@
   },
   {
     "id": "incline-shoulder-press-dumbbell",
-    "nombre": "Inclinado Hombro Prensa Mancuerna",
+    "nombre": "Press de hombro inclinado ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Tríceps"
+    ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
@@ -1007,19 +1010,21 @@
   },
   {
     "id": "bent-over-rear-deltoid-raise-with-head-on-bench",
-    "nombre": "Elevación Deltoides Posterior Inclinada Con La Cabeza En El Banco",
+    "nombre": "Elevación Deltoides Posterior ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Trapecios"
+    ],
     "equipamiento": "dumbbells",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0032-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Apoye la frente en un banco inclinado para estabilizar sus movimientos, de modo que esté inclinado con la espalda paralela al suelo y contraiga los abdominales.",
+      "Apoye la frente en un banco inclinado para estabilizar sus movimientos, de modo que esté inclinado con la espalda paralela al suelo y contraiga los Manteniendo la espalda recta, doble la cintura y permita que las rodillas se doblen un poco.",
       "Sujete las mancuernas en sus manos con los brazos rectos y los codos ligeramente doblados asegurándose de que no estén bloqueados.",
       "Levanta lentamente las mancuernas hasta la altura de los hombros.",
       "Haz una pausa por un momento y luego regresa a la posición inicial.",
@@ -1047,10 +1052,9 @@
     "imagen": "/enciclopedia/imgs/0033-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Párese con una mancuerna en cada mano con un agarre por encima de la cabeza, los pies separados a la altura de los hombros y los abdominales contraídos.",
+      "Párese con una mancuerna en cada mano, los pies separados a la altura de los hombros y los abdominales contraídos.",
       "Manteniendo cada brazo recto, levante el brazo izquierdo justo por encima de la altura del hombro.",
-      "Haga una pausa por un momento y luego, con un movimiento controlado, baje el peso a la posición inicial y repita con el brazo derecho.",
-      "<h3></h3>"
+      "Haga una pausa por un momento y luego, con un movimiento controlado, baje el peso a la posición inicial y repita con el brazo derecho."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -1062,7 +1066,7 @@
   },
   {
     "id": "internal-cable-rotation",
-    "nombre": "Rotación del cable interno",
+    "nombre": "Rotación interna de hombro ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -1092,7 +1096,7 @@
   },
   {
     "id": "seated-rear-lateral-cable-raise",
-    "nombre": "Sentado Elevación Cable Lateral Trasero",
+    "nombre": "Elevación lateral de cable sentado",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -1120,7 +1124,7 @@
   },
   {
     "id": "cuban-dumbbell-press",
-    "nombre": "Prensa cubana Mancuerna",
+    "nombre": "Press cubano  Mancuerna",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -1131,7 +1135,7 @@
     "equipamiento": "dumbbells",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/cuban-dumbbell-press-1.png",
+    "imagen": "/enciclopedia/imgs/cuban-dumbbell-press-2.png",
     "video_youtube": "",
     "ejecucion": [
       "Sujete las mancuernas en cada mano con un agarre en pronación (las palmas mirando hacia atrás y el hombro girado hacia adelante).",
@@ -1147,16 +1151,18 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/cuban-dumbbell-press-2.png"
+    "imagen2": "/enciclopedia/imgs/cuban-dumbbell-press-3.png"
   },
   {
     "id": "lying-one-arm-rear-lateral-raise",
-    "nombre": "Acostado Un Brazo Trasero Elevación Lateral",
+    "nombre": "Elevación boca abajo unilateral ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Trapecios"
+    ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
@@ -1180,7 +1186,7 @@
   },
   {
     "id": "one-arm-dumbbell-shoulder-press",
-    "nombre": "Prensa One Brazo Mancuerna Hombro",
+    "nombre": "Press de hombro unilateral ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -1211,13 +1217,13 @@
   },
   {
     "id": "one-arm-upright-row",
-    "nombre": "Un Brazo Vertical Remo",
+    "nombre": "Remo mentón unilateral ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
     "musculos_secundarios": [
-      "trapezius"
+      "trapecio"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -1241,13 +1247,14 @@
   },
   {
     "id": "dumbbell-raise",
-    "nombre": "Mancuerna Elevación",
+    "nombre": "Elevación de codos ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
     ],
     "musculos_secundarios": [
-      "biceps"
+      "biceps",
+      "trapecio"
     ],
     "equipamiento": "dumbbells",
     "nivel": "intermedio",
@@ -1271,7 +1278,7 @@
   },
   {
     "id": "smith-machine-shoulder-shrugs",
-    "nombre": "Smith Máquina Hombro Encogimientos",
+    "nombre": "Encogimientos de hombros en máquina smith ",
     "grupo": "hombros",
     "musculos_principales": [
       "hombros"
@@ -1299,7 +1306,7 @@
   },
   {
     "id": "incline-bench-press",
-    "nombre": "Inclinado Press de banca",
+    "nombre": " Press de banca inclinado ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1330,7 +1337,7 @@
   },
   {
     "id": "incline-bench-press-with-bands",
-    "nombre": "Inclinado Press de banca con Bandas",
+    "nombre": " Press de banca inclinado con Bandas elásticas",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1360,7 +1367,7 @@
   },
   {
     "id": "bent-arm-pullover",
-    "nombre": "Sudadera cerrada Brazo doblado",
+    "nombre": "Pull over  con barra en banco",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1376,8 +1383,8 @@
     "imagen": "/enciclopedia/imgs/0045-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Acuéstese sobre un banco con la cabeza colgando ligeramente sobre el extremo y los pies apoyados en el suelo.",
-      "Sostenga una barra con agarre firme (aproximadamente 14 pulgadas), mantenga los codos hacia adentro durante todo el ejercicio.",
+      "Acuéstese sobre un banco con la cabeza ligeramente sobre el extremo y los pies apoyados en el suelo.",
+      "Sostenga una barra con agarre cerrado, mantenga los codos hacia adentro durante todo el ejercicio.",
       "Comenzando con los brazos completamente extendidos sobre el pecho, baje lentamente la barra formando un arco sobre su cabeza y hacia el suelo.",
       "Tire de la barra hacia arriba hasta la altura del pecho de manera lenta y controlada y regrese a la posición inicial.",
       "Repetir."
@@ -1392,7 +1399,7 @@
   },
   {
     "id": "dumbbell-bent-arm-pullover",
-    "nombre": "Sudadera Mancuerna Brazo Doblado",
+    "nombre": "Pull over  Mancuerna Brazo Doblado",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1424,7 +1431,7 @@
   },
   {
     "id": "butterfly-machine",
-    "nombre": "Máquina mariposa",
+    "nombre": "Máquina cabina",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1670,7 +1677,7 @@
   },
   {
     "id": "bench-press-dumbbell",
-    "nombre": "Prensa de banca Mancuerna",
+    "nombre": "Press de pecho Mancuerna",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1704,7 +1711,7 @@
   },
   {
     "id": "dumbbell-flys",
-    "nombre": "Mancuerna Aperturass",
+    "nombre": "Aperturas con Mancuerna",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1795,7 +1802,7 @@
   },
   {
     "id": "hammer-grip-incline-bench-press",
-    "nombre": "Martillo Grip Inclinado Prensa de banca",
+    "nombre": "Press de pecho inclinado con mancuernas agarre neurron",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1812,7 +1819,7 @@
     "ejecucion": [
       "Sujete una mancuerna en cada mano y recuéstese en un banco inclinado en un ángulo de 45 grados.",
       "Mantenga los pies apoyados en el suelo y la espalda apoyada en el banco en todo momento.",
-      "Usando un martillo (con las palmas una frente a la otra), levante las pesas hasta la altura de los hombros a cada lado de su pecho.",
+      "Agarre neutro (con las palmas una frente a la otra), levante las pesas hasta la altura de los hombros a cada lado de su pecho.",
       "Extiende los brazos completamente y levanta las mancuernas.",
       "Regrese lentamente las mancuernas a la posición inicial a los lados de su pecho."
     ],
@@ -1826,7 +1833,7 @@
   },
   {
     "id": "incline-cable-flys",
-    "nombre": "Inclinado Cable Aperturas's",
+    "nombre": "Aperturas inclinado con cable",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1857,7 +1864,7 @@
   },
   {
     "id": "dumbbell-incline-bench-press",
-    "nombre": "Mancuerna Inclinado Press de banca",
+    "nombre": "Press de banca inclinado con Mancuernas",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1888,7 +1895,7 @@
   },
   {
     "id": "incline-dumbbell-flys",
-    "nombre": "Inclinado Mancuerna Aperturas",
+    "nombre": "Aperturas inclinado con Mancuerna ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1917,7 +1924,7 @@
   },
   {
     "id": "incline-flys-twist",
-    "nombre": "Inclinado Aperturas con un toque diferente",
+    "nombre": "Aperturas inclinadas con rotación ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1974,7 +1981,7 @@
   },
   {
     "id": "machine-bench-press",
-    "nombre": "Máquina prensa de banca",
+    "nombre": "Press de pecho máquina ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2004,7 +2011,7 @@
   },
   {
     "id": "barbell-neck-press",
-    "nombre": "Prensa Barra Cuello",
+    "nombre": "Press guillotina",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2037,7 +2044,7 @@
   },
   {
     "id": "one-arm-bench-press",
-    "nombre": "One Brazo Prensa de banca",
+    "nombre": "Press de banca unilateral ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2069,7 +2076,7 @@
   },
   {
     "id": "bosu-ball-push-up",
-    "nombre": "Flexiones De Pelota Bosu",
+    "nombre": "Push up sobre  Bosu",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2101,7 +2108,7 @@
   },
   {
     "id": "one-arm-barbell-floor-press",
-    "nombre": "Prensa de piso One Brazo Barra",
+    "nombre": "Press de pecho unilateral con barra ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2131,12 +2138,14 @@
   },
   {
     "id": "one-arm-flat-bench-flys",
-    "nombre": "Un Banco Plano Brazo Aperturas",
+    "nombre": "Press de pecho con mancuernas unilateral",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Core"
+    ],
     "equipamiento": "flat bench",
     "nivel": "intermedio",
     "patron": "aislamiento",
@@ -2158,7 +2167,7 @@
   },
   {
     "id": "one-armed-biased-push-up",
-    "nombre": "Una Flexiones Sesgadas Brazoed",
+    "nombre": "Push up con apoyo en un brazo",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2175,12 +2184,13 @@
     "imagen": "/enciclopedia/imgs/0072-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Arrange the ball so that as you begin the exercise, one hand on the Bosu ball and the other on the floor.",
-      "Place the ball flat side down on the floor.",
-      "Kneel on the floor with your arms fully extended on the dome, and body straight.",
-      "Keeping your abs drawn in and your body straight, lower your chest to the ball.",
-      "Pause for a moment and then return to starting position.",
-      "Repeat."
+      "Posiciones un apoyo (bosu,fitball,step,etc)",
+      "Ubiques como normalmente hace push ups",
+      "Alinee sus brazos y coloque uno sobre el apoyo elegido",
+      "Doble los codos acercando su pecho al suelo",
+      "Empuje para estirar los codos y volver a posición inicial",
+      "Repetir.",
+      "Luego realice cambiando el brazo de apoyo"
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -2192,7 +2202,7 @@
   },
   {
     "id": "push-ups-close-and-wide-hand-versions",
-    "nombre": "Flexiones Versiones de mano cerrada y ancha",
+    "nombre": "Push up alternada cerrada y ancha",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2253,7 +2263,7 @@
   },
   {
     "id": "push-up-feet-elevated-2",
-    "nombre": "Flexibilidad con los pies elevados",
+    "nombre": "Push up con los pies elevados",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2284,7 +2294,7 @@
   },
   {
     "id": "push-ups-with-feet-on-exercise-ball",
-    "nombre": "Flexibilidad con los pies sobre una pelota de ejercicios.",
+    "nombre": "Push up con los pies sobre fitball",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2347,7 +2357,7 @@
   },
   {
     "id": "smith-machine-bench-press",
-    "nombre": "Smith Máquina prensa de banca",
+    "nombre": " prensa de banca máquina smith ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2378,7 +2388,7 @@
   },
   {
     "id": "straight-arm-dumbbell-pullover",
-    "nombre": "Jersey Brazo Mancuerna Recto",
+    "nombre": "Pull over mancuerna ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2410,7 +2420,7 @@
   },
   {
     "id": "incline-dumbbell-press",
-    "nombre": "Prensa Inclinado Mancuerna",
+    "nombre": "Press de pecho  Inclinado Mancuerna",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2441,24 +2451,27 @@
   },
   {
     "id": "smith-machine-incline-bench-press",
-    "nombre": "Smith Máquina Inclinada Press de banca",
+    "nombre": "Press de banca inclinado máquina smith",
     "grupo": "pecho",
     "musculos_principales": [
-      ""
+      "Pecho"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Hombro",
+      "tríceps"
+    ],
     "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "",
     "imagen": "/enciclopedia/imgs/0081-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "This is an exercise for chest, shoulder and triceps strengthening.",
-      "Place an incline bench at a 45 degree angle in the middle of the Smith Machine.",
-      "Align the bench so the bar is across the upper portion of your chest.",
-      "Grasp the bar with a shoulder width grip.",
-      "Unlock the bar and slowly lower the weight to your chest, do not bounce the bar on your chest.",
-      "With slow controlled movements, raise the bar back to the starting position."
+      "Colócate en un banco con 45° de inclinación en medio de la máquina smith",
+      "Alinea la barra pro encima de tu pecho",
+      "Coloca el agarre un poco más ancho que tus hombros",
+      "Libera la barra de los seguros",
+      "Baja la barra hasta tu pecho sin rebotes",
+      "Lentamente empuja hacia arriba volviendo a la posición inicial"
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -2563,7 +2576,7 @@
   },
   {
     "id": "incline-chest-press",
-    "nombre": "Prensa Inclinado Pecho",
+    "nombre": "Press  pecho inclinado  en máquina ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2592,7 +2605,7 @@
   },
   {
     "id": "decline-chest-press",
-    "nombre": "Prensa Declinado Pecho",
+    "nombre": "Press pecho declinado máquina ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -2622,13 +2635,13 @@
   {
     "id": "body-row",
     "nombre": "Remoción corporal",
-    "grupo": "pecho",
+    "grupo": "espalda",
     "musculos_principales": [
-      "pectoral"
+      "Espalda media"
     ],
     "musculos_secundarios": [
       "core",
-      "neck",
+      "cuello",
       "espalda"
     ],
     "equipamiento": "barra",
@@ -2672,9 +2685,7 @@
       "Mientras tiene ambos brazos extendidos frente a usted sosteniendo la barra con el ancho de agarre elegido, lleve el torso hacia atrás unos 30 grados aproximadamente mientras crea una curvatura en la parte baja de la espalda y saca el pecho. Esta es tu posición inicial.",
       "Levante el torso hasta que la barra toque la parte superior del pecho llevando los hombros y la parte superior de los brazos hacia abajo y hacia atrás. Exhala mientras realizas esta parte del movimiento.",
       "Después de un segundo en la posición contraída, comience a inhalar y baje lentamente el torso hasta la posición inicial cuando los brazos estén completamente extendidos y los dorsales completamente estirados.",
-      "Repita este movimiento.",
-      "",
-      "CONSEJO\nConcéntrate en apretar los músculos de la espalda una vez que alcances la posición completamente contraída. La parte superior del torso debe permanecer estacionaria mientras se mueve por el espacio y solo deben moverse los brazos. Los antebrazos no deben realizar ningún otro trabajo más que sujetar la barra."
+      "Repita este movimiento."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -2686,7 +2697,7 @@
   },
   {
     "id": "gironda-sternum-chins",
-    "nombre": "Barbillas De Esternón Gironda",
+    "nombre": "Dominadas  esternón Gironda",
     "grupo": "espalda",
     "musculos_principales": [
       "dorsales"
@@ -2718,14 +2729,13 @@
   },
   {
     "id": "chin-ups",
-    "nombre": "Dominadas",
+    "nombre": "Dominadas agarre supino ",
     "grupo": "espalda",
     "musculos_principales": [
       "dorsales"
     ],
     "musculos_secundarios": [
-      "biceps",
-      "middle back"
+      "biceps"
     ],
     "equipamiento": "body",
     "nivel": "intermedio",
@@ -2749,13 +2759,14 @@
   {
     "id": "narrow-parallel-grip-chin-ups",
     "nombre": "Dominadas con agarre paralelo estrecho",
-    "grupo": "hombros",
+    "grupo": "espalda",
     "musculos_principales": [
-      "shoulders, lats"
+      "Dorsales"
     ],
     "musculos_secundarios": [
-      "espalda",
-      "core"
+      "Hombro",
+      "bíceps",
+      "abdomen"
     ],
     "equipamiento": "barra",
     "nivel": "intermedio",
@@ -2779,7 +2790,7 @@
   },
   {
     "id": "wide-grip-chin-up",
-    "nombre": "Agarre abierto Chin Up",
+    "nombre": "Dominadas laterales",
     "grupo": "espalda",
     "musculos_principales": [
       "espalda"
@@ -2808,7 +2819,7 @@
   },
   {
     "id": "straight-arm-push-down",
-    "nombre": "Empuje De Brazo Recto Hacia Abajo",
+    "nombre": "Pull over ",
     "grupo": "espalda",
     "musculos_principales": [
       "dorsales"
@@ -2837,7 +2848,7 @@
   },
   {
     "id": "underhand-pull-downs",
-    "nombre": "Supinado Jalones",
+    "nombre": "Jalón cerrado con agarre supino ",
     "grupo": "espalda",
     "musculos_principales": [
       "dorsales"
@@ -2866,13 +2877,12 @@
   },
   {
     "id": "upright-band-rows",
-    "nombre": "Remos de banda vertical",
+    "nombre": "Remo mentón ",
     "grupo": "espalda",
     "musculos_principales": [
-      "dorsales"
+      "Trapecios"
     ],
     "musculos_secundarios": [
-      "triceps",
       "hombros"
     ],
     "equipamiento": "body",
@@ -2896,7 +2906,7 @@
   },
   {
     "id": "underhand-pull-down",
-    "nombre": "Supinado Jalar hacia abajo",
+    "nombre": "Jalón cerrado",
     "grupo": "espalda",
     "musculos_principales": [
       "dorsales"
@@ -2910,7 +2920,7 @@
     "imagen": "/enciclopedia/imgs/0095-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Sentado erguido con los abdominales contraídos, agarre una barra de tracción hacia abajo con la mano separada a la altura de los hombros.",
+      "Sentado erguido con los abdominales contraídos, agarre una barra de tracción hacia abajo con la mano separada a la altura de los hombros, con un agarre prono",
       "Tire de la barra hacia abajo hasta que llegue a la parte superior del pecho, manteniendo los codos cerca del cuerpo.",
       "Regrese lentamente la barra a la posición inicial.",
       "Repetir."
@@ -2925,7 +2935,7 @@
   },
   {
     "id": "v-bar-pull-down",
-    "nombre": "Barra en V desplegable",
+    "nombre": "Jalón cerrado con agarre neutro",
     "grupo": "espalda",
     "musculos_principales": [
       "dorsales"
@@ -2956,7 +2966,7 @@
   },
   {
     "id": "wide-grip-lat-pull-down",
-    "nombre": "Agarre abierto Lat Pull Down",
+    "nombre": "Jalón con Agarre abierto Lat Pull Down",
     "grupo": "espalda",
     "musculos_principales": [
       "dorsales"
@@ -2968,7 +2978,7 @@
     "equipamiento": "cable machine",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0097-tension.png",
+    "imagen": "/enciclopedia/imgs/0098-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Siéntese frente a una máquina de tracción por cable equipada con una barra ancha.",
@@ -2983,55 +2993,31 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0097-relaxation.png"
-  },
-  {
-    "id": "pullover-stability-ball-weight",
-    "nombre": "Jersey sobre balón de estabilidad con peso",
-    "grupo": "hombros",
-    "musculos_principales": [
-      "hombros"
-    ],
-    "musculos_secundarios": [
-      "espalda",
-      "neck"
-    ],
-    "equipamiento": "exercise ball",
-    "nivel": "intermedio",
-    "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0098-tension.png",
-    "video_youtube": "",
-    "ejecucion": [
-      "Agarre una barra o mancuerna y siéntese sobre una pelota con los pies firmemente apoyados en el suelo.",
-      "Baje su cuerpo de modo que sus abdominales superiores sean la única parte de su cuerpo apoyada en la pelota.",
-      "Lleva la Barra o Mancuerna a tu pecho con los brazos extendidos.",
-      "Con un movimiento de arco, levante la barra o mancuerna por encima y detrás de la cabeza hacia el suelo.",
-      "Regresar a la posición inicial.",
-      "Repetir."
-    ],
-    "errores_comunes": [],
-    "variantes": [],
-    "tags": [
-      "aislamiento"
-    ],
-    "es_personalizado": false,
     "imagen2": "/enciclopedia/imgs/0098-relaxation.png"
   },
   {
     "id": "smith-machine-dead-lifts",
-    "nombre": "Máquina Smith de levantamiento de muertos",
-    "grupo": "espalda",
+    "nombre": "Peso muerto Máquina Smith",
+    "grupo": "piernas",
     "musculos_principales": [
-      ""
+      "Glúteo"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Femorales",
+      "espalda"
+    ],
     "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "",
     "imagen": "/enciclopedia/imgs/0100-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Párese con los pies separados a la altura de los hombros para que queden debajo de la barra. Manteniendo la espalda recta, doble la cintura y permita que las rodillas se doblen un poco. Sujete el par con un agarre por encima de la cabeza a una distancia de aproximadamente 16 pulgadas. Estire la espalda mientras sostiene la barra con el brazo extendido. Inclínese nuevamente bajando la barra justo por encima del suelo."
+      "Párese con los pies separados a la altura de los hombros para que queden debajo de la barra.Sujete el par con un agarre por encima de la cabeza a una distancia de aproximadamente 16 pulgadas. Estire la espalda mientras sostiene la barra con el brazo extendido.",
+      "Manteniendo la espalda recta, en todo momento",
+      "Flexione la cadera llevándola hacia atrás y su pecho simultáneamente baja hacia las rodillas",
+      "Empuje la cadera hacia adelante para reincorporar la posicion inicial",
+      "Inclínese nuevamente bajando la barra justo por encima del suelo.",
+      "Repetir"
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -3041,10 +3027,10 @@
   },
   {
     "id": "barbell-dead-lifts",
-    "nombre": "Ascensores de Barra Muertos",
-    "grupo": "espalda",
+    "nombre": "Peso muerto ",
+    "grupo": "gluteos",
     "musculos_principales": [
-      "lumbar"
+      "Glúteo"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -3058,8 +3044,8 @@
     "ejecucion": [
       "Párese con los pies separados a la altura de los hombros para que queden debajo de la barra.",
       "Manteniendo la espalda recta, doble la cintura y permita que las rodillas se doblen un poco.",
-      "Sujete el par con un agarre por encima de la cabeza a una distancia de aproximadamente 16 pulgadas.",
-      "Estire la espalda mientras sostiene la barra con el brazo extendido.",
+      "Sujete la barra  con un agarre de su elección",
+      "Empuje la.csdera al frente mientras su espalda está recta para iniciar el ascenso y recuperar la posición inicial",
       "Inclínese nuevamente bajando la barra justo por encima del suelo."
     ],
     "errores_comunes": [],
@@ -3071,45 +3057,15 @@
     "imagen2": "/enciclopedia/imgs/0099-relaxation.png"
   },
   {
-    "id": "smith-machine-dead-lifts",
-    "nombre": "Smith Máquina Peso Muerto",
-    "grupo": "espalda",
+    "id": "barbell-good-mornings",
+    "nombre": "Buenos dias barra",
+    "grupo": "gluteos",
     "musculos_principales": [
-      "lumbar"
+      "Glúteo"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
-      "gemelos"
-    ],
-    "equipamiento": "smith machine",
-    "nivel": "intermedio",
-    "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0100-tension.png",
-    "video_youtube": "",
-    "ejecucion": [
-      "Párese con los pies separados a la altura de los hombros para que queden debajo de la barra.",
-      "Manteniendo la espalda recta, doble la cintura y permita que las rodillas se doblen un poco.",
-      "Sujete el par con un agarre por encima de la cabeza a una distancia de aproximadamente 16 pulgadas.",
-      "Estire la espalda mientras sostiene la barra con el brazo extendido.",
-      "Inclínese nuevamente bajando la barra justo por encima del suelo."
-    ],
-    "errores_comunes": [],
-    "variantes": [],
-    "tags": [
-      "aislamiento"
-    ],
-    "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0100-relaxation.png"
-  },
-  {
-    "id": "barbell-good-mornings",
-    "nombre": "Buenos dias barra",
-    "grupo": "espalda",
-    "musculos_principales": [
       "lumbar"
-    ],
-    "musculos_secundarios": [
-      "isquiotibiales"
     ],
     "equipamiento": "barra",
     "nivel": "intermedio",
@@ -3132,13 +3088,14 @@
   },
   {
     "id": "smith-machine-good-mornings",
-    "nombre": "Smith Máquina Buenos Días",
-    "grupo": "espalda",
+    "nombre": "Buenos Días en máquina smith ",
+    "grupo": "gluteos",
     "musculos_principales": [
-      "lumbar"
+      "Gluteo"
     ],
     "musculos_secundarios": [
-      "isquiotibiales"
+      "isquiotibiales",
+      "lumbares"
     ],
     "equipamiento": "smith machine",
     "nivel": "intermedio",
@@ -3162,7 +3119,7 @@
   {
     "id": "hyperextensions",
     "nombre": "hiperextensiones",
-    "grupo": "espalda",
+    "grupo": "core",
     "musculos_principales": [
       "lumbar"
     ],
@@ -3191,8 +3148,8 @@
   },
   {
     "id": "back-extension-stability-ball",
-    "nombre": "Espalda Extensión sobre Balón de Estabilidad",
-    "grupo": "espalda",
+    "nombre": "Flexiones lumbares en fitball",
+    "grupo": "core",
     "musculos_principales": [
       "lumbar"
     ],
@@ -3222,7 +3179,7 @@
   {
     "id": "supermans",
     "nombre": "Supermanes",
-    "grupo": "espalda",
+    "grupo": "core",
     "musculos_principales": [
       "lumbar"
     ],
@@ -3250,14 +3207,14 @@
   },
   {
     "id": "dumbbell-dead-lifts",
-    "nombre": "Mancuerna Levantamientos Muertos",
-    "grupo": "espalda",
+    "nombre": "Peso muerto Mancuerna",
+    "grupo": "piernas",
     "musculos_principales": [
-      "lumbar"
+      "Femoral"
     ],
     "musculos_secundarios": [
-      "gemelos",
-      "hamstring"
+      "glúteo",
+      "espalda"
     ],
     "equipamiento": "dumbbells",
     "nivel": "intermedio",
@@ -3283,7 +3240,7 @@
   },
   {
     "id": "bridging",
-    "nombre": "puente",
+    "nombre": "puente o hip trust",
     "grupo": "gluteos",
     "musculos_principales": [
       "gluts"
@@ -3310,13 +3267,13 @@
   },
   {
     "id": "body-leg-lifts",
-    "nombre": "Elevaciones de piernas y cuerpo",
+    "nombre": "Flexion de rodilla libre ",
     "grupo": "gluteos",
     "musculos_principales": [
-      "gluts"
+      "Femoral"
     ],
     "musculos_secundarios": [
-      "hamstring"
+      "Glúteo"
     ],
     "equipamiento": "body",
     "nivel": "intermedio",
@@ -3339,13 +3296,13 @@
   },
   {
     "id": "one-legged-cable-kickback",
-    "nombre": "Contragolpe de cable de una pierna",
+    "nombre": "Patada de glúteo con polea ",
     "grupo": "gluteos",
     "musculos_principales": [
-      "gluts"
+      "Gluteo"
     ],
     "musculos_secundarios": [
-      "hamstring"
+      "Femoral"
     ],
     "equipamiento": "cable machine",
     "nivel": "intermedio",
@@ -3395,14 +3352,14 @@
   },
   {
     "id": "barbell-lunges",
-    "nombre": "Barra Zancadas",
+    "nombre": "Zancada barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "hamstring"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
-      "gluts",
-      "cuadriceps",
+      "gluteos",
+      "femorales",
       "gemelos"
     ],
     "equipamiento": "barra",
@@ -3412,8 +3369,8 @@
     "video_youtube": "",
     "ejecucion": [
       "Comience colocando una barra en la parte superior de la espalda, usando un agarre un poco más ancho que los hombros.",
-      "Párese con los pies separados aproximadamente a 8 pulgadas, con los dedos mirando hacia adelante.",
-      "Da un paso hacia adelante (2-3 pies) manteniendo los abdominales contraídos y la parte superior del cuerpo recta.",
+      "Párese con los pies separados aproximadamente a 5 cm, con los dedos mirando hacia adelante.",
+      "Da un paso hacia adelante (3-4 pies) manteniendo los abdominales contraídos y la parte superior del cuerpo recta.",
       "Baje lentamente una rodilla como si estuviera arrodillado mientras mantiene la otra rodilla doblada en un ángulo de 90 grados, no permita que la rodilla toque el suelo.",
       "Baje el cuerpo de modo que la rodilla trasera quede justo por encima del suelo y manténgala así por un momento antes de volver a la posición inicial.",
       "Repita del otro lado."
@@ -3428,14 +3385,14 @@
   },
   {
     "id": "dumbbell-lunges",
-    "nombre": "Mancuerna Zancadas",
+    "nombre": "Zancadas con mancuerna",
     "grupo": "piernas",
     "musculos_principales": [
-      "hamstring"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
-      "gluts",
-      "cuadriceps",
+      "Glúteo",
+      "femoral",
       "gemelos"
     ],
     "equipamiento": "dumbbells",
@@ -3461,7 +3418,7 @@
   },
   {
     "id": "flutter-kicks",
-    "nombre": "Patadas agitadas",
+    "nombre": "Patadas de nadador ",
     "grupo": "piernas",
     "musculos_principales": [
       "isquiotibiales"
@@ -3491,10 +3448,10 @@
   },
   {
     "id": "lying-leg-curl-machine",
-    "nombre": "Acostado Curl de pierna Máquina",
+    "nombre": "Curl femoral acostado ",
     "grupo": "piernas",
     "musculos_principales": [
-      "hamstring"
+      "Femoral"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -3551,7 +3508,7 @@
   },
   {
     "id": "seated-leg-curl",
-    "nombre": "Sentado Curl de pierna",
+    "nombre": "Curl femoral sentado ",
     "grupo": "piernas",
     "musculos_principales": [
       "isquiotibiales"
@@ -3578,7 +3535,7 @@
   },
   {
     "id": "standing-leg-curls",
-    "nombre": "De pie Curl de piernas",
+    "nombre": "Curl femoral unilateral",
     "grupo": "piernas",
     "musculos_principales": [
       "isquiotibiales"
@@ -3593,7 +3550,7 @@
       "De pie frente a una máquina de curl de piernas, ajuste la almohadilla trasera para que quede justo por encima del tobillo.",
       "Sujete las manijas de la máquina como apoyo y contraiga los abdominales.",
       "Levante lentamente el pie hacia la espalda.",
-      "Regrese a la posición inicial y arriesgue las piernas."
+      "Regrese a la posición inicial y cambie la pierna."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -3605,7 +3562,7 @@
   },
   {
     "id": "walking-lunges",
-    "nombre": "Zancadas a pie",
+    "nombre": "Zancadas con mancuerna ",
     "grupo": "piernas",
     "musculos_principales": [
       "isquiotibiales"
@@ -3638,12 +3595,13 @@
   },
   {
     "id": "barbell-squat",
-    "nombre": "Barra Sentadilla",
+    "nombre": "Sentadilla con barra ",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
     ],
     "musculos_secundarios": [
+      "Glúteo",
       "isquiotibiales"
     ],
     "equipamiento": "barra",
@@ -3652,12 +3610,12 @@
     "imagen": "/enciclopedia/imgs/0122-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Este es un ejercicio para fortalecer las piernas, principalmente los cuádriceps.",
-      "Levantando una barra de un estante de pesas, colóquela sobre sus hombros.",
-      "Coloque los pies ligeramente más anchos que el ancho de los hombros con las rodillas y los dedos de los pies apuntando ligeramente hacia afuera.",
-      "Lleva tus abdominales hacia abajo lentamente doblando las rodillas y las caderas como si estuvieras sentado (en cuclillas).",
-      "Bájate lo más que puedas controlar sin dejar que tu cuerpo se desplace hacia los dedos de los pies (esto hará que pierdas el equilibrio).",
-      "Haga una pausa en la posición hacia abajo y regrese lentamente a la posición inicial."
+      "Coloque la barra entre sus hombros y trapecios",
+      "Retire la barra del soporte y ubiques con una separación de pies al ancho de sus hombros",
+      "Mientras mantiene el peso de su cuerpo en los talones inicie una flexion de cadera y de rodilla simultaneas",
+      "Bajar hasta donde tú anatomía y capacidad te permite",
+      "Luego empujar el suelo para subir a la poción inicial",
+      "Repetir"
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -3669,7 +3627,7 @@
   },
   {
     "id": "hack-squat-machine",
-    "nombre": "Hack Sentadilla Máquina",
+    "nombre": "Sentadilla en hack máquina ",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -3736,7 +3694,7 @@
   },
   {
     "id": "hack-squat-with-barbell",
-    "nombre": "Hackear Sentadilla con barra",
+    "nombre": "Sentadilla hack con barra ",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -3900,7 +3858,7 @@
   },
   {
     "id": "squats-using-dumbbells",
-    "nombre": "Sentadillas usando Mancuernas",
+    "nombre": "Sentadilla con Mancuernas",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -3963,7 +3921,7 @@
   },
   {
     "id": "single-leg-squat-with-barbell",
-    "nombre": "Un brazo Pierna Sentadilla con Barra",
+    "nombre": "Sentadilla unilateral  con Barra",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -3995,7 +3953,7 @@
   },
   {
     "id": "squat-to-bench-with-barbell",
-    "nombre": "Sentadilla al Banco con Barra",
+    "nombre": "Sentadilla con barra al banco",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4030,7 +3988,7 @@
   },
   {
     "id": "step-ups-with-barbell",
-    "nombre": "Mejora con Barra",
+    "nombre": "Step ascenso con barra ",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4062,14 +4020,12 @@
   },
   {
     "id": "hip-adduction",
-    "nombre": "Aducción de cámara",
-    "grupo": "piernas",
+    "nombre": "Aducción de cadera en polea",
+    "grupo": "gluteos",
     "musculos_principales": [
-      "cuadriceps"
+      "Adductores"
     ],
-    "musculos_secundarios": [
-      "hip abductors"
-    ],
+    "musculos_secundarios": [],
     "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
@@ -4078,7 +4034,7 @@
     "ejecucion": [
       "Párese junto a una pila de poleas de cable y coloque un brazalete en la polea y en el tobillo.",
       "Aléjese de la pila y sostenga la pila como apoyo.",
-      "Párese firme sobre el pie que no está sujeto al cable y abduzca o tire lentamente del tobillo esposado frente a la pierna estabilizadora.",
+      "Párese firme sobre el pie que no está sujeto al cable y adduzca o tire lentamente del tobillo esposado frente a la pierna estabilizadora.",
       "Repita y cambie de tobillo."
     ],
     "errores_comunes": [],
@@ -4126,10 +4082,11 @@
   },
   {
     "id": "step-ups-with-dumbbells",
-    "nombre": "Pasos adelante con Mancuernas",
+    "nombre": "Step ascenso con mancuerna",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "cuadriceps",
+      "glúteo"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -4190,7 +4147,7 @@
   },
   {
     "id": "front-squat-to-bench-with-barbells",
-    "nombre": "Sentadilla Frontal a Bancada con Barras",
+    "nombre": "Sentadilla Frontal  Banca con Barra",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4206,13 +4163,9 @@
     "video_youtube": "",
     "ejecucion": [
       "La sentadilla frontal trabaja los mismos músculos que la sentadilla trasera sin colocar el peso de la barra sobre los hombros. Este ejercicio puede ser un buen sustituto para personas con lesiones de espalda y cuello. Al usar un banco, recuerdas hasta dónde debes agacharte.",
-      "Pasos",
-      "Coloca un banco detrás de ti.",
-      "Coloque la barra en la parte superior de su pecho, apoyándola sobre sus deltoides frontales y sosteniéndola con los brazos cruzados de forma segura.",
-      "Mantenga la cabeza y la espalda rectas, los abdominales contraídos y los dedos de los pies apuntando ligeramente hacia afuera.",
-      "\"Agáchese\" lentamente para que la parte superior de los muslos quede paralela al suelo.",
-      "Regrese lentamente a la posición inicial.",
-      "Nota: Practique la sentadilla sin peso para sentirse cómodo con los movimientos. No te sientes en el banco durante el ejercicio."
+      "Tomas la barra con la parte superior de tus hombros y pecho y la retiras del soporte",
+      "Manteniendo la espalda recta y el pecho alto haces una sentadilla",
+      "Al subir controlas el movimento para no cargar la lumbar"
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -4230,7 +4183,7 @@
       "cuadriceps"
     ],
     "musculos_secundarios": [
-      "trapezius",
+      "trapecio",
       "gluteos",
       "hombros",
       "lumbar",
@@ -4256,10 +4209,10 @@
   },
   {
     "id": "jefferson-squats-with-barbell",
-    "nombre": "Jefferson Sentadillas con Barra",
+    "nombre": "Sentadilla Jefferson con Barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "isquiotibiales"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -4284,7 +4237,7 @@
   },
   {
     "id": "leg-extensions",
-    "nombre": "Extensiones de piernas",
+    "nombre": "Extension de rodilla ",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4344,7 +4297,7 @@
   },
   {
     "id": "lying-squat",
-    "nombre": "Acostado Sentadilla",
+    "nombre": "Sentadilla acostado en maquina",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4425,7 +4378,7 @@
     "ejecucion": [
       "Un gran ejercicio general para la parte inferior del cuerpo. Esta versión de Squat apunta y define más músculos externos de las piernas.",
       "Levantando una barra de un estante de pesas, colóquela sobre sus hombros.",
-      "Coloque los pies a unas 6 pulgadas de distancia con las rodillas y los dedos de los pies apuntando ligeramente hacia afuera.",
+      "Coloque los pies a unas 2cm de distancia con las rodillas y los dedos de los pies apuntando ligeramente hacia afuera.",
       "Contrayendo los abdominales, descienda lentamente doblando las rodillas y las caderas como si estuviera sentado (en cuclillas).",
       "Bájate lo más que puedas controlar sin dejar que tu cuerpo se desplace hacia los dedos de los pies (esto hará que pierdas el equilibrio).",
       "Haga una pausa en la posición hacia abajo y regrese lentamente a la posición inicial.",
@@ -4441,7 +4394,7 @@
   },
   {
     "id": "one-leg-squat-with-barbell",
-    "nombre": "Sentadilla de una pierna con barra",
+    "nombre": "Sentadilla búlgara con barra ",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4458,7 +4411,7 @@
     "video_youtube": "",
     "ejecucion": [
       "La One Leg Squat aísla los músculos de la pierna para un ejercicio óptimo. Este ejercicio también se utiliza para desarrollar o reconstruir la fuerza después de una lesión.",
-      "Coloque un banco o una caja de 12 a 18 pulgadas de alto detrás de usted. Cuanto más alta sea la caja mayor será la dificultad del ejercicio.",
+      "Coloque un banco o una caja de 30 cm a 50 de alto detrás de usted. Cuanto más alta sea la caja mayor será la dificultad del ejercicio.",
       "Levantando una barra de un estante de pesas, colóquela sobre sus hombros.",
       "Coloque un pie sobre el banco y el otro pie firmemente en el suelo, entre 2 y 3 pies delante de usted.",
       "Lleva tus abdominales hacia abajo lentamente doblando la rodilla delantera y la cadera como si estuvieras sentado (en cuclillas).",
@@ -4477,7 +4430,7 @@
   },
   {
     "id": "one-arm-snatch-with-barbell",
-    "nombre": "Un arranque de brazo con barra",
+    "nombre": "Un arranque unilateral con barra",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4511,42 +4464,8 @@
     "imagen2": "/enciclopedia/imgs/0148-relaxation.png"
   },
   {
-    "id": "one-arm-side-deadlift-with-barbell",
-    "nombre": "One Brazo Side Peso muerto with Barra",
-    "grupo": "piernas",
-    "musculos_principales": [
-      "cuadriceps"
-    ],
-    "musculos_secundarios": [
-      "abdominals",
-      "gluteos",
-      "gemelos",
-      "isquiotibiales"
-    ],
-    "equipamiento": "barra",
-    "nivel": "intermedio",
-    "patron": "compuesto",
-    "imagen": "/enciclopedia/imgs/0150-tension.png",
-    "video_youtube": "",
-    "ejecucion": [
-      "This is an advanced exercise that works most of the muscles of the body. Exercises like this are used to develop functional strength for sports that require strong hands.",
-      "Stand besides a barbell placed on the floor.",
-      "Grasp the bar with an overhand grip in the center.",
-      "Crouching down as if your were performing a squat, bend down so your thighs are parallel with the floor.",
-      "Extend your legs slowly as you straighten your body up, drawing in your abs as you rise.",
-      "Note: Perform this exercise with an empty bar to become familiar with the movement before adding weights."
-    ],
-    "errores_comunes": [],
-    "variantes": [],
-    "tags": [
-      "compuesto"
-    ],
-    "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0150-relaxation.png"
-  },
-  {
     "id": "overhead-squat-with-barbell",
-    "nombre": "Por encima Sentadilla con Barra",
+    "nombre": "Sentadilla overhead",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4580,12 +4499,13 @@
   },
   {
     "id": "pile-squat-with-dumbbell",
-    "nombre": "Montón Sentadilla con Mancuerna",
-    "grupo": "piernas",
+    "nombre": "Sentadilla sumo con mancuerna",
+    "grupo": "gluteos",
     "musculos_principales": [
-      "cuadriceps"
+      "Glúteo"
     ],
     "musculos_secundarios": [
+      "Cuádriceps",
       "isquiotibiales",
       "gemelos"
     ],
@@ -4595,7 +4515,7 @@
     "imagen": "/enciclopedia/imgs/0152-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Párese con los pies entre 2 y 4 pulgadas más anchos que los hombros, con los dedos de los pies apuntando en un ángulo de 45 grados.",
+      "Párese con los pies más anchos que los hombros, con los dedos de los pies apuntando en un ángulo de 45 grados.",
       "Sujeta una mancuerna con ambas manos en el centro de tu cuerpo.",
       "Mantenga las rodillas ligeramente flexionadas y la espalda recta.",
       "Agáchate como si fueras a sentarte en una silla, llevando los muslos paralelos al suelo.",
@@ -4645,7 +4565,7 @@
   },
   {
     "id": "squats-with-exercise-bands",
-    "nombre": "Sentadillas con Bandas de Ejercicio",
+    "nombre": "Sentadillas con Bandas ",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4677,14 +4597,12 @@
   },
   {
     "id": "thigh-abductor",
-    "nombre": "Abdomenductor del muslo",
-    "grupo": "piernas",
+    "nombre": "Abductor del muslo",
+    "grupo": "gluteos",
     "musculos_principales": [
-      "cuadriceps"
+      "Glúteo"
     ],
-    "musculos_secundarios": [
-      "isquiotibiales"
-    ],
+    "musculos_secundarios": [],
     "equipamiento": "maquina",
     "nivel": "intermedio",
     "patron": "aislamiento",
@@ -4707,13 +4625,11 @@
   {
     "id": "thigh-adductor",
     "nombre": "Aductor del muslo",
-    "grupo": "piernas",
+    "grupo": "gluteos",
     "musculos_principales": [
-      "cuadriceps"
+      "Aductores"
     ],
-    "musculos_secundarios": [
-      "isquiotibiales"
-    ],
+    "musculos_secundarios": [],
     "equipamiento": "maquina",
     "nivel": "intermedio",
     "patron": "aislamiento",
@@ -4766,11 +4682,11 @@
     "nombre": "Sentadilla de postura amplia con barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Gluteo"
     ],
     "musculos_secundarios": [
       "gemelos",
-      "isquiotibiales"
+      "pierna"
     ],
     "equipamiento": "barra",
     "nivel": "intermedio",
@@ -4779,7 +4695,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Levantando una barra de un estante de pesas, colóquela sobre sus hombros.",
-      "Párese con los pies más separados que el ancho de los hombros (aproximadamente 30 pulgadas de distancia) con los dedos de los pies apuntando hacia afuera.",
+      "Párese con los pies más separados que el ancho de los hombros (aproximadamente el doble ) con los dedos de los pies apuntando hacia afuera.",
       "Lleva tus abdominales hacia abajo lentamente doblando las rodillas y las caderas como si estuvieras sentado (en cuclillas).",
       "Bájate lo más que puedas controlar sin dejar que tu cuerpo se desplace hacia los dedos de los pies (esto hará que pierdas el equilibrio).",
       "Haga una pausa en la posición hacia abajo y regrese lentamente a la posición inicial.",
@@ -4795,7 +4711,7 @@
   },
   {
     "id": "zecher-squats",
-    "nombre": "Zecher Sentadillas",
+    "nombre": "Sentadillas zecher",
     "grupo": "piernas",
     "musculos_principales": [
       "cuadriceps"
@@ -4979,7 +4895,7 @@
   },
   {
     "id": "standing-triceps-extension",
-    "nombre": "De pie Tríceps Extensión",
+    "nombre": "Extensión de codo de pie con polea ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -6142,20 +6058,22 @@
   },
   {
     "id": "weighted-ball-side-bend",
-    "nombre": "Curva lateral de bola ponderada",
+    "nombre": "Curva lateral sobre fitball",
     "grupo": "core",
     "musculos_principales": [
-      "obliques"
+      "Oblicuos"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Core"
+    ],
     "equipamiento": "weight",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0208-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Este ejercicio utiliza una pelota de estabilidad en lugar de un banco. El Stability Ball se adapta mejor a su cuerpo y permite un rango anatómico de movimiento correcto.",
-      "Acuéstese sobre un lado de su torso y con su cintura y cadera contra una pelota de estabilidad, coloque sus pies en el piso (o contra una pared) como apoyo.",
+      "Este ejercicio utiliza una pelota de estabilidad en lugar de un banco. El fitball se adapta mejor a su cuerpo y permite un rango anatómico de movimiento correcto.",
+      "Acuéstese sobre un lado de su torso y con su cintura y cadera contra una fitball,coloque sus pies en el piso (o contra una pared) como apoyo.",
       "Con una mano, sostenga un peso contra el costado de su cabeza.",
       "Coloque su mano libre sobre su pecho para estabilizarse.",
       "Levante el torso del balón flexionando la cintura.",
@@ -8063,8 +7981,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Párese sobre un pie cerca de una silla o pared como apoyo.",
-      "Levanta el pie del suelo y dibuja círculos en el aire en el sentido de las agujas del reloj con los dedos.",
-      "Invierta la dirección (en el sentido contrario a las agujas del reloj) y cambie los pies."
+      "Levanta el pie del suelo y dibuja círculos en el aire en el sentido de las agujas del reloj con los dedos."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -8105,7 +8022,7 @@
   },
   {
     "id": "seated-calf-raise-with-barbell",
-    "nombre": "Sentado Elevación de Pantorrilla con Barra",
+    "nombre": "Pantorrilla sentado con Barra",
     "grupo": "piernas",
     "musculos_principales": [
       "gemelos"
@@ -8131,7 +8048,7 @@
   },
   {
     "id": "calves-press-on-leg-machine",
-    "nombre": "Prensa de pantorrillas en la pierna Máquina",
+    "nombre": "Pantorrillas en prensa ",
     "grupo": "piernas",
     "musculos_principales": [
       "gemelos"
@@ -8244,36 +8161,8 @@
     "imagen2": "/enciclopedia/imgs/0276-relaxation.png"
   },
   {
-    "id": "knee-circles",
-    "nombre": "Círculos de rodilla",
-    "grupo": "piernas",
-    "musculos_principales": [
-      "gemelos"
-    ],
-    "musculos_secundarios": [
-      "isquiotibiales"
-    ],
-    "equipamiento": "body",
-    "nivel": "intermedio",
-    "patron": "compuesto",
-    "imagen": "/enciclopedia/imgs/0277-tension.png",
-    "video_youtube": "",
-    "ejecucion": [
-      "Párese con los pies un poco más separados que el ancho de los hombros.",
-      "Manteniendo los brazos sobre el pecho o sobre las caderas, mueva las rodillas con un movimiento circular, prestando atención a mantener los pies apoyados en el suelo y el movimiento de los tobillos.",
-      "Nota: No realice este ejercicio si tiene los tobillos torcidos o inestables."
-    ],
-    "errores_comunes": [],
-    "variantes": [],
-    "tags": [
-      "compuesto"
-    ],
-    "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0277-relaxation.png"
-  },
-  {
     "id": "rocking-standing-calf-raise-with-barbell",
-    "nombre": "Rocking De pie Calf Elevación con Barra",
+    "nombre": "Pantorrilla y tibial  con barra ",
     "grupo": "piernas",
     "musculos_principales": [
       "gemelos"
@@ -8301,7 +8190,7 @@
   },
   {
     "id": "seated-calf-raise-using-machine",
-    "nombre": "Sentado Elevación de Pantorrillas usando Máquina",
+    "nombre": "Pantorrilla sentado Máquina",
     "grupo": "piernas",
     "musculos_principales": [
       "gemelos"
@@ -8358,7 +8247,7 @@
   },
   {
     "id": "standing-barbell-calf-raise",
-    "nombre": "De pie Barra Calf Elevación",
+    "nombre": "Pantorrilla de pie con barra ",
     "grupo": "piernas",
     "musculos_principales": [
       "gemelos"
@@ -8385,7 +8274,7 @@
   },
   {
     "id": "standing-calf-raises-using-machine",
-    "nombre": "De pie Calf Elevaciones usando Máquina",
+    "nombre": "Pantorrilla de pie Máquina",
     "grupo": "piernas",
     "musculos_principales": [
       "gemelos"
@@ -8412,7 +8301,7 @@
   },
   {
     "id": "standing-calf-raise-with-dumbbell",
-    "nombre": "De pie Elevación de Ternera con Mancuerna",
+    "nombre": "Pantorrilla de pie en escalón ",
     "grupo": "piernas",
     "musculos_principales": [
       "gemelos"
@@ -8443,9 +8332,11 @@
     "nombre": "bicicleta de aire",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "Oblicuos"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Abdominales"
+    ],
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "compuesto",
@@ -8459,7 +8350,7 @@
       "Levante el codo del brazo izquierdo para que se encuentre con la rodilla derecha, como si estuviera andando en bicicleta.",
       "Repita con el codo derecho y la rodilla izquierda.",
       "Continuar alternando lados.",
-      "Nota: Mueva los brazos sobre el pecho y apriete los abdominales mientras se mueve."
+      "Nota: Mueva los brazos sobre el pecho y apriete los abdominales mientras se mueve,\nEl brazo contrario debe tocar el suelo"
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -8471,10 +8362,10 @@
   },
   {
     "id": "ab-rollout-with-barbell",
-    "nombre": "Despliegue del abdomen con barra",
+    "nombre": "Abd roller con barra",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [
       "lumbar",
@@ -8503,10 +8394,10 @@
   },
   {
     "id": "ab-rollout-on-knees-with-barbell",
-    "nombre": "Despliegue del abdomen de rodillas con barra",
+    "nombre": "Abd roller con barra de rodillas ",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [
       "lumbar",
@@ -8535,10 +8426,10 @@
   },
   {
     "id": "bent-knee-hip-raise",
-    "nombre": "Elevación de Cadera con Rodilla Doblada",
+    "nombre": "Crunch invertido",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "body",
@@ -8562,10 +8453,10 @@
   },
   {
     "id": "seated-ab-crunch-with-cable",
-    "nombre": "Sentado Abdomen Crunch con Cable",
+    "nombre": "Abdominales en polea",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -8591,12 +8482,14 @@
   },
   {
     "id": "cross-body-crunch",
-    "nombre": "Crujido cruzado",
+    "nombre": "Oblicuo cruzado unilateral ",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "Oblicuos"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Core"
+    ],
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "compuesto",
@@ -8607,7 +8500,7 @@
       "Coloque sus manos a cada lado de su cabeza (sobre sus orejas).",
       "Enróllate levantando el codo derecho y la rodilla izquierda para que toquen tu pecho.",
       "Regresa a la posición inicial y repite alternando brazos y piernas.",
-      "Nota: Contraiga sus abdominales mientras gira durante este ejercicio."
+      "Nota: Contraiga sus abdominales mientras gira durante este ejercicio, el brazo contrario debe tocar el suelo."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -8619,10 +8512,10 @@
   },
   {
     "id": "crunches-with-legs-on-stability-ball",
-    "nombre": "Abdominales con las piernas sobre una pelota de estabilidad",
+    "nombre": "Abdominales con las piernas sobre un fitball",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "stability ball",
@@ -8650,7 +8543,7 @@
     "nombre": "abdominales",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "body",
@@ -8662,7 +8555,7 @@
       "Este es el ejercicio abdominal más común y posiblemente el que con mayor frecuencia se realiza incorrectamente. Aquí se explica cómo realizarlo correctamente.",
       "Acuéstese boca arriba con los pies apoyados en un banco y las rodillas dobladas en un ángulo de 90 grados.",
       "Coloque las manos sobre el pecho o a ambos lados de la cabeza (sobre las orejas).",
-      "Levanta la cabeza, los hombros y el pecho del suelo hacia las rodillas, haciendo crujir los abdominales.",
+      "Levanta la cabeza, los hombros y el pecho del suelo hacia las rodillas.",
       "Mantén la posición por un momento y luego baja a la posición inicial.",
       "Nota: Mantenga las caderas rectas y la espalda baja contra el suelo durante este ejercicio."
     ],
@@ -8676,10 +8569,10 @@
   },
   {
     "id": "decline-crunch",
-    "nombre": "Crujido Declinado",
+    "nombre": "Crunch Declinado",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "body",
@@ -8708,16 +8601,18 @@
     "nombre": "Crunch oblicuo declinado",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "Oblicuo"
     ],
-    "musculos_secundarios": [],
+    "musculos_secundarios": [
+      "Core"
+    ],
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0293-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Esta versión de un crujido en declive aísla los músculos oblicuos (laterales) de los abdominales.",
+      "Esta versión de un crunch en declinado aísla los músculos oblicuos (laterales) de los abdominales.",
       "Acuéstese en un banco inclinado boca arriba.",
       "Coloque sus pies de forma segura debajo de las almohadillas.",
       "Coloque sus manos sobre su pecho o a cada lado de su cabeza (sobre sus orejas).",
@@ -8738,7 +8633,7 @@
     "nombre": "Curva lateral con Mancuerna",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -8763,10 +8658,10 @@
   },
   {
     "id": "stability-ball-abdominal-crunch",
-    "nombre": "Crunch abdominal con pelota de estabilidad",
+    "nombre": "Crunch abdominal con fitball",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "body",
@@ -8793,10 +8688,10 @@
   },
   {
     "id": "exercise-ball-pull-in",
-    "nombre": "Pelota de ejercicio para tirar hacia adentro",
+    "nombre": "Flexion de piernas en fitball",
     "grupo": "core",
     "musculos_principales": [
-      "abdominals"
+      "abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "body",
@@ -8821,10 +8716,10 @@
   },
   {
     "id": "bent-over-row-with-barbell",
-    "nombre": "Inclinado sobre Remo con Barra",
+    "nombre": "Remo con Barra",
     "grupo": "espalda",
     "musculos_principales": [
-      "middle back"
+      "Espalda media"
     ],
     "musculos_secundarios": [
       "biceps"
