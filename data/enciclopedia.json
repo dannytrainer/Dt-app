@@ -4836,7 +4836,7 @@
   },
   {
     "id": "lying-triceps-extension-with-cable",
-    "nombre": "Acostado Extensión De Tríceps Con Cable",
+    "nombre": "Press francés en polea ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5234,7 +5234,7 @@
   },
   {
     "id": "lying-close-grip-triceps-extension-behind-the-head-with-barbell",
-    "nombre": "Acostado Close-Grip Extensión De Tríceps Detrás De La Cabeza Con Barra",
+    "nombre": "Press francés La Cabeza Con Barra",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5262,7 +5262,7 @@
   },
   {
     "id": "lying-close-grip-triceps-press-to-chin-with-barbell",
-    "nombre": "Acostado Agarre cerrado Press de tríceps hasta el mentón con barra",
+    "nombre": "Press francés  con barra ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5275,7 +5275,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Acuéstese en un banco plano boca arriba, con la cabeza en un extremo.",
-      "Sujete una barra con fuerza, aproximadamente a 6 pulgadas de distancia.",
+      "Sujete una barra con fuerza, aproximadamente a 5 cm de distancia.",
       "Levante la barra hacia arriba sobre sus hombros, manteniendo los codos cerca.",
       "Baja lentamente la barra formando un arco hacia tu barbilla.",
       "Regresa la barra a la posición inicial."
@@ -5290,7 +5290,7 @@
   },
   {
     "id": "lying-triceps-extension-with-dumbbells",
-    "nombre": "Acostado Extensión De Tríceps Con Mancuernas",
+    "nombre": " Extensión De Tríceps Con Mancuernas acosado ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5318,7 +5318,7 @@
   },
   {
     "id": "lying-triceps-extension-across-face-with-dumbbell",
-    "nombre": "Acostado Extensión Del Tríceps En La Cara Con Mancuerna",
+    "nombre": "Extensión Del Tríceps a La Cara Con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5348,7 +5348,7 @@
   },
   {
     "id": "lying-triceps-press-with-barbell",
-    "nombre": "Acostado Press de Tríceps con Barra",
+    "nombre": "Press francés con barra ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5379,7 +5379,7 @@
   },
   {
     "id": "lying-two-arm-triceps-extension-with-dumbbell",
-    "nombre": "Acostado Two Brazo Tríceps Extensión con Mancuerna",
+    "nombre": "Press francés mancuerna ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5491,7 +5491,7 @@
   },
   {
     "id": "close-triceps-pushup",
-    "nombre": "Cerrar flexión de tríceps",
+    "nombre": "Push ups cerradas",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5940,7 +5940,7 @@
   },
   {
     "id": "triceps-kickback-with-dumbbell",
-    "nombre": "Contragolpe de tríceps con Mancuerna",
+    "nombre": "Patada de tríceps unilateral ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -6208,13 +6208,13 @@
   },
   {
     "id": "alternating-hammer-curl-with-dumbbell",
-    "nombre": "Alternado Martillo Curl con Mancuerna",
+    "nombre": "Curl martillo alternado  con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -6240,7 +6240,7 @@
   },
   {
     "id": "alternating-incline-curl-with-dumbbell",
-    "nombre": "Curl Alternado Inclinado con Mancuerna",
+    "nombre": "Curl de bíceps  Alternado Inclinado mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6268,7 +6268,7 @@
   },
   {
     "id": "lying-incline-curl-with-barbell",
-    "nombre": "Acostado Inclinado Curl con Barra",
+    "nombre": "Curl araña  con Barra banco inclinado ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6355,13 +6355,13 @@
   },
   {
     "id": "close-grip-ez-bar-curl-with-barbell",
-    "nombre": "Agarre cerrado EZ Bar Curl con Barra",
+    "nombre": "Curl de bíceps con barra z agarre cerrado ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "barra",
     "nivel": "intermedio",
@@ -6370,7 +6370,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Párese con los pies separados a la altura de los hombros, las rodillas ligeramente dobladas y los abdominales contraídos.",
-      "Sujete una barra EZ con un agarre cerrado (4 pulgadas) en la parte más interna de la barra.",
+      "Sujete una barra EZ con un agarre cerrado en la parte más interna de la barra.",
       "Extiende tus brazos completamente contra tus muslos.",
       "Manteniendo los codos rectos, eleva la barra hacia el pecho.",
       "Haga una pausa por un momento y luego regrese a la posición inicial.",
@@ -6386,13 +6386,13 @@
   },
   {
     "id": "close-grip-standing-biceps-curls-with-barbell",
-    "nombre": "Agarre cerrado De pie Bícepss Curls con Barra",
+    "nombre": "Curls de bíceps con Barra garre cerrado ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "barra",
     "nivel": "intermedio",
@@ -6417,13 +6417,13 @@
   },
   {
     "id": "concentration-curls-with-dumbbell",
-    "nombre": "Concentrado Rizos con Mancuerna",
+    "nombre": "Curl de bíceps concentrado",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -6448,13 +6448,13 @@
   },
   {
     "id": "cross-body-hammer-curl-with-dumbbell",
-    "nombre": "Curl Martillo Cross Body con Mancuerna",
+    "nombre": "Curl Martillo Crusado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -6477,13 +6477,13 @@
   },
   {
     "id": "drag-curl-with-barbell",
-    "nombre": "Arrastrar Curl con Barra",
+    "nombre": "Drag curl ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "barra",
     "nivel": "intermedio",
@@ -6601,13 +6601,13 @@
   },
   {
     "id": "ez-bar-curl-with-barbell",
-    "nombre": "Curl con barra EZ con barra",
+    "nombre": "Curl de bíceps con barra z",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "barra",
     "nivel": "intermedio",
@@ -6749,7 +6749,7 @@
   },
   {
     "id": "incline-inner-biceps-curl-with-dumbbell-2",
-    "nombre": "Curl de Bíceps Interior Inclinado con Mancuerna",
+    "nombre": "Curl de Bíceps con rotación Inclinado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6779,13 +6779,13 @@
   },
   {
     "id": "lying-bicep-cable-curl",
-    "nombre": "Curl de cable de bíceps acostado",
+    "nombre": "Curl de bíceps acostado con polea ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "cable",
     "nivel": "intermedio",
@@ -6809,7 +6809,7 @@
   },
   {
     "id": "lying-close-grip-biceps-curls-with-cable",
-    "nombre": "Acostado Agarre cerrado Curls de Bíceps con Cable",
+    "nombre": " Curls de Bíceps acostado polea ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6837,7 +6837,7 @@
   },
   {
     "id": "lying-high-bench-biceps-curl-with-barbell",
-    "nombre": "Acostado Curl de Bíceps en Banco Alto con Barra",
+    "nombre": "Curl araña en banco plano ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6851,7 +6851,7 @@
     "ejecucion": [
       "Con este ejercicio te acuestas boca abajo para aislar tus bíceps.",
       "Recuéstate boca abajo en un banco alto con la cabeza en un extremo y los dedos de los pies presionados contra el suelo para sostenerte.",
-      "Sujete una barra con las palmas hacia arriba, a unas 12 pulgadas de distancia.",
+      "Sujete una barra con las palmas hacia arriba, a unas 40 cm de distancia.",
       "Extendiendo los brazos hacia el suelo, doble los brazos hacia la cabeza formando un ligero arco, de modo que los bíceps toquen el antebrazo.",
       "Regrese lentamente a la posición inicial."
     ],
@@ -6865,7 +6865,7 @@
   },
   {
     "id": "lying-supine-biceps-curl-with-dumbbell",
-    "nombre": "Curl de Bíceps Acostado Supino con Mancuerna",
+    "nombre": "Curl de Bíceps  con mancuerna Acostado",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7046,13 +7046,13 @@
   },
   {
     "id": "reverse-plate-curls-with-weight",
-    "nombre": "Curl con placa invertida con peso",
+    "nombre": "Curl de bíceps  prono con disco",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "weight plate",
     "nivel": "intermedio",
@@ -7135,7 +7135,7 @@
   },
   {
     "id": "seated-inner-biceps-curl-with-dumbbell",
-    "nombre": "Curl de Bíceps Interior Sentado con Mancuerna",
+    "nombre": "Curl de Bíceps mancuerna con rotación ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7322,13 +7322,13 @@
   },
   {
     "id": "wide-grip-standing-biceps-curl-with-barbell",
-    "nombre": "Agarre abierto De pie Bícepss Curl con Barra",
+    "nombre": " Curl de bíceps con Barra agarre amplio ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "barra",
     "nivel": "intermedio",
@@ -7420,7 +7420,7 @@
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "peso corporal",
     "nivel": "intermedio",
@@ -7474,7 +7474,7 @@
   },
   {
     "id": "biceps-curl-seated-on-stability-ball-with-dumbbell",
-    "nombre": "Curl de Bíceps Sentado sobre Pelota de Estabilidad con Mancuerna",
+    "nombre": "Curl de Bíceps Sentado sobre fitballcon Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7596,7 +7596,7 @@
   },
   {
     "id": "biceps-curl-with-deadlift-with-barbell",
-    "nombre": "Curl de Bíceps con Peso muerto con Barra",
+    "nombre": "Curl de Bíceps con Peso muerto ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7613,7 +7613,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Este es un ejercicio avanzado. Este ejercicio combina una flexión de bíceps con un peso muerto.",
-      "Sujete un EZ Curl o una barra con las palmas hacia arriba.",
+      "Sujete un z Curl o una barra con las palmas hacia arriba.",
       "De pie, con los pies separados a la altura de los hombros y las rodillas ligeramente dobladas, contraiga los abdominales.",
       "Extiende los brazos para que la barra descanse frente a tus muslos.",
       "Doblando la cintura, baje la barra justo por encima del suelo.",
@@ -7631,14 +7631,15 @@
   },
   {
     "id": "biceps-curl-with-overhead-extension-using-dumbbells-on-stability-ball",
-    "nombre": "Curl de Bíceps con Por encima Extensión usando Mancuernas en Stability Ball",
+    "nombre": "Curl de Bíceps con extensión de tríceps  usando Mancuernas en Stability Ball",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps, biceps"
+      "triceps",
+      "biceps"
     ],
     "musculos_secundarios": [
-      "forearm",
-      "should"
+      "Antebrazo",
+      "hombros"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -7697,7 +7698,7 @@
     "nombre": "Curl de Bíceps Zancada con Movimiento de Bolos",
     "grupo": "brazos",
     "musculos_principales": [
-      "arms"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -7726,14 +7727,14 @@
   },
   {
     "id": "biceps-curl-on-stability-ball-with-leg-raised",
-    "nombre": "Curl de bíceps sobre pelota de estabilidad con elevación de piernas",
+    "nombre": "Curl de bíceps sobre fitball con elevación de piernas",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "hamstring",
-      "forearm",
+      "Femoral",
+      "antebrazo",
       "cuadriceps",
       "gemelos"
     ],
@@ -7870,7 +7871,7 @@
   },
   {
     "id": "medicine-ball-biceps-curl-on-stability-ball",
-    "nombre": "Curl de bíceps con balón medicinal sobre balón de estabilidad",
+    "nombre": "Curl de bíceps en fitball con balón medicinal ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7935,7 +7936,7 @@
   },
   {
     "id": "biceps-curl-v-sit-on-dome-with-dumbbells",
-    "nombre": "Bícepss Curl V Sentado en Cúpula con Mancuernas",
+    "nombre": "Curl de bíceps  en bosu con posición v",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
