@@ -181,7 +181,7 @@
           "var": ""
         },
         {
-          "nombre": "Femoral individual ",
+          "nombre": "Curl femoral unilateral t",
           "series": "3",
           "reps": "8",
           "rir": "2",
@@ -486,7 +486,39 @@
     },
     "domingo": {
       "recordatorio": "",
-      "rutina": ""
+      "rutina": "V1 = ejemplos ",
+      "ejercicios": [
+        {
+          "nombre": "Haz clavicular barra ",
+          "series": "4",
+          "reps": "10",
+          "rir": "3",
+          "desc": "30",
+          "var": "V1"
+        },
+        {
+          "nombre": "Press inclinado  barra",
+          "series": "10",
+          "reps": "5",
+          "rir": "1",
+          "desc": "80",
+          "var": "V2"
+        }
+      ],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Banda ",
+          "tiempo": "15",
+          "notas": "45"
+        },
+        {
+          "momento": "",
+          "ejercicio": "",
+          "tiempo": "",
+          "notas": ""
+        }
+      ]
     }
   },
   "1778272241158": {
@@ -569,19 +601,22 @@
       "recordatorio": "",
       "rutina": "",
       "ejercicios": [],
-      "cardio": []
+      "cardio": [],
+      "presencial": false
     },
     "sabado": {
       "recordatorio": "",
       "rutina": "",
       "ejercicios": [],
-      "cardio": []
+      "cardio": [],
+      "presencial": false
     },
     "domingo": {
       "recordatorio": "",
       "rutina": "",
       "ejercicios": [],
-      "cardio": []
+      "cardio": [],
+      "presencial": false
     }
   },
   "1778377380425": {

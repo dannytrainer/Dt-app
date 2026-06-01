@@ -18,5 +18,12 @@
   "envios_pausados_hasta": null,
   "instagram_entrenador": "@Dt-entrenamientos",
   "tema": "oscuro",
-  "codigo_vinculacion": "DT-UG9758"
+  "codigo_vinculacion": "DT-QYQUMM",
+  "codigos_premium": [
+    {
+      "codigo": "DTP-5ZL4346J",
+      "usado": false,
+      "fechaCreacion": "2026-06-01T07:30:18.606Z"
+    }
+  ]
 }

@@ -904,30 +904,32 @@ app.get('/api/enciclopedia/buscar-match/:nombre', (req, res) => {
   const todos = [...oficiales, ...(custom.ejercicios || [])];
   
   const nombre = decodeURIComponent(req.params.nombre).toLowerCase().trim();
+  const grupofiltro = req.query.grupo || null;
+  const pool = grupofiltro ? todos.filter(e => e.grupo === grupofiltro) : todos;
+  const todosUsar = pool.length > 0 ? pool : todos;
   
   let mejor = null;
   let mejorScore = 0;
   
-  todos.forEach(e => {
+  todosUsar.forEach(e => {
     const enombre = e.nombre.toLowerCase();
-    // Coincidencia exacta primero
-    if (enombre === nombre) { mejor = e; mejorScore = 1; return; }
-    const palabrasBusq = nombre.split(' ').filter(p => p.length > 2);
-    const palabrasEj = enombre.split(' ');
+    if (enombre === nombre) { mejor = e; mejorScore = 2; return; }
+    if (enombre.includes(nombre) || nombre.includes(enombre)) {
+      if (1.5 > mejorScore) { mejorScore = 1.5; mejor = e; }
+      return;
+    }
+    const palabrasBusq = nombre.split(' ').filter(p => p.length > 3);
+    const palabrasEj = enombre.split(' ').filter(p => p.length > 3);
+    if (palabrasBusq.length === 0 || palabrasEj.length === 0) return;
     let coincidencias = 0;
     palabrasBusq.forEach(p => {
-      if (palabrasEj.some(pe => pe.includes(p) || p.includes(pe))) coincidencias++;
+      if (palabrasEj.some(pe => pe === p)) coincidencias++;
     });
-    // Penalizar si el ejercicio tiene más palabras que la búsqueda
-    const extra = Math.max(0, palabrasEj.length - palabrasBusq.length);
-    const score = palabrasBusq.length > 0 ? (coincidencias / palabrasBusq.length) - (extra * 0.1) : 0;
-    if (score > mejorScore) {
-      mejorScore = score;
-      mejor = e;
-    }
+    const score = coincidencias / Math.max(palabrasBusq.length, palabrasEj.length);
+    if (score > mejorScore) { mejorScore = score; mejor = e; }
   });
   
-  if (mejor && mejorScore >= 0.5) {
+  if (mejor && mejorScore >= 0.8) {
     res.json({ encontrado: true, ejercicio: mejor });
   } else {
     res.json({ encontrado: false });
@@ -998,6 +1000,34 @@ app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
 });
 
 conectarWhatsApp();
+
+// PREMIUM — validar código
+app.post('/api/premium/activar', (req, res) => {
+  const { codigo, userId } = req.body;
+  const config = cargarJSON('config.json', {});
+  const codigos = config.codigos_premium || [];
+  cod.usado = true;
+  cod.usadoPor = userId;
+  cod.fechaUso = new Date().toISOString();
+  guardarJSON('config.json', config);
+  const usuarios = cargarJSON('usuarios.json', []);
+  const u = usuarios.find(u => u.id === userId);
+  if (u) { u.premium = true; guardarJSON('usuarios.json', usuarios); }
+  res.json({ ok: true });
+});
+
+// PREMIUM — generar código (solo Danny)
+app.post('/api/premium/generar', (req, res) => {
+  const config = cargarJSON('config.json', {});
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let codigo = 'DTP-';
+  for (let i=0; i<8; i++) codigo += chars[Math.floor(Math.random()*chars.length)];
+  if (!config.codigos_premium) config.codigos_premium = [];
+  config.codigos_premium.push({ codigo, usado: false, fechaCreacion: new Date().toISOString() });
+  guardarJSON('config.json', config);
+  res.json({ ok: true, codigo });
+});
+
 app.listen(3000, () => console.log('Interfaz en http://localhost:3000'));
 require('./rutas_informe')(app, fs);
 app.post('/api/informe/:id/enviar', async (req, res) => {
@@ -1077,6 +1107,17 @@ app.get('/api/codigo-entrenador', (req, res) => {
 });
 
 // Habilitar dia en app para cliente
+app.post('/api/usuarios/:id/desbloquear-dia', (req, res) => {
+  const { dia } = req.body;
+  const usuarios = cargarJSON('usuarios.json');
+  const u = usuarios.find(u => u.id === req.params.id);
+  if (!u) return res.json({ ok: false });
+  if (!u.dias_habilitados) u.dias_habilitados = [];
+  if (!u.dias_habilitados.includes(dia)) u.dias_habilitados.push(dia);
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+
 app.post('/api/habilitar-dia/:id', (req, res) => {
   const { dia } = req.body;
   const usuarios = cargarJSON('usuarios.json');

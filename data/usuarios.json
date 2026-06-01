@@ -21,8 +21,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 40,
-    "sesiones_ciclo": 40,
+    "sesiones_total": 41,
+    "sesiones_ciclo": 41,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague m",
     "msg_q1": "",
@@ -35,7 +35,9 @@
         "2026-05-24",
         "2026-05-25",
         "2026-05-26",
-        "2026-05-30"
+        "2026-05-30",
+        "2026-05-31",
+        "2026-06-01"
       ],
       "sabado": [
         "2026-05-23"
@@ -121,7 +123,8 @@
     "sesiones_ciclo": 4,
     "dias_desbloqueados": {
       "lunes": [
-        "2026-05-24"
+        "2026-05-24",
+        "2026-06-01"
       ],
       "martes": [
         "2026-05-24"
@@ -138,7 +141,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 1,
     "dia_pago2": null,
-    "estado_pago": "aldia",
+    "estado_pago": "vencido",
     "perfil": {
       "fecha_inicio": "2026-05-11",
       "sexo": "F",
@@ -209,7 +212,8 @@
     "dias_desbloqueados": {
       "lunes": [
         "2026-05-23",
-        "2026-05-30"
+        "2026-05-30",
+        "2026-06-01"
       ],
       "sabado": [
         "2026-05-23"
@@ -249,7 +253,7 @@
     "tipo_pago": "quincenal",
     "dia_pago": 1,
     "dia_pago2": 16,
-    "estado_pago": "proximo",
+    "estado_pago": "vencido",
     "perfil": {
       "fecha_inicio": "2026-05-09",
       "sexo": "F",
@@ -406,6 +410,7 @@
       "notas": "Tobillo",
       "unidades": "kg"
     },
-    "msg_pago": "Hola NATI pro acá Daniel bot recordando  que se cumple la fecha el.dia 30🤖🤭"
+    "msg_pago": "Hola NATI pro acá Daniel bot recordando  que se cumple la fecha el.dia 30🤖🤭",
+    "foto": "data/fotos/1780069487489/perfil.jpg"
   }
 ]

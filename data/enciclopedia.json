@@ -211,7 +211,7 @@
     "equipamiento": "dumbbells",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0006-tension.png",
+    "imagen": "/enciclopedia/imgs/arnold-press-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Siéntate en un banco plano, con los pies apuntando hacia adelante y los abdominales contraídos.",
@@ -227,7 +227,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0006-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/arnold-press-relaxation.png"
   },
   {
     "id": "front-barbell-raises",
@@ -243,7 +243,7 @@
     "equipamiento": "barra",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0007-tension.png",
+    "imagen": "/enciclopedia/imgs/front-barbell-raises-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sujete una barra con un agarre por encima de la cabeza (con las palmas de las manos hacia abajo).",
@@ -257,7 +257,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0007-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/front-barbell-raises-relaxation.png"
   },
   {
     "id": "front-cable-raises",
@@ -335,7 +335,7 @@
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0010-tension.png",
+    "imagen": "/enciclopedia/imgs/front-raises-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Párate con los pies separados a la altura de los hombros, los abdominales contraídos y las rodillas ligeramente flexionadas.",
@@ -351,7 +351,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0010-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/front-raises-relaxation.png"
   },
   {
     "id": "barbell-shoulder-press",
@@ -367,7 +367,7 @@
     "equipamiento": "barra",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0011-tension.png",
+    "imagen": "/enciclopedia/imgs/barbell-shoulder-press-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sentado en un banco con un soporte para barra, agarre la barra con un agarre más ancho que sus hombros.",
@@ -381,7 +381,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0011-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/barbell-shoulder-press-relaxation.png"
   },
   {
     "id": "dumbbell-shoulder-press",
@@ -397,7 +397,7 @@
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0012-tension.png",
+    "imagen": "/enciclopedia/imgs/dumbbell-shoulder-press-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sentado en un banco, con los abdominales contraídos, agarre una mancuerna en cada mano, con las palmas hacia adelante.",
@@ -413,7 +413,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0012-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/dumbbell-shoulder-press-relaxation.png"
   },
   {
     "id": "smith-machine-upright-row",
@@ -1259,7 +1259,7 @@
     "equipamiento": "dumbbells",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0040-tension.png",
+    "imagen": "/enciclopedia/imgs/dumbbell-raise-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Párese erguido con los pies separados a la altura de los hombros y una ligera flexión de las rodillas.",
@@ -1274,7 +1274,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0040-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/dumbbell-raise-relaxation.png"
   },
   {
     "id": "smith-machine-shoulder-shrugs",
@@ -1306,7 +1306,7 @@
   },
   {
     "id": "incline-bench-press",
-    "nombre": " Press de banca inclinado ",
+    "nombre": " Press de pecho inclinado ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -1440,7 +1440,7 @@
     "equipamiento": "butterfly machine",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0047-tension.png",
+    "imagen": "/enciclopedia/imgs/butterfly-machine-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Ajuste la máquina para que esté sentado a la altura del pecho con las almohadillas.",
@@ -1456,7 +1456,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0047-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/butterfly-machine-relaxation.png"
   },
   {
     "id": "cable-crossover",
@@ -2235,33 +2235,6 @@
     "imagen2": "/enciclopedia/imgs/0073-relaxation.png"
   },
   {
-    "id": "push-up-feet-elevated",
-    "nombre": "Flexiones con Pies Elevados",
-    "grupo": "",
-    "musculos_principales": [
-      ""
-    ],
-    "musculos_secundarios": [],
-    "equipamiento": "peso corporal",
-    "nivel": "intermedio",
-    "patron": "",
-    "imagen": "/enciclopedia/imgs/0075-tension.png",
-    "video_youtube": "",
-    "ejecucion": [
-      "Este es el mismo movimiento general que con un Push Up, excepto que tus pies están elevados, lo que permite un mayor rango de movimientos y apunta a los pectorales de manera diferente que el Push Up normal.",
-      "Coloque los pies en un banco al menos a 18” del suelo.",
-      "Asegúrese de que la parte superior de sus pies esté al ras contra el banco.",
-      "Coloque las manos en el suelo ligeramente más separadas que el ancho de los hombros.",
-      "Con las manos directamente debajo de los hombros, presione hacia arriba desde el suelo, manteniendo la espalda y el cuello en línea recta para mirar hacia adelante durante todo el ejercicio.",
-      "Una vez que tus brazos estén completamente extendidos, haz una pausa y luego, con movimientos lentos y controlados, bájate hasta el suelo nuevamente."
-    ],
-    "errores_comunes": [],
-    "variantes": [],
-    "tags": [],
-    "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0075-relaxation.png"
-  },
-  {
     "id": "push-up-feet-elevated-2",
     "nombre": "Push up con los pies elevados",
     "grupo": "pecho",
@@ -2275,7 +2248,7 @@
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0301-tension.png",
+    "imagen": "/enciclopedia/imgs/push-up-feet-elevated-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Coloque los pies en un banco al menos a 18” del suelo.",
@@ -2290,7 +2263,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0301-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/push-up-feet-elevated-relaxation.png"
   },
   {
     "id": "push-ups-with-feet-on-exercise-ball",
@@ -2588,7 +2561,7 @@
     "equipamiento": "chest machine",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0084-tension.png",
+    "imagen": "/enciclopedia/imgs/incline-chest-press-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Ajuste el asiento de la máquina de modo que las manijas queden cerca de la parte superior de su pecho.",
@@ -2601,7 +2574,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0084-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/incline-chest-press-relaxation.png"
   },
   {
     "id": "decline-chest-press",
@@ -2709,7 +2682,7 @@
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0088-tension.png",
+    "imagen": "/enciclopedia/imgs/gironda-sternum-chins-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sujete la barra de dominadas con un agarre por debajo del ancho de los hombros.",
@@ -2725,7 +2698,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0088-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/gironda-sternum-chins-relaxation.png"
   },
   {
     "id": "chin-ups",
@@ -2740,7 +2713,7 @@
     "equipamiento": "body",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0089-tension.png",
+    "imagen": "/enciclopedia/imgs/chin-ups-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Sujete la barra con un agarre supinado (por encima de la cabeza).",
@@ -2754,7 +2727,7 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0089-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/chin-ups-relaxation.png"
   },
   {
     "id": "narrow-parallel-grip-chin-ups",
@@ -2966,7 +2939,7 @@
   },
   {
     "id": "wide-grip-lat-pull-down",
-    "nombre": "Jalón con Agarre abierto Lat Pull Down",
+    "nombre": "Jalón en polea abierto ",
     "grupo": "espalda",
     "musculos_principales": [
       "dorsales"
@@ -3148,7 +3121,7 @@
   },
   {
     "id": "back-extension-stability-ball",
-    "nombre": "Flexiones lumbares en fitball",
+    "nombre": "Extensión lumbar en fitball",
     "grupo": "core",
     "musculos_principales": [
       "lumbar"
@@ -4745,7 +4718,7 @@
   },
   {
     "id": "bench-dips",
-    "nombre": "Fondos de banco",
+    "nombre": "Fondos en banco",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -4866,7 +4839,7 @@
   },
   {
     "id": "one-arm-tricep-extension-with-cable",
-    "nombre": "Un Brazo Extensión De Tríceps Con Cable",
+    "nombre": " Extensión De Tríceps unilateral Con Cable",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -4904,7 +4877,7 @@
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0167-tension.png",
+    "imagen": "/enciclopedia/imgs/standing-triceps-extension-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Párese con los pies separados a la altura de los hombros, la espalda recta y los abdominales contraídos.",
@@ -4919,11 +4892,11 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0167-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/standing-triceps-extension-relaxation.png"
   },
   {
     "id": "decline-close-grip-bench-to-skull-crusher",
-    "nombre": "Declinado Agarre cerrado Bench to Skull Crusher",
+    "nombre": "Press francés en banco declinado barra ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -4954,7 +4927,7 @@
   },
   {
     "id": "decline-triceps-extension-with-dumbbell",
-    "nombre": "Extensión De Tríceps Declinado con Mancuerna",
+    "nombre": "Press francés Declinado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -4980,7 +4953,7 @@
   },
   {
     "id": "decline-ez-bar-triceps-extension-with-barbell",
-    "nombre": "Declinado EZ Bar Extensión de Tríceps con Barra",
+    "nombre": "Extensión de Tríceps con Barra z",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5006,7 +4979,7 @@
   },
   {
     "id": "tricep-dips",
-    "nombre": "Fondos de tríceps usando Máquina",
+    "nombre": "Fondos de tríceps en Máquina",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5034,7 +5007,7 @@
   },
   {
     "id": "tricep-dips-using-body-weight",
-    "nombre": "Tríceps Fondoss usando el peso corporal",
+    "nombre": "Fondos ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5064,7 +5037,7 @@
   },
   {
     "id": "one-arm-triceps-extension-with-dumbbell",
-    "nombre": "Extensión One Brazo Tríceps con Mancuerna",
+    "nombre": "Copa a una mano con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5091,7 +5064,7 @@
   },
   {
     "id": "incline-triceps-extension-with-barbell",
-    "nombre": "Extensión Inclinado De Tríceps Con Barra",
+    "nombre": "Extensión Inclinado De codos Con Barra",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5118,7 +5091,7 @@
   },
   {
     "id": "jm-press",
-    "nombre": "Prensa JM",
+    "nombre": "Press de tríceps  barra ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5149,7 +5122,7 @@
   },
   {
     "id": "kneeling-triceps-extension-with-cable",
-    "nombre": "Extensión Concentrada De Tríceps De Rodillas Con Cable",
+    "nombre": "Extensión de Tríceps concentrado polea",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5206,7 +5179,7 @@
   },
   {
     "id": "low-triceps-extension-with-cable",
-    "nombre": "Extensión Baja de Tríceps con Cable",
+    "nombre": "Press francés en colchoneta y polea ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5262,7 +5235,7 @@
   },
   {
     "id": "lying-close-grip-triceps-press-to-chin-with-barbell",
-    "nombre": "Press francés  con barra ",
+    "nombre": "Press francés  con barra z",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5433,7 +5406,7 @@
   },
   {
     "id": "single-arm-triceps-extension-with-dumbbell",
-    "nombre": "Un brazo Brazo Pronado Tríceps Extensión con Mancuerna",
+    "nombre": "Extensión de tríceps con Mancuerna en prono",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5463,7 +5436,7 @@
   },
   {
     "id": "single-arm-supinated-triceps-extension-with-dumbbell",
-    "nombre": "Un brazo Brazo Extensión de Tríceps en Supinación con Mancuerna",
+    "nombre": "Extensión de Tríceps en Supinación con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5549,7 +5522,7 @@
   },
   {
     "id": "reverse-triceps-bench-press-with-barbell",
-    "nombre": "Inverso Tríceps Press de banca con Barra",
+    "nombre": "Press de tríceps inverso en banca con Barra",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5606,7 +5579,7 @@
   },
   {
     "id": "seated-two-arm-triceps-extension-with-dumbbell",
-    "nombre": "Sentado Two-Brazo Extensión de Tríceps con Mancuerna",
+    "nombre": "pata de tríceps sentado a dos manos mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5717,7 +5690,7 @@
   },
   {
     "id": "bent-over-one-arm-triceps-extension-with-dumbbell",
-    "nombre": "Extensión de Tríceps de Brazo Inclinado con Mancuerna",
+    "nombre": "patada de tríceps inclinado mancuerna ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5744,7 +5717,7 @@
   },
   {
     "id": "bent-over-two-arm-triceps-extension-with-dumbbell",
-    "nombre": "Extensión de Tríceps de Dos Brazos Inclinados con Mancuerna",
+    "nombre": "Patada de tríceps a dos manos mancuernas ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5771,7 +5744,7 @@
   },
   {
     "id": "standing-triceps-extension-2",
-    "nombre": "De pie Tríceps Extensión",
+    "nombre": "Copa de pie ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5799,7 +5772,7 @@
   },
   {
     "id": "one-arm-low-pulley-triceps-extension-with-cable",
-    "nombre": "Extensión de Tríceps de Polea Baja One Brazo con Cable",
+    "nombre": "Copa en polea unilateral ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5828,7 +5801,7 @@
   },
   {
     "id": "standing-one-arm-triceps-extension-with-dumbbell",
-    "nombre": "De pie One Brazo Tríceps Extensión con Mancuerna",
+    "nombre": "Copa individual con mancuerna tríceps ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5837,7 +5810,7 @@
     "equipamiento": "dumbell",
     "nivel": "intermedio",
     "patron": "aislamiento",
-    "imagen": "/enciclopedia/imgs/0200-tension.png",
+    "imagen": "/enciclopedia/imgs/standing-one-arm-triceps-extension-with-dumbbell-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Párese con los pies separados a la altura de los hombros, la espalda recta y los abdominales contraídos.",
@@ -5853,11 +5826,11 @@
       "aislamiento"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0200-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/standing-one-arm-triceps-extension-with-dumbbell-relaxation.png"
   },
   {
     "id": "standing-overhead-triceps-extension-with-barbell",
-    "nombre": "De pie Por encima Extensión de Tríceps con Barra",
+    "nombre": "Copa con barra de pie",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5885,7 +5858,7 @@
   },
   {
     "id": "standing-triceps-extension-with-towel",
-    "nombre": "De pie Extensión de Tríceps con Toalla",
+    "nombre": "Extensión de Tríceps con Toalla",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5897,11 +5870,11 @@
     "imagen": "/enciclopedia/imgs/0202-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Stand with your feet shoulder width apart, your back straight and your abs drawn in.",
-      "Hold a towel or rope facing up behind and in back of your head.",
-      "Have a partner hold the towel taught during the exercise so the resistance is constant.",
-      "Lower your forearms down until they reach your biceps, then slowly raise your arms back up to starting position.",
-      "Note: Keep your elbows close to your head during the exercise."
+      "Párate con los pies separados a la altura de los hombros, la espalda recta y el abdomen contraído",
+      "Sostén una toalla o una cuerda con la parte superior hacia arriba, detrás de tu cabeza.",
+      "Pídele a un compañero que sostenga la toalla tensa durante el ejercicio para que la resistencia sea constante.",
+      "Baja los antebrazos hasta que lleguen a los bíceps y luego levántalos lentamente hasta la posición inicial.",
+      "Nota: Mantén los codos cerca de la cabeza durante el ejercicio."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -5969,7 +5942,7 @@
   },
   {
     "id": "triceps-pushdown-with-cable",
-    "nombre": "Flexión de tríceps con cable",
+    "nombre": "Extension de codo con polea",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -5998,7 +5971,7 @@
   },
   {
     "id": "triceps-pushdown-with-rope-and-cable",
-    "nombre": "Flexión de tríceps con cuerda y cable",
+    "nombre": "Extension de tríceps con cuerda en polea ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -6027,7 +6000,7 @@
   },
   {
     "id": "triceps-pushdown-with-v-bar-and-cable",
-    "nombre": "Flexión de tríceps con barra en V y cable",
+    "nombre": "Extensión de codo con v en polea ",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -6176,13 +6149,13 @@
   },
   {
     "id": "standing-biceps-curl-with-cable",
-    "nombre": "De pie Curl de Bíceps con Cable",
+    "nombre": "Curl de Bíceps con polea",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm",
+      "Antebrazo",
       "hombros"
     ],
     "equipamiento": "cable",
@@ -6192,11 +6165,7 @@
     "video_youtube": "",
     "ejecucion": [
       "Conecte una barra corta a una polea de cable en la parte inferior de la pila de pesas.",
-      "Párese con los pies separados a la altura de los hombros, las rodillas ligeramente dobladas y los abdominales contraídos.",
-      "Sujete la barra con las palmas hacia arriba y las manos bastante juntas.",
-      "Baje los brazos completamente hasta por encima de los muslos y, doblando solo los codos, levante la barra hasta la parte superior del pecho.",
-      "Haz una pausa por un momento y luego regresa a la posición inicial.",
-      "Nota: No balancee las caderas ni la espalda durante este ejercicio."
+      "Párese con los pies separados a la altura de los hombros, las rodillas ligeramente dobladas y los abdominales contraídos."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -6298,7 +6267,7 @@
   },
   {
     "id": "hammer-curls-with-rope-and-cable",
-    "nombre": "Rizos Martillo con Cuerda y Cable",
+    "nombre": "Curl de bíceps en polea con cuerda ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6324,7 +6293,7 @@
   },
   {
     "id": "preacher-curl-with-cable",
-    "nombre": "Scott Curl con Cable",
+    "nombre": "Curl predicador con Cable",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6448,7 +6417,7 @@
   },
   {
     "id": "cross-body-hammer-curl-with-dumbbell",
-    "nombre": "Curl Martillo Crusado con Mancuerna",
+    "nombre": "Curl Martillo Cruzado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6661,7 +6630,7 @@
   },
   {
     "id": "flexor-incline-curls-with-dumbbell",
-    "nombre": "Flexor Inclinado Rizos con Mancuerna",
+    "nombre": "Curl inclinado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6688,7 +6657,7 @@
   },
   {
     "id": "high-cable-curls",
-    "nombre": "Rizos altos",
+    "nombre": "Curl de bíceps en polea alta ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6895,7 +6864,7 @@
   },
   {
     "id": "preacher-curl-with-machine",
-    "nombre": "Scott Curl con Máquina",
+    "nombre": "Curl predicador. En máquina ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6923,7 +6892,7 @@
   },
   {
     "id": "one-arm-preacher-curl-with-dumbbell",
-    "nombre": "Un Brazo Scott Curl con Mancuerna",
+    "nombre": "Curl predicador con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6956,7 +6925,7 @@
   },
   {
     "id": "overhead-curl-with-cable",
-    "nombre": "Por encima Curl con Cable",
+    "nombre": "Curl de bíceps en polea alto",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -6986,7 +6955,7 @@
   },
   {
     "id": "preacher-curl-with-barbell",
-    "nombre": "Scott Curl con Barra",
+    "nombre": "Curl predicador con barra ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7000,7 +6969,6 @@
     "imagen": "/enciclopedia/imgs/0239-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "&nbsp;",
       "Ajuste el asiento del banco para que sus brazos queden al nivel de la parte superior del banco.",
       "Sujete la barra con las palmas hacia arriba y separadas a la altura de los hombros.",
       "Levantando la barra, apoya los brazos contra el banco y extiéndelos por completo.",
@@ -7018,7 +6986,7 @@
   },
   {
     "id": "preacher-hammer-curl-with-dumbbell",
-    "nombre": "Scott Martillo Curl con Mancuerna",
+    "nombre": "Curl predicador martillo",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7075,7 +7043,7 @@
   },
   {
     "id": "seated-close-grip-concentration-curls-with-barbell",
-    "nombre": "Sentado Agarre cerrado Concentrado Rizos con Barra",
+    "nombre": "Curl concentrado con Barra agarre cerrado",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7195,13 +7163,13 @@
   },
   {
     "id": "standing-inner-biceps-curl-with-dumbbell",
-    "nombre": "De pie Curl Interior de Bíceps con Mancuerna",
+    "nombre": "Curl de Bíceps con rotación mancuernas ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -7225,13 +7193,13 @@
   },
   {
     "id": "standing-one-arm-biceps-curl-with-cable",
-    "nombre": "De pie One Brazo Bíceps Curl con Cable",
+    "nombre": "Bíceps Curl con Cable y unilateral ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "cable",
     "nivel": "intermedio",
@@ -7240,12 +7208,12 @@
     "video_youtube": "",
     "ejecucion": [
       "Esta es una versión con un solo brazo de una flexión con cable de bíceps. Las máquinas de cable son excelentes para ayudarte a aprender la forma adecuada mientras desarrollas músculo.",
-      "Conecte una barra de estribo a una polea de cable baja.",
+      "Conecte un agarre a una polea de cable baja.",
       "Párese al costado de la pila de pesas con las piernas separadas a la altura de los hombros, las rodillas ligeramente dobladas y los abdominales contraídos.",
-      "Sujete el estribo con una mano con las palmas hacia arriba.",
-      "Baja el estribo hasta la parte superior de tus muslos.",
-      "Manteniendo los codos quietos, doble el estribo hacia el pecho.",
-      "Baje lentamente el estribo hasta la posición inicial."
+      "Sujete el agarre con una mano con las palmas hacia arriba.",
+      "Baja el agarre hasta la parte superior de tus muslos.",
+      "Manteniendo los codos quietos, doble el agarre hacia el pecho.",
+      "Baje lentamente el agarre hasta la posición inicial."
     ],
     "errores_comunes": [],
     "variantes": [],
@@ -7257,13 +7225,13 @@
   },
   {
     "id": "standing-one-arm-curl-over-incline-bench-with-dumbbell",
-    "nombre": "De pie One Brazo Curl Sobre Banco Inclinado con Mancuerna",
+    "nombre": "Predicador a una mano de pie",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -7271,7 +7239,7 @@
     "imagen": "/enciclopedia/imgs/0248-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Este ejercicio es una gran alternativa al Preacher Curl.",
+      "Este ejercicio es una gran alternativa al Curl predicador.",
       "Párese frente a un banco inclinado de modo que su brazo descanse sobre la parte superior de la parte angular del banco.",
       "Sujete una mancuerna en la mano con las palmas hacia arriba.",
       "Apoye el brazo contra el banco trasero y extiéndalo completamente hacia abajo.",
@@ -7290,7 +7258,7 @@
   },
   {
     "id": "two-arm-preacher-curl-with-dumbbell",
-    "nombre": "Curl Scott Dos Brazos con Mancuerna",
+    "nombre": "Curl predicador en banco Scott con mancuernas ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7360,7 +7328,7 @@
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -7384,7 +7352,7 @@
   },
   {
     "id": "zottman-preacher-curl-with-dumbbells",
-    "nombre": "Zottman Scott Curl con Mancuernas",
+    "nombre": "Curl zottman en predicador con Mancuernas",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7443,7 +7411,7 @@
   },
   {
     "id": "one-arm-biceps-curl-with-olympic-bar-or-barbell",
-    "nombre": "Un Curl de Brazo Bíceps con Barra Olímpica o Barra",
+    "nombre": "Curl con Barra  unilateral",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7474,13 +7442,13 @@
   },
   {
     "id": "biceps-curl-seated-on-stability-ball-with-dumbbell",
-    "nombre": "Curl de Bíceps Sentado sobre fitballcon Mancuerna",
+    "nombre": "Curl de Bíceps Sentado sobre fitball con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -7504,7 +7472,7 @@
   },
   {
     "id": "biceps-curl-squat-with-dumbbell",
-    "nombre": "Sentadilla Curl de Bíceps con Mancuerna",
+    "nombre": "Sentadilla con Curl de Bíceps con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7536,13 +7504,13 @@
   },
   {
     "id": "biceps-curl-reverse-with-dumbbells",
-    "nombre": "Curl de Bíceps Inverso con Mancuernas",
+    "nombre": "Curl de Bíceps prono con Mancuernas",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
     ],
     "musculos_secundarios": [
-      "forearm"
+      "Antebrazo"
     ],
     "equipamiento": "mancuerna",
     "nivel": "intermedio",
@@ -7565,7 +7533,7 @@
   },
   {
     "id": "one-arm-bicep-concentration-on-stability-ball-with-dumbbell",
-    "nombre": "Un Brazo Bíceps Concentrado en Pelota de Estabilidad con Mancuerna",
+    "nombre": "curl concentrado en fitball",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7679,7 +7647,7 @@
     "imagen": "/enciclopedia/imgs/0261-tension.png",
     "video_youtube": "",
     "ejecucion": [
-      "Coloque un bungy debajo de sus pies y sostenga las manijas con las palmas hacia adelante.",
+      "Coloque un elastico debajo de sus pies y sostenga las manijas con las palmas hacia adelante.",
       "Párate con los pies separados a la altura de los hombros, las rodillas ligeramente flexionadas y los abdominales contraídos.",
       "Doble los brazos hacia arriba y hacia abajo con un movimiento alternativo, manteniendo el cuerpo recto.",
       "A medida que se sienta cómodo con el movimiento, aumente la velocidad.",
@@ -7797,7 +7765,7 @@
   },
   {
     "id": "forward-lunge-with-biceps-curl-using-dumbbell",
-    "nombre": "Zancada Delantera con Curl de Bíceps usando Mancuerna",
+    "nombre": "Zancada Delantera con Curl de Bíceps ",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -7834,7 +7802,7 @@
   },
   {
     "id": "step-up-single-leg-balance-with-biceps-curl-using-dumbbells",
-    "nombre": "Step Up Un brazo Leg Balance con Bíceps Curl usando Mancuernas",
+    "nombre": "Step Up  con Bíceps Curl usando Mancuernas",
     "grupo": "brazos",
     "musculos_principales": [
       "biceps"
@@ -8006,7 +7974,7 @@
     "equipamiento": "balance board",
     "nivel": "intermedio",
     "patron": "compuesto",
-    "imagen": "/enciclopedia/imgs/0271-tension.png",
+    "imagen": "/enciclopedia/imgs/balance-board-tension.png",
     "video_youtube": "",
     "ejecucion": [
       "Coloque una tabla de equilibrio en el suelo.",
@@ -8019,7 +7987,7 @@
       "compuesto"
     ],
     "es_personalizado": false,
-    "imagen2": "/enciclopedia/imgs/0271-relaxation.png"
+    "imagen2": "/enciclopedia/imgs/balance-board-relaxation.png"
   },
   {
     "id": "seated-calf-raise-with-barbell",
@@ -8826,7 +8794,7 @@
   },
   {
     "id": "caminadora-caminar",
-    "nombre": "Caminadora — Caminar",
+    "nombre": "Banda caminadora ",
     "grupo": "cardio",
     "subgrupo": "cardio máquina",
     "musculos_principales": [
@@ -9245,6 +9213,221 @@
       "cuerpo completo",
       "bajo impacto",
       "resistencia"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "por-ubicar-105",
+    "nombre": "Extensión lumbar en fitball v2",
+    "grupo": "core",
+    "subgrupo": "",
+    "musculos_principales": [
+      "Lumbar"
+    ],
+    "musculos_secundarios": [],
+    "equipamiento": "desconocido",
+    "nivel": "intermedio",
+    "imagen": "/enciclopedia/imgs_por_ubicar/f105falt1.svg",
+    "imagen2": "/enciclopedia/imgs_por_ubicar/f105salt1.svg",
+    "ejecucion": [
+      "Acuéstate boca abajo sobre un fitball",
+      "Estricta las piernas para que quede solo en contacto con el fitball con tu abdomen",
+      "Levanta el pecho del balón hasta estar en una posición recta",
+      "Vuelve a fajar el pecho hasta el balón",
+      "Repetir"
+    ],
+    "errores_comunes": [],
+    "tags": [
+      "por-ubicar"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "por-ubicar-109",
+    "nombre": "Plancha ",
+    "grupo": "core",
+    "subgrupo": "",
+    "musculos_principales": [
+      "Core"
+    ],
+    "musculos_secundarios": [],
+    "equipamiento": "desconocido",
+    "nivel": "intermedio",
+    "imagen": "/enciclopedia/imgs_por_ubicar/f109f.svg",
+    "imagen2": "/enciclopedia/imgs_por_ubicar/f109s.svg",
+    "ejecucion": [
+      "Acuéstate sobre una colchoneta boca abajo",
+      "Apoya tu codos y forma un angulo de 90°",
+      "Levanta el tronco y la cadera hasta lograr la posición de a imagen",
+      "Puede ser isométrica o dinámica"
+    ],
+    "errores_comunes": [],
+    "tags": [
+      "por-ubicar"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "por-ubicar-154",
+    "nombre": "Sentadilla búlgara en máquina Smith ",
+    "grupo": "piernas",
+    "subgrupo": "",
+    "musculos_principales": [
+      "cuadriceps",
+      "glúteo"
+    ],
+    "musculos_secundarios": [],
+    "equipamiento": "desconocido",
+    "nivel": "intermedio",
+    "imagen": "/enciclopedia/imgs_por_ubicar/f154f.svg",
+    "imagen2": "/enciclopedia/imgs_por_ubicar/f154s.svg",
+    "ejecucion": [
+      "Posiciona un apoyo para tu pierna",
+      "Ubícate en la máquina Smith colocando la barra en tus hombros",
+      "Levanta un pie y apoyarlo en el soporte",
+      "Busca realizar una sentadilla con la pierna",
+      "Vuelve a la posición. Inicial y repite",
+      "Repetir en la otra pierna"
+    ],
+    "errores_comunes": [],
+    "tags": [
+      "por-ubicar"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "por-ubicar-111",
+    "nombre": "Patada de glúteo en cuadrupedia ",
+    "grupo": "gluteos",
+    "subgrupo": "",
+    "musculos_principales": [
+      "Gluteo"
+    ],
+    "musculos_secundarios": [],
+    "equipamiento": "desconocido",
+    "nivel": "intermedio",
+    "imagen": "/enciclopedia/imgs_por_ubicar/f111f.svg",
+    "imagen2": "/enciclopedia/imgs_por_ubicar/f111s.svg",
+    "ejecucion": [
+      "En posición de 4 apoyos",
+      "Este ejercicio puede ser sin pesos, con polea, máquina o con mancuerna",
+      "Una vez designado el ejercicio debes mover tu fémur de adelante hacia. Atrás",
+      "Intentar colocar el pie lo más alto posible manteniendo en todo momento la flexión de 90° de la rodilla"
+    ],
+    "errores_comunes": [],
+    "tags": [
+      "por-ubicar"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "por-ubicar-160",
+    "nombre": "Sentadilla sumo con lastre ",
+    "grupo": "gluteos",
+    "subgrupo": "",
+    "musculos_principales": [
+      "Glúteo"
+    ],
+    "musculos_secundarios": [
+      "cuadriceps"
+    ],
+    "equipamiento": "desconocido",
+    "nivel": "intermedio",
+    "imagen": "/enciclopedia/imgs_por_ubicar/f160f.svg",
+    "imagen2": "/enciclopedia/imgs_por_ubicar/f160s.svg",
+    "ejecucion": [
+      "Tome posición sobre un par de steps",
+      "Piernas  más amplias que sus hombros",
+      "Coloque el cinturón con peso",
+      "Ejecute una sentadilla y baje hasta donde su anatomía lo permita",
+      "Al subir presione fuertemente los talones con tra el sueño",
+      "Repetir."
+    ],
+    "errores_comunes": [],
+    "tags": [
+      "por-ubicar"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "por-ubicar-285",
+    "nombre": "Pantorrilla en hack",
+    "grupo": "piernas",
+    "subgrupo": "",
+    "musculos_principales": [
+      "gemelos"
+    ],
+    "musculos_secundarios": [],
+    "equipamiento": "desconocido",
+    "nivel": "intermedio",
+    "imagen": "/enciclopedia/imgs_por_ubicar/f285f.svg",
+    "imagen2": "/enciclopedia/imgs_por_ubicar/f285s.svg",
+    "ejecucion": [
+      "Posiciones dentro de la máquina con un apoyo en la punta de los pies",
+      "Levanté el soporte y libere el seguro",
+      "Realice flexiones y extensiones de tobillo",
+      "Al finalizar coloque el seguro de la máquina"
+    ],
+    "errores_comunes": [],
+    "tags": [
+      "por-ubicar"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "por-ubicar-90",
+    "nombre": "Dominadas con agarre neutro ",
+    "grupo": "espalda",
+    "subgrupo": "",
+    "musculos_principales": [
+      "Dorsales"
+    ],
+    "musculos_secundarios": [
+      "Espada media",
+      "bíceps"
+    ],
+    "equipamiento": "desconocido",
+    "nivel": "intermedio",
+    "imagen": "/enciclopedia/imgs_por_ubicar/f90f_1.svg",
+    "imagen2": "/enciclopedia/imgs_por_ubicar/f90s_1.svg",
+    "ejecucion": [
+      "Sujete la barra con un agarre supinado (por encima de la cabeza).",
+      "Deja que tu cuerpo cuelgue de la barra con los brazos estirados.",
+      "Levántate lentamente para que tu barbilla quede más alta que la barra.",
+      "Con un movimiento controlado desciende hasta la posición inicial."
+    ],
+    "errores_comunes": [],
+    "tags": [
+      "por-ubicar"
+    ],
+    "es_personalizado": false
+  },
+  {
+    "id": "por-ubicar-99",
+    "nombre": "Pull over con disco  en fitball",
+    "grupo": "espalda",
+    "subgrupo": "",
+    "musculos_principales": [
+      "Dorsales",
+      "pecho"
+    ],
+    "musculos_secundarios": [
+      "Espalda media"
+    ],
+    "equipamiento": "desconocido",
+    "nivel": "intermedio",
+    "imagen": "/enciclopedia/imgs_por_ubicar/f99f.svg",
+    "imagen2": "/enciclopedia/imgs_por_ubicar/f99s.svg",
+    "ejecucion": [
+      "Acuéstese en un fitball con los pies apoyados en el suelo",
+      "Agarre un disco y levántelao sobre su pecho.",
+      "Manteniendo los codos lo más rectos posible, baje el peso formando un arco sobre su cabeza y lo más cerca posible del suelo",
+      "Regresar a la posición inicial.",
+      "Repetir."
+    ],
+    "errores_comunes": [],
+    "tags": [
+      "por-ubicar"
     ],
     "es_personalizado": false
   }

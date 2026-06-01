@@ -2124,37 +2124,8 @@ function entToggleTema(btn) {
   if (sh) sh.style.background = claro ? "#f5f5f5" : "#050505";
 }
 
-function entCerrarTerminos() { var p = document.getElementById("ent-terminos-panel"); if(p) p.remove(); }
 
-function entVerTerminos() {
-  var el = document.createElement("div");
-  el.id = "ent-terminos-panel";
-  el.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:100000;overflow-y:auto;display:flex;flex-direction:column";
-  var h = "";
-  h += "<div style='background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0'>";
-  h += "<button onclick='entCerrarTerminos()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
-  h += "<span style='font-size:15px;font-weight:700;color:#fff'>Términos y Condiciones</span></div>";
-  h += "<div style='padding:20px;color:#ccc;font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:20px'>";
-  h += "<div style='font-size:11px;color:#555;text-align:center'>DT-APP · @dt_entrenamientos · Colombia · 2026</div>";
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>1. Sobre la aplicación</div>";
-  h += "DT-APP es una herramienta digital de gestión y planeación deportiva. No constituye una entidad de salud ni reemplaza la atención médica o nutricional profesional.</div>";
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>2. Responsabilidad del entrenador</div>";
-  h += "El entrenador que usa DT-APP es el único responsable del contenido de las rutinas, planes alimentarios y recomendaciones que entrega a sus clientes. DT-APP no avala ni respalda la práctica de entrenadores sin certificación, ni se hace responsable por planes genéricos o sin fundamento técnico. Cada entrenador debe contar con la formación y licencias requeridas por la normativa colombiana.</div>";
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>3. Individualidad del entrenamiento</div>";
-  h += "DT-APP promueve el principio de individualidad. El entrenador se compromete a diseñar planes personalizados para cada cliente, evitando rutinas repetitivas o genéricas que no consideren las condiciones físicas, objetivos y limitaciones individuales.</div>";
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>4. Recomendaciones nutricionales</div>";
-  h += "Los planes alimentarios son recomendaciones generales. No reemplazan la consulta con un nutricionista certificado para casos específicos de salud o condiciones médicas.</div>";
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>5. Datos de clientes</div>";
-  h += "El entrenador es responsable de la custodia y uso adecuado de los datos personales de sus clientes registrados en DT-APP. Debe obtener el consentimiento de sus clientes para el manejo de dicha información conforme a la Ley 1581 de 2012 de Colombia.</div>";
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>6. Pagos</div>";
-  h += "Los pagos de los clientes al entrenador son acuerdos directos entre las partes. Los aportes al Plan Premium de DT-APP se destinan al desarrollo de la plataforma y no son reembolsables.</div>";
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>7. Jurisdicción</div>";
-  h += "Estos términos se rigen por las leyes de la República de Colombia.</div>";
-  h += "<div style='font-size:11px;color:#444;text-align:center;margin-top:8px'>Al usar DT-APP aceptas estos términos y condiciones.</div>";
-  h += "</div>";
-  el.innerHTML = h;
-  document.body.appendChild(el);
-}
+
 
 function cerrarConfig(){
   const sh=document.getElementById('config-sheet');
@@ -3219,9 +3190,9 @@ function renderJuegos(c) {
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">2 jugadores</div>
         </div>
         </div>
-        <div class="card" onclick="renderInvaders(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px;grid-column:1/-1">
+        <div class="card" onclick="(localStorage.getItem('dt_rol')==='cliente'&&!tcEsPremium())?tcMostrarPremium():renderInvaders(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px;grid-column:1/-1">
           <div style="font-size:28px;margin-bottom:6px">👾</div>
-          <div style="font-size:13px;font-weight:700;color:var(--texto)">DT Invaders</div>
+          <div style="font-size:13px;font-weight:700;color:var(--texto)">DT Invaders ⭐</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">100 niveles — Derrota al Sedentario Supremo</div>
         </div>
       </div>
@@ -9175,6 +9146,22 @@ window.addEventListener('DOMContentLoaded', initRol);
 
 let _tcDia = '';
 let _tcUsuario = null;
+
+function tcEsPremium() {
+  return _tcUsuario && _tcUsuario.premium === true;
+}
+
+function tcMostrarPremium() {
+  var el = document.createElement('div');
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML = '<div style="background:#111;border:2px solid #e31e24;border-radius:20px;padding:28px 20px;text-align:center;max-width:320px">' +
+    '<div style="font-size:36px;margin-bottom:12px">⭐</div>' +
+    '<div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:8px">Función Premium</div>' +
+    '<div style="font-size:13px;color:#aaa;line-height:1.6;margin-bottom:16px">Desbloquea todo el potencial de DT-APP por solo <span style="color:#e31e24;font-weight:700">$20.000/mes</span>. Escríbenos a @dt_entrenamientos en Instagram para activarlo.</div>' +
+    '<button onclick="this.parentNode.parentNode.remove()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:14px;font-weight:700;cursor:pointer">Entendido</button>' +
+    '</div>';
+  document.body.appendChild(el);
+}
 let _tcRutina = null;
 let _tcAlim = null;
 const DIAS_ES = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
@@ -9238,7 +9225,7 @@ function tcTab(tab) {
   if (tab === 'rutina') tcRenderRutina(cont);
   else if (tab === 'tools') tcRenderTools(cont);
   else if (tab === 'alimentacion') tcRenderAlimentacion(cont);
-  else if (tab === 'progreso') tcRenderProgreso(cont);
+  else if (tab === 'progreso') { if(tcEsPremium()){tcRenderProgreso(cont);}else{cont.innerHTML='';tcMostrarPremium();} }
   else if (tab === 'perfil') tcRenderPerfil(cont);
 }
 
@@ -9405,7 +9392,7 @@ function tcVerDia(dia) {
       html += '</div>';
       html += '</div>';
       // buscar match cardio
-      (function(cxi, cxej){ fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(cxej||''), {method:'GET'}).then(function(r){return r.json();}).then(function(res){ if(res.encontrado){ var b=document.getElementById('tc-cardio-enc-btn-'+cxi); if(b){b.style.display='flex';b.onclick=function(){tcVerEnciclopedia(res.ejercicio.id);};}}}); })(ci, cx.ejercicio);
+      (function(cxi, cxej){ fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(cxej||'') + '?grupo=cardio', {method:'GET'}).then(function(r){return r.json();}).then(function(res){ if(res.encontrado){ var b=document.getElementById('tc-cardio-enc-btn-'+cxi); if(b){b.style.display='flex';b.onclick=function(){ if(tcEsPremium()){tcVerEnciclopedia(res.ejercicio.id);}else{tcMostrarPremium();} };}}}); })(ci, cx.ejercicio);
       if (cx.notas) html += '<div style="font-size:11px;color:#555;font-style:italic;border-top:1px solid #1a2a3a;padding-top:8px;margin-top:4px">' + cx.notas + '</div>';
       html += '<button id="tc-cardio-btn-' + ci + '" onclick="tcCardioHecho(' + ci + ')" style="width:100%;margin-top:10px;padding:7px 10px;border-radius:8px;border:none;background:#1a0000;color:#e31e24;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #e31e24">✅ Cardio realizado</button>';
       html += '</div>';
@@ -10048,7 +10035,11 @@ function tcRenderPlanDia(cont, semana, idx) {
   var tabs = '<div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:none;-ms-overflow-style:none">';
   semana.forEach(function(d, i) {
     var activo = i === idx;
-    tabs += '<button onclick="tcRenderPlanDia(document.getElementById(\'tc-contenido\'),window._tcPlanSemana,' + i + ')" style="min-width:48px;padding:6px 8px;border-radius:8px;border:none;background:' + (activo ? '#e31e24' : '#1a1a1a') + ';color:' + (activo ? '#fff' : '#666') + ';font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">Plan ' + letras[i] + '</button>';
+    if (!tcEsPremium() && i >= 2) {
+      tabs += '<button onclick="tcMostrarPremium()" style="min-width:48px;padding:6px 8px;border-radius:8px;border:none;background:#1a1a1a;color:#e31e24;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">⭐</button>';
+    } else {
+      tabs += '<button onclick="tcRenderPlanDia(document.getElementById(\'tc-contenido\'),window._tcPlanSemana,' + i + ')" style="min-width:48px;padding:6px 8px;border-radius:8px;border:none;background:' + (activo ? '#e31e24' : '#1a1a1a') + ';color:' + (activo ? '#fff' : '#666') + ';font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">Plan ' + letras[i] + '</button>';
+    }
   });
   tabs += '</div>';
 
@@ -10272,12 +10263,12 @@ function tcRenderTools(cont) {
   html += '<div style="font-size:13px;color:#666;margin-bottom:16px;text-align:center;letter-spacing:1px;text-transform:uppercase">Herramientas</div>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
   html += '<div onclick="tcToolAbrirHerr(&quot;cronometros&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-cronometro.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Cron&oacute;metro</div><div style="font-size:10px;color:#555;margin-top:4px">Series y tiempos</div></div>';
-  html += '<div onclick="tcToolAbrirHerr(&quot;temporizadores&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-temporizador.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Temporizador</div><div style="font-size:10px;color:#555;margin-top:4px">Descansos</div></div>';
-  html += '<div onclick="tcToolAbrirHerr(&quot;juegos&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-juegos.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Juegos</div><div style="font-size:10px;color:#555;margin-top:4px">Mientras esperas</div></div>';
+  html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;temporizadores&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-temporizador.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Temporizador</div><div style="font-size:10px;color:#555;margin-top:4px">Descansos</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&apos;juegos&apos;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-juegos.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Juegos</div><div style="font-size:10px;color:#555;margin-top:4px">Mientras esperas</div></div>';
   
-  html += '<div onclick="tcToolAbrirHerr(&quot;ruleta&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-ruleta.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Ruleta DT</div><div style="font-size:10px;color:#555;margin-top:4px">Ejercicio aleatorio</div></div>';
-  html += '<div onclick="tcToolAbrirHerr(&quot;conversores&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-calculadoras.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Conversores</div><div style="font-size:10px;color:#555;margin-top:4px">kg &middot; lb &middot; cm &middot; in</div></div>';
-  html += '<div onclick="tcToolAbrirHerr(&quot;competencias&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-competencias.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Competencias</div><div style="font-size:10px;color:#555;margin-top:4px">Ver ranking</div></div>';
+  html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;ruleta&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-ruleta.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Ruleta DT</div><div style="font-size:10px;color:#555;margin-top:4px">Ejercicio aleatorio</div></div>';
+  html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;conversores&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-calculadoras.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Conversores</div><div style="font-size:10px;color:#555;margin-top:4px">kg &middot; lb &middot; cm &middot; in</div></div>';
+  html += '';
   html += '<div onclick="tcToolAbrirHerr(&quot;enciclopedia&quot;)" style="background:#111;border:1px solid #222;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer;grid-column:1/-1"><div style="margin-bottom:8px"><img src="/images/Enciclopedialogo.png" style="width:56px;height:56px;object-fit:contain;border-radius:12px"></div><div style="font-size:13px;font-weight:700;color:#fff">Enciclopedia</div><div style="font-size:10px;color:#555;margin-top:4px">Ejercicios &middot; T&eacute;cnica &middot; Nutrici&oacute;n</div></div>';
   html += '</div></div>';
   cont.innerHTML = html;
@@ -10722,7 +10713,7 @@ function renderEnciclopedia(c) {
     {id:"brazos",  icon:'<img src="/images/Enciclopediabrazo.png" style="width:64px;height:56px;object-fit:cover;object-position:center 20%;border-radius:10px">', nombre:"Brazos",  count:0},
     {id:"gluteos", icon:'<img src="/images/Enciclopediagluteo.png" style="width:64px;height:56px;object-fit:cover;object-position:center 20%;border-radius:10px">', nombre:"Gluteos", count:0},
     {id:"core",    icon:'<img src="/images/Enciclopediaabdomen.png" style="width:64px;height:56px;object-fit:cover;object-position:center 20%;border-radius:10px">', nombre:"Core",    count:0},
-    {id:"cardio",  icon:'<img src="/images/Enciclopediacardio.png" style="width:64px;height:56px;object-fit:cover;object-position:center 20%;border-radius:10px">', nombre:"Cardio",  count:0}
+    {id:"cardio",  icon:'<img src="/images/Enciclopediacardio.png" style="width:64px;height:56px;object-fit:cover;object-position:center 20%;border-radius:10px">', nombre:"Cardio",  count:0},
   ];
   window._encFiltros = {grupo:null, equipamiento:null, nivel:null, texto:"", esPersonalizado:false};
   window._encEjercicios = [];
@@ -10767,11 +10758,13 @@ function encMostrarGrupos() {
   html += "<div style=\"font-size:14px;font-weight:700;color:#64b5f6\">Glosario</div>";
   html += "<div style=\"font-size:11px;color:#666;margin-top:3px\">Métodos y términos</div>";
   html += "</div>";
+  if (localStorage.getItem("dt_rol") !== "cliente") {
   html += "<div onclick=\"encAgregarPersonalizado()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
   html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Creardt.png\" style=\"width:56px;height:56px;object-fit:contain;border-radius:8px\"></div>";
   html += "<div style=\"font-size:14px;font-weight:700;color:#aed581\">Mis ejercicios</div>";
   html += "<div style=\"font-size:11px;color:#666;margin-top:3px\" id=\"enc-custom-count\">0 / 10</div>";
   html += "</div>";
+  }
   html += "</div>";
   cont.innerHTML = html;
   var personalizados = (window._encEjercicios||[]).filter(function(e){return e.es_personalizado;});
@@ -11305,66 +11298,145 @@ function encAbrirFicha(id) {
 }
 </script>
 
+
+
+
+<script>
+function entCerrarTerminos() {
+  var p = document.getElementById("ent-terminos-panel");
+  if (p) p.remove();
+}
+function entCerrarTerminosCompletos() {
+  var p = document.getElementById("ent-terminos-full");
+  if (p) p.remove();
+}
+function entVerTerminos() {
+  var el = document.createElement("div");
+  el.id = "ent-terminos-panel";
+  el.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:100000;overflow-y:auto;display:flex;flex-direction:column";
+  var h = "";
+  h += "<div style='background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:2'>";
+  h += "<button onclick='entCerrarTerminos()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
+  h += "<span style='font-size:15px;font-weight:700;color:#fff'>T&eacute;rminos y Condiciones</span></div>";
+  h += "<div style='padding:20px;color:#ccc;font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:16px'>";
+  h += "<div style='text-align:center;padding:16px;background:#111;border-radius:14px;border:1px solid #1a1a1a'>";
+  h += "<div style='font-size:16px;font-weight:900;color:#e31e24;margin-bottom:4px'>DT-APP</div>";
+  h += "<div style='font-size:11px;color:#555'>@dt_entrenamientos &middot; Gesti&oacute;n Deportiva Digital</div>";
+  h += "<div style='font-size:10px;color:#333;margin-top:4px'>Colombia &middot; Mayo 2026</div></div>";
+  h += "<div style='background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px'>";
+  h += "<div style='font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px'>Resumen ejecutivo</div>";
+  h += "<div style='font-size:12px;color:#aaa;line-height:1.8'>";
+  h += "&#9679; DT-APP es herramienta de gesti&oacute;n deportiva. No es IPS ni provee servicios m&eacute;dicos.<br>";
+  h += "&#9679; Los pagos entre cliente y entrenador son directos. DT-APP no intermedia.<br>";
+  h += "&#9679; Los datos se almacenan localmente. DT-APP no tiene acceso a ellos.<br>";
+  h += "&#9679; El entrenador es responsable del contenido que crea y sus certificaciones.<br>";
+  h += "&#9679; DT-APP desaprueba planes gen&eacute;ricos sin fundamento t&eacute;cnico.<br>";
+  h += "&#9679; Los planes alimentarios son orientativos y no reemplazan al nutricionista.";
+  h += "</div></div>";
+  h += "<button onclick='entVerTerminosCompletos()' style='background:#1a1a1a;border:1px solid #e31e24;border-radius:12px;color:#e31e24;font-size:13px;font-weight:700;cursor:pointer;padding:14px;width:100%'>&#128196; Ver documento legal completo</button>";
+  h += "<div style='font-size:10px;color:#333;text-align:center'>Al usar DT-APP aceptas estos t&eacute;rminos.</div>";
+  h += "</div>";
+  el.innerHTML = h;
+  document.body.appendChild(el);
+}
+function entVerTerminosCompletos() {
+  var el = document.createElement("div");
+  el.id = "ent-terminos-full";
+  el.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:100001;overflow-y:auto;display:flex;flex-direction:column";
+  var h = "";
+  h += "<div style='background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:2'>";
+  h += "<button onclick='entCerrarTerminosCompletos()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
+  h += "<span style='font-size:14px;font-weight:700;color:#fff'>Corpus Legal &middot; DT-APP</span></div>";
+  h += "<div style='padding:20px;color:#ccc;font-size:12px;line-height:1.8;display:flex;flex-direction:column;gap:20px'>";
+  h += "<div style='font-size:10px;color:#555;text-align:center'>DT-APP &middot; @dt_entrenamientos &middot; Colombia &middot; Mayo 2026<br>Marco: C&oacute;d. Comercio &middot; Ley 1480/2011 &middot; Ley 1581/2012 &middot; Decreto 1074/2015 &middot; Ley 527/1999</div>";
+  h += "<div><div style='font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px'>1. T&eacute;rminos y Condiciones</div><div style='color:#aaa'>";
+  h += "<b style='color:#fff'>Cl. 1.1.</b> Contrato de adhesi&oacute;n electr&oacute;nico v&aacute;lido conforme Ley 527/1999. El uso implica aceptaci&oacute;n incondicional.<br><br>";
+  h += "<b style='color:#fff'>Cl. 1.2.</b> DT-APP es exclusivamente herramienta SaaS de gesti&oacute;n deportiva. No es IPS ni provee servicios m&eacute;dicos.<br><br>";
+  h += "<b style='color:#fff'>Cl. 1.3.</b> Acceso restringido a mayores de 18 a&ntilde;os. Menores requieren autorizaci&oacute;n de representante legal.<br><br>";
+  h += "<b style='color:#fff'>Cl. 1.4.</b> Pagos entre entrenador y cliente son directos. DT-APP no intermedia. Aportes al Plan Premium son voluntarios y no reembolsables.<br><br>";
+  h += "<b style='color:#fff'>Cl. 1.5.</b> C&oacute;digo fuente y marcas protegidos por Ley 23/1982 y Ley 1915/2018. Licencia personal, revocable y no transferible.<br><br>";
+  h += "<b style='color:#fff'>Cl. 1.6.</b> Prohibido usar la plataforma para fines ilegales o ajenos al acondicionamiento f&iacute;sico.</div></div>";
+  h += "<div><div style='font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px'>2. Privacidad y Datos Personales</div><div style='color:#aaa'>";
+  h += "<b style='color:#fff'>Cl. 2.1.</b> Cumple Ley 1581/2012 y Decreto 1074/2015.<br><br>";
+  h += "<b style='color:#fff'>Cl. 2.2.</b> Toda informaci&oacute;n se almacena localmente en el dispositivo del Entrenador. DT-APP no posee servidores centrales.<br><br>";
+  h += "<b style='color:#fff'>Cl. 2.3.</b> El Entrenador es Responsable del Tratamiento. DT-APP es proveedor tecnol&oacute;gico sin acceso a los datos.<br><br>";
+  h += "<b style='color:#fff'>Cl. 2.4.</b> El Cliente autoriza al Entrenador a visualizar sus datos con fines deportivos. El Entrenador no podr&aacute; transferirlos a terceros.<br><br>";
+  h += "<b style='color:#fff'>Cl. 2.5.</b> Solicitudes de supresi&oacute;n de datos deben dirigirse al Entrenador.<br><br>";
+  h += "<b style='color:#fff'>Cl. 2.6.</b> Cada usuario es responsable de la seguridad de su dispositivo.</div></div>";
+  h += "<div><div style='font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px'>3. Almacenamiento Local</div>";
+  h += "<div style='color:#aaa'>DT-APP no implementa cookies de rastreo. Usa LocalStorage funcional para sesi&oacute;n, plantillas e historial deportivo. El usuario puede eliminar estos datos desde configuraci&oacute;n del dispositivo.</div></div>";
+  h += "<div><div style='font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px'>4. Descargo de Responsabilidad</div><div style='color:#aaa'>";
+  h += "<b style='color:#fff'>Cl. 4.1.</b> DT-APP no provee asesoramiento m&eacute;dico.<br><br>";
+  h += "<b style='color:#fff'>Cl. 4.2.</b> El Cliente asume los riesgos de la pr&aacute;ctica f&iacute;sica. DT-APP no responde por lesiones.<br><br>";
+  h += "<b style='color:#fff'>Cl. 4.3.</b> Los planes alimentarios son orientativos. No reemplazan al nutricionista certificado.<br><br>";
+  h += "<b style='color:#fff'>Cl. 4.4.</b> Es responsabilidad del Cliente verificar certificaciones del Entrenador. DT-APP desaprueba planes gen&eacute;ricos sin fundamento t&eacute;cnico.<br><br>";
+  h += "<b style='color:#fff'>Cl. 4.5.</b> Toda controversia se rige por leyes de Colombia. Jurisdicci&oacute;n: Medell&iacute;n.</div></div>";
+  h += "<div style='font-size:10px;color:#333;text-align:center;padding:8px 0'>Al usar DT-APP aceptas la totalidad de este Corpus Legal.<br>DT-APP &middot; @dt_entrenamientos &middot; Colombia, 2026</div>";
+  h += "</div>";
+  el.innerHTML = h;
+  document.body.appendChild(el);
+}
+</script>
 <script>
 function tcAbrirConfig() {
-  if (document.getElementById("tc-config-panel")) { document.getElementById("tc-config-panel").remove(); return; }
-  var tema = localStorage.getItem("dt_tema") === "claro";
-  var sonidos = localStorage.getItem("tc-sonidos") !== "off";
-  var uid = localStorage.getItem("dt_cliente_id");
-  var el = document.createElement("div");
-  el.id = "tc-config-panel";
-  el.style.position = "fixed";
-  el.style.top = "0";
-  el.style.left = "0";
-  el.style.right = "0";
-  el.style.bottom = "0";
-  el.style.background = "#0a0a0a";
-  el.style.zIndex = "99999";
-  el.style.overflowY = "auto";
-  el.style.display = "flex";
-  el.style.flexDirection = "column";
+  if (document.getElementById('tc-config-panel')) { document.getElementById('tc-config-panel').remove(); return; }
+  var tema = localStorage.getItem('dt_tema') === 'claro';
+  var sonidos = localStorage.getItem('tc-sonidos') !== 'off';
+  var uid = localStorage.getItem('dt_cliente_id');
+  var el = document.createElement('div');
+  el.id = 'tc-config-panel';
+  el.style.position = 'fixed';
+  el.style.top = '0';
+  el.style.left = '0';
+  el.style.right = '0';
+  el.style.bottom = '0';
+  el.style.background = '#0a0a0a';
+  el.style.zIndex = '99999';
+  el.style.overflowY = 'auto';
+  el.style.display = 'flex';
+  el.style.flexDirection = 'column';
 
-  var header = document.createElement("div");
-  header.style.cssText = "background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0";
-  var btnVolver = document.createElement("button");
-  btnVolver.innerHTML = "&#8592;";
-  btnVolver.style.cssText = "background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer";
-  btnVolver.onclick = function(){ document.getElementById("tc-config-panel").remove(); };
-  var titulo = document.createElement("span");
-  titulo.style.cssText = "font-size:15px;font-weight:700;color:#fff";
-  titulo.textContent = "Configuración";
+  var header = document.createElement('div');
+  header.style.cssText = 'background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0';
+  var btnVolver = document.createElement('button');
+  btnVolver.innerHTML = '&#8592;';
+  btnVolver.style.cssText = 'background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer';
+  btnVolver.onclick = function(){ document.getElementById('tc-config-panel').remove(); };
+  var titulo = document.createElement('span');
+  titulo.style.cssText = 'font-size:15px;font-weight:700;color:#fff';
+  titulo.textContent = 'Configuración';
   header.appendChild(btnVolver);
   header.appendChild(titulo);
   el.appendChild(header);
 
-  var body = document.createElement("div");
-  body.style.cssText = "padding:16px;display:flex;flex-direction:column;gap:12px";
+  var body = document.createElement('div');
+  body.style.cssText = 'padding:16px;display:flex;flex-direction:column;gap:12px';
 
   function seccion(txt) {
-    var d = document.createElement("div");
-    d.style.cssText = "font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-top:8px";
+    var d = document.createElement('div');
+    d.style.cssText = 'font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-top:8px';
     d.innerHTML = txt;
     body.appendChild(d);
   }
 
   function fila(titulo, sub, btnTxt, btnBg, btnId, fnClick) {
-    var d = document.createElement("div");
-    d.style.cssText = "background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center";
-    var izq = document.createElement("div");
-    var t = document.createElement("div");
-    t.style.cssText = "font-size:13px;font-weight:700;color:#fff";
+    var d = document.createElement('div');
+    d.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center';
+    var izq = document.createElement('div');
+    var t = document.createElement('div');
+    t.style.cssText = 'font-size:13px;font-weight:700;color:#fff';
     t.innerHTML = titulo;
     izq.appendChild(t);
     if (sub) {
-      var s = document.createElement("div");
-      s.style.cssText = "font-size:11px;color:#555";
+      var s = document.createElement('div');
+      s.style.cssText = 'font-size:11px;color:#555';
       s.innerHTML = sub;
-      if (btnId) s.id = btnId + "-lbl";
+      if (btnId) s.id = btnId + '-lbl';
       izq.appendChild(s);
     }
     d.appendChild(izq);
-    var btn = document.createElement("button");
-    btn.style.cssText = "background:" + btnBg + ";border:1px solid #333;border-radius:20px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:6px 16px";
+    var btn = document.createElement('button');
+    btn.style.cssText = 'background:' + btnBg + ';border:1px solid #333;border-radius:20px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:6px 16px';
     btn.innerHTML = btnTxt;
     if (btnId) btn.id = btnId;
     if (fnClick) btn.onclick = function(){ fnClick(btn); };
@@ -11373,115 +11445,126 @@ function tcAbrirConfig() {
   }
 
   function filaInfo(titulo, sub) {
-    var d = document.createElement("div");
-    d.style.cssText = "background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center";
-    var t = document.createElement("div");
-    t.style.cssText = "font-size:13px;font-weight:700;color:#fff";
+    var d = document.createElement('div');
+    d.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center';
+    var t = document.createElement('div');
+    t.style.cssText = 'font-size:13px;font-weight:700;color:#fff';
     t.innerHTML = titulo;
     d.appendChild(t);
-    var s = document.createElement("span");
-    s.style.cssText = "font-size:11px;color:" + (sub === "ok" ? "#4caf50" : "#555");
-    s.innerHTML = sub === "ok" ? "&#10003;" : sub;
+    var s = document.createElement('span');
+    s.style.cssText = 'font-size:11px;color:' + (sub === 'ok' ? '#4caf50' : '#555');
+    s.innerHTML = sub === 'ok' ? '&#10003;' : sub;
     d.appendChild(s);
     body.appendChild(d);
   }
 
-  seccion("&#127912; Personalización");
-  fila("Tema", tema?"Modo claro":"Modo oscuro", tema?"&#9728; Claro":"&#127769; Oscuro", tema?"#e31e24":"#1a1a1a", "tc-cfg-tema-btn", tcToggleTema);
-  fila("Sonidos", "Beeps y alertas", sonidos?"&#128276; On":"&#128277; Off", sonidos?"#e31e24":"#1a1a1a", "tc-cfg-sonido-btn", tcToggleSonidos);
+  seccion('&#127912; Personalización');
+  fila('Tema', tema?'Modo claro':'Modo oscuro', tema?'&#9728; Claro':'&#127769; Oscuro', tema?'#e31e24':'#1a1a1a', 'tc-cfg-tema-btn', tcToggleTema);
+  fila('Sonidos', 'Beeps y alertas', sonidos?'&#128276; On':'&#128277; Off', sonidos?'#e31e24':'#1a1a1a', 'tc-cfg-sonido-btn', tcToggleSonidos);
 
-  seccion("&#128179; Mi Cuenta");
-  var pagoCont = document.createElement("div");
-  pagoCont.id = "tc-config-pago-ent";
-  pagoCont.style.cssText = "background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px";
-  pagoCont.innerHTML = "<div style='font-size:13px;font-weight:700;color:#fff;margin-bottom:4px'>Pago al entrenador</div><div style='font-size:12px;color:#555'>Cargando...</div>";
+  seccion('&#128179; Mi Cuenta');
+  var pagoCont = document.createElement('div');
+  pagoCont.id = 'tc-config-pago-ent';
+  pagoCont.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px';
+  pagoCont.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Pago al entrenador</div><div style="font-size:12px;color:#555">Cargando...</div>';
   body.appendChild(pagoCont);
-  fila("Plan Premium", "Acceso completo a la app", "Próximamente", "#1a1a1a", null, null);
-  fila("&#127942; Aportar al premio", "Contribuye al premio del entrenador", "Próximamente", "#1a1a1a", null, null);
+  fila('Plan Premium', 'Acceso completo a la app', 'Próximamente', '#1a1a1a', null, null);
+  fila('&#127942; Aportar al premio', 'Contribuye al premio del entrenador', 'Próximamente', '#1a1a1a', null, null);
 
-  seccion("&#128221; Información");
-  fila("Términos y condiciones", null, "&#8250;", "transparent", null, function(){ tcVerTerminos(); });
-  filaInfo("DT-APP &middot; Versión 1.0", "ok");
+  seccion('&#128221; Información');
+  fila('Términos y condiciones', null, '&#8250;', 'transparent', null, function(){ tcVerTerminos(); });
+  filaInfo('DT-APP &middot; Versión 1.0', 'ok');
 
   el.appendChild(body);
   document.body.appendChild(el);
 
   if (uid) {
-    fetch("/api/admin/" + uid).then(function(r){ return r.json(); }).then(function(d) {
-      var box = document.getElementById("tc-config-pago-ent");
-      if (!box) return;
+    fetch('/api/admin/' + uid).then(function(r){ return r.json(); }).then(function(d) {
+      var box = document.getElementById('tc-config-pago-ent');
       var usr = window._tcUsuario || {};
-      var estado = usr.estado_pago || "aldia";
-      var color = estado==="aldia"?"#4caf50":estado==="proximo"?"#ff9800":"#f44336";
-      var label = estado==="aldia"?"&#9989; Al día":estado==="proximo"?"&#9888; Próximo":"&#10060; Vencido";
-      var precio = (d && d.precio) ? d.precio + " " + (d.moneda||"") : "";
-      box.innerHTML = "<div style='font-size:13px;font-weight:700;color:#fff;margin-bottom:8px'>Pago al entrenador</div><div style='display:flex;justify-content:space-between'><span style='font-size:12px;color:#555'>" + precio + "</span><span style='font-size:12px;font-weight:700;color:" + color + "'>" + label + "</span></div>";
+      var estado = usr.estado_pago || 'aldia';
+      var color = estado==='aldia'?'#4caf50':estado==='proximo'?'#ff9800':'#f44336';
+      var label = estado==='aldia'?'&#9989; Al día':estado==='proximo'?'&#9888; Próximo':'&#10060; Vencido';
+      var precio = (d && d.precio) ? d.precio + ' ' + (d.moneda||'') : '';
+      box.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">Pago al entrenador</div><div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#555">' + precio + '</span><span style="font-size:12px;font-weight:700;color:' + color + '">' + label + '</span></div>';
     }).catch(function(){});
   }
 }
 
-
-function tcCerrarTerminos() { var p = document.getElementById("tc-terminos-panel"); if(p) p.remove(); }
+function tcCerrarTerminos() { var p = document.getElementById('tc-terminos-panel'); if(p) p.remove(); }
 
 function tcVerTerminos() {
-  var panel = document.getElementById("tc-terminos-panel");
-  if (panel) { panel.remove(); return; }
-  var el = document.createElement("div");
-  el.id = "tc-terminos-panel";
-  el.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:100000;overflow-y:auto;display:flex;flex-direction:column";
-  var h = "";
-  h += "<div style='background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0'>";
-  h += "<button onclick='tcCerrarTerminos()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
-  h += "<span style='font-size:15px;font-weight:700;color:#fff'>Términos y Condiciones</span></div>";
-  h += "<div style='padding:20px;color:#ccc;font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:20px'>";
-  h += "<div style='font-size:11px;color:#555;text-align:center'>DT-APP · @dt_entrenamientos · Colombia · 2026</div>";
+  var el = document.createElement('div');
+  el.id = 'tc-terminos-panel';
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:100000;overflow-y:auto;display:flex;flex-direction:column';
+  var header = document.createElement('div');
+  header.style.cssText = 'background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:2';
+  var btnV = document.createElement('button');
+  btnV.innerHTML = '&#8592;';
+  btnV.style.cssText = 'background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer';
+  btnV.onclick = tcCerrarTerminos;
+  var tit = document.createElement('span');
+  tit.style.cssText = 'font-size:15px;font-weight:700;color:#fff';
+  tit.textContent = 'Términos y Condiciones';
+  header.appendChild(btnV);
+  header.appendChild(tit);
+  el.appendChild(header);
+  var cont = document.createElement('div');
+  cont.style.cssText = 'padding:20px;color:#ccc;font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:16px';
+  cont.innerHTML = '<div style="text-align:center;padding:16px;background:#111;border-radius:14px;border:1px solid #1a1a1a"><div style="font-size:16px;font-weight:900;color:#e31e24;margin-bottom:4px">DT-APP</div><div style="font-size:11px;color:#555">@dt_entrenamientos &middot; Gestión Deportiva Digital</div><div style="font-size:10px;color:#333;margin-top:4px">Colombia &middot; Mayo 2026</div></div><div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px"><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">Resumen ejecutivo</div><div style="font-size:12px;color:#aaa;line-height:1.8">&#9679; DT-APP es una herramienta de gestión deportiva. No es IPS ni provee servicios médicos.<br>&#9679; Los pagos entre cliente y entrenador son acuerdos directos. DT-APP no intermedia.<br>&#9679; Los datos se almacenan localmente. DT-APP no tiene acceso a ellos.<br>&#9679; El cliente asume los riesgos de la práctica física. Consulta un médico antes de entrenar.<br>&#9679; Verifica siempre las certificaciones de tu entrenador antes de contratarlo.<br>&#9679; Los planes alimentarios son orientativos y no reemplazan al nutricionista.</div></div>';
+  var btnCompleto = document.createElement('button');
+  btnCompleto.style.cssText = 'background:#1a1a1a;border:1px solid #e31e24;border-radius:12px;color:#e31e24;font-size:13px;font-weight:700;cursor:pointer;padding:14px;width:100%';
+  btnCompleto.innerHTML = '&#128196; Ver documento legal completo';
+  btnCompleto.onclick = tcVerCompletosTerminos;
+  cont.appendChild(btnCompleto);
+  var pie = document.createElement('div');
+  pie.style.cssText = 'font-size:10px;color:#333;text-align:center';
+  pie.textContent = 'Al usar DT-APP aceptas estos términos.';
+  cont.appendChild(pie);
+  el.appendChild(cont);
+  document.body.appendChild(el);
+}
 
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>1. Sobre la aplicación</div>";
-  h += "DT-APP es una herramienta digital de gestión y planeación deportiva que facilita la comunicación entre entrenadores y sus clientes. No constituye una entidad de salud ni reemplaza la atención médica o nutricional profesional.</div>";
-
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>2. Responsabilidad del entrenamiento</div>";
-  h += "El contenido de las rutinas, ejercicios y planes de entrenamiento es responsabilidad exclusiva del entrenador que los diseña y del usuario que los ejecuta. DT-APP no se hace responsable por lesiones, daños o perjuicios derivados de la práctica incorrecta de los ejercicios. Se recomienda consultar con un profesional de la salud antes de iniciar cualquier programa de entrenamiento.</div>";
-
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>3. Recomendaciones nutricionales</div>";
-  h += "Los planes alimentarios disponibles en la app son recomendaciones generales elaboradas por el entrenador. No reemplazan la consulta con un nutricionista certificado para casos específicos de salud, patologías o condiciones médicas particulares.</div>";
-
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>4. Pagos y suscripciones</div>";
-  h += "Los pagos al entrenador son acuerdos directos entre el cliente y el profesional. DT-APP no intermedia ni es responsable de dichas transacciones. Los aportes al Plan Premium de la aplicación se destinan al desarrollo y mantenimiento de DT-APP. Todos los pagos son voluntarios y no reembolsables salvo acuerdo expreso.</div>";
-
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>5. Datos personales</div>";
-  h += "La información ingresada en DT-APP (medidas, fotos, historial de entrenamientos) se almacena localmente en el dispositivo del entrenador. No se comparte con terceros ni se sube a servidores externos. El usuario autoriza al entrenador a visualizar sus datos con fines de seguimiento deportivo.</div>";
-
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>6. Uso adecuado</div>";
-  h += "El usuario se compromete a usar DT-APP de manera responsable y respetuosa. Queda prohibido el uso de la plataforma para fines distintos al entrenamiento deportivo y la comunicación entre entrenador y cliente.</div>";
-
-  h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>7. Calidad del entrenador</div>";h += "DT-APP recomienda siempre verificar las certificaciones, licencias y formación profesional del entrenador antes de contratar sus servicios. Un entrenador certificado debe contar con estudios en ciencias del deporte, educación física o disciplinas afines, y debe aplicar el principio de individualidad en cada plan de entrenamiento. DT-APP no avala ni respalda la práctica de entrenadores sin certificación, ni se hace responsable por planes genéricos, repetitivos o sin fundamento técnico. La calidad del servicio de entrenamiento es responsabilidad exclusiva del profesional contratado.</div>";h += "<div><div style='font-size:14px;font-weight:700;color:#e31e24;margin-bottom:8px'>8. Jurisdicción</div>";
-  h += "Estos términos se rigen por las leyes de la República de Colombia. Cualquier disputa será resuelta bajo la jurisdicción de los tribunales colombianos competentes.</div>";
-
-  h += "<div style='font-size:11px;color:#444;text-align:center;margin-top:8px'>Al usar DT-APP aceptas estos términos y condiciones.</div>";
-  h += "</div>";
-  el.innerHTML = h;
+function tcVerCompletosTerminos() {
+  var el = document.createElement('div');
+  el.id = 'tc-terminos-full';
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:100001;overflow-y:auto;display:flex;flex-direction:column';
+  var header = document.createElement('div');
+  header.style.cssText = 'background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:2';
+  var btnV = document.createElement('button');
+  btnV.innerHTML = '&#8592;';
+  btnV.style.cssText = 'background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer';
+  btnV.onclick = function(){ document.getElementById('tc-terminos-full').remove(); };
+  var tit = document.createElement('span');
+  tit.style.cssText = 'font-size:14px;font-weight:700;color:#fff';
+  tit.textContent = 'Corpus Legal · DT-APP';
+  header.appendChild(btnV);
+  header.appendChild(tit);
+  el.appendChild(header);
+  var cont = document.createElement('div');
+  cont.style.cssText = 'padding:20px;color:#ccc;font-size:12px;line-height:1.8;display:flex;flex-direction:column;gap:20px';
+  cont.innerHTML = '<div style="font-size:10px;color:#555;text-align:center">DT-APP &middot; @dt_entrenamientos &middot; Colombia &middot; Mayo 2026<br>Marco: Cód. Comercio &middot; Ley 1480/2011 &middot; Ley 1581/2012 &middot; Decreto 1074/2015 &middot; Ley 527/1999</div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">1. Términos y Condiciones</div><div style="color:#aaa"><b style="color:#fff">Cl. 1.1.</b> Contrato de adhesión electrónico válido conforme Ley 527/1999 y Cód. Comercio. El uso implica aceptación incondicional.<br><br><b style="color:#fff">Cl. 1.2.</b> DT-APP es exclusivamente herramienta SaaS de gestión deportiva. No es IPS, no provee servicios médicos ni nutricionales clínicos.<br><br><b style="color:#fff">Cl. 1.3.</b> Acceso restringido a mayores de 18 años. Menores requieren autorización de representante legal.<br><br><b style="color:#fff">Cl. 1.4.</b> Pagos entre entrenador y cliente son directos y externos. DT-APP no intermedia. Aportes al Plan Premium son voluntarios y no reembolsables.<br><br><b style="color:#fff">Cl. 1.5.</b> Código fuente, diseños y marcas protegidos por Ley 23/1982, Ley 1915/2018 y Decisión Andina 486/2000. Licencia personal, revocable y no transferible.<br><br><b style="color:#fff">Cl. 1.6.</b> Prohibido usar la plataforma para difundir material ilegal, alterar su funcionamiento o fines ajenos al acondicionamiento físico.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">2. Privacidad y Datos Personales</div><div style="color:#aaa"><b style="color:#fff">Cl. 2.1.</b> Cumple Ley 1581/2012 y Decreto 1074/2015.<br><br><b style="color:#fff">Cl. 2.2.</b> Toda información se almacena únicamente de forma local en el dispositivo del Entrenador. DT-APP no posee servidores centrales.<br><br><b style="color:#fff">Cl. 2.3.</b> El Entrenador es Responsable del Tratamiento. DT-APP es proveedor tecnológico sin acceso a los datos.<br><br><b style="color:#fff">Cl. 2.4.</b> Al vincularse, el Cliente autoriza al Entrenador a visualizar sus datos con fines deportivos. El Entrenador no podrá transferirlos a terceros.<br><br><b style="color:#fff">Cl. 2.5.</b> Solicitudes de supresión de datos deben dirigirse directamente al Entrenador.<br><br><b style="color:#fff">Cl. 2.6.</b> Cada usuario es responsable de la seguridad de su dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">3. Almacenamiento Local</div><div style="color:#aaa">DT-APP no implementa cookies de rastreo. Usa LocalStorage funcional para sesión, plantillas e historial deportivo. El usuario puede eliminar estos datos desde configuración del dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">4. Descargo de Responsabilidad</div><div style="color:#aaa"><b style="color:#fff">Cl. 4.1.</b> DT-APP no provee asesoramiento médico. No reemplaza consulta profesional.<br><br><b style="color:#fff">Cl. 4.2.</b> El Cliente asume voluntariamente los riesgos de la práctica física. DT-APP no responde por lesiones derivadas de ejecución incorrecta, preexistencias médicas o condiciones de instalaciones.<br><br><b style="color:#fff">Cl. 4.3.</b> Los planes alimentarios son orientativos. No reemplazan al nutricionista certificado.<br><br><b style="color:#fff">Cl. 4.4.</b> Es responsabilidad del Cliente verificar certificaciones del Entrenador. DT-APP desaprueba planes genéricos sin fundamento técnico.<br><br><b style="color:#fff">Cl. 4.5.</b> Toda controversia se rige por leyes de Colombia. Jurisdicción: tribunales de Medellín.</div></div><div style="font-size:10px;color:#333;text-align:center;padding:8px 0">Al usar DT-APP aceptas la totalidad de este Corpus Legal.<br>DT-APP &middot; @dt_entrenamientos &middot; Colombia, 2026</div>';
+  el.appendChild(cont);
   document.body.appendChild(el);
 }
 
 function tcToggleTema(btn) {
-  document.body.classList.toggle("modo-claro");
-  var claro = document.body.classList.contains("modo-claro");
-  localStorage.setItem("dt_tema", claro ? "claro" : "oscuro");
-  btn.innerHTML = claro ? "&#9728; Claro" : "&#127769; Oscuro";
-  btn.style.background = claro ? "#e31e24" : "#1a1a1a";
-  var lbl = document.getElementById("tc-cfg-tema-btn-lbl");
-  if (lbl) lbl.textContent = claro ? "Modo claro" : "Modo oscuro";
+  document.body.classList.toggle('modo-claro');
+  var claro = document.body.classList.contains('modo-claro');
+  localStorage.setItem('dt_tema', claro ? 'claro' : 'oscuro');
+  btn.innerHTML = claro ? '&#9728; Claro' : '&#127769; Oscuro';
+  btn.style.background = claro ? '#e31e24' : '#1a1a1a';
+  var lbl = document.getElementById('tc-cfg-tema-btn-lbl');
+  if (lbl) lbl.textContent = claro ? 'Modo claro' : 'Modo oscuro';
 }
 
 function tcToggleSonidos(btn) {
-  var sonidos = localStorage.getItem("tc-sonidos") !== "off";
-  sonidos = !sonidos;
-  localStorage.setItem("tc-sonidos", sonidos ? "on" : "off");
-  btn.innerHTML = sonidos ? "&#128276; On" : "&#128277; Off";
-  btn.style.background = sonidos ? "#e31e24" : "#1a1a1a";
+  var sonidos = localStorage.getItem('tc-sonidos') !== 'off';
+  localStorage.setItem('tc-sonidos', sonidos ? 'on' : 'off');
+  btn.innerHTML = sonidos ? '&#128276; On' : '&#128277; Off';
+  btn.style.background = sonidos ? '#e31e24' : '#1a1a1a';
 }
 </script>
-
 </body>
 <script>
 // ======== IMAGEN Y VOZ CHAT ========
