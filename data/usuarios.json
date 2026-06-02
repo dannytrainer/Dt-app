@@ -21,8 +21,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 48,
-    "sesiones_ciclo": 48,
+    "sesiones_total": 49,
+    "sesiones_ciclo": 49,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague m",
     "msg_q1": "",
@@ -404,7 +404,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 1,
     "dia_pago2": null,
-    "estado_pago": "vencido",
+    "estado_pago": "aldia",
     "perfil": {
       "fecha_inicio": "2026-05-29",
       "sexo": "F",
@@ -418,5 +418,18 @@
     "foto": "data/fotos/1780069487489/perfil.jpg",
     "premium": true,
     "premium_hasta": "2026-06-02"
+  },
+  {
+    "id": "1780410974278",
+    "activo": true,
+    "nombre": "Ana Chen",
+    "telefono": "573207020118",
+    "tipo": "personalizado",
+    "hora_envio": "07:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia",
+    "msg_pago": ""
   }
 ]
