@@ -17,7 +17,10 @@
           "fecha": "2026-05-22"
         }
       ],
-      "msg_pago": "Prueba de cobro auto"
+      "msg_pago": "Prueba de cobro auto",
+      "descuento_tipo": "pct",
+      "descuento_valor": 0,
+      "descuento_motivo": ""
     },
     "1778377380425": {
       "precio": 350000,
@@ -62,7 +65,10 @@
           "descuento_motivo": "",
           "fecha": "2026-05-26"
         }
-      ]
+      ],
+      "descuento_tipo": "pct",
+      "descuento_valor": 0,
+      "descuento_motivo": ""
     },
     "1778377616786": {
       "precio": 150000,
@@ -80,7 +86,10 @@
           "descuento_motivo": "",
           "fecha": "2026-05-21"
         }
-      ]
+      ],
+      "descuento_tipo": "pct",
+      "descuento_valor": 0,
+      "descuento_motivo": ""
     },
     "1778377049231": {
       "precio": 85000,
@@ -94,7 +103,10 @@
           "moneda": "COP",
           "fecha": "2026-05-16"
         }
-      ]
+      ],
+      "descuento_tipo": "pct",
+      "descuento_valor": 0,
+      "descuento_motivo": ""
     },
     "1778377208321": {
       "precio": 150000,
@@ -104,7 +116,7 @@
       "pagos": []
     },
     "1778687454932": {
-      "precio": 200000,
+      "precio": 250000,
       "moneda": "COP",
       "msg_recordatorio": "",
       "msg_prellenado": true,
@@ -156,7 +168,18 @@
     "1780069487489": {
       "precio": 150000,
       "moneda": "COP",
-      "pagos": [],
+      "pagos": [
+        {
+          "monto": 150000,
+          "metodo": "transferencia",
+          "moneda": "COP",
+          "novedad": "",
+          "descuento_tipo": "",
+          "descuento_valor": 0,
+          "descuento_motivo": "",
+          "fecha": "2026-06-02"
+        }
+      ],
       "descuento_tipo": "pct",
       "descuento_valor": 0,
       "descuento_motivo": ""

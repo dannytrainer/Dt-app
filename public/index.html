@@ -135,8 +135,8 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <div id="nombre-entrenador" style="font-size:12px;color:var(--texto-suave);font-weight:600;letter-spacing:.5px">Danny Trainer</div>
 </div>
 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-<button onclick="toggleTema()" id="btn-tema" style="background:var(--gris);border:1px solid #2a2a2a;border-radius:10px;color:var(--texto-medio);font-size:18px;cursor:pointer;padding:5px 8px;line-height:1">🌙</button><button onclick="cerrarSesion()" style="background:var(--gris);border:1px solid #2a2a2a;border-radius:10px;color:#666;font-size:12px;font-weight:700;cursor:pointer;padding:5px 8px;line-height:1">🚪</button>
-<button onclick="abrirConfig()" style="background:var(--gris);border:1px solid #2a2a2a;border-radius:10px;color:var(--texto-medio);font-size:18px;cursor:pointer;padding:5px 8px;line-height:1">⚙️</button>
+<button onclick="cerrarSesion()" style="background:transparent;border:none;cursor:pointer;padding:5px 8px;line-height:1"><img src="/images/icon-exit.png" style="width:28px;height:28px;object-fit:contain;display:block"></button><button onclick="abrirConfig()" style="background:transparent;border:none;cursor:pointer;padding:5px 8px;line-height:1"><img src="/images/icon-configuracion.png" style="width:28px;height:28px;object-fit:contain;display:block"></button>
+
 <span class="sdot soff" id="statusWA" style="font-size:11px">⚫ Offline</span>
 </div>
 
@@ -2094,21 +2094,51 @@ function abrirConfig(){
   sh.style.display='flex';
   cargarNombreEntrenador();
   cargarCodigoVinc();
+  // Mostrar estado premium entrenador
+  fetch('/api/config').then(r=>r.json()).then(cfg => {
+    const el = document.getElementById('cfg-premium-estado');
+    if (!el) return;
+    const activo = cfg.premium_entrenador;
+    const hasta = cfg.premium_entrenador_hasta;
+    const hoy = new Date().toISOString().split('T')[0];
+    if (activo && hasta && hasta >= hoy) {
+      el.style.color = '#4caf50';
+      el.textContent = '✅ Premium activo — Vence: ' + hasta;
+    } else if (activo && hasta && hasta < hoy) {
+      el.style.color = '#e31e24';
+      el.textContent = '❌ Premium vencido — Renovar para continuar';
+    } else {
+      el.style.color = '#555';
+      el.textContent = 'Acceso completo a todas las funciones profesionales';
+    }
+  }).catch(()=>{});
 }
-function validarCodigoPremium(){
+async function validarCodigoPremium(){
   const input = document.getElementById('cfg-codigo-premium');
   const status = document.getElementById('cfg-codigo-status');
   const codigo = (input.value || '').trim().toUpperCase();
-  const CODIGOS = ['DANNY2026','PREMIUM1','DTAPP'];
   if(!codigo){ status.style.color='#666'; status.textContent='Ingresa un código.'; return; }
-  if(CODIGOS.includes(codigo)){
-    status.style.color='#4caf50';
-    status.textContent='✅ Código válido — Premium activado';
-    localStorage.setItem('dt_premium','1');
-    input.value='';
-  } else {
+  status.style.color='#888'; status.textContent='Verificando...';
+  try {
+    const res = await fetch('/api/premium/activar-entrenador', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ codigo })
+    });
+    const d = await res.json();
+    if(d.ok){
+      status.style.color='#4caf50';
+      status.textContent='✅ Premium activado' + (d.hasta ? ' — Activo hasta: ' + d.hasta : '');
+      input.value='';
+      localStorage.setItem('dt_premium','1');
+      localStorage.setItem('dt_premium_hasta', d.hasta || '');
+    } else {
+      status.style.color='#e31e24';
+      status.textContent='❌ ' + (d.msg || 'Código inválido');
+    }
+  } catch(e) {
     status.style.color='#e31e24';
-    status.textContent='❌ Código inválido';
+    status.textContent='❌ Error de conexión';
   }
 }
 function entToggleTema(btn) {
@@ -8570,7 +8600,7 @@ function filtrarRutinas(){
   <div style="background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:2">
     <button onclick="cerrarConfig()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">&#8592;</button>
     <div style="flex:1">
-      <div style="font-size:15px;font-weight:700;color:#fff">&#9881;&#65039; Configuraci&oacute;n</div>
+      <div style="font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px"><img src="/images/icon-configuracion.png" style="width:18px;height:18px;object-fit:contain"> Configuraci&oacute;n</div>
       <div style="font-size:11px;color:#555;margin-top:1px">DT-APP &middot; Danny Trainer</div>
     </div>
   </div>
@@ -8580,11 +8610,13 @@ function filtrarRutinas(){
     <!-- PREMIUM -->
     <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128273; Premium</div>
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
-      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">C&oacute;digo de acceso</div>
-      <div style="font-size:11px;color:#555;margin-bottom:12px">Ingresa tu c&oacute;digo para desbloquear funciones premium</div>
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Plan Premium Entrenador — $50.000/mes</div>
+      <div id="cfg-premium-estado" style="font-size:11px;color:#555;margin-bottom:12px">Acceso completo a todas las funciones profesionales</div>
+      <button onclick="entPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Pagar $50.000 por WhatsApp</button>
+      <div style="font-size:11px;color:#555;margin-bottom:8px;text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>
       <div style="display:flex;gap:8px;align-items:center">
         <input id="cfg-codigo-premium" type="text" placeholder="INGRESA TU C&Oacute;DIGO..." style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">
-        <button onclick="validarCodigoPremium()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Activar</button>
+        <button onclick="validarCodigoPremium()" style="background:#333;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Activar</button>
       </div>
       <div id="cfg-codigo-status" style="font-size:11px;margin-top:8px;text-align:center"></div>
     </div>
@@ -8955,8 +8987,8 @@ function compartirPlanWA() {
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
-      <button onclick="tcAbrirConfig()" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#666;font-size:16px;cursor:pointer;padding:6px 10px">&#9881;&#65039;</button>
-      <button onclick="cerrarSesion()" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#666;font-size:12px;font-weight:700;cursor:pointer;padding:6px 10px">&#128682; Salir</button>
+      <button onclick="tcAbrirConfig()" style="background:transparent;border:none;cursor:pointer;padding:6px 10px"><img src="/images/icon-configuracion.png" style="width:20px;height:20px;object-fit:contain;display:block"></button>
+      <button onclick="cerrarSesion()" style="background:transparent;border:none;cursor:pointer;padding:6px 10px"><img src="/images/icon-exit.png" style="width:26px;height:26px;object-fit:contain;display:block"></button>
     </div>
   </div>
 
@@ -9190,6 +9222,19 @@ async function iniciarTerminalCliente() {
   _tcRutina = rutRes;
   _tcAlim = aliRes;
 
+  // Verificar vencimiento premium
+  if (_tcUsuario && _tcUsuario.premium && _tcUsuario.premium_hasta) {
+    const hoy = new Date().toISOString().split('T')[0];
+    if (_tcUsuario.premium_hasta < hoy) {
+      _tcUsuario.premium = false;
+      fetch('/api/usuarios/' + _tcUsuario.id, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ premium: false, premium_hasta: null })
+      }).catch(()=>{});
+    }
+  }
+
   // Nombre en header
   if (_tcUsuario && _tcUsuario.nombre) {
     document.getElementById('tc-nombre-cliente').textContent = _tcUsuario.nombre;
@@ -9251,10 +9296,18 @@ function tcRenderRutina(cont) {
   cont.innerHTML = diasHtml + '<div id="tc-rec-dropdown" style="display:none;background:#1a1a1a;border-left:3px solid #e31e24;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#ccc"></div><div id="tc-dia-contenido"></div>';
   // Verificar si rutina ya fue completada hoy
   const _uid2 = (_tcUsuario && _tcUsuario.id) || 'x';
-  const _resumenHoy = localStorage.getItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy());
   const _diaActualHoy2 = DIAS_ES[new Date().getDay()];
   const _fecha2 = new Date().toISOString().split('T')[0];
   const _desbloqueadoHoy = (_tcUsuario && _tcUsuario.dias_desbloqueados && _tcUsuario.dias_desbloqueados[_diaActualHoy2] && _tcUsuario.dias_desbloqueados[_diaActualHoy2].includes(_fecha2));
+  if (_desbloqueadoHoy) {
+    localStorage.removeItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy());
+    fetch('/api/usuarios/' + _uid2 + '/limpiar-desbloqueo', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({dia: _diaActualHoy2})
+    }).catch(()=>{});
+  }
+  const _resumenHoy = localStorage.getItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy());
   if (_resumenHoy && !_desbloqueadoHoy) {
     _tcRutinaCompletadaHoy = true;
     try {
@@ -9312,6 +9365,9 @@ function tcVerDia(dia) {
   const _diaCheck = DIAS_ES[new Date().getDay()];
   const _fechaCheck = new Date().toISOString().split('T')[0];
   const _desbCheck = (_tcUsuario && _tcUsuario.dias_desbloqueados && _tcUsuario.dias_desbloqueados[_diaCheck] && _tcUsuario.dias_desbloqueados[_diaCheck].includes(_fechaCheck));
+  if (_desbCheck) {
+    localStorage.removeItem('tc-rutina-completa-' + _uid3 + '-' + tcFechaHoy());
+  }
   if (_resumenCheck && !_desbCheck) return;
   const diaAnterior = _tcDia;
   _tcDia = dia;
@@ -9418,7 +9474,7 @@ function tcVerDia(dia) {
           var btn = document.getElementById('tc-enc-btn-' + i);
           if (btn) {
             btn.style.display = 'flex';
-            btn.onclick = function(){ tcVerEnciclopedia(res.ejercicio.id); };
+            btn.onclick = function(){ if(tcEsPremium()){tcVerEnciclopedia(res.ejercicio.id);}else{tcMostrarPremium();} };
           }
         }
       }).catch(function(){});
@@ -11234,15 +11290,14 @@ function encAbrirFicha(id) {
   var volverFn = window._encDesdeRutina ? "window._encDesdeRutina=false;tcTab('rutina')" : "encMostrarLista()";
   html += "<button onclick=\"" + volverFn + "\" style=\"background:#1a1a1a;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:14px\">&#8592;</button>";
   html += "<span style=\"font-size:13px;color:#666;flex:1\">Ficha tecnica</span>";
-  html += "<button onclick=\"encEditarFicha(&quot;" + e.id + "&quot;)\" style=\"background:#1a1a1a;border:1px solid #e31e24;border-radius:8px;color:#e31e24;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700\">&#9998; Editar</button>";
+  
   html += "</div>";
   if (e.video_youtube) {
     html += "<div style=\"position:relative;width:100%;padding-bottom:56.25%;margin-bottom:12px;border-radius:10px;overflow:hidden\"><iframe src=\"" + e.video_youtube + "\" style=\"position:absolute;top:0;left:0;width:100%;height:100%;border:none\" allowfullscreen></iframe></div>";
   } else if (e.imagen_inicio || e.imagen_fin || e.imagen) {
     var img1 = e.imagen_inicio || e.imagen || "";
     var img2 = e.imagen_fin || e.imagen2 || e.imagen_inicio || e.imagen || "";
-    var esPersonal = e.es_personalizado;
-    var filtro = esPersonal ? "none" : "invert(1)";
+    var filtro = e.invertir === false ? "none" : "invert(1)";
     html += "<div style=\"background:#1a1a1a;border-radius:10px;overflow:hidden;margin-bottom:12px;text-align:center;padding:16px;position:relative\">";
     html += "<img id=\"enc-anim-img\" src=\"" + img1 + "\" style=\"max-width:100%;height:350px;width:auto;object-fit:contain;object-position:center bottom;filter:" + filtro + "\" data-img1=\"" + img1 + "\" data-img2=\"" + img2 + "\">";
     html += "<div style=\"position:absolute;bottom:6px;right:8px;font-size:10px;color:#e31e24;font-weight:700;opacity:0.7\">DT-APP</div></div>";
@@ -11468,8 +11523,36 @@ function tcAbrirConfig() {
   pagoCont.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px';
   pagoCont.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Pago al entrenador</div><div style="font-size:12px;color:#555">Cargando...</div>';
   body.appendChild(pagoCont);
-  fila('Plan Premium', 'Acceso completo a la app', 'Próximamente', '#1a1a1a', null, null);
-  fila('&#127942; Aportar al premio', 'Contribuye al premio del entrenador', 'Próximamente', '#1a1a1a', null, null);
+  // PLAN PREMIUM
+  var premDiv = document.createElement('div');
+  premDiv.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px';
+  var premEstado = (_tcUsuario && _tcUsuario.premium) ? '✅ Activo' : '⭐ Activar';
+  var premColor = (_tcUsuario && _tcUsuario.premium) ? '#4caf50' : '#e31e24';
+  premDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">Plan Premium — $20.000/mes</div>' +
+    '<div style="font-size:12px;color:#555;margin-bottom:12px">Acceso completo a la app</div>' +
+    ((_tcUsuario && _tcUsuario.premium) ?
+      '<div style="color:' + premColor + ';font-weight:700">✅ Premium activo</div>' +
+      (_tcUsuario.premium_hasta ? '<div style="font-size:11px;color:#555;margin-top:4px">Activo hasta: ' + _tcUsuario.premium_hasta + '</div>' : '') :
+      '<div style="margin-bottom:12px"><button onclick="tcPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;padding:11px;box-sizing:border-box">💳 Pagar $20.000 por WhatsApp</button></div>' +
+      '<div style="display:flex;gap:8px"><input id="tc-cod-premium" placeholder="¿Ya tienes un código? Ingrésalo" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"><button onclick="tcActivarPremiumConfig()" style="background:#333;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:8px 12px;flex-shrink:0">Activar</button></div>'
+    );
+  body.appendChild(premDiv);
+  
+  // APORTE AL ENTRENADOR
+  var aportDiv = document.createElement('div');
+  aportDiv.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px';
+  aportDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">🏆 Apoya a tu entrenador</div>' +
+    '<div style="font-size:12px;color:#555;line-height:1.6">Próximamente podrás aportar directamente a tu entrenador desde aquí.</div>' +
+    '<div style="width:100%;margin-top:12px;background:#111;border:1px solid #222;border-radius:8px;color:#333;font-size:13px;font-weight:700;padding:10px;box-sizing:border-box;text-align:center">🔒 Próximamente</div>';
+  body.appendChild(aportDiv);
+
+  // APORTE AL DESARROLLADOR
+  var devDiv = document.createElement('div');
+  devDiv.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px';
+  devDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">☕ Invita un café al desarrollador</div>' +
+    '<div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:12px">¿Te gusta la app? Puedes apoyar su desarrollo con lo que quieras. Cada aporte ayuda a seguir mejorando.</div>' +
+    '<button onclick="tcAportarDesarrollador()" style="width:100%;background:#0a1a2a;border:1px solid #2196f3;border-radius:8px;color:#2196f3;font-size:13px;font-weight:700;cursor:pointer;padding:10px;box-sizing:border-box">☕ Aportar al desarrollador</button>';
+  body.appendChild(devDiv);
 
   seccion('&#128221; Información');
   fila('Términos y condiciones', null, '&#8250;', 'transparent', null, function(){ tcVerTerminos(); });
@@ -11927,5 +12010,53 @@ async function chatEntEnviarVideo(input) {
   };
   reader.readAsDataURL(file);
   input.value = '';
+}
+
+function tcActivarPremiumConfig() {
+  var codigo = document.getElementById('tc-cod-premium').value.trim().toUpperCase();
+  if (!codigo) { alert('Ingresa el código'); return; }
+  var uid = localStorage.getItem('dt_cliente_id');
+  if (!uid) { alert('Error: no hay usuario'); return; }
+  
+  fetch('/api/premium/activar', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({codigo, userId: uid})
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      alert('¡Premium activado! Recarga la app.');
+      _tcUsuario.premium = true;
+      var hasta = d.hasta ? '<div style="font-size:11px;color:#555;margin-top:4px">Activo hasta: ' + d.hasta + '</div>' : '';
+      document.getElementById('tc-cod-premium').parentNode.innerHTML = '<div style="color:#4caf50;font-weight:700">✅ Premium activo</div>' + hasta;
+    } else {
+      alert(d.msg || 'Código inválido');
+    }
+  }).catch(e => alert('Error: ' + e.message));
+}
+
+function tcAbrirContactoAporte() {
+  var msg = 'Hola, quiero aportar $12.000 para apoyar mi entrenamiento.';
+  var wa = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(wa, '_blank');
+}
+
+function entPagarPremium() {
+  var nombre = (window._configApp && window._configApp.nombre_entrenador) ? window._configApp.nombre_entrenador : 'Entrenador';
+  var msg = 'Hola, quiero activar el Plan Premium Entrenador de DT-APP ($50.000/mes). Mi nombre es: ' + nombre;
+  var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
+  window.open(wa, '_blank');
+}
+
+function tcPagarPremium() {
+  var nombre = (_tcUsuario && _tcUsuario.nombre) ? _tcUsuario.nombre : 'Cliente';
+  var msg = 'Hola, quiero activar el Plan Premium de DT-APP ($20.000/mes). Mi nombre es: ' + nombre;
+  var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
+  window.open(wa, '_blank');
+}
+
+function tcAportarDesarrollador() {
+  var msg = 'Hola, quiero aportar al desarrollo de DT-APP ☕';
+  var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
+  window.open(wa, '_blank');
 }
 </script>

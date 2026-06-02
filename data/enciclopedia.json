@@ -2330,7 +2330,7 @@
   },
   {
     "id": "smith-machine-bench-press",
-    "nombre": " prensa de banca máquina smith ",
+    "nombre": " press de banca máquina smith ",
     "grupo": "pecho",
     "musculos_principales": [
       "pectoral"
@@ -5551,7 +5551,7 @@
   },
   {
     "id": "seated-one-arm-triceps-extension-with-dumbbell",
-    "nombre": "Sentado One Brazo Extensión De Tríceps con Mancuerna",
+    "nombre": "Extensión De Tríceps  unilateral con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
       "triceps"
@@ -9022,46 +9022,6 @@
     "es_personalizado": false
   },
   {
-    "id": "burpees",
-    "nombre": "Burpees",
-    "grupo": "cardio",
-    "subgrupo": "cardio libre",
-    "musculos_principales": [
-      "cuádriceps",
-      "pecho",
-      "core"
-    ],
-    "musculos_secundarios": [
-      "glúteos",
-      "hombros",
-      "tríceps"
-    ],
-    "equipamiento": "peso corporal",
-    "nivel": "avanzado",
-    "patron": "cardio",
-    "imagen": "/enciclopedia/imgs/aerobics.png",
-    "imagen2": "/enciclopedia/imgs/aerobics.png",
-    "ejecucion": [
-      "De pie, baja en cuclillas y coloca las manos en el suelo.",
-      "Salta los pies hacia atrás quedando en posición de plancha.",
-      "Haz una flexión completa.",
-      "Salta los pies hacia las manos volviendo a cuclillas.",
-      "Salta hacia arriba con los brazos extendidos sobre la cabeza."
-    ],
-    "errores_comunes": [
-      "No hacer la flexión completa.",
-      "Dejar caer las caderas en la plancha.",
-      "No extender completamente el cuerpo en el salto final."
-    ],
-    "tags": [
-      "cardio",
-      "cuerpo completo",
-      "alto impacto",
-      "funcional"
-    ],
-    "es_personalizado": false
-  },
-  {
     "id": "mountain-climbers",
     "nombre": "Mountain Climbers",
     "grupo": "cardio",
@@ -9094,83 +9054,6 @@
     "tags": [
       "cardio",
       "core",
-      "alto impacto",
-      "funcional"
-    ],
-    "es_personalizado": false
-  },
-  {
-    "id": "jumping-jacks",
-    "nombre": "Jumping Jacks",
-    "grupo": "cardio",
-    "subgrupo": "cardio libre",
-    "musculos_principales": [
-      "cuádriceps",
-      "gemelos"
-    ],
-    "musculos_secundarios": [
-      "glúteos",
-      "hombros",
-      "core"
-    ],
-    "equipamiento": "peso corporal",
-    "nivel": "principiante",
-    "patron": "cardio",
-    "imagen": "/enciclopedia/imgs/aerobics.png",
-    "imagen2": "/enciclopedia/imgs/aerobics.png",
-    "ejecucion": [
-      "De pie con los pies juntos y los brazos a los lados.",
-      "Salta abriendo los pies al ancho de los hombros.",
-      "Simultáneamente lleva los brazos por encima de la cabeza.",
-      "Salta de vuelta a la posición inicial juntando pies y bajando brazos.",
-      "Repite de forma continua a un ritmo constante."
-    ],
-    "errores_comunes": [
-      "Aterrizar con los talones generando impacto excesivo.",
-      "No coordinar brazos y piernas al mismo tiempo.",
-      "Hacer el movimiento demasiado lento perdiendo el efecto cardio."
-    ],
-    "tags": [
-      "cardio",
-      "coordinación",
-      "bajo impacto"
-    ],
-    "es_personalizado": false
-  },
-  {
-    "id": "box-jumps",
-    "nombre": "Saltos al cajón (Box Jumps)",
-    "grupo": "cardio",
-    "subgrupo": "cardio libre",
-    "musculos_principales": [
-      "cuádriceps",
-      "glúteos",
-      "gemelos"
-    ],
-    "musculos_secundarios": [
-      "core",
-      "isquiotibiales"
-    ],
-    "equipamiento": "otro",
-    "nivel": "avanzado",
-    "patron": "cardio",
-    "imagen": "/enciclopedia/imgs/field-sport.png",
-    "imagen2": "/enciclopedia/imgs/field-sport.png",
-    "ejecucion": [
-      "De pie frente al cajón con los pies al ancho de los hombros.",
-      "Flexiona las rodillas y balancea los brazos hacia atrás.",
-      "Salta explosivamente hacia el cajón llevando los brazos hacia adelante.",
-      "Aterriza suavemente con ambos pies en el centro del cajón.",
-      "Baja del cajón con cuidado y repite."
-    ],
-    "errores_comunes": [
-      "Aterrizar con las rodillas hacia adentro.",
-      "No flexionar las rodillas al aterrizar aumentando el impacto.",
-      "Usar un cajón demasiado alto para el nivel actual."
-    ],
-    "tags": [
-      "cardio",
-      "potencia",
       "alto impacto",
       "funcional"
     ],
@@ -9430,5 +9313,450 @@
       "por-ubicar"
     ],
     "es_personalizado": false
+  },
+  {
+    "id": "abduccion-banda",
+    "nombre": "Abduccion de Cadera con Banda",
+    "grupo": "gluteos",
+    "musculos_principales": [
+      "gluteo medio"
+    ],
+    "musculos_secundarios": [
+      "gluteo mayor"
+    ],
+    "equipamiento": "banda",
+    "nivel": "principiante",
+    "ejecucion": [
+      "Coloca la banda elastica sobre las rodillas",
+      "De pie o acostado de lado segun variante",
+      "Separa las rodillas venciendo la resistencia de la banda",
+      "Contrae el gluteo medio en el punto maximo",
+      "Regresa controladamente sin dejar que la banda jale de golpe"
+    ],
+    "errores_comunes": [
+      "Compensar con la cadera",
+      "No mantener la tension en la banda"
+    ],
+    "tags": [
+      "gluteo",
+      "banda"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Abdbanda.jpg",
+    "imagen2": "/enciclopedia/imgs/Abdbanda2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "burpee",
+    "nombre": "Burpee",
+    "grupo": "cardio",
+    "musculos_principales": [
+      "core",
+      "pectoral"
+    ],
+    "musculos_secundarios": [
+      "hombros",
+      "cuadriceps"
+    ],
+    "equipamiento": "peso corporal",
+    "nivel": "intermedio",
+    "ejecucion": [
+      "De pie, baja las manos al suelo",
+      "Salta los pies hacia atras quedando en posicion de plancha",
+      "Realiza una flexion opcional",
+      "Salta los pies hacia las manos",
+      "Salta hacia arriba con los brazos extendidos"
+    ],
+    "errores_comunes": [
+      "No activar el core en la plancha",
+      "Aterrizar con las rodillas bloqueadas",
+      "Ritmo demasiado rapido perdiendo forma"
+    ],
+    "tags": [
+      "cardio",
+      "funcional",
+      "cuerpo completo"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Burpee1.jpg",
+    "imagen2": "/enciclopedia/imgs/Burpee2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "plancha-copenhague",
+    "nombre": "Plancha de Copenhague",
+    "grupo": "piernas",
+    "musculos_principales": [
+      "aductores"
+    ],
+    "musculos_secundarios": [
+      "core",
+      "gluteos"
+    ],
+    "equipamiento": "peso corporal",
+    "nivel": "avanzado",
+    "ejecucion": [
+      "Apoya el antebrazo en el suelo, pie de arriba sobre un banco o silla",
+      "Levanta las caderas formando una linea recta",
+      "La pierna de abajo puede quedar libre o apoyada segun nivel",
+      "Mantén la posicion contrayendo el aductor de la pierna de arriba",
+      "Respira de forma controlada"
+    ],
+    "errores_comunes": [
+      "Cadera que cae",
+      "Rotar el cuerpo",
+      "No mantener tension en el aductor"
+    ],
+    "tags": [
+      "aductores",
+      "isometrico"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Copenague1.jpg",
+    "imagen2": "/enciclopedia/imgs/Copenague2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "empuje-banda",
+    "nombre": "Empuje con Banda",
+    "grupo": "pecho",
+    "musculos_principales": [
+      "pectoral"
+    ],
+    "musculos_secundarios": [
+      "triceps",
+      "hombros"
+    ],
+    "equipamiento": "banda",
+    "nivel": "principiante",
+    "ejecucion": [
+      "Ancla la banda detras de ti a la altura del pecho",
+      "Agarra los extremos de la banda con cada mano",
+      "Da un paso adelante para crear tension",
+      "Empuja hacia adelante extendiendo los brazos",
+      "Regresa controladamente"
+    ],
+    "errores_comunes": [
+      "No mantener el core activo",
+      "Inclinar el torso hacia adelante",
+      "Codos demasiado bajos"
+    ],
+    "tags": [
+      "pecho",
+      "banda",
+      "empuje"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Empujeconbanda1.jpg",
+    "imagen2": "/enciclopedia/imgs/Empujebanda2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "escaladores",
+    "nombre": "Escaladores",
+    "grupo": "core",
+    "musculos_principales": [
+      "core",
+      "abdominales"
+    ],
+    "musculos_secundarios": [
+      "hombros",
+      "cuadriceps"
+    ],
+    "equipamiento": "peso corporal",
+    "nivel": "intermedio",
+    "ejecucion": [
+      "Posicion de plancha alta con brazos extendidos",
+      "Lleva una rodilla hacia el pecho de forma explosiva",
+      "Regresa y alterna con la otra rodilla",
+      "Mantén las caderas bajas y el core activo",
+      "Aumenta la velocidad segun nivel"
+    ],
+    "errores_comunes": [
+      "Levantar las caderas",
+      "No mantener el core activo",
+      "Pasos demasiado cortos"
+    ],
+    "tags": [
+      "core",
+      "cardio",
+      "funcional"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Escaladores.jpg",
+    "imagen2": "/enciclopedia/imgs/Escaladores2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "face-pull",
+    "nombre": "Face Pull",
+    "grupo": "hombros",
+    "musculos_principales": [
+      "hombros",
+      "trapecio"
+    ],
+    "musculos_secundarios": [
+      "manguito rotador"
+    ],
+    "equipamiento": "cable",
+    "nivel": "principiante",
+    "ejecucion": [
+      "En polea alta con cuerda, agarre con pulgares hacia arriba",
+      "Da un paso atras para crear tension",
+      "Jala la cuerda hacia la cara separando las manos al final",
+      "Los codos quedan por encima de los hombros",
+      "Regresa controladamente"
+    ],
+    "errores_comunes": [
+      "Codos bajos",
+      "Usar el peso del cuerpo para jalar",
+      "No separar las manos al final"
+    ],
+    "tags": [
+      "hombro",
+      "salud articular"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Facepull1.jpg",
+    "imagen2": "/enciclopedia/imgs/Facepull2.jpg"
+  },
+  {
+    "id": "frog-pump",
+    "nombre": "Frog Pump",
+    "grupo": "gluteos",
+    "musculos_principales": [
+      "gluteos"
+    ],
+    "musculos_secundarios": [],
+    "equipamiento": "peso corporal",
+    "nivel": "principiante",
+    "ejecucion": [
+      "Acostado boca arriba, junta las plantas de los pies con las rodillas abiertas",
+      "Empuja las caderas hacia arriba contrayendo el gluteo",
+      "En esta posicion los isquiotibiales quedan desactivados",
+      "Mantén 1 segundo arriba",
+      "Baja sin tocar completamente el suelo"
+    ],
+    "errores_comunes": [
+      "No mantener las plantas de los pies juntas",
+      "No contraer el gluteo en la posicion alta"
+    ],
+    "tags": [
+      "gluteo",
+      "aislamiento"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Frog.jpg",
+    "imagen2": "/enciclopedia/imgs/Frog1.jpg",
+    "invertir": false
+  },
+  {
+    "id": "hip-thrust-barra",
+    "nombre": "Hip Thrust con Barra",
+    "grupo": "gluteos",
+    "musculos_principales": [
+      "gluteos"
+    ],
+    "musculos_secundarios": [
+      "isquiotibiales",
+      "core"
+    ],
+    "equipamiento": "barra",
+    "nivel": "intermedio",
+    "ejecucion": [
+      "Apoya la espalda alta en un banco, coloca la barra sobre las caderas con almohadilla",
+      "Pies apoyados en el suelo a la anchura de caderas",
+      "Empuja las caderas hacia arriba contrayendo el gluteo hasta quedar paralelo al suelo",
+      "Mantén 1 segundo arriba apretando el gluteo",
+      "Baja controladamente sin tocar el suelo completamente"
+    ],
+    "errores_comunes": [
+      "No extender completamente la cadera",
+      "Arquear la zona lumbar",
+      "Pies muy lejos o muy cerca"
+    ],
+    "tags": [
+      "gluteo",
+      "compuesto"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Hiptrust1.jpg",
+    "imagen2": "/enciclopedia/imgs/Hiptrust2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "jumping-jack",
+    "nombre": "Jumping Jack",
+    "grupo": "cardio",
+    "musculos_principales": [
+      "core"
+    ],
+    "musculos_secundarios": [
+      "hombros",
+      "piernas"
+    ],
+    "equipamiento": "peso corporal",
+    "nivel": "principiante",
+    "ejecucion": [
+      "De pie con pies juntos y brazos a los lados",
+      "Salta separando los pies y elevando los brazos sobre la cabeza",
+      "Regresa saltando a la posicion inicial",
+      "Mantén un ritmo constante",
+      "Aterriza suavemente con las rodillas ligeramente flexionadas"
+    ],
+    "errores_comunes": [
+      "Aterrizar con rodillas bloqueadas",
+      "Brazos que no llegan arriba del todo",
+      "Ritmo irregular"
+    ],
+    "tags": [
+      "cardio",
+      "calentamiento"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Jumpingjack1.jpg",
+    "imagen2": "/enciclopedia/imgs/Jumpingjack2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "press-landmine",
+    "nombre": "Press Landmine",
+    "grupo": "hombros",
+    "musculos_principales": [
+      "hombros",
+      "pectoral"
+    ],
+    "musculos_secundarios": [
+      "triceps",
+      "core"
+    ],
+    "equipamiento": "barra",
+    "nivel": "intermedio",
+    "ejecucion": [
+      "Inserta un extremo de la barra en el suelo o soporte landmine",
+      "Agarra el otro extremo con una o dos manos a la altura del hombro",
+      "Empuja la barra hacia arriba y adelante en arco",
+      "Extiende completamente los brazos en la posicion final",
+      "Regresa controladamente"
+    ],
+    "errores_comunes": [
+      "Arquear la zona lumbar",
+      "No activar el core",
+      "Movimiento con el cuerpo en vez de los brazos"
+    ],
+    "tags": [
+      "hombro",
+      "press",
+      "landmine"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Landmine1.jpg",
+    "imagen2": "/enciclopedia/imgs/Landmine2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "prensa-unilateral",
+    "nombre": "Prensa de Pierna Unilateral",
+    "grupo": "piernas",
+    "musculos_principales": [
+      "cuadriceps",
+      "gluteos"
+    ],
+    "musculos_secundarios": [
+      "isquiotibiales"
+    ],
+    "equipamiento": "maquina",
+    "nivel": "intermedio",
+    "ejecucion": [
+      "Siéntate en la maquina de prensa, coloca un solo pie en la plataforma al centro",
+      "Suelta los seguros y flexiona la rodilla controladamente",
+      "Empuja con el talon hasta casi extender completamente",
+      "No bloquees la rodilla al final",
+      "Alterna piernas"
+    ],
+    "errores_comunes": [
+      "Rodilla que colapsa adentro",
+      "Despegar la cadera del asiento",
+      "Bajar demasiado rapido"
+    ],
+    "tags": [
+      "piernas",
+      "unilateral"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Prensaindiv.jpg",
+    "imagen2": "/enciclopedia/imgs/Prensaindv2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "salto-cajon",
+    "nombre": "Salto al Cajon",
+    "grupo": "piernas",
+    "musculos_principales": [
+      "cuadriceps",
+      "gluteos"
+    ],
+    "musculos_secundarios": [
+      "isquiotibiales",
+      "gemelos"
+    ],
+    "equipamiento": "peso corporal",
+    "nivel": "intermedio",
+    "ejecucion": [
+      "De pie frente al cajon a una distancia comoda",
+      "Flexiona las rodillas y carga los brazos hacia atras",
+      "Salta explosivamente sobre el cajon",
+      "Aterriza con ambos pies al mismo tiempo y rodillas flexionadas",
+      "Baja caminando o saltando controladamente"
+    ],
+    "errores_comunes": [
+      "Aterrizar con rodillas en valgo",
+      "No flexionar las rodillas al aterrizar",
+      "Cajon demasiado alto para el nivel"
+    ],
+    "tags": [
+      "piernas",
+      "potencia",
+      "explosivo"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Saltocajon1.jpg",
+    "imagen2": "/enciclopedia/imgs/Saltocajon2.jpg",
+    "invertir": false
+  },
+  {
+    "id": "salto-cuerda",
+    "nombre": "Salto a la Cuerda",
+    "grupo": "cardio",
+    "musculos_principales": [
+      "gemelos"
+    ],
+    "musculos_secundarios": [
+      "core",
+      "hombros"
+    ],
+    "equipamiento": "cuerda",
+    "nivel": "principiante",
+    "ejecucion": [
+      "Sostén los mangos de la cuerda a la altura de las caderas",
+      "Gira la cuerda con las muñecas, no con los brazos",
+      "Salta con ambos pies juntos o alternando",
+      "Aterriza suavemente en la punta de los pies",
+      "Mantén los codos cerca del cuerpo"
+    ],
+    "errores_comunes": [
+      "Saltar demasiado alto",
+      "Girar la cuerda con los brazos en vez de las muñecas",
+      "Aterrizar con toda la planta del pie"
+    ],
+    "tags": [
+      "cardio",
+      "gemelos",
+      "coordinacion"
+    ],
+    "es_personalizado": false,
+    "imagen": "/enciclopedia/imgs/Saltocuerda1.jpg",
+    "imagen2": "/enciclopedia/imgs/Saltocuerda2.jpg",
+    "invertir": false
   }
 ]

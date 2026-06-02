@@ -24,6 +24,32 @@
       "codigo": "DTP-5ZL4346J",
       "usado": false,
       "fechaCreacion": "2026-06-01T07:30:18.606Z"
+    },
+    {
+      "codigo": "DTP-R5JDAKZR",
+      "usado": true,
+      "dias": 1,
+      "fechaCreacion": "2026-06-01T22:36:21.077Z",
+      "usadoPor": "1780069487489",
+      "fechaUso": "2026-06-01T22:37:32.961Z"
+    },
+    {
+      "codigo": "DTP-TBER4ZY8",
+      "usado": true,
+      "dias": 1,
+      "fechaCreacion": "2026-06-01T23:13:17.376Z",
+      "fechaUso": "2026-06-01T23:14:09.426Z",
+      "usadoPor": "entrenador"
+    },
+    {
+      "codigo": "DTP-DXJGHH8K",
+      "usado": true,
+      "dias": 1,
+      "fechaCreacion": "2026-06-01T23:17:32.290Z",
+      "fechaUso": "2026-06-01T23:18:04.953Z",
+      "usadoPor": "entrenador"
     }
-  ]
+  ],
+  "premium_entrenador": true,
+  "premium_entrenador_hasta": "2026-06-02"
 }

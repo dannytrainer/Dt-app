@@ -165,7 +165,11 @@ cron.schedule('* * * * *', async () => {
       if (ahoraMin !== limiteMin) continue;
       const rutinaUsuario = rutinas[usuario.id];
       if (!rutinaUsuario || !rutinaUsuario[diaActual]) continue;
-      if (!rutinaUsuario || !rutinaUsuario[diaActual]) continue;
+      const _d = rutinaUsuario[diaActual];
+      const _tieneEjs = Array.isArray(_d.ejercicios) && _d.ejercicios.some(e => e.nombre);
+      const _tieneCardio = Array.isArray(_d.cardio) && _d.cardio.some(c => c.ejercicio);
+      const _tieneRec = _d.recordatorio && _d.recordatorio.trim();
+      if (!_tieneEjs && !_tieneCardio && !_tieneRec) continue;
               if (logs[hoy][usuario.id]) continue;
               const d = rutinaUsuario[diaActual];
               let lineas = [];
@@ -194,11 +198,22 @@ cron.schedule('* * * * *', async () => {
               if (d.rutina) { lineas.push('📌 ' + d.rutina); lineas.push(''); }
               if (Array.isArray(d.cardio) && d.cardio.length > 0) {
                 lineas.push('🏃 CARDIO');
-                d.cardio.forEach(cx => {
-                  if (cx.ejercicio) lineas.push('• ' + cx.ejercicio);
-                  if (cx.tiempo) lineas.push('  Tiempo: ' + cx.tiempo + ' min');
-                });
                 lineas.push('');
+                d.cardio.forEach(cx => {
+                  if (cx.ejercicio) {
+                    lineas.push('┌─────────────────────────┐');
+                    if (cx.momento) lineas.push('│ Momento: ' + cx.momento.trim());
+                    lineas.push('│ Ejercicio: ' + cx.ejercicio.trim());
+                    if (cx.tiempo) lineas.push('│ Tiempo: ' + cx.tiempo.toString().trim() + ' min');
+                    if (cx.notas) {
+                      cx.notas.trim().split('\n').forEach((nl,ni) => {
+                        if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
+                      });
+                    }
+                    lineas.push('└─────────────────────────┘');
+                    lineas.push('');
+                  }
+                });
               }
               const mensaje = lineas.join('\n');
               if (!mensaje.trim()) continue;
@@ -355,6 +370,20 @@ app.get('/api/chat/no-leidos/entrenador', (req, res) => {
   res.json({ total, porCliente });
 });
 // ---- FIN CHAT ----
+
+app.post('/api/usuarios/:id/limpiar-desbloqueo', (req, res) => {
+  const { dia } = req.body;
+  if (!dia) return res.status(400).json({ error: 'Falta dia' });
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  const fecha = new Date().toISOString().split('T')[0];
+  if (usuarios[idx].dias_desbloqueados && usuarios[idx].dias_desbloqueados[dia]) {
+    usuarios[idx].dias_desbloqueados[dia] = usuarios[idx].dias_desbloqueados[dia].filter(f => f !== fecha);
+  }
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
 
 app.post('/api/usuarios/:id/desbloquear-dia', (req, res) => {
   const { dia } = req.body;
@@ -660,17 +689,21 @@ app.post('/api/enviar-rutina/:id', async (req, res) => {
       lineas.push('📌 ' + d.rutina);
     }
     if (Array.isArray(d.cardio) && d.cardio.length > 0) {
-      lineas.push('╔════════════════════╗');
-      lineas.push('║ 🏃 CARDIO          ║');
-      lineas.push('╚════════════════════╝');
+      lineas.push('🏃 CARDIO');
+      lineas.push('');
       d.cardio.forEach(c => {
-        if (c.momento || c.ejercicio || c.tiempo) {
-          lineas.push('┌───────────────────┐');
-          if (c.momento) lineas.push('│ Momento: ' + c.momento);
-          if (c.ejercicio) lineas.push('│ Ejercicio: ' + c.ejercicio);
-          if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo + ' min');
-          if (c.notas) lineas.push('│ Notas: ' + c.notas);
-          lineas.push('└───────────────────┘');
+        if (c.ejercicio) {
+          lineas.push('┌─────────────────────────┐');
+          if (c.momento) lineas.push('│ Momento: ' + c.momento.trim());
+          lineas.push('│ Ejercicio: ' + c.ejercicio.trim());
+          if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo.toString().trim() + ' min');
+          if (c.notas) {
+            c.notas.trim().split('\n').forEach((nl,ni) => {
+              if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
+            });
+          }
+          lineas.push('└─────────────────────────┘');
+          lineas.push('');
         }
       });
     }
@@ -736,19 +769,23 @@ lineas.push('');    });
 
   if (Array.isArray(d.cardio) && d.cardio.length > 0) {
     lineas.push('');
-    lineas.push('╔════════════════════╗');
-    lineas.push('║ 🏃 CARDIO          ║');
-    lineas.push('╚════════════════════╝');
-    d.cardio.forEach(c => {
-      if (c.momento || c.ejercicio || c.tiempo) {
-        lineas.push('┌───────────────────┐');
-        if (c.momento) lineas.push('│ Momento: ' + c.momento);
-        if (c.ejercicio) lineas.push('│ Ejercicio: ' + c.ejercicio);
-        if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo + ' min');
-        if (c.notas) lineas.push('│ Notas: ' + c.notas);
-        lineas.push('└───────────────────┘');
-      }
-    });
+    lineas.push('🏃 CARDIO');
+      lineas.push('');
+      d.cardio.forEach(c => {
+        if (c.ejercicio) {
+          lineas.push('┌─────────────────────────┐');
+          if (c.momento) lineas.push('│ Momento: ' + c.momento.trim());
+          lineas.push('│ Ejercicio: ' + c.ejercicio.trim());
+          if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo.toString().trim() + ' min');
+          if (c.notas) {
+            c.notas.trim().split('\n').forEach((nl,ni) => {
+              if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
+            });
+          }
+          lineas.push('└─────────────────────────┘');
+          lineas.push('');
+        }
+      });
   }
 
   const texto = lineas.join('\n');
@@ -1004,28 +1041,74 @@ conectarWhatsApp();
 // PREMIUM — validar código
 app.post('/api/premium/activar', (req, res) => {
   const { codigo, userId } = req.body;
+  if (!codigo || !userId) return res.json({ ok: false, msg: 'Datos incompletos' });
   const config = cargarJSON('config.json', {});
   const codigos = config.codigos_premium || [];
+  const cod = codigos.find(c => c.codigo === codigo.trim().toUpperCase() && !c.usado);
+  if (!cod) return res.json({ ok: false, msg: 'Código inválido o ya usado' });
   cod.usado = true;
   cod.usadoPor = userId;
   cod.fechaUso = new Date().toISOString();
+  config.codigos_premium = codigos;
   guardarJSON('config.json', config);
   const usuarios = cargarJSON('usuarios.json', []);
   const u = usuarios.find(u => u.id === userId);
-  if (u) { u.premium = true; guardarJSON('usuarios.json', usuarios); }
+  if (u) {
+    const dias = cod.dias || 30;
+    const hasta = new Date();
+    hasta.setDate(hasta.getDate() + dias);
+    u.premium = true;
+    u.premium_hasta = hasta.toISOString().split('T')[0];
+    guardarJSON('usuarios.json', usuarios);
+  }
+  res.json({ ok: true, hasta: u ? u.premium_hasta : null });
+});
+
+// PREMIUM — activar entrenador
+app.post('/api/premium/activar-entrenador', (req, res) => {
+  const { codigo } = req.body;
+  if (!codigo) return res.json({ ok: false, msg: 'Falta el código' });
+  const config = cargarJSON('config.json', {});
+  const codigos = config.codigos_premium || [];
+  const cod = codigos.find(c => c.codigo === codigo.trim().toUpperCase() && !c.usado);
+  if (!cod) return res.json({ ok: false, msg: 'Código inválido o ya usado' });
+  cod.usado = true;
+  cod.fechaUso = new Date().toISOString();
+  cod.usadoPor = 'entrenador';
+  config.codigos_premium = codigos;
+  const dias = cod.dias || 30;
+  const hasta = new Date();
+  hasta.setDate(hasta.getDate() + dias);
+  const hastaStr = hasta.toISOString().split('T')[0];
+  config.premium_entrenador = true;
+  config.premium_entrenador_hasta = hastaStr;
+  guardarJSON('config.json', config);
+  res.json({ ok: true, hasta: hastaStr });
+});
+
+// PREMIUM — webhook (esperando pasarela de pagos)
+app.post('/api/premium/webhook', (req, res) => {
+  // TODO: conectar con Wompi cuando esté lista la URL pública
+  // El flujo será: Wompi confirma pago → generar código → activar premium automático
   res.json({ ok: true });
 });
 
 // PREMIUM — generar código (solo Danny)
 app.post('/api/premium/generar', (req, res) => {
+  const { dias } = req.body || {};
   const config = cargarJSON('config.json', {});
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let codigo = 'DTP-';
   for (let i=0; i<8; i++) codigo += chars[Math.floor(Math.random()*chars.length)];
   if (!config.codigos_premium) config.codigos_premium = [];
-  config.codigos_premium.push({ codigo, usado: false, fechaCreacion: new Date().toISOString() });
+  config.codigos_premium.push({
+    codigo,
+    usado: false,
+    dias: dias || 30,
+    fechaCreacion: new Date().toISOString()
+  });
   guardarJSON('config.json', config);
-  res.json({ ok: true, codigo });
+  res.json({ ok: true, codigo, dias: dias || 30 });
 });
 
 app.listen(3000, () => console.log('Interfaz en http://localhost:3000'));
@@ -1107,16 +1190,7 @@ app.get('/api/codigo-entrenador', (req, res) => {
 });
 
 // Habilitar dia en app para cliente
-app.post('/api/usuarios/:id/desbloquear-dia', (req, res) => {
-  const { dia } = req.body;
-  const usuarios = cargarJSON('usuarios.json');
-  const u = usuarios.find(u => u.id === req.params.id);
-  if (!u) return res.json({ ok: false });
-  if (!u.dias_habilitados) u.dias_habilitados = [];
-  if (!u.dias_habilitados.includes(dia)) u.dias_habilitados.push(dia);
-  guardarJSON('usuarios.json', usuarios);
-  res.json({ ok: true });
-});
+
 
 app.post('/api/habilitar-dia/:id', (req, res) => {
   const { dia } = req.body;
