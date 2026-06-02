@@ -382,6 +382,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 
 <div id="page-festivos" class="page">
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+<button onclick="showPage('inicio')" style="background:var(--rojo);border:none;border-radius:8px;color:var(--texto);font-size:13px;font-weight:700;padding:6px 12px;cursor:pointer">← Volver</button>
 <span style="font-size:15px;font-weight:700;color:var(--texto)">🗓️ Días Festivos</span>
 </div>
 <p class="st">Días sin envío automático</p>
@@ -1072,12 +1073,15 @@ const MONEDAS = ['COP','USD','EUR','GBP','MXN','ARS','BRL','PEN','CLP'];
 
 async function cargarAdmin(){
   try{
-    const [usuarios, adminData] = await Promise.all([
+    const [usuarios, adminData, configData] = await Promise.all([
       fetch('/api/usuarios').then(r=>r.json()),
-      fetch('/api/admin').then(r=>r.json())
+      fetch('/api/admin').then(r=>r.json()),
+      fetch('/api/config').then(r=>r.json())
     ]);
     window._adminUsuarios = usuarios;
     window._adminData = adminData;
+    if(!window._adminData.config) window._adminData.config = {};
+    Object.assign(window._adminData.config, configData);
     showAdminTab('dashboard');
   }catch(e){console.error('cargarAdmin',e);}
 }
@@ -1090,7 +1094,14 @@ function showAdminTab(tab){
   const c=document.getElementById('admin-tab-content');
   if(tab==='dashboard') c.innerHTML=renderAdminDashboard();
   else if(tab==='clientes') c.innerHTML=renderAdminClientes();
-  else if(tab==='config') { c.innerHTML=renderAdminConfig(); cargarCodigoVinc(); }
+  else if(tab==='config') {
+    fetch('/api/config').then(r=>r.json()).then(cfg=>{
+      if(!window._adminData) window._adminData={};
+      window._adminData.config = cfg;
+      c.innerHTML=renderAdminConfig();
+      cargarCodigoVinc();
+    });
+  }
 }
 
 function _adminPanelMetodos(met,pagos,color){
@@ -1110,6 +1121,93 @@ function _adminPanelMetodos(met,pagos,color){
 }
 
 if(!window._chartInstances)window._chartInstances={};
+function abrirComparativoModal(){
+  var dash=window._dash||{};
+  var meses=dash.meses||[];
+  var existing=document.getElementById("modal-comparativo");
+  if(existing){existing.remove();return;}
+  var metAnt=dash.metodosMesAnt||{};
+  var met=dash.metodos||{};
+  var pagosMesAnt=dash.pagosMesAnt||[];
+  var pagosMes=dash.pagosMes||[];
+  var mesAnt=meses[dash.mesAnterior]||'Ant';
+  var mesAct=meses[dash.mesActual]||'Act';
+  var totalAnt=dash.totalMesAnt||0;
+  var totalAct=dash.totalPagos||0;
+  var diff=totalAct-totalAnt;
+  var diffColor=diff>=0?'#4caf50':'#e31e24';
+  var diffIcon=diff>=0?'▲':'▼';
+  function fmt(n){return (n||0).toLocaleString();}
+  function listapagos(arr,color){
+    if(!arr||!arr.length)return '<div style="color:#666;font-size:12px;padding:8px">Sin pagos registrados</div>';
+    var s='';
+    arr.forEach(function(p){
+      var ic=p.metodo==='transferencia'?'🏦':p.metodo==='tarjeta'?'💳':'💵';
+      s+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a">';
+      s+='<div><div style="font-size:13px;color:#fff;font-weight:600">'+p.nombre+'</div>';
+      s+='<div style="font-size:11px;color:#666">'+p.fecha+' · '+ic+' '+p.metodo+'</div></div>';
+      s+='<div style="font-size:13px;font-weight:700;color:'+color+'">'+fmt(p.monto)+' '+p.moneda+'</div></div>';
+    });
+    return s;
+  }
+  var modal=document.createElement('div');
+  modal.id='modal-comparativo';
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:9999;overflow-y:auto;padding:16px;box-sizing:border-box';
+  var h='';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">';
+  h+='<div style="font-size:16px;font-weight:700;color:#fff">📊 Comparativo mensual</div>';
+  h+='<button onclick="document.getElementById(\'modal-comparativo\').remove()" style="background:#2a2a2a;border:none;border-radius:8px;color:#fff;padding:8px 14px;font-size:13px;cursor:pointer">✕ Cerrar</button></div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">';
+  h+='<div style="background:#111;border:1px solid #4a9eff44;border-radius:14px;padding:14px;text-align:center">';
+  h+='<div style="font-size:11px;color:#4a9eff;font-weight:700;margin-bottom:6px">'+mesAnt+'</div>';
+  h+='<div style="font-size:20px;font-weight:800;color:#fff">'+fmt(totalAnt)+'</div>';
+  h+='<div style="font-size:10px;color:#666;margin-top:2px">'+pagosMesAnt.length+' pagos</div></div>';
+  h+='<div style="background:#111;border:1px solid #e31e2444;border-radius:14px;padding:14px;text-align:center">';
+  h+='<div style="font-size:11px;color:#e31e24;font-weight:700;margin-bottom:6px">'+mesAct+'</div>';
+  h+='<div style="font-size:20px;font-weight:800;color:#fff">'+fmt(totalAct)+'</div>';
+  h+='<div style="font-size:10px;color:#666;margin-top:2px">'+pagosMes.length+' pagos</div></div></div>';
+  h+='<div style="background:#111;border-radius:14px;padding:14px;margin-bottom:20px;text-align:center">';
+  h+='<div style="font-size:11px;color:#888;margin-bottom:4px">Diferencia</div>';
+  h+='<div style="font-size:22px;font-weight:800;color:'+diffColor+'">'+diffIcon+' '+fmt(Math.abs(diff))+'</div></div>';
+  h+='<div style="background:#111;border-radius:14px;padding:14px;margin-bottom:20px">';
+  h+='<canvas id="chart-comp-modal" style="width:100%;max-height:200px"></canvas></div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">';
+  var metodos=[['💵','efectivo'],['🏦','transferencia'],['💳','tarjeta'],['📦','otro']];
+  metodos.forEach(function(m){
+    var ic=m[0],key=m[1];
+    h+='<div style="background:#111;border-radius:12px;padding:12px">';
+    h+='<div style="font-size:11px;color:#888;margin-bottom:6px">'+ic+' '+key.charAt(0).toUpperCase()+key.slice(1)+'</div>';
+    h+='<div style="font-size:12px;color:#4a9eff">'+mesAnt+': <b>'+fmt(metAnt[key]||0)+'</b></div>';
+    h+='<div style="font-size:12px;color:#e31e24">'+mesAct+': <b>'+fmt(met[key]||0)+'</b></div></div>';
+  });
+  h+='</div>';
+  h+='<div style="background:#111;border-radius:14px;padding:14px;margin-bottom:16px">';
+  h+='<div style="font-size:13px;font-weight:700;color:#4a9eff;margin-bottom:10px">📅 Pagos '+mesAnt+'</div>';
+  h+=listapagos(pagosMesAnt,'#4a9eff');
+  h+='</div>';
+  h+='<div style="background:#111;border-radius:14px;padding:14px;margin-bottom:16px">';
+  h+='<div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:10px">📅 Pagos '+mesAct+'</div>';
+  h+=listapagos(pagosMes,'#e31e24');
+  h+='</div>';
+  modal.innerHTML=h;
+  document.body.appendChild(modal);
+  setTimeout(function(){
+    var ctx=document.getElementById('chart-comp-modal');
+    if(!ctx)return;
+    new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:['Efectivo','Transfer.','Tarjeta','Otro'],
+        datasets:[
+          {label:mesAnt,data:[metAnt.efectivo||0,metAnt.transferencia||0,metAnt.tarjeta||0,metAnt.otro||0],backgroundColor:'#4a9eff44',borderColor:'#4a9eff',borderWidth:2,borderRadius:6},
+          {label:mesAct,data:[met.efectivo||0,met.transferencia||0,met.tarjeta||0,met.otro||0],backgroundColor:'#e31e2444',borderColor:'#e31e24',borderWidth:2,borderRadius:6}
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#ccc',font:{size:11}}}},scales:{x:{ticks:{color:'#888'}},y:{ticks:{color:'#888',callback:function(v){return v.toLocaleString();}}}}}
+    });
+  },300);
+}
+
 function toggleDashPanel(id){
   const el=document.getElementById(id);
   if(!el)return;
@@ -1226,7 +1324,7 @@ function renderAdminDashboard(){
   html+='<div style="font-size:10px;color:var(--texto-tenue);margin-top:2px">Toca para ver ▾</div>';
   html+='<div id="dp-cob" style="display:none">'+_adminPanelMetodos(metodos,pagosMes,"#e31e24")+'<canvas id="chart-metodos" style="margin-top:12px;max-height:180px"></canvas></div>';
   html+='</div>';
-  html+='<div onclick="toggleDashPanel(\'dp-ant\')" style="background:#1a0000;border:1px solid #10203a;border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
+  html+='<div onclick="abrirComparativoModal()" style="background:#1a0000;border:1px solid #10203a;border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
   html+='<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Mes anterior</div>';
   html+='<div style="font-size:20px;font-weight:800;color:#e31e24">'+totalMesAnt.toLocaleString()+'</div>';
   html+='<div style="font-size:10px;color:var(--texto-tenue);margin-top:2px">'+meses[mesAnterior]+' '+(mesActual===0?anioAnterior:anioActual)+' · toca ▾</div>';
@@ -1355,7 +1453,7 @@ function renderAdminConfig(){
   html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:6px">🔗 Código de vinculación</div>';
   html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">Comparte este código con tus clientes para que puedan registrarse.</div>';
   html+='<div style="background:var(--card);border:2px solid #e31e24;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
-  html+='<div style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">' + (codigoActual || '——') + '</div>';
+  html+='<div id="admin-codigo-vinc-txt" style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">' + (codigoActual || '——') + '</div>';
   html+='<div style="font-size:10px;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:1px">Código actual</div>';
   html+='</div>';
   html+='<button onclick="generarCodigoVinculacion()" style="width:100%;background:#1a0000;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:10px;cursor:pointer">🔄 Generar nuevo código</button>';
@@ -1514,9 +1612,12 @@ function copiarCodigoVinc() {
 
 // Cargar código guardado al abrir config
 function cargarCodigoVinc() {
-  const cfg = (window._adminData || {}).config || {};
-  const el = document.getElementById('vinc-codigo-txt');
-  if (el && cfg.codigo_vinculacion) el.textContent = cfg.codigo_vinculacion;
+  fetch('/api/config').then(r=>r.json()).then(cfg=>{
+    const el = document.getElementById('vinc-codigo-txt');
+    if (el && cfg.codigo_vinculacion) el.textContent = cfg.codigo_vinculacion;
+    const el2 = document.getElementById('admin-codigo-vinc-txt');
+    if (el2 && cfg.codigo_vinculacion) el2.textContent = cfg.codigo_vinculacion;
+  });
   const bloqueado = localStorage.getItem('vinc-bloqueado') === '1';
   const btn = document.getElementById('btn-lock-vinc');
   const btnGen = document.getElementById('btn-generar-vinc');
@@ -1693,6 +1794,8 @@ async function registrarPago(id){
   if(!window._adminData.clientes[id])window._adminData.clientes[id]={precio:0,moneda,pagos:[]};
   if(!window._adminData.clientes[id].pagos)window._adminData.clientes[id].pagos=[];
   window._adminData.clientes[id].pagos.push({...pagoData,fecha:new Date().toISOString().split('T')[0]});
+  const uIdx = (window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
+  if(uIdx !== -1) window._adminUsuarios[uIdx].estado_pago = 'aldia';
   toast('✅ Pago registrado');
   window._reciboClienteId = id;
   abrirAdminCliente(id);
@@ -10778,12 +10881,10 @@ function renderEnciclopedia(c) {
 
 function encCargarEjercicios() {
   Promise.all([
-    fetch("/api/enciclopedia").then(function(r){return r.json();}).catch(function(){return [];}),
-    fetch("/api/enciclopedia/personalizados").then(function(r){return r.json();}).catch(function(){return [];})
+    fetch("/api/enciclopedia").then(function(r){return r.json();}).catch(function(){return [];})
   ]).then(function(res) {
     var oficiales = Array.isArray(res[0]) ? res[0] : [];
-    var custom = Array.isArray(res[1]) ? res[1] : [];
-    window._encEjercicios = oficiales.concat(custom);
+    window._encEjercicios = oficiales;
     window._encGrupos.forEach(function(g) {
       g.count = window._encEjercicios.filter(function(e){return e.grupo===g.id;}).length;
     });
@@ -11174,7 +11275,7 @@ function encGuardarPersonalizado(id) {
   fetch(url, {method: method, headers: {"Content-Type":"application/json"}, body: JSON.stringify(datos)})
   .then(function(r){return r.json();})
   .then(function(data) {
-    var ejercicioId = id || (data.ejercicio && data.ejercicio.id);
+    var ejercicioId = id || data.id || (data.ejercicio && data.ejercicio.id);
     var fotoInicio = document.getElementById("enc-p-foto-inicio");
     var fotoFin = document.getElementById("enc-p-foto-fin");
     var promesas = [];

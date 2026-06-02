@@ -18,7 +18,7 @@
       "nombre": "Yo",
       "sexo": "M",
       "edad": 30,
-      "generado": "2026-06-01T19:08:22.996Z",
+      "generado": "2026-06-02T04:52:49.547Z",
       "peso_actual": 70,
       "peso_objetivo": 76,
       "nivel_eco": "economico",
@@ -420,7 +420,7 @@
         }
       ]
     },
-    "plan_fecha": "2026-06-01T19:08:23.010Z"
+    "plan_fecha": "2026-06-02T04:52:49.553Z"
   },
   "1778377380425": {
     "peso_actual": 48,

@@ -5,7 +5,7 @@
     "nombre": "Yo",
     "telefono": "573006197897",
     "tipo": "asesorado",
-    "hora_envio": "19:25",
+    "hora_envio": "08:25",
     "dia_pago": 10,
     "estado_pago": "aldia",
     "perfil": {
@@ -21,8 +21,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 47,
-    "sesiones_ciclo": 47,
+    "sesiones_total": 48,
+    "sesiones_ciclo": 48,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague m",
     "msg_q1": "",
@@ -131,7 +131,9 @@
       "martes": [
         "2026-05-24"
       ]
-    }
+    },
+    "premium": true,
+    "premium_hasta": "2026-06-03"
   },
   {
     "id": "1778377208321",

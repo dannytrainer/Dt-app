@@ -33,6 +33,25 @@
           "kgGrasa": 16,
           "kgMusculo": 57
         }
+      },
+      {
+        "fecha": "2026-06-02",
+        "cintura": 84,
+        "cadera": 96,
+        "pecho": 106,
+        "brazo": 35,
+        "pierna": 58,
+        "hombros": 123,
+        "pantorrilla": 35.1,
+        "triceps": 10,
+        "subescapular": 16,
+        "abdominal": 14,
+        "suprailiaco": 12,
+        "analisis": {
+          "pctGrasa": 21.9,
+          "kgGrasa": 16,
+          "kgMusculo": 57
+        }
       }
     ]
   },

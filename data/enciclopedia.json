@@ -4,7 +4,7 @@
     "nombre": "Press de pecho ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps"
@@ -35,7 +35,7 @@
     "nombre": "Prensa Tate",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -65,7 +65,7 @@
       "neck extensors, neck flexors"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "isometric",
     "imagen": "/enciclopedia/imgs/0001-tension.png",
@@ -94,7 +94,7 @@
       "neck side flexors"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "isometric",
     "imagen": "/enciclopedia/imgs/0002-tension.png",
@@ -118,7 +118,7 @@
     "nombre": "Press  de hombro en máquina sentado",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "triceps"
@@ -146,7 +146,7 @@
     "nombre": "Press Militar sentado ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "triceps"
@@ -203,12 +203,12 @@
     "nombre": "Press Arnold",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "triceps"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/arnold-press-tension.png",
@@ -234,7 +234,7 @@
     "nombre": "Elevaciones de Barra Frontal",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "pectoral",
@@ -264,13 +264,13 @@
     "nombre": "Elevaciones Frontales polea ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "pectoral",
       "antebrazo"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0008-tension.png",
@@ -301,7 +301,7 @@
     "musculos_secundarios": [
       "hombros"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0009-tension.png",
@@ -326,7 +326,7 @@
     "nombre": "Elevaciones frontales",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "forearm",
@@ -358,7 +358,7 @@
     "nombre": "Press de Hombro sentado barra ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "triceps",
@@ -388,7 +388,7 @@
     "nombre": "Press de hombro mancuerna ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "triceps",
@@ -420,13 +420,13 @@
     "nombre": "Remo mentón en máquina Smith ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "biceps",
       "trapecios"
     ],
-    "equipamiento": "smith machine",
+    "equipamiento": "maquina smith",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0013-tension.png",
@@ -451,7 +451,7 @@
     "nombre": "Remo meton barra ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "biceps",
@@ -483,13 +483,13 @@
     "nombre": "Remo al mentón  polea ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "Trapecios",
       "biceps"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0015-tension.png",
@@ -515,13 +515,13 @@
     "nombre": "Remo mentón mancuerna ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "biceps",
       "upper back"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0016-tension.png",
@@ -547,13 +547,13 @@
     "nombre": "Elevaciones Lateral con polea Inclinado",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "Trapecio",
       "antebrazo"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0017-tension.png",
@@ -585,7 +585,7 @@
       "Antebrazo",
       "hombros"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0018-tension.png",
@@ -611,13 +611,13 @@
     "nombre": "Círculos de pared con balon",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "biceps",
       "triceps"
     ],
-    "equipamiento": "swiss ball",
+    "equipamiento": "balón",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0019-tension.png",
@@ -642,13 +642,13 @@
     "nombre": "Adducion escapular de pie ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "Espalda media",
       "triceps"
     ],
-    "equipamiento": "exercise band",
+    "equipamiento": "banda elástica",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0020-tension.png",
@@ -674,10 +674,10 @@
     "nombre": "Elevaciones de piernas ",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0021-tension.png",
@@ -710,7 +710,7 @@
       "biceps",
       "hombros"
     ],
-    "equipamiento": "smith machine",
+    "equipamiento": "maquina smith",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0022-tension.png",
@@ -738,10 +738,10 @@
     "nombre": "Elevación posterior Acostado",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0023-tension.png",
@@ -802,13 +802,13 @@
     "nombre": "Remo en polea ",
     "grupo": "espalda",
     "musculos_principales": [
-      "Espalda media"
+      "Espalda"
     ],
     "musculos_secundarios": [
       "biceps",
       "lumbar"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0025-tension.png",
@@ -833,7 +833,7 @@
     "nombre": "Remo barra con agarre supino",
     "grupo": "espalda",
     "musculos_principales": [
-      "Espalda media"
+      "Espalda"
     ],
     "musculos_secundarios": [
       "biceps"
@@ -868,7 +868,7 @@
     "musculos_secundarios": [
       "core"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "isometric",
     "imagen": "/enciclopedia/imgs/0027-tension.png",
@@ -893,7 +893,7 @@
     "nombre": "Remo con barra para hombro post",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "biceps"
@@ -924,13 +924,13 @@
     "nombre": "Remo T",
     "grupo": "espalda",
     "musculos_principales": [
-      "Espalda media"
+      "Espalda"
     ],
     "musculos_secundarios": [
       "biceps",
       "hombros"
     ],
-    "equipamiento": "t-bar machine",
+    "equipamiento": "maquina",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0029-tension.png",
@@ -984,7 +984,7 @@
     "nombre": "Press de hombro inclinado ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "Tríceps"
@@ -1013,12 +1013,12 @@
     "nombre": "Elevación Deltoides Posterior ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "Trapecios"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0032-tension.png",
@@ -1043,10 +1043,10 @@
     "nombre": "Elevación Mancuerna Frontal",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0033-tension.png",
@@ -1069,12 +1069,12 @@
     "nombre": "Rotación interna de hombro ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "biceps"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0034-tension.png",
@@ -1099,10 +1099,10 @@
     "nombre": "Elevación lateral de cable sentado",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0035-tension.png",
@@ -1127,12 +1127,12 @@
     "nombre": "Press cubano  Mancuerna",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "middle back"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/cuban-dumbbell-press-2.png",
@@ -1158,7 +1158,7 @@
     "nombre": "Elevación boca abajo unilateral ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "Trapecios"
@@ -1189,7 +1189,7 @@
     "nombre": "Press de hombro unilateral ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "triceps",
@@ -1220,7 +1220,7 @@
     "nombre": "Remo mentón unilateral ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "trapecio"
@@ -1250,13 +1250,13 @@
     "nombre": "Elevación de codos ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [
       "biceps",
       "trapecio"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/dumbbell-raise-tension.png",
@@ -1281,10 +1281,10 @@
     "nombre": "Encogimientos de hombros en máquina smith ",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros"
+      "Hombros"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "smith machine",
+    "equipamiento": "maquina smith",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0041-tension.png",
@@ -1309,12 +1309,12 @@
     "nombre": " Press de pecho inclinado ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps"
     ],
-    "equipamiento": "incline bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0043-tension.png",
@@ -1340,12 +1340,12 @@
     "nombre": " Press de banca inclinado con Bandas elásticas",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "biceps"
     ],
-    "equipamiento": "exercise band",
+    "equipamiento": "banda elástica",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0044-tension.png",
@@ -1370,7 +1370,7 @@
     "nombre": "Pull over  con barra en banco",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "dorsales",
@@ -1402,14 +1402,14 @@
     "nombre": "Pull over  Mancuerna Brazo Doblado",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "triceps",
       "dorsales"
     ],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0046-tension.png",
@@ -1434,10 +1434,10 @@
     "nombre": "Máquina cabina",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "butterfly machine",
+    "equipamiento": "maquina",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/butterfly-machine-tension.png",
@@ -1463,12 +1463,12 @@
     "nombre": "Cruce de cables",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0048-tension.png",
@@ -1493,7 +1493,7 @@
     "nombre": " Press de banca con agarre cerrado ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
@@ -1525,13 +1525,13 @@
     "nombre": "Cruce con bandas elástica ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "biceps"
     ],
-    "equipamiento": "exercise band",
+    "equipamiento": "banda elástica",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0050-tension.png",
@@ -1557,13 +1557,13 @@
     "nombre": " Press de banca declinado barra",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "decline bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0051-tension.png",
@@ -1589,13 +1589,13 @@
     "nombre": "Press de banca declinado mancuerna",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0052-tension.png",
@@ -1619,12 +1619,12 @@
     "nombre": "Aperturas con mancuernas en banco declinado ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0053-tension.png",
@@ -1649,13 +1649,13 @@
     "nombre": "Pecho Fondos",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0054-tension.png",
@@ -1680,13 +1680,13 @@
     "nombre": "Press de pecho Mancuerna",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "triceps"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0055-tension.png",
@@ -1714,13 +1714,13 @@
     "nombre": "Aperturas con Mancuerna",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "triceps"
     ],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0056-tension.png",
@@ -1745,12 +1745,12 @@
     "nombre": "Aperturas con cable de banco plano",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros"
     ],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0057-tension.png",
@@ -1775,7 +1775,7 @@
     "nombre": "Pull over con barra completo ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
@@ -1805,13 +1805,13 @@
     "nombre": "Press de pecho inclinado con mancuernas agarre neurron",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "triceps"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0059-tension.png",
@@ -1836,14 +1836,14 @@
     "nombre": "Aperturas inclinado con cable",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "biceps",
       "triceps",
       "forearm"
     ],
-    "equipamiento": "incline bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0060-tension.png",
@@ -1867,13 +1867,13 @@
     "nombre": "Press de banca inclinado con Mancuernas",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0061-tension.png",
@@ -1898,12 +1898,12 @@
     "nombre": "Aperturas inclinado con Mancuerna ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros"
     ],
-    "equipamiento": "incline bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0062-tension.png",
@@ -1927,12 +1927,12 @@
     "nombre": "Aperturas inclinadas con rotación ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros"
     ],
-    "equipamiento": "incline bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0063-tension.png",
@@ -1957,10 +1957,10 @@
     "nombre": "Pull over con barra agarre abierto",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "decline bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0064-tension.png",
@@ -1984,13 +1984,13 @@
     "nombre": "Press de pecho máquina ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "bench press machine",
+    "equipamiento": "maquina",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0066-tension.png",
@@ -2014,7 +2014,7 @@
     "nombre": "Press guillotina",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "biceps"
@@ -2047,13 +2047,13 @@
     "nombre": "Press de banca unilateral ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0068-tension.png",
@@ -2079,14 +2079,14 @@
     "nombre": "Push up sobre  Bosu",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "core",
       "triceps"
     ],
-    "equipamiento": "bosu ball",
+    "equipamiento": "balón",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0069-tension.png",
@@ -2111,7 +2111,7 @@
     "nombre": "Press de pecho unilateral con barra ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps"
@@ -2141,12 +2141,12 @@
     "nombre": "Press de pecho con mancuernas unilateral",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "Core"
     ],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0071-tension.png",
@@ -2170,7 +2170,7 @@
     "nombre": "Push up con apoyo en un brazo",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
@@ -2178,7 +2178,7 @@
       "hombros",
       "core"
     ],
-    "equipamiento": "bosu ball",
+    "equipamiento": "balón",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0072-tension.png",
@@ -2205,14 +2205,14 @@
     "nombre": "Push up alternada cerrada y ancha",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros",
       "core"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0073-tension.png",
@@ -2239,13 +2239,13 @@
     "nombre": "Push up con los pies elevados",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "triceps"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/push-up-feet-elevated-tension.png",
@@ -2270,13 +2270,13 @@
     "nombre": "Push up con los pies sobre fitball",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0076-tension.png",
@@ -2300,13 +2300,13 @@
     "nombre": "Push up",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0077-tension.png",
@@ -2333,13 +2333,13 @@
     "nombre": " press de banca máquina smith ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "triceps"
     ],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0078-tension.png",
@@ -2364,14 +2364,14 @@
     "nombre": "Pull over mancuerna ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "dorsales",
       "hombros"
     ],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0079-tension.png",
@@ -2396,13 +2396,13 @@
     "nombre": "Press de pecho  Inclinado Mancuerna",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0080-tension.png",
@@ -2457,13 +2457,13 @@
     "nombre": "Smith Máquina Inclinada Press de banca",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "triceps"
     ],
-    "equipamiento": "smith machine",
+    "equipamiento": "maquina smith",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0081-tension.png",
@@ -2488,13 +2488,13 @@
     "nombre": " Press de banca agarre abierto ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0082-tension.png",
@@ -2520,7 +2520,7 @@
     "nombre": " Press de banca declinado con agarre abierto ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
@@ -2552,13 +2552,13 @@
     "nombre": "Press  pecho inclinado  en máquina ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "chest machine",
+    "equipamiento": "maquina",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/incline-chest-press-tension.png",
@@ -2581,13 +2581,13 @@
     "nombre": "Press pecho declinado máquina ",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
       "triceps"
     ],
-    "equipamiento": "chest machine",
+    "equipamiento": "maquina",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0085-tension.png",
@@ -2610,7 +2610,7 @@
     "nombre": "Remoción corporal",
     "grupo": "espalda",
     "musculos_principales": [
-      "Espalda media"
+      "Espalda"
     ],
     "musculos_secundarios": [
       "core",
@@ -2642,7 +2642,7 @@
     "nombre": "dominada",
     "grupo": "espalda",
     "musculos_principales": [
-      "dorsales"
+      "Dorsales"
     ],
     "musculos_secundarios": [
       "middle back",
@@ -2673,13 +2673,13 @@
     "nombre": "Dominadas  esternón Gironda",
     "grupo": "espalda",
     "musculos_principales": [
-      "dorsales"
+      "Dorsales"
     ],
     "musculos_secundarios": [
       "biceps",
       "middle back"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/gironda-sternum-chins-tension.png",
@@ -2705,12 +2705,12 @@
     "nombre": "Dominadas agarre supino ",
     "grupo": "espalda",
     "musculos_principales": [
-      "dorsales"
+      "Dorsales"
     ],
     "musculos_secundarios": [
       "biceps"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/chin-ups-tension.png",
@@ -2766,7 +2766,7 @@
     "nombre": "Dominadas laterales",
     "grupo": "espalda",
     "musculos_principales": [
-      "espalda"
+      "Espalda"
     ],
     "musculos_secundarios": [
       "neck",
@@ -2795,12 +2795,12 @@
     "nombre": "Pull over ",
     "grupo": "espalda",
     "musculos_principales": [
-      "dorsales"
+      "Dorsales"
     ],
     "musculos_secundarios": [
       "triceps"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0092-tension.png",
@@ -2824,12 +2824,12 @@
     "nombre": "Jalón cerrado con agarre supino ",
     "grupo": "espalda",
     "musculos_principales": [
-      "dorsales"
+      "Dorsales"
     ],
     "musculos_secundarios": [
       "biceps"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0093-tension.png",
@@ -2858,7 +2858,7 @@
     "musculos_secundarios": [
       "hombros"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0094-tension.png",
@@ -2882,12 +2882,12 @@
     "nombre": "Jalón cerrado",
     "grupo": "espalda",
     "musculos_principales": [
-      "dorsales"
+      "Dorsales"
     ],
     "musculos_secundarios": [
       "biceps"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0095-tension.png",
@@ -2911,13 +2911,13 @@
     "nombre": "Jalón cerrado con agarre neutro",
     "grupo": "espalda",
     "musculos_principales": [
-      "dorsales"
+      "Dorsales"
     ],
     "musculos_secundarios": [
       "middle back",
       "biceps"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0096-tension.png",
@@ -2942,13 +2942,13 @@
     "nombre": "Jalón en polea abierto ",
     "grupo": "espalda",
     "musculos_principales": [
-      "dorsales"
+      "Dorsales"
     ],
     "musculos_secundarios": [
       "biceps",
       "middle back"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0098-tension.png",
@@ -2973,7 +2973,7 @@
     "nombre": "Peso muerto Máquina Smith",
     "grupo": "piernas",
     "musculos_principales": [
-      "Glúteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "Femorales",
@@ -3003,7 +3003,7 @@
     "nombre": "Peso muerto ",
     "grupo": "gluteos",
     "musculos_principales": [
-      "Glúteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -3034,7 +3034,7 @@
     "nombre": "Buenos dias barra",
     "grupo": "gluteos",
     "musculos_principales": [
-      "Glúteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -3064,13 +3064,13 @@
     "nombre": "Buenos Días en máquina smith ",
     "grupo": "gluteos",
     "musculos_principales": [
-      "Gluteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
       "lumbares"
     ],
-    "equipamiento": "smith machine",
+    "equipamiento": "maquina smith",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0102-tension.png",
@@ -3094,13 +3094,13 @@
     "nombre": "hiperextensiones",
     "grupo": "core",
     "musculos_principales": [
-      "lumbar"
+      "Lumbar"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
       "core"
     ],
-    "equipamiento": "hyperextension bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0103-tension.png",
@@ -3124,13 +3124,13 @@
     "nombre": "Extensión lumbar en fitball",
     "grupo": "core",
     "musculos_principales": [
-      "lumbar"
+      "Lumbar"
     ],
     "musculos_secundarios": [
       "core",
       "isquiotibiales"
     ],
-    "equipamiento": "exercise ball",
+    "equipamiento": "balón",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0104-tension.png",
@@ -3154,12 +3154,12 @@
     "nombre": "Supermanes",
     "grupo": "core",
     "musculos_principales": [
-      "lumbar"
+      "Lumbar"
     ],
     "musculos_secundarios": [
       "core"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0105-tension.png",
@@ -3183,13 +3183,13 @@
     "nombre": "Peso muerto Mancuerna",
     "grupo": "piernas",
     "musculos_principales": [
-      "Femoral"
+      "Isquiotibiales"
     ],
     "musculos_secundarios": [
       "glúteo",
       "espalda"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0107-tension.png",
@@ -3221,7 +3221,7 @@
     "musculos_secundarios": [
       "core"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0109-tension.png",
@@ -3243,12 +3243,12 @@
     "nombre": "Flexion de rodilla libre ",
     "grupo": "gluteos",
     "musculos_principales": [
-      "Femoral"
+      "Isquiotibiales"
     ],
     "musculos_secundarios": [
       "Glúteo"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0111-tension.png",
@@ -3272,12 +3272,12 @@
     "nombre": "Patada de glúteo con polea ",
     "grupo": "gluteos",
     "musculos_principales": [
-      "Gluteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "Femoral"
     ],
-    "equipamiento": "cable machine",
+    "equipamiento": "cable",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0112-tension.png",
@@ -3304,7 +3304,7 @@
       "core"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0113-tension.png",
@@ -3368,7 +3368,7 @@
       "femoral",
       "gemelos"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0115-tension.png",
@@ -3394,12 +3394,12 @@
     "nombre": "Patadas de nadador ",
     "grupo": "piernas",
     "musculos_principales": [
-      "isquiotibiales"
+      "Isquiotibiales"
     ],
     "musculos_secundarios": [
       "cuadriceps"
     ],
-    "equipamiento": "flat bench",
+    "equipamiento": "banco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0116-tension.png",
@@ -3424,7 +3424,7 @@
     "nombre": "Curl femoral acostado ",
     "grupo": "piernas",
     "musculos_principales": [
-      "Femoral"
+      "Isquiotibiales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -3451,7 +3451,7 @@
     "nombre": "Peso Muerto Rumano",
     "grupo": "piernas",
     "musculos_principales": [
-      "isquiotibiales"
+      "Isquiotibiales"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -3484,7 +3484,7 @@
     "nombre": "Curl femoral sentado ",
     "grupo": "piernas",
     "musculos_principales": [
-      "isquiotibiales"
+      "Isquiotibiales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -3511,7 +3511,7 @@
     "nombre": "Curl femoral unilateral",
     "grupo": "piernas",
     "musculos_principales": [
-      "isquiotibiales"
+      "Isquiotibiales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -3538,14 +3538,14 @@
     "nombre": "Zancadas con mancuerna ",
     "grupo": "piernas",
     "musculos_principales": [
-      "isquiotibiales"
+      "Isquiotibiales"
     ],
     "musculos_secundarios": [
       "cuadriceps",
       "gluts",
       "gemelos"
     ],
-    "equipamiento": "barbell or dumbbell",
+    "equipamiento": "barra o mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0121-tension.png",
@@ -3571,7 +3571,7 @@
     "nombre": "Sentadilla con barra ",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "Glúteo",
@@ -3603,7 +3603,7 @@
     "nombre": "Sentadilla en hack máquina ",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -3636,14 +3636,14 @@
     "nombre": "Smith Máquina Sentadillas",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
       "gluts",
       "isquiotibiales"
     ],
-    "equipamiento": "smith machine",
+    "equipamiento": "maquina smith",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0124-tension.png",
@@ -3670,7 +3670,7 @@
     "nombre": "Sentadilla hack con barra ",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "isquiotibiales"
@@ -3701,13 +3701,13 @@
     "nombre": "Smith Máquina Hack Sentadilla",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
       "gluts"
     ],
-    "equipamiento": "smith machine",
+    "equipamiento": "maquina smith",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0126-tension.png",
@@ -3735,7 +3735,7 @@
     "nombre": "Prensa de pierna",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -3766,7 +3766,7 @@
     "nombre": "Zancadas traseras con barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "hip abductors",
@@ -3800,7 +3800,7 @@
     "nombre": "Zancadas traseras con Mancuerna",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -3808,7 +3808,7 @@
       "gluts",
       "hip abductors"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0129-tension.png",
@@ -3834,13 +3834,13 @@
     "nombre": "Sentadilla con Mancuernas",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "hamstring",
       "gemelos"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0130-tension.png",
@@ -3867,7 +3867,7 @@
     "nombre": "Sentadillas con Barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "hip abductors",
@@ -3897,7 +3897,7 @@
     "nombre": "Sentadilla unilateral  con Barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -3929,7 +3929,7 @@
     "nombre": "Sentadilla con barra al banco",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gluts",
@@ -3964,7 +3964,7 @@
     "nombre": "Step ascenso con barra ",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -4023,7 +4023,7 @@
     "nombre": "Sentadilla al Banco con Mancuernas",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -4058,14 +4058,14 @@
     "nombre": "Step ascenso con mancuerna",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps",
+      "Cuádriceps",
       "glúteo"
     ],
     "musculos_secundarios": [
       "gemelos",
       "isquiotibiales"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0137-tension.png",
@@ -4091,7 +4091,7 @@
     "nombre": "Sentadilla frontal con barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -4123,7 +4123,7 @@
     "nombre": "Sentadilla Frontal  Banca con Barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -4153,7 +4153,7 @@
     "nombre": "Cruz de Hierro con Mancuernas",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "trapecio",
@@ -4162,7 +4162,7 @@
       "lumbar",
       "isquiotibiales"
     ],
-    "equipamiento": "dumbbells",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0140-tension.png",
@@ -4213,7 +4213,7 @@
     "nombre": "Extension de rodilla ",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -4241,7 +4241,7 @@
     "nombre": "Prensa de pierna en posición estrecha",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -4273,7 +4273,7 @@
     "nombre": "Sentadilla acostado en maquina",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -4303,7 +4303,7 @@
     "nombre": "Sentadillas Hack De Postura Estrecha",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -4336,7 +4336,7 @@
     "nombre": "Sentadilla de postura estrecha con barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gluteos",
@@ -4370,7 +4370,7 @@
     "nombre": "Sentadilla búlgara con barra ",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -4406,7 +4406,7 @@
     "nombre": "Un arranque unilateral con barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "hombros",
@@ -4441,7 +4441,7 @@
     "nombre": "Sentadilla overhead",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gluteos",
@@ -4475,7 +4475,7 @@
     "nombre": "Sentadilla sumo con mancuerna",
     "grupo": "gluteos",
     "musculos_principales": [
-      "Glúteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "Cuádriceps",
@@ -4508,7 +4508,7 @@
     "nombre": "Sentadillas Rápidas con Barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -4541,14 +4541,14 @@
     "nombre": "Sentadillas con Bandas ",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gemelos",
       "gluteos",
       "isquiotibiales"
     ],
-    "equipamiento": "exercise band",
+    "equipamiento": "banda elástica",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0155-tension.png",
@@ -4573,7 +4573,7 @@
     "nombre": "Abductor del muslo",
     "grupo": "gluteos",
     "musculos_principales": [
-      "Glúteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -4627,10 +4627,10 @@
     "nombre": "Sissy Sentadilla ponderada con placa de pesas",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "weight plate",
+    "equipamiento": "disco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0158-tension.png",
@@ -4655,7 +4655,7 @@
     "nombre": "Sentadilla de postura amplia con barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "Gluteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -4687,7 +4687,7 @@
     "nombre": "Sentadillas zecher",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "gluteos",
@@ -4721,12 +4721,12 @@
     "nombre": "Fondos en banco",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "pectoral"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0162-tension.png",
@@ -4753,7 +4753,7 @@
     "nombre": "Pushdown Inclinado con Cable",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -4783,7 +4783,7 @@
     "nombre": "Extensión Inclinado Tríceps con Cable",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -4812,7 +4812,7 @@
     "nombre": "Press francés en polea ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -4842,7 +4842,7 @@
     "nombre": " Extensión De Tríceps unilateral Con Cable",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -4871,7 +4871,7 @@
     "nombre": "Extensión de codo de pie con polea ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -4899,7 +4899,7 @@
     "nombre": "Press francés en banco declinado barra ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "pectoral"
@@ -4930,7 +4930,7 @@
     "nombre": "Press francés Declinado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -4956,7 +4956,7 @@
     "nombre": "Extensión de Tríceps con Barra z",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -4982,7 +4982,7 @@
     "nombre": "Fondos de tríceps en Máquina",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "hombros"
@@ -5010,13 +5010,13 @@
     "nombre": "Fondos ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "hombros",
       "pectoral"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0172-tension.png",
@@ -5040,7 +5040,7 @@
     "nombre": "Copa a una mano con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5067,7 +5067,7 @@
     "nombre": "Extensión Inclinado De codos Con Barra",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -5094,7 +5094,7 @@
     "nombre": "Press de tríceps  barra ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "hombros"
@@ -5125,7 +5125,7 @@
     "nombre": "Extensión de Tríceps concentrado polea",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -5154,7 +5154,7 @@
     "nombre": "Extensión de Tríceps de Rodillas con Cable",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -5182,7 +5182,7 @@
     "nombre": "Press francés en colchoneta y polea ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -5210,7 +5210,7 @@
     "nombre": "Press francés La Cabeza Con Barra",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -5238,7 +5238,7 @@
     "nombre": "Press francés  con barra z",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -5266,7 +5266,7 @@
     "nombre": " Extensión De Tríceps Con Mancuernas acosado ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5294,7 +5294,7 @@
     "nombre": "Extensión Del Tríceps a La Cara Con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5324,7 +5324,7 @@
     "nombre": "Press francés con barra ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "pectoral"
@@ -5355,7 +5355,7 @@
     "nombre": "Press francés mancuerna ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5382,7 +5382,7 @@
     "nombre": "Extensiones Inverso de la vieja escuela",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -5409,7 +5409,7 @@
     "nombre": "Extensión de tríceps con Mancuerna en prono",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5439,7 +5439,7 @@
     "nombre": "Extensión de Tríceps en Supinación con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5467,12 +5467,12 @@
     "nombre": "Push ups cerradas",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "pectoral"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0188-tension.png",
@@ -5497,7 +5497,7 @@
     "nombre": "Pushdown de tríceps con agarre inverso",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -5525,7 +5525,7 @@
     "nombre": "Press de tríceps inverso en banca con Barra",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "pectoral"
@@ -5554,7 +5554,7 @@
     "nombre": "Extensión De Tríceps  unilateral con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5582,7 +5582,7 @@
     "nombre": "pata de tríceps sentado a dos manos mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5610,7 +5610,7 @@
     "nombre": "Sentado Por encima Tríceps Extensión with Barra",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -5637,7 +5637,7 @@
     "nombre": "Sentado Press de Tríceps con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5665,12 +5665,12 @@
     "nombre": "Smith Máquina Agarre cerrado Press de banca",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "pectoral"
     ],
-    "equipamiento": "smith machine",
+    "equipamiento": "maquina smith",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0195-tension.png",
@@ -5693,7 +5693,7 @@
     "nombre": "patada de tríceps inclinado mancuerna ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5720,7 +5720,7 @@
     "nombre": "Patada de tríceps a dos manos mancuernas ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5747,7 +5747,7 @@
     "nombre": "Copa de pie ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5775,7 +5775,7 @@
     "nombre": "Copa en polea unilateral ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -5804,10 +5804,10 @@
     "nombre": "Copa individual con mancuerna tríceps ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "dumbell",
+    "equipamiento": "mancuerna",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/standing-one-arm-triceps-extension-with-dumbbell-tension.png",
@@ -5833,7 +5833,7 @@
     "nombre": "Copa con barra de pie",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -5861,10 +5861,10 @@
     "nombre": "Extensión de Tríceps con Toalla",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0202-tension.png",
@@ -5889,7 +5889,7 @@
     "nombre": "Tate Press con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5916,7 +5916,7 @@
     "nombre": "Patada de tríceps unilateral ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -5945,7 +5945,7 @@
     "nombre": "Extension de codo con polea",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -5974,7 +5974,7 @@
     "nombre": "Extension de tríceps con cuerda en polea ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -6003,7 +6003,7 @@
     "nombre": "Extensión de codo con v en polea ",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -6039,7 +6039,7 @@
     "musculos_secundarios": [
       "Core"
     ],
-    "equipamiento": "weight",
+    "equipamiento": "peso libre",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0208-tension.png",
@@ -6065,7 +6065,7 @@
     "nombre": "Extensiones de Tríceps Inclinado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [
       "hombros"
@@ -6094,7 +6094,7 @@
     "nombre": "Extensiones de tríceps usando máquina",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps"
+      "Tríceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -6120,7 +6120,7 @@
     "nombre": "Curl de Bíceps con Barra",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "hombros",
@@ -6152,7 +6152,7 @@
     "nombre": "Curl de Bíceps con polea",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo",
@@ -6180,7 +6180,7 @@
     "nombre": "Curl martillo alternado  con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -6212,7 +6212,7 @@
     "nombre": "Curl de bíceps  Alternado Inclinado mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -6240,7 +6240,7 @@
     "nombre": "Curl araña  con Barra banco inclinado ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -6270,7 +6270,7 @@
     "nombre": "Curl de bíceps en polea con cuerda ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -6296,7 +6296,7 @@
     "nombre": "Curl predicador con Cable",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -6327,7 +6327,7 @@
     "nombre": "Curl de bíceps con barra z agarre cerrado ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -6358,7 +6358,7 @@
     "nombre": "Curls de bíceps con Barra garre cerrado ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -6389,7 +6389,7 @@
     "nombre": "Curl de bíceps concentrado",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -6420,7 +6420,7 @@
     "nombre": "Curl Martillo Cruzado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -6449,7 +6449,7 @@
     "nombre": "Drag curl ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -6480,7 +6480,7 @@
     "nombre": "Curl de Bíceps Alternado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -6512,7 +6512,7 @@
     "nombre": "Curl de Bíceps con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -6543,7 +6543,7 @@
     "nombre": "Curl de Bíceps Inclinado Prono con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -6573,7 +6573,7 @@
     "nombre": "Curl de bíceps con barra z",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -6603,7 +6603,7 @@
     "nombre": "Curl Bíceps Martillo con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -6633,7 +6633,7 @@
     "nombre": "Curl inclinado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -6660,7 +6660,7 @@
     "nombre": "Curl de bíceps en polea alta ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "triceps"
@@ -6691,7 +6691,7 @@
     "nombre": "Curl de Bíceps Inclinado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -6721,7 +6721,7 @@
     "nombre": "Curl de Bíceps con rotación Inclinado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -6751,7 +6751,7 @@
     "nombre": "Curl de bíceps acostado con polea ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -6781,7 +6781,7 @@
     "nombre": " Curls de Bíceps acostado polea ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -6809,7 +6809,7 @@
     "nombre": "Curl araña en banco plano ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -6837,7 +6837,7 @@
     "nombre": "Curl de Bíceps  con mancuerna Acostado",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -6867,7 +6867,7 @@
     "nombre": "Curl predicador. En máquina ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -6895,7 +6895,7 @@
     "nombre": "Curl predicador con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -6928,7 +6928,7 @@
     "nombre": "Curl de bíceps en polea alto",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -6958,7 +6958,7 @@
     "nombre": "Curl predicador con barra ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -6989,7 +6989,7 @@
     "nombre": "Curl predicador martillo",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -7017,12 +7017,12 @@
     "nombre": "Curl de bíceps  prono con disco",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
     ],
-    "equipamiento": "weight plate",
+    "equipamiento": "disco",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0241-tension.png",
@@ -7046,7 +7046,7 @@
     "nombre": "Curl concentrado con Barra agarre cerrado",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -7076,7 +7076,7 @@
     "nombre": "Curl de Bíceps Sentado con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -7106,7 +7106,7 @@
     "nombre": "Curl de Bíceps mancuerna con rotación ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -7136,7 +7136,7 @@
     "nombre": "Curl de araña con barra",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -7166,7 +7166,7 @@
     "nombre": "Curl de Bíceps con rotación mancuernas ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -7196,7 +7196,7 @@
     "nombre": "Bíceps Curl con Cable y unilateral ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -7228,7 +7228,7 @@
     "nombre": "Predicador a una mano de pie",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -7261,7 +7261,7 @@
     "nombre": "Curl predicador en banco Scott con mancuernas ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -7293,7 +7293,7 @@
     "nombre": " Curl de bíceps con Barra agarre amplio ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -7325,7 +7325,7 @@
     "nombre": "Curl Zottman con Mancuernas",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -7355,7 +7355,7 @@
     "nombre": "Curl zottman en predicador con Mancuernas",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -7385,7 +7385,7 @@
     "nombre": "Curl de Bíceps con Máquina",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -7414,7 +7414,7 @@
     "nombre": "Curl con Barra  unilateral",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -7445,7 +7445,7 @@
     "nombre": "Curl de Bíceps Sentado sobre fitball con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -7475,7 +7475,7 @@
     "nombre": "Sentadilla con Curl de Bíceps con Mancuerna",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -7507,7 +7507,7 @@
     "nombre": "Curl de Bíceps prono con Mancuernas",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo"
@@ -7536,7 +7536,7 @@
     "nombre": "curl concentrado en fitball",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "forearm"
@@ -7567,7 +7567,7 @@
     "nombre": "Curl de Bíceps con Peso muerto ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -7602,8 +7602,8 @@
     "nombre": "Curl de Bíceps con extensión de tríceps  usando Mancuernas en Stability Ball",
     "grupo": "brazos",
     "musculos_principales": [
-      "triceps",
-      "biceps"
+      "Tríceps",
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Antebrazo",
@@ -7636,12 +7636,12 @@
     "nombre": "Curl Rápido de Bíceps Alternado con Banda",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "triceps"
     ],
-    "equipamiento": "band",
+    "equipamiento": "banda elástica",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0261-tension.png",
@@ -7675,7 +7675,7 @@
       "gluteos",
       "cuadriceps"
     ],
-    "equipamiento": "medicine ball",
+    "equipamiento": "balón medicinal",
     "nivel": "intermedio",
     "patron": "",
     "imagen": "/enciclopedia/imgs/0262-tension.png",
@@ -7698,7 +7698,7 @@
     "nombre": "Curl de bíceps sobre fitball con elevación de piernas",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "Femoral",
@@ -7768,7 +7768,7 @@
     "nombre": "Zancada Delantera con Curl de Bíceps ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -7805,7 +7805,7 @@
     "nombre": "Step Up  con Bíceps Curl usando Mancuernas",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "core",
@@ -7842,13 +7842,13 @@
     "nombre": "Curl de bíceps en fitball con balón medicinal ",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "core",
       "forearm"
     ],
-    "equipamiento": "medicine ball",
+    "equipamiento": "balón medicinal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0267-tension.png",
@@ -7873,7 +7873,7 @@
     "nombre": "Postura Cigüeña Curl de Bíceps con Mancuernas",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "cuadriceps",
@@ -7907,7 +7907,7 @@
     "nombre": "Curl de bíceps  en bosu con posición v",
     "grupo": "brazos",
     "musculos_principales": [
-      "biceps"
+      "Bíceps"
     ],
     "musculos_secundarios": [
       "abdominals",
@@ -7940,10 +7940,10 @@
     "nombre": "Círculos de tobillo",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0270-tension.png",
@@ -7965,13 +7965,13 @@
     "nombre": "tabla de equilibrio",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [
       "cuadriceps",
       "hamstring"
     ],
-    "equipamiento": "balance board",
+    "equipamiento": "tabla de equilibrio",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/balance-board-tension.png",
@@ -7994,7 +7994,7 @@
     "nombre": "Pantorrilla sentado con Barra",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -8020,7 +8020,7 @@
     "nombre": "Pantorrillas en prensa ",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -8049,10 +8049,10 @@
     "nombre": "Elevación de Pantorrillas con Banda",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "banda",
+    "equipamiento": "banda elástica",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0274-tension.png",
@@ -8077,10 +8077,10 @@
     "nombre": "Elevaciones de cría de burro",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0275-tension.png",
@@ -8106,7 +8106,7 @@
     "nombre": "Sentado One Leg Calf Elevación con Mancuerna",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -8134,7 +8134,7 @@
     "nombre": "Pantorrilla y tibial  con barra ",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -8162,7 +8162,7 @@
     "nombre": "Pantorrilla sentado Máquina",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -8191,10 +8191,10 @@
     "nombre": "Smith Máquina Inverso Calf Elevaciones",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "smith machine",
+    "equipamiento": "maquina smith",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0280-tension.png",
@@ -8219,7 +8219,7 @@
     "nombre": "Pantorrilla de pie con barra ",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "barra",
@@ -8246,7 +8246,7 @@
     "nombre": "Pantorrilla de pie Máquina",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "maquina",
@@ -8273,7 +8273,7 @@
     "nombre": "Pantorrilla de pie en escalón ",
     "grupo": "piernas",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -8306,7 +8306,7 @@
     "musculos_secundarios": [
       "Abdominales"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0284-tension.png",
@@ -8334,7 +8334,7 @@
     "nombre": "Abd roller con barra",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [
       "lumbar",
@@ -8366,7 +8366,7 @@
     "nombre": "Abd roller con barra de rodillas ",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [
       "lumbar",
@@ -8398,10 +8398,10 @@
     "nombre": "Crunch invertido",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0287-tension.png",
@@ -8425,7 +8425,7 @@
     "nombre": "Abdominales en polea",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "cable",
@@ -8459,7 +8459,7 @@
     "musculos_secundarios": [
       "Core"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0289-tension.png",
@@ -8484,10 +8484,10 @@
     "nombre": "Abdominales con las piernas sobre un fitball",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "stability ball",
+    "equipamiento": "balón",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0290-tension.png",
@@ -8512,10 +8512,10 @@
     "nombre": "abdominales",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0291-tension.png",
@@ -8541,10 +8541,10 @@
     "nombre": "Crunch Declinado",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0292-tension.png",
@@ -8575,7 +8575,7 @@
     "musculos_secundarios": [
       "Core"
     ],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0293-tension.png",
@@ -8602,7 +8602,7 @@
     "nombre": "Curva lateral con Mancuerna",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [],
     "equipamiento": "mancuerna",
@@ -8630,10 +8630,10 @@
     "nombre": "Crunch abdominal con fitball",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "aislamiento",
     "imagen": "/enciclopedia/imgs/0295-tension.png",
@@ -8660,10 +8660,10 @@
     "nombre": "Flexion de piernas en fitball",
     "grupo": "core",
     "musculos_principales": [
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "body",
+    "equipamiento": "peso corporal",
     "nivel": "intermedio",
     "patron": "compuesto",
     "imagen": "/enciclopedia/imgs/0296-tension.png",
@@ -8688,7 +8688,7 @@
     "nombre": "Remo con Barra",
     "grupo": "espalda",
     "musculos_principales": [
-      "Espalda media"
+      "Espalda"
     ],
     "musculos_secundarios": [
       "biceps"
@@ -8721,9 +8721,9 @@
     "grupo": "cardio",
     "subgrupo": "cardio máquina",
     "musculos_principales": [
-      "cuádriceps",
-      "isquiotibiales",
-      "gemelos"
+      "Cuádriceps",
+      "Isquiotibiales",
+      "Gemelos"
     ],
     "musculos_secundarios": [
       "glúteos",
@@ -8759,8 +8759,8 @@
     "grupo": "cardio",
     "subgrupo": "cardio máquina",
     "musculos_principales": [
-      "cuádriceps",
-      "isquiotibiales",
+      "Cuádriceps",
+      "Isquiotibiales",
       "glúteos"
     ],
     "musculos_secundarios": [
@@ -8798,9 +8798,9 @@
     "grupo": "cardio",
     "subgrupo": "cardio máquina",
     "musculos_principales": [
-      "cuádriceps",
-      "isquiotibiales",
-      "gemelos"
+      "Cuádriceps",
+      "Isquiotibiales",
+      "Gemelos"
     ],
     "musculos_secundarios": [
       "glúteos",
@@ -8836,9 +8836,9 @@
     "grupo": "cardio",
     "subgrupo": "cardio máquina",
     "musculos_principales": [
-      "cuádriceps",
-      "isquiotibiales",
-      "gemelos"
+      "Cuádriceps",
+      "Isquiotibiales",
+      "Gemelos"
     ],
     "musculos_secundarios": [
       "glúteos",
@@ -8874,9 +8874,9 @@
     "grupo": "cardio",
     "subgrupo": "cardio máquina",
     "musculos_principales": [
-      "cuádriceps",
-      "isquiotibiales",
-      "gemelos"
+      "Cuádriceps",
+      "Isquiotibiales",
+      "Gemelos"
     ],
     "musculos_secundarios": [
       "glúteos",
@@ -8913,8 +8913,8 @@
     "subgrupo": "cardio máquina",
     "musculos_principales": [
       "glúteos",
-      "cuádriceps",
-      "isquiotibiales"
+      "Cuádriceps",
+      "Isquiotibiales"
     ],
     "musculos_secundarios": [
       "gemelos",
@@ -8951,8 +8951,8 @@
     "grupo": "cardio",
     "subgrupo": "cardio máquina",
     "musculos_principales": [
-      "espalda",
-      "isquiotibiales",
+      "Espalda",
+      "Isquiotibiales",
       "glúteos"
     ],
     "musculos_secundarios": [
@@ -8990,8 +8990,8 @@
     "grupo": "cardio",
     "subgrupo": "cardio libre",
     "musculos_principales": [
-      "gemelos",
-      "cuádriceps"
+      "Gemelos",
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "core",
@@ -9028,7 +9028,7 @@
     "subgrupo": "cardio libre",
     "musculos_principales": [
       "core",
-      "cuádriceps"
+      "Cuádriceps"
     ],
     "musculos_secundarios": [
       "hombros",
@@ -9065,8 +9065,8 @@
     "grupo": "cardio",
     "subgrupo": "cardio libre",
     "musculos_principales": [
-      "espalda",
-      "hombros",
+      "Espalda",
+      "Hombros",
       "core"
     ],
     "musculos_secundarios": [
@@ -9108,7 +9108,7 @@
       "Lumbar"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "desconocido",
+    "equipamiento": "otro",
     "nivel": "intermedio",
     "imagen": "/enciclopedia/imgs_por_ubicar/f105falt1.svg",
     "imagen2": "/enciclopedia/imgs_por_ubicar/f105salt1.svg",
@@ -9134,7 +9134,7 @@
       "Core"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "desconocido",
+    "equipamiento": "otro",
     "nivel": "intermedio",
     "imagen": "/enciclopedia/imgs_por_ubicar/f109f.svg",
     "imagen2": "/enciclopedia/imgs_por_ubicar/f109s.svg",
@@ -9156,11 +9156,11 @@
     "grupo": "piernas",
     "subgrupo": "",
     "musculos_principales": [
-      "cuadriceps",
+      "Cuádriceps",
       "glúteo"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "desconocido",
+    "equipamiento": "otro",
     "nivel": "intermedio",
     "imagen": "/enciclopedia/imgs_por_ubicar/f154f.svg",
     "imagen2": "/enciclopedia/imgs_por_ubicar/f154s.svg",
@@ -9184,10 +9184,10 @@
     "grupo": "gluteos",
     "subgrupo": "",
     "musculos_principales": [
-      "Gluteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "desconocido",
+    "equipamiento": "otro",
     "nivel": "intermedio",
     "imagen": "/enciclopedia/imgs_por_ubicar/f111f.svg",
     "imagen2": "/enciclopedia/imgs_por_ubicar/f111s.svg",
@@ -9209,12 +9209,12 @@
     "grupo": "gluteos",
     "subgrupo": "",
     "musculos_principales": [
-      "Glúteo"
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "cuadriceps"
     ],
-    "equipamiento": "desconocido",
+    "equipamiento": "otro",
     "nivel": "intermedio",
     "imagen": "/enciclopedia/imgs_por_ubicar/f160f.svg",
     "imagen2": "/enciclopedia/imgs_por_ubicar/f160s.svg",
@@ -9238,10 +9238,10 @@
     "grupo": "piernas",
     "subgrupo": "",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [],
-    "equipamiento": "desconocido",
+    "equipamiento": "otro",
     "nivel": "intermedio",
     "imagen": "/enciclopedia/imgs_por_ubicar/f285f.svg",
     "imagen2": "/enciclopedia/imgs_por_ubicar/f285s.svg",
@@ -9269,7 +9269,7 @@
       "Espada media",
       "bíceps"
     ],
-    "equipamiento": "desconocido",
+    "equipamiento": "otro",
     "nivel": "intermedio",
     "imagen": "/enciclopedia/imgs_por_ubicar/f90f_1.svg",
     "imagen2": "/enciclopedia/imgs_por_ubicar/f90s_1.svg",
@@ -9297,7 +9297,7 @@
     "musculos_secundarios": [
       "Espalda media"
     ],
-    "equipamiento": "desconocido",
+    "equipamiento": "otro",
     "nivel": "intermedio",
     "imagen": "/enciclopedia/imgs_por_ubicar/f99f.svg",
     "imagen2": "/enciclopedia/imgs_por_ubicar/f99s.svg",
@@ -9324,7 +9324,7 @@
     "musculos_secundarios": [
       "gluteo mayor"
     ],
-    "equipamiento": "banda",
+    "equipamiento": "banda elástica",
     "nivel": "principiante",
     "ejecucion": [
       "Coloca la banda elastica sobre las rodillas",
@@ -9352,7 +9352,7 @@
     "grupo": "cardio",
     "musculos_principales": [
       "core",
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "hombros",
@@ -9421,13 +9421,13 @@
     "nombre": "Empuje con Banda",
     "grupo": "pecho",
     "musculos_principales": [
-      "pectoral"
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
       "hombros"
     ],
-    "equipamiento": "banda",
+    "equipamiento": "banda elástica",
     "nivel": "principiante",
     "ejecucion": [
       "Ancla la banda detras de ti a la altura del pecho",
@@ -9457,7 +9457,7 @@
     "grupo": "core",
     "musculos_principales": [
       "core",
-      "abdominales"
+      "Abdominales"
     ],
     "musculos_secundarios": [
       "hombros",
@@ -9492,7 +9492,7 @@
     "nombre": "Face Pull",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros",
+      "Hombros",
       "trapecio"
     ],
     "musculos_secundarios": [
@@ -9525,7 +9525,7 @@
     "nombre": "Frog Pump",
     "grupo": "gluteos",
     "musculos_principales": [
-      "gluteos"
+      "Glúteos"
     ],
     "musculos_secundarios": [],
     "equipamiento": "peso corporal",
@@ -9555,7 +9555,7 @@
     "nombre": "Hip Thrust con Barra",
     "grupo": "gluteos",
     "musculos_principales": [
-      "gluteos"
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -9623,8 +9623,8 @@
     "nombre": "Press Landmine",
     "grupo": "hombros",
     "musculos_principales": [
-      "hombros",
-      "pectoral"
+      "Hombros",
+      "Pectoral"
     ],
     "musculos_secundarios": [
       "triceps",
@@ -9659,8 +9659,8 @@
     "nombre": "Prensa de Pierna Unilateral",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps",
-      "gluteos"
+      "Cuádriceps",
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "isquiotibiales"
@@ -9693,8 +9693,8 @@
     "nombre": "Salto al Cajon",
     "grupo": "piernas",
     "musculos_principales": [
-      "cuadriceps",
-      "gluteos"
+      "Cuádriceps",
+      "Glúteos"
     ],
     "musculos_secundarios": [
       "isquiotibiales",
@@ -9729,7 +9729,7 @@
     "nombre": "Salto a la Cuerda",
     "grupo": "cardio",
     "musculos_principales": [
-      "gemelos"
+      "Gemelos"
     ],
     "musculos_secundarios": [
       "core",

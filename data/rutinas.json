@@ -509,14 +509,8 @@
         {
           "momento": "Calentamiento ",
           "ejercicio": "Banda ",
-          "tiempo": "15",
-          "notas": "45"
-        },
-        {
-          "momento": "",
-          "ejercicio": "",
-          "tiempo": "",
-          "notas": ""
+          "tiempo": "10",
+          "notas": "Lo que se "
         }
       ]
     }
@@ -1471,7 +1465,32 @@
           "var": "V2"
         }
       ],
-      "cardio": []
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Bicicleta ",
+          "tiempo": "10",
+          "notas": "Intensidad ascendente "
+        },
+        {
+          "momento": "Mitad de rutina ",
+          "ejercicio": "Elíptica ",
+          "tiempo": "10",
+          "notas": "Intervalos 20\"/20\""
+        },
+        {
+          "momento": "Final ",
+          "ejercicio": "Escalador de ",
+          "tiempo": "15",
+          "notas": "10 min al 75% luego 5 minutos decreciente hasta bajar velocidad "
+        },
+        {
+          "momento": "",
+          "ejercicio": "",
+          "tiempo": "",
+          "notas": ""
+        }
+      ]
     },
     "miercoles": {
       "recordatorio": "Nati buenas días de cardio ",

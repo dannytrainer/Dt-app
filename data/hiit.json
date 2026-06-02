@@ -1,13 +1,13 @@
 [
   {
     "id": 1778768133262,
-    "nombre": "Nuevo circuito",
+    "nombre": "Prueba",
     "series": 3,
     "preparacion": 5,
     "bloques": [
       {
         "tipo": "ejercicio",
-        "nombre": "Ejercicio 1",
+        "nombre": "Presd",
         "tiempo": 60
       },
       {
@@ -70,7 +70,7 @@
     "descFinCircuito": 600
   },
   {
-    "id": 1779844792675,
+    "id": 1780376136164,
     "nombre": "Intervalos",
     "preparacion": 10,
     "trabajo": 30,

@@ -122,9 +122,10 @@ cron.schedule('* * * * *', async () => {
       if (!u.activo) return u;
       const diasAntes = 3;
       const esDiaPago = u.dia_pago === diaHoy;
-      const esProximo = u.dia_pago === diaHoy + diasAntes || (u.tipo_pago === 'quincenal' && u.dia_pago2 === diaHoy + diasAntes);
       const esVencido = u.dia_pago < diaHoy && u.estado_pago !== 'aldia';
-      if (esDiaPago && u.estado_pago !== 'vencido') { u.estado_pago = 'vencido'; cambio = true; }
+      const esProximo = u.dia_pago === diaHoy + diasAntes || (u.tipo_pago === 'quincenal' && u.dia_pago2 === diaHoy + diasAntes);
+      if (esVencido && u.estado_pago !== 'vencido') { u.estado_pago = 'vencido'; cambio = true; }
+      else if (esDiaPago && u.estado_pago === 'vencido') { u.estado_pago = 'vencido'; }
       else if (esProximo && u.estado_pago === 'aldia') { u.estado_pago = 'proximo'; cambio = true; }
       return u;
     });
@@ -269,57 +270,6 @@ app.post('/api/usuarios', (req, res) => {
   guardarJSON('usuarios.json', usuarios);
   res.json(nuevo);
 });
-// ---- CHAT INTERNO ----
-app.get('/api/chat/:id', (req, res) => {
-  const chats = cargarJSON('chats.json', {});
-  res.json(chats[req.params.id] || []);
-});
-
-app.post('/api/chat/:id', (req, res) => {
-  const { mensaje, tipo, autor, contenido } = req.body;
-  const chats = cargarJSON('chats.json', {});
-  if (!chats[req.params.id]) chats[req.params.id] = [];
-  const msg = {
-    id: Date.now().toString(),
-    autor, // 'cliente' o 'entrenador'
-    tipo: tipo || 'texto', // 'texto', 'imagen', 'voz'
-    contenido: contenido || mensaje,
-    fecha: new Date().toISOString(),
-    leido: false,
-    leidoCliente: autor === 'cliente',
-    leidoEntrenador: autor === 'entrenador'
-  };
-  chats[req.params.id].push(msg);
-  guardarJSON('chats.json', chats);
-  res.json({ ok: true, msg });
-});
-
-app.post('/api/chat/:id/leer', (req, res) => {
-  const { autor } = req.body;
-  const chats = cargarJSON('chats.json', {});
-  if (chats[req.params.id]) {
-    chats[req.params.id] = chats[req.params.id].map(m => {
-      if (autor === 'cliente' && m.autor !== 'cliente') m.leidoCliente = true;
-      if (autor === 'entrenador' && m.autor !== 'entrenador') m.leidoEntrenador = true;
-      return m;
-    });
-    guardarJSON('chats.json', chats);
-  }
-  res.json({ ok: true });
-});
-
-app.get('/api/chat/no-leidos/entrenador', (req, res) => {
-  const chats = cargarJSON('chats.json', {});
-  let total = 0;
-  const porCliente = {};
-  Object.keys(chats).forEach(id => {
-    const noLeidos = chats[id].filter(m => m.autor === 'cliente' && !m.leidoEntrenador).length;
-    if (noLeidos > 0) { porCliente[id] = noLeidos; total += noLeidos; }
-  });
-  res.json({ total, porCliente });
-});
-// ---- FIN CHAT ----
-
 // ---- CHAT INTERNO ----
 app.get('/api/chat/:id', (req, res) => {
   const chats = cargarJSON('chats.json', {});
@@ -813,66 +763,9 @@ function cargarPersonalizados() {
   try { return JSON.parse(fs.readFileSync(encCustomPath, 'utf8')); } catch(e) { return { limite_free: 10, ejercicios: [] }; }
 }
 
-// GET /api/enciclopedia — lista con filtros opcionales
-app.get('/api/enciclopedia', (req, res) => {
-  let lista = cargarEnciclopedia();
-  const { grupo, equipamiento, nivel } = req.query;
-  if (grupo) lista = lista.filter(e => e.grupo === grupo);
-  if (equipamiento) lista = lista.filter(e => e.equipamiento === equipamiento);
-  if (nivel) lista = lista.filter(e => e.nivel === nivel);
-  res.json(lista);
-});
 
-// GET /api/enciclopedia/personalizados — lista personalizados
-app.get('/api/enciclopedia/personalizados', (req, res) => {
-  const data = cargarPersonalizados();
-  res.json(data.ejercicios || []);
-});
 
-// GET /api/enciclopedia/:id — un ejercicio por ID
-app.get('/api/enciclopedia/:id', (req, res) => {
-  const id = req.params.id;
-  let ej = cargarEnciclopedia().find(e => e.id === id);
-  if (!ej) {
-    const custom = cargarPersonalizados();
-    ej = (custom.ejercicios || []).find(e => e.id === id);
-  }
-  if (!ej) return res.status(404).json({ error: 'No encontrado' });
-  res.json(ej);
-});
 
-// POST /api/enciclopedia/personalizados — crear personalizado
-app.post('/api/enciclopedia/personalizados', (req, res) => {
-  const cfg = cargarJSON('config.json', {});
-  const plan = cfg.plan || 'free';
-  const data = cargarPersonalizados();
-  const ejercicios = data.ejercicios || [];
-  if (plan === 'free' && ejercicios.length >= 10) {
-    return res.status(403).json({ error: 'Límite del plan Free alcanzado. Actualiza a Premium.' });
-  }
-  const nuevo = { ...req.body, id: 'custom-' + Date.now(), es_personalizado: true };
-  ejercicios.push(nuevo);
-  fs.writeFileSync(encCustomPath, JSON.stringify({ limite_free: 10, ejercicios }, null, 2));
-  res.json({ ok: true, ejercicio: nuevo });
-});
-
-// PUT /api/enciclopedia/personalizados/:id — editar personalizado
-app.put('/api/enciclopedia/personalizados/:id', (req, res) => {
-  const data = cargarPersonalizados();
-  const idx = (data.ejercicios || []).findIndex(e => e.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
-  data.ejercicios[idx] = { ...data.ejercicios[idx], ...req.body, id: req.params.id, es_personalizado: true };
-  fs.writeFileSync(encCustomPath, JSON.stringify(data, null, 2));
-  res.json({ ok: true });
-});
-
-// DELETE /api/enciclopedia/personalizados/:id — eliminar personalizado
-app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
-  const data = cargarPersonalizados();
-  data.ejercicios = (data.ejercicios || []).filter(e => e.id !== req.params.id);
-  fs.writeFileSync(encCustomPath, JSON.stringify(data, null, 2));
-  res.json({ ok: true });
-});
 // ──────────────────────────────────────────────
 
 require("./sincronizar");
@@ -943,7 +836,7 @@ app.get('/api/enciclopedia/buscar-match/:nombre', (req, res) => {
   const nombre = decodeURIComponent(req.params.nombre).toLowerCase().trim();
   const grupofiltro = req.query.grupo || null;
   const pool = grupofiltro ? todos.filter(e => e.grupo === grupofiltro) : todos;
-  const todosUsar = pool.length > 0 ? pool : todos;
+  const todosUsar = pool;
   
   let mejor = null;
   let mejorScore = 0;
@@ -968,6 +861,10 @@ app.get('/api/enciclopedia/buscar-match/:nombre', (req, res) => {
   
   if (mejor && mejorScore >= 0.8) {
     res.json({ encontrado: true, ejercicio: mejor });
+  } else if (grupofiltro === 'cardio') {
+    const caminar = todos.find(e => e.nombre.toLowerCase().includes('caminadora') || e.nombre.toLowerCase().includes('caminar'));
+    if (caminar) res.json({ encontrado: true, ejercicio: caminar });
+    else res.json({ encontrado: false });
   } else {
     res.json({ encontrado: false });
   }
@@ -1034,6 +931,16 @@ app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
   data.ejercicios = (data.ejercicios||[]).filter(e => e.id !== req.params.id);
   guardarJSON('enciclopedia_personalizados.json', data);
   res.json({ ok: true });
+});
+
+app.get('/api/enciclopedia/:id', (req, res) => {
+  const id = req.params.id;
+  const oficiales = cargarJSON('enciclopedia.json', []);
+  const custom = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const todos = [...oficiales, ...(custom.ejercicios || [])];
+  const ej = todos.find(e => e.id === id);
+  if (!ej) return res.status(404).json({ error: 'No encontrado' });
+  res.json(ej);
 });
 
 conectarWhatsApp();

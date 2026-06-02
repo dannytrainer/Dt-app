@@ -159,6 +159,16 @@
           "descuento_valor": 15,
           "descuento_motivo": "",
           "fecha": "2026-05-25"
+        },
+        {
+          "monto": 1,
+          "metodo": "efectivo",
+          "moneda": "COP",
+          "novedad": "",
+          "descuento_tipo": "",
+          "descuento_valor": 0,
+          "descuento_motivo": "",
+          "fecha": "2026-06-02"
         }
       ],
       "descuento_tipo": "pct",

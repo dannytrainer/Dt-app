@@ -247,14 +247,15 @@ module.exports = function(app, fs) {
                 ${cardio.map((c,ci) => {
                   const palabrasC = (c.ejercicio||'').toLowerCase().split(' ').filter(p=>p.length>2);
                   let encMatchC = null, mejorScoreC = 0;
-                  encTodos.forEach(e => {
+                  const encCardio = encTodos.filter(e => e.grupo === 'cardio');
+                  encCardio.forEach(e => {
                     const en = e.nombre.toLowerCase();
                     let hits = 0;
                     palabrasC.forEach(p => { if(en.includes(p)) hits++; });
                     const score = palabrasC.length > 0 ? hits/palabrasC.length : 0;
                     if(score > mejorScoreC){ mejorScoreC=score; encMatchC=e; }
                   });
-                  if(mejorScoreC < 0.5) encMatchC = null;
+                  if(mejorScoreC < 0.5) encMatchC = encCardio.find(e => e.nombre.toLowerCase().includes('caminadora')) || encCardio[0] || null;
                   const cardioId = dia + '-cardio-' + ci;
                   const imgCardio = encMatchC && encMatchC.imagen ? `<img src="${encMatchC.imagen}" style="width:60px;height:60px;object-fit:contain;border-radius:6px;background:#111;filter:${encMatchC.es_personalizado?'none':'invert(1)'}" onerror="this.style.display='none'">` : '';
                   const btnVerCardio = encMatchC ? `<button onclick="var r=document.getElementById('ficha-${cardioId}');r.style.display=r.style.display==='none'?'block':'none'" style="background:#111;border:1px solid #333;border-radius:6px;padding:3px 7px;color:#aaa;font-size:10px;font-weight:700;cursor:pointer;margin-top:4px">&#128065; Ver</button>` : '';
