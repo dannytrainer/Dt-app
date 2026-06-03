@@ -121,8 +121,8 @@
     },
     "msg_pago": "Hola Mafe. Por acá Daniel bot recordando que se veze tu mens el 16",
     "foto": "data/fotos/1778377049231/perfil.jpg",
-    "sesiones_total": 4,
-    "sesiones_ciclo": 4,
+    "sesiones_total": 5,
+    "sesiones_ciclo": 5,
     "dias_desbloqueados": {
       "lunes": [
         "2026-05-24",
@@ -130,6 +130,10 @@
       ],
       "martes": [
         "2026-05-24"
+      ],
+      "miercoles": [
+        "2026-06-02",
+        "2026-06-03"
       ]
     },
     "premium": true,

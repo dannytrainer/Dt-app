@@ -9,8 +9,48 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--fondo);color:var(--texto-suave);font-family:'Segoe UI',sans-serif}
-:root{--rojo:#e31e24;--gris:#1a1a1a;--gris2:#2a2a2a;--fondo:#0a0a0a;--card:#111111;--card2:#161616;--texto:#ffffff;--texto-suave:#f0f0f0;--texto-medio:#aaaaaa;--texto-secundario:#666666;--texto-tenue:#444444;--borde:#2a2a2a;--borde2:#1a1a1a;--chip-activos:#4caf50;--chip-person:#e31e24;--chip-asesor:#4a9eff;--chip-pausados:#666;--test-fuerza:#e31e24;--test-resist:#4a9eff;--test-especif:#9c27b0}
-body.modo-claro{--fondo:#f5f5f7;--card:#ffffff;--card2:#fafafa;--gris:#ebebeb;--gris2:#e0e0e0;--texto:#111111;--texto-suave:#333333;--texto-medio:#666666;--texto-secundario:#888888;--texto-tenue:#aaaaaa;--borde:#dddddd;--borde2:#eeeeee;--chip-pausados:#999}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 70% 50% at 10% 0%,rgba(227,30,36,0.18) 0%,transparent 55%),radial-gradient(ellipse 60% 45% at 90% 100%,rgba(74,158,255,0.10) 0%,transparent 55%),radial-gradient(ellipse 50% 60% at 50% 50%,rgba(156,39,176,0.06) 0%,transparent 60%)}
+#app-entrenador,#app-cliente{position:relative;z-index:1}
+:root{
+--rojo:#e31e24;
+--gris:rgba(30,30,30,0.75);
+--gris2:rgba(40,40,40,0.80);
+--fondo:#080808;
+--card:rgba(255,255,255,0.06);
+--card2:rgba(255,255,255,0.04);
+--texto:#ffffff;
+--texto-suave:#f0f0f0;
+--texto-medio:#999999;
+--texto-secundario:#555555;
+--texto-tenue:#333333;
+--borde:rgba(255,255,255,0.10);
+--borde2:rgba(255,255,255,0.06);
+--chip-activos:#4caf50;
+--chip-person:#e31e24;
+--chip-asesor:#4a9eff;
+--chip-pausados:#666;
+--test-fuerza:#e31e24;
+--test-resist:#4a9eff;
+--test-especif:#9c27b0;
+--rojo-glow:rgba(227,30,36,0.30);
+--shadow-card:0 4px 24px rgba(0,0,0,0.5);
+}
+body.modo-claro{
+--fondo:#f0f0f3;
+--card:rgba(255,255,255,0.70);
+--card2:rgba(255,255,255,0.55);
+--gris:rgba(230,230,235,0.75);
+--gris2:rgba(215,215,220,0.80);
+--texto:#111111;
+--texto-suave:#222222;
+--texto-medio:#666666;
+--texto-secundario:#888888;
+--texto-tenue:#aaaaaa;
+--borde:rgba(0,0,0,0.08);
+--borde2:rgba(0,0,0,0.05);
+--chip-pausados:#999;
+--shadow-card:0 4px 20px rgba(0,0,0,0.10);
+}
 body.modo-claro .card{border-color:var(--borde)}
 body.modo-claro input,body.modo-claro select,body.modo-claro textarea{background:var(--card)!important;color:var(--texto)!important;border-color:var(--borde)!important}
 body.modo-claro #app-header{background:var(--card)!important;border-bottom:1px solid var(--borde)}
@@ -29,8 +69,8 @@ body.modo-claro .nav-bar{background:#fff!important;border-top:1px solid #ddd}
 body.modo-claro .nav-btn{color:var(--texto-secundario)!important}
 body.modo-claro .nav-btn.active{color:var(--rojo)!important}
 body{background:var(--fondo);color:var(--texto)}
-.card{background:var(--card)!important}
-.header{background:var(--card);border-bottom:3px solid var(--rojo);padding:10px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:100}
+.card{background:var(--card)!important;backdrop-filter:blur(12px) saturate(160%)!important;-webkit-backdrop-filter:blur(12px) saturate(160%)!important;border:1px solid var(--borde)!important;box-shadow:0 4px 24px rgba(0,0,0,0.4)!important;transition:transform 0.2s ease!important}
+.header{background:var(--card);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--borde);padding:10px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3)}
 .header h1{font-size:18px;font-weight:900;letter-spacing:2px;color:var(--texto)}
 .header p{font-size:10px;color:var(--rojo);font-weight:600;letter-spacing:1px}
 .sdot{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
@@ -50,12 +90,12 @@ body{background:var(--fondo);color:var(--texto)}
 .card.proximo{border-color:#ff9800}
 .avatar{width:42px;height:42px;border-radius:50%;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:var(--texto);flex-shrink:0;cursor:pointer;overflow:hidden;position:relative}.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-right:4px}
-.ba{background:#1a3a1a;color:#4caf50}
+.ba{background:rgba(76,175,80,0.15);color:#2e7d32;border:1px solid rgba(76,175,80,0.3)}
 .bp2{background:var(--gris2);color:var(--texto-medio)}
-.bal{background:#1a3a1a;color:#4caf50}
-.bpr{background:#3a2a00;color:#ff9800}
-.bv{background:#3a0000;color:#e31e24}
-.bti{background:#1a1a2a;color:#7986cb}
+.bal{background:rgba(76,175,80,0.15);color:#2e7d32;border:1px solid rgba(76,175,80,0.3)}
+.bpr{background:rgba(255,152,0,0.15);color:#e65100;border:1px solid rgba(255,152,0,0.3)}
+.bv{background:rgba(227,30,36,0.15);color:#c62828;border:1px solid rgba(227,30,36,0.3)}
+.bti{background:rgba(121,134,203,0.15);color:#5c6bc0;border:1px solid rgba(121,134,203,0.3)}
 .ig{margin-bottom:13px}
 .ig label{display:block;font-size:11px;color:var(--texto-medio);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 .ig input,.ig select,.ig textarea{width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:11px;color:var(--texto-suave);font-size:14px;outline:none}
@@ -63,7 +103,7 @@ body{background:var(--fondo);color:var(--texto)}
 .ig textarea{min-height:80px;resize:vertical}
 .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-end;width:100vw}
 .modal.open{display:flex}
-.mc{background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:100%;max-height:92vh;overflow-y:auto;border-top:3px solid var(--rojo);box-sizing:border-box}
+.mc{background:var(--card);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:100%;max-height:92vh;overflow-y:auto;border-top:2px solid rgba(227,30,36,0.6);box-sizing:border-box;box-shadow:0 -20px 60px rgba(0,0,0,0.5)}
 .mt{font-size:17px;font-weight:800;color:var(--texto);margin-bottom:18px}
 .dtab{display:flex;overflow-x:auto;gap:8px;margin-bottom:14px;padding-bottom:4px}
 .dtab button{flex-shrink:0;padding:7px 13px;border-radius:20px;border:1px solid #333;background:var(--gris);color:#777;font-size:12px;font-weight:600;cursor:pointer}
@@ -89,6 +129,509 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 .eb.sve{background:#3a0000;color:#e31e24;border-color:#e31e24}
 .sec-title{font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:12px 0 8px}
 @keyframes tickerMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ============================================
+   GLASSMORPHISM — DT-APP
+   ============================================ */
+
+/* Variables adicionales glass */
+:root {
+  --glass-bg: rgba(255,255,255,0.05);
+  --glass-bg-hover: rgba(255,255,255,0.08);
+  --glass-border: rgba(255,255,255,0.10);
+  --glass-border-rojo: rgba(227,30,36,0.25);
+  --glass-header: rgba(8,8,8,0.80);
+  --glass-modal: rgba(12,12,12,0.90);
+  --rojo-glow: rgba(227,30,36,0.30);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* Fondo atmosférico */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 60% 35% at 15% 0%, rgba(227,30,36,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 90%, rgba(74,158,255,0.05) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* CARD glass */
+.card {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(12px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-card) !important;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
+  pointer-events:none;
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.card.vencido {
+  border-color: rgba(227,30,36,0.40) !important;
+  box-shadow: 0 0 20px rgba(227,30,36,0.10), var(--shadow-card) !important;
+}
+
+.card.proximo {
+  border-color: rgba(255,152,0,0.35) !important;
+  box-shadow: 0 0 20px rgba(255,152,0,0.08), var(--shadow-card) !important;
+}
+
+/* HEADER glass */
+.header {
+  background: var(--glass-header) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4) !important;
+  position: relative;
+}
+
+.header::after {
+  content:'';
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(227,30,36,0.4), transparent);
+  pointer-events:none;
+}
+
+/* NAV glass */
+.nav {
+  background: rgba(8,8,8,0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+.nav button {
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.nav button.active {
+  text-shadow: 0 0 12px var(--rojo-glow);
+}
+
+/* MODAL glass */
+.mc {
+  background: var(--glass-modal) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  border-top: 1px solid var(--glass-border) !important;
+  box-shadow: 0 -20px 60px rgba(0,0,0,0.6) !important;
+  position: relative;
+}
+
+.mc::before {
+  content:'';
+  position:absolute;
+  top:0; left:20%; right:20%;
+  height:2px;
+  background:linear-gradient(90deg, transparent, rgba(227,30,36,0.6), transparent);
+  border-radius:2px;
+  pointer-events:none;
+}
+
+.modal {
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+/* BOTONES */
+.btn {
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.btn:active {
+  transform: scale(0.97) !important;
+}
+
+.br {
+  box-shadow: 0 4px 16px rgba(227,30,36,0.35) !important;
+}
+
+.br:hover {
+  box-shadow: 0 6px 24px rgba(227,30,36,0.50) !important;
+  opacity: 0.92;
+}
+
+/* FAB */
+.fab {
+  box-shadow: 0 6px 28px rgba(227,30,36,0.50), 0 0 0 4px rgba(227,30,36,0.10) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.fab:active {
+  transform: scale(0.93) !important;
+}
+
+/* INPUTS glass */
+.ig input, .ig select, .ig textarea {
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.ig input:focus, .ig select:focus, .ig textarea:focus {
+  border-color: rgba(227,30,36,0.60) !important;
+  box-shadow: 0 0 0 3px rgba(227,30,36,0.10) !important;
+}
+
+/* AVATAR glow */
+.avatar {
+  box-shadow: 0 4px 12px rgba(227,30,36,0.30) !important;
+}
+
+/* TOAST glass */
+.toast {
+  background: rgba(30,30,30,0.90) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+
+/* TABS glass */
+.dtab button {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: var(--glass-border) !important;
+  transition: all 0.2s ease !important;
+}
+
+.dtab button.active {
+  background: var(--rojo) !important;
+  box-shadow: 0 4px 14px rgba(227,30,36,0.35) !important;
+}
+
+/* Fade-in páginas */
+.page.active {
+  animation: fadeInPage 0.25s ease forwards;
+}
+
+@keyframes fadeInPage {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ---- MODO CLARO glass ---- */
+body.modo-claro {
+  --glass-bg: rgba(255,255,255,0.65) !important;
+  --glass-bg-hover: rgba(255,255,255,0.80) !important;
+  --glass-border: rgba(0,0,0,0.07) !important;
+  --glass-border-rojo: rgba(227,30,36,0.20) !important;
+  --glass-header: rgba(255,255,255,0.82) !important;
+  --glass-modal: rgba(252,252,254,0.93) !important;
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.08) !important;
+}
+
+body.modo-claro::before {
+  background:
+    radial-gradient(ellipse 60% 35% at 15% 0%, rgba(227,30,36,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 90%, rgba(74,158,255,0.04) 0%, transparent 60%);
+}
+
+body.modo-claro .nav {
+  background: rgba(255,255,255,0.80) !important;
+}
+
+body.modo-claro .header::after {
+  background: linear-gradient(90deg, transparent, rgba(227,30,36,0.25), transparent);
+}
+
+body.modo-claro .ig input,
+body.modo-claro .ig select,
+body.modo-claro .ig textarea {
+  background: rgba(0,0,0,0.03) !important;
+  border-color: rgba(0,0,0,0.09) !important;
+}
+
+
+/* ============================================
+   DT-APP — OVERRIDE GLOBAL ESTÉTICO
+   ============================================ */
+
+/* Reemplazar todos los fondos hardcodeados */
+[style*="background:#111"],
+[style*="background: #111"] {
+  background: var(--card) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+[style*="background:#0a0a0a"],
+[style*="background: #0a0a0a"] {
+  background: var(--fondo) !important;
+}
+
+[style*="background:#1a0000"],
+[style*="background: #1a0000"] {
+  background: rgba(227,30,36,0.12) !important;
+}
+
+[style*="background:#3a0000"],
+[style*="background: #3a0000"] {
+  background: rgba(227,30,36,0.15) !important;
+}
+
+[style*="background:#1a1a1a"],
+[style*="background: #1a1a1a"] {
+  background: var(--gris) !important;
+}
+
+[style*="background:#2a2a2a"],
+[style*="background: #2a2a2a"] {
+  background: var(--gris2) !important;
+}
+
+[style*="background:#161616"],
+[style*="background: #161616"] {
+  background: var(--card2) !important;
+}
+
+[style*="background:#0a1a0a"],
+[style*="background: #0a1a0a"] {
+  background: rgba(76,175,80,0.12) !important;
+}
+
+[style*="background:#1a3a1a"],
+[style*="background: #1a3a1a"] {
+  background: rgba(76,175,80,0.12) !important;
+}
+
+[style*="background:#3a2a00"],
+[style*="background: #3a2a00"] {
+  background: rgba(255,152,0,0.12) !important;
+}
+
+[style*="background:#1a1a2a"],
+[style*="background: #1a1a2a"] {
+  background: rgba(74,158,255,0.12) !important;
+}
+
+/* Bordes hardcodeados */
+[style*="border:1px solid #222"],
+[style*="border: 1px solid #222"],
+[style*="border:1px solid #333"],
+[style*="border: 1px solid #333"],
+[style*="border:1px solid #1a1a1a"],
+[style*="border:1px solid #2a2a2a"] {
+  border-color: var(--borde) !important;
+}
+
+/* Cards de ejercicios terminal cliente */
+[style*="background:#111"][style*="border-radius"] {
+  background: var(--card) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid var(--borde) !important;
+}
+
+/* Pills días terminal cliente */
+[style*="background:#111"][style*="border-radius:20px"],
+[style*="background:#1a1a1a"][style*="border-radius:20px"] {
+  background: var(--gris) !important;
+  border: 1px solid var(--borde) !important;
+}
+
+/* Inputs y selects oscuros */
+input[style*="background:#111"],
+select[style*="background:#111"],
+textarea[style*="background:#111"] {
+  background: var(--card) !important;
+  border-color: var(--borde) !important;
+  color: var(--texto) !important;
+}
+
+/* Pantallas de login */
+#pantalla-rol,
+#pantalla-login-entrenador,
+#pantalla-login-cliente {
+  background: var(--fondo) !important;
+}
+
+#pantalla-rol [style*="background:#111"],
+#pantalla-login-entrenador [style*="background:#111"],
+#pantalla-login-cliente [style*="background:#111"] {
+  background: var(--card) !important;
+  border-color: var(--borde) !important;
+}
+
+/* Chat panel */
+#tc-chat-panel {
+  background: var(--fondo) !important;
+}
+
+/* Modales internos */
+.mc [style*="background:#111"],
+.mc [style*="background:#1a1a1a"],
+.mc [style*="background:#0a0a0a"] {
+  background: var(--card) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-color: var(--borde) !important;
+}
+
+/* Modo claro — forzar legibilidad */
+body.modo-claro [style*="background:#111"],
+body.modo-claro [style*="background:#1a1a1a"],
+body.modo-claro [style*="background:#2a2a2a"],
+body.modo-claro [style*="background:#0a0a0a"],
+body.modo-claro [style*="background:#161616"] {
+  background: var(--card) !important;
+  color: var(--texto) !important;
+}
+
+body.modo-claro [style*="color:#fff"],
+body.modo-claro [style*="color: #fff"],
+body.modo-claro [style*="color:#ffffff"],
+body.modo-claro [style*="color:white"] {
+  color: var(--texto) !important;
+}
+
+body.modo-claro [style*="color:#aaa"],
+body.modo-claro [style*="color:#888"],
+body.modo-claro [style*="color:#666"],
+body.modo-claro [style*="color:#555"],
+body.modo-claro [style*="color:#777"],
+body.modo-claro [style*="color:#999"] {
+  color: #444444 !important;
+}
+
+body.modo-claro [style*="color:#333"] {
+  color: #111111 !important;
+}
+
+body.modo-claro p,
+body.modo-claro span,
+body.modo-claro div {
+  color: inherit;
+}
+
+body.modo-claro .li,
+body.modo-claro .ig label {
+  color: #444 !important;
+}
+
+body.modo-claro input,
+body.modo-claro select,
+body.modo-claro textarea {
+  background: rgba(0,0,0,0.04) !important;
+  color: var(--texto) !important;
+  border-color: var(--borde) !important;
+}
+
+/* Configuración — cards internas */
+body.modo-claro .mc,
+body.modo-claro [id*="config"] {
+  background: var(--card) !important;
+  color: var(--texto) !important;
+}
+
+
+/* Textos dinámicos modo claro */
+body.modo-claro * {
+  --color-secundario: #444444;
+}
+
+body.modo-claro [style*="color:#aaa"] { color: #444 !important; }
+body.modo-claro [style*="color:#888"] { color: #444 !important; }
+body.modo-claro [style*="color:#777"] { color: #444 !important; }
+body.modo-claro [style*="color:#666"] { color: #333 !important; }
+body.modo-claro [style*="color:#555"] { color: #333 !important; }
+body.modo-claro [style*="color:#444"] { color: #222 !important; }
+body.modo-claro [style*="color:#333"] { color: #111 !important; }
+body.modo-claro [style*="color:#fff"] { color: #111 !important; }
+body.modo-claro [style*="color:#ffffff"] { color: #111 !important; }
+body.modo-claro [style*="color:white"] { color: #111 !important; }
+body.modo-claro [style*="color:rgb(255"] { color: #111 !important; }
+
+/* Excepción: rojo y colores de estado siempre visibles */
+body.modo-claro [style*="color:#e31e24"] { color: #e31e24 !important; }
+body.modo-claro [style*="color:#4caf50"] { color: #2e7d32 !important; }
+body.modo-claro [style*="color:#ff9800"] { color: #e65100 !important; }
+body.modo-claro [style*="color:#4a9eff"] { color: #1565c0 !important; }
+body.modo-claro [style*="color:#9c27b0"] { color: #6a0080 !important; }
+
+
+/* ---- FIXES MODO CLARO ESPECÍFICOS ---- */
+
+/* Chat input */
+body.modo-claro input[style*="background:#1a1a1a"] {
+  background: rgba(0,0,0,0.06) !important;
+  color: #111 !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+/* Lista mensajes fondo */
+body.modo-claro #lista-mensajes-entrenador,
+body.modo-claro #tc-chat-mensajes,
+body.modo-claro [id*="mensajes"] {
+  background: var(--fondo) !important;
+}
+
+/* Nombres en lista chat */
+body.modo-claro #lista-mensajes-entrenador *,
+body.modo-claro [id*="chat-lista"] * {
+  color: var(--texto) !important;
+}
+
+/* Badges tipo cliente — asesorado, personalizado */
+body.modo-claro [style*="background:var(--chip-person)"],
+body.modo-claro [style*="background:var(--chip-asesor)"],
+body.modo-claro [style*="background:#1a1a1a"][style*="border-radius"] {
+  background: rgba(0,0,0,0.08) !important;
+  color: #333 !important;
+  border: 1px solid rgba(0,0,0,0.15) !important;
+}
+
+/* Badge asesorado azul — mantener color pero legible */
+body.modo-claro .badge[style*="chip-asesor"],
+body.modo-claro [style*="color:var(--chip-asesor)"] {
+  color: #1565c0 !important;
+}
+
+/* Enciclopedia badges equipamiento */
+body.modo-claro [style*="background:#1e1e1e"] {
+  background: rgba(0,0,0,0.08) !important;
+  color: #333 !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+/* Stats resumen ejercicios terminal cliente */
+body.modo-claro [style*="background:#1a1a1a"][style*="border-radius:8px"] {
+  background: rgba(255,255,255,0.8) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+}
+
+body.modo-claro [style*="color:#555"][style*="text-transform:uppercase"] {
+  color: #666 !important;
+}
+
+/* Botón tema */
+body.modo-claro #ent-cfg-tema-btn {
+  background: var(--gris) !important;
+  color: #111 !important;
+  border-color: var(--borde) !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -435,9 +978,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <p class="st">Envío manual</p>
 <div class="card">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar1" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar1()" onfocus="mostrarDrop1()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar1" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente"></div>
-<button class="btn br" style="width:100%" onclick="enviarRutinaCompleta()">💪 Enviar rutina completa</button>
-<button class="btn br" style="width:100%;margin-top:8px;background:#7c3aed" onclick="enviarInformePremium()">👑 Enviar Informe Premium</button>
-<button class="btn br" style="width:100%;margin-top:8px;background:#065f46" onclick="descargarInformePremium()">👑 Descargar Informe Premium</button>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px"><button class="btn" style="background:rgba(255,255,255,0.10);color:var(--texto);border:1px solid rgba(255,255,255,0.20);font-size:11px;padding:10px 6px" onclick="enviarRutinaCompleta()">💪 Rutina</button><button class="btn" style="background:linear-gradient(135deg,#b8860b,#ffd700);color:#000;border:none;font-size:11px;padding:10px 6px;font-weight:800;box-shadow:0 4px 14px rgba(255,215,0,0.35)" onclick="enviarInformePremium()">👑 Informe Premium</button><button class="btn" style="background:rgba(255,255,255,0.10);color:var(--texto);border:1px solid rgba(255,255,255,0.20);font-size:11px;padding:10px 6px" onclick="descargarInformePremium()">⬇️ Descargar</button></div>
 </div>
 <div class="card" style="margin-top:8px">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar2" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar2()" onfocus="mostrarDrop2()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar2" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente-dia"></div>
@@ -451,8 +992,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <option value="sabado">Sábado</option>
 <option value="domingo">Domingo</option>
 </select></div>
-<button onclick="desbloquearDiaEntrenamiento()" style="width:100%;padding:11px;border-radius:8px;border:1px solid #4caf50;background:#0a1a0a;color:#4caf50;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">🔓 Desbloquear día de entrenamiento</button>
-<button class="btn br" style="width:100%" onclick="enviarDiaRutina()">📤 Enviar día de rutina</button>
+<div style="display:flex;gap:8px"><button onclick="desbloquearDiaEntrenamiento()" style="flex:1;padding:11px;border-radius:8px;border:1px solid #4caf50;background:#0a1a0a;color:#4caf50;font-size:12px;font-weight:700;cursor:pointer">🔓 Desbloquear</button><button class="btn br" style="flex:1" onclick="enviarDiaRutina()">📤 Enviar día</button></div>
 </div>
 <div class="card" style="margin-top:8px">
   <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px">📢 Difusión</div>
@@ -469,8 +1009,8 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
 <button class="fab" onclick="abrirModalCliente()" id="fab-btn">+</button>
 <button onclick="abrirChatEntrenador()" id="chat-ent-fab" style="position:fixed;bottom:90px;left:20px;width:50px;height:50px;border-radius:50%;background:rgba(227,30,36,0.6);border:none;color:#fff;font-size:22px;cursor:pointer;z-index:99999;display:none;align-items:center;justify-content:center">💬</button>
 <div id="chat-ent-badge" style="display:none;position:fixed;bottom:128px;left:14px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div>
-<div id="chat-ent-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:999999;flex-direction:column">
-  <div style="background:#111;border-bottom:2px solid #e31e24;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+<div id="chat-ent-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:999999;flex-direction:column">
+  <div style="background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:2px solid var(--rojo);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
     <button onclick="cerrarChatEntrenador()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">←</button>
     <div style="font-size:16px;font-weight:900;color:#fff;flex:1">💬 Mensajes</div>
   </div>
@@ -486,7 +1026,7 @@ input:checked+.slider:before{transform:translateX(20px);background:#fff}
       <div id="chat-ent-nombre" style="font-size:15px;font-weight:700;color:#fff"></div>
     </div>
     <div id="chat-ent-mensajes" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
-    <div style="background:#111;border-top:1px solid #1a1a1a;padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0">
+    <div style="background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--borde);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0">
       <input id="chat-ent-img" type="file" accept="image/*" style="display:none" onchange="chatEntEnviarImagen(this)"/>
       <input id="chat-ent-cam" type="file" accept="image/*" capture="environment" style="display:none" onchange="chatEntEnviarImagen(this)"/>
       <input id="chat-ent-vid" type="file" accept="video/*" style="display:none" onchange="chatEntEnviarVideo(this)"/>
@@ -2156,15 +2696,18 @@ function toggleTema(){
   const claro = document.body.classList.toggle('modo-claro');
   document.getElementById('btn-tema').textContent = claro ? '☀️' : '🌙';
   localStorage.setItem('tema', claro ? 'claro' : 'oscuro');
+  localStorage.setItem('dt_tema', claro ? 'claro' : 'oscuro');
   fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:claro?'claro':'oscuro'})});
 }
 function cargarTema(){
-  const tema = localStorage.getItem('tema') || 'oscuro';
+  const tema = localStorage.getItem('dt_tema') || localStorage.getItem('tema') || 'oscuro';
   if(tema === 'claro'){
     document.body.classList.add('modo-claro');
     const btn = document.getElementById('btn-tema');
     if(btn) btn.textContent = '☀️';
   }
+  localStorage.setItem('dt_tema', tema);
+  localStorage.setItem('tema', tema);
 }
 async function guardarInstagram(){
   const ig=document.getElementById('cfg-instagram').value.trim();
@@ -2361,14 +2904,11 @@ ${avatarHTML(u)}
 <span class="badge bti">${u.tipo}</span>
 ${epBadge(ep)}
 </div>
-<div style="display:flex;gap:6px;margin-bottom:6px">
-<button class="btn bg" style="flex:1;font-size:12px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
-<button class="btn bg" style="flex:1;font-size:12px" onclick="marcarSesionRapida('${u.id}',this)">+1 💪</button>
-<button class="btn bp" style="font-size:12px;padding:10px 12px" onclick="eliminarCliente('${u.id}')">🗑️</button>
-</div>
-<div style="display:flex;gap:6px">
-<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
-<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
+<div style="display:flex;gap:5px">
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
+<button class="btn bp" style="font-size:11px;padding:8px 10px" onclick="eliminarCliente('${u.id}')">🗑️</button>
 </div>
 </div>`;
 }).join('');
@@ -2442,14 +2982,11 @@ ${avatarHTML(u)}
 <span class="badge bti">${u.tipo}</span>
 ${epBadge(ep)}
 </div>
-<div style="display:flex;gap:6px;margin-bottom:6px">
-<button class="btn bg" style="flex:1;font-size:12px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
-<button class="btn bg" style="flex:1;font-size:12px" onclick="marcarSesionRapida('${u.id}',this)">+1 💪</button>
-<button class="btn bp" style="font-size:12px;padding:10px 12px" onclick="eliminarCliente('${u.id}')">🗑️</button>
-</div>
-<div style="display:flex;gap:6px">
-<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
-<button class="btn bg" style="flex:1;font-size:12px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
+<div style="display:flex;gap:5px">
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
+<button class="btn bp" style="font-size:11px;padding:8px 10px" onclick="eliminarCliente('${u.id}')">🗑️</button>
 </div>
 </div>`;
   }).join('');
@@ -9114,12 +9651,12 @@ function compartirPlanWA() {
 </div>
 
 <!-- NAV -->
-  <div style="background:#111;border-bottom:1px solid #1a1a1a;display:flex;flex-shrink:0">
+  <div style="background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--borde);display:flex;flex-shrink:0">
     <button onclick="tcTab('rutina')" id="tc-tab-rutina" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#e31e24;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid #e31e24">📋 Rutina</button>
-    <button onclick="tcTab('alimentacion')" id="tc-tab-alimentacion" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">🍖 Nutrición</button>
-    <button onclick="tcTab('tools')" id="tc-tab-tools" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">🛠 Tools</button>
-    <button onclick="tcTab('progreso')" id="tc-tab-progreso" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">📊 Progreso</button>
-    <button onclick="tcTab('perfil')" id="tc-tab-perfil" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">👤 Perfil</button>
+    <button onclick="tcTab('alimentacion')" id="tc-tab-alimentacion" style="flex:1;padding:12px 4px;border:none;background:transparent;color:var(--texto-secundario);font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">🍖 Nutrición</button>
+    <button onclick="tcTab('tools')" id="tc-tab-tools" style="flex:1;padding:12px 4px;border:none;background:transparent;color:var(--texto-secundario);font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">🛠 Tools</button>
+    <button onclick="tcTab('progreso')" id="tc-tab-progreso" style="flex:1;padding:12px 4px;border:none;background:transparent;color:var(--texto-secundario);font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">📊 Progreso</button>
+    <button onclick="tcTab('perfil')" id="tc-tab-perfil" style="flex:1;padding:12px 4px;border:none;background:transparent;color:var(--texto-secundario);font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">👤 Perfil</button>
   </div>
 
   <!-- CONTENIDO -->
@@ -9130,7 +9667,7 @@ function compartirPlanWA() {
   <div id="tc-chat-badge" style="display:none;position:fixed;bottom:128px;left:16px;background:rgba(255,152,0,0.25);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
 
   <!-- PANEL CHAT -->
-  <div id="tc-chat-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:9999;flex-direction:column">
+  <div id="tc-chat-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:9999;flex-direction:column">
     <div style="background:#111;border-bottom:2px solid #e31e24;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
       <button onclick="tcToggleChat()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">←</button>
       <div style="font-size:16px;font-weight:900;color:#fff">💬 Chat con tu entrenador</div>
@@ -9142,7 +9679,7 @@ function compartirPlanWA() {
       <input id="tc-chat-vid" type="file" accept="video/*" style="display:none" onchange="tcEnviarVideo(this)"/>
       <input id="tc-chat-vid-cam" type="file" accept="video/*" capture="camcorder" style="display:none" onchange="tcEnviarVideo(this)"/>
       <div style="position:relative">
-        <button onclick="tcToggleMenu()" id="tc-chat-plus" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:50%;width:40px;height:40px;color:#aaa;font-size:22px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">+</button>
+        <button onclick="tcToggleMenu()" id="tc-chat-plus" style="background:var(--gris);border:1px solid var(--borde);border-radius:50%;width:40px;height:40px;color:var(--texto-medio);font-size:22px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">+</button>
         <div id="tc-chat-menu" style="display:none;position:absolute;bottom:50px;left:0;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:8px;min-width:160px;z-index:100">
           <div onclick="document.getElementById('tc-chat-img').click();tcToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer">🖼️ Galería</div>
           <div onclick="document.getElementById('tc-chat-cam').click();tcToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer">📸 Cámara</div>
@@ -9361,6 +9898,7 @@ async function iniciarTerminalCliente() {
 }
 
 function tcTab(tab) {
+  
   ['rutina','alimentacion','tools','progreso','perfil'].forEach(t => {
     const btn = document.getElementById('tc-tab-' + t);
     if (!btn) return;
@@ -9378,6 +9916,7 @@ function tcTab(tab) {
 }
 
 function tcRenderRutina(cont) {
+  
   // Solo dia actual visible
   const diaActual2 = DIAS_ES[new Date().getDay()];
   let diasHtml = '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;scrollbar-width:none">';
@@ -10179,7 +10718,7 @@ function tcRenderAlimentacion(cont) {
         return;
       }
       window._tcPlanSemana = semana;
-      tcRenderPlanDia(cont, semana, 0);
+      tcRenderPlanDia(cont, semana, 0); 
     })
     .catch(function() {
       cont.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:13px;color:#e31e24">Error cargando el plan</div></div>';
@@ -10970,7 +11509,7 @@ function encMostrarLista() {
       html += "<div style=\"display:flex;gap:6px;flex-wrap:wrap;margin-top:4px\">";
       if (e.nivel) html += "<span style=\"padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;background:" + nb + ";color:" + nc + "\">" + e.nivel + "</span>";
       if (e.equipamiento) html += "<span style=\"padding:2px 7px;border-radius:4px;font-size:10px;background:#1e1e1e;color:#aaa;border:1px solid #333\">" + e.equipamiento + "</span>";
-      if (e.es_personalizado) html += "<span style=\"padding:2px 7px;border-radius:4px;font-size:10px;background:#2a1a00;color:#ffab40\">&#11088; Personalizado</span>";
+      if (e.es_personalizado) html += "<span style=\"padding:2px 7px;border-radius:4px;font-size:10px;background:rgba(255,171,64,0.15);color:#e65100\">&#11088; Personalizado</span>";
       html += "</div></div><span style=\"color:#666;font-size:14px\">&#8250;</span></div>";
     });
   }
@@ -11736,6 +12275,7 @@ function tcToggleTema(btn) {
   document.body.classList.toggle('modo-claro');
   var claro = document.body.classList.contains('modo-claro');
   localStorage.setItem('dt_tema', claro ? 'claro' : 'oscuro');
+  localStorage.setItem('tema', claro ? 'claro' : 'oscuro');
   btn.innerHTML = claro ? '&#9728; Claro' : '&#127769; Oscuro';
   btn.style.background = claro ? '#e31e24' : '#1a1a1a';
   var lbl = document.getElementById('tc-cfg-tema-btn-lbl');
@@ -11921,7 +12461,7 @@ async function cargarListaChatClientes() {
   filtrados.sort((a,b) => (noLeidos.porCliente[b.id]||0) - (noLeidos.porCliente[a.id]||0));
   cont.innerHTML = filtrados.map(u => {
     const nl = noLeidos.porCliente[u.id] || 0;
-    return '<div onclick="abrirChatCliente(\'' + u.id + '\',\'' + u.nombre.replace(/'/g,"\\'") + '\')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #111;cursor:pointer"><div style="width:40px;height:40px;border-radius:50%;background:#1a1a1a;border:2px solid ' + (nl>0?'#e31e24':'#2a2a2a') + ';display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:#fff">' + u.nombre + '</div></div>' + (nl>0?'<div style="background:#e31e24;color:#fff;font-size:11px;font-weight:900;padding:3px 8px;border-radius:10px">' + nl + '</div>':'<div style="font-size:18px;color:#333">›</div>') + '</div>';
+    return '<div onclick="abrirChatCliente(\'' + u.id + '\',\'' + u.nombre.replace(/'/g,"\\'") + '\')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--borde);cursor:pointer"><div style="width:40px;height:40px;border-radius:50%;background:var(--gris);border:2px solid ' + (nl>0?'#e31e24':'var(--borde)') + ';display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:var(--texto)">' + u.nombre + '</div></div>' + (nl>0?'<div style="background:#e31e24;color:#fff;font-size:11px;font-weight:900;padding:3px 8px;border-radius:10px">' + nl + '</div>':'<div style="font-size:18px;color:#333">›</div>') + '</div>';
   }).join('') || '<div style="text-align:center;color:#333;padding:30px;font-size:13px">Sin clientes</div>';
 }
 
@@ -11951,9 +12491,9 @@ async function cargarMensajesEntrenador() {
     else if (m.tipo === 'audio') bodyE = '<audio controls src="' + m.contenido + '" style="max-width:100%"></audio>';
     else if (m.tipo === 'video') bodyE = '<video controls src="' + m.contenido + '" style="max-width:100%;border-radius:8px"></video>';
     else if (m.tipo === 'reporte') bodyE = m.contenido;
-    else bodyE = '<div style="font-size:13px;color:#fff">' + m.contenido + '</div>';
+    else bodyE = '<div style="font-size:13px;color:var(--texto)">' + m.contenido + '</div>';
     const padE = (m.tipo==='imagen'||m.tipo==='video') ? '4px' : '10px 14px';
-    return '<div style="display:flex;justify-content:' + (esE?'flex-end':'flex-start') + '"><div style="max-width:75%;background:' + (esE?'#e31e24':'#1a1a1a') + ';border-radius:14px;padding:' + padE + '">' + bodyE + '<div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;text-align:right;padding:0 4px">' + hora + '</div></div></div>';
+    return '<div style="display:flex;justify-content:' + (esE?'flex-end':'flex-start') + '"><div style="max-width:75%;background:' + (esE?'#e31e24':'var(--gris2)') + ';border-radius:14px;padding:' + padE + '">' + bodyE + '<div style="font-size:10px;color:var(--texto-medio);margin-top:4px;text-align:right;padding:0 4px">' + hora + '</div></div></div>';
   }).join('');
   cont.scrollTop = cont.scrollHeight;
 }
@@ -12160,4 +12700,12 @@ function tcAportarDesarrollador() {
   var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
   window.open(wa, '_blank');
 }
+
+    if (fondos.some(function(x){return bg===x;})) {
+      el.style.setProperty('background-color','rgba(255,255,255,0.75)','important');
+      el.style.setProperty('color','#111111','important');
+    }
+  });
+}
+
 </script>
