@@ -76,17 +76,35 @@ passport.use(new GoogleStrategy({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
+
+app.get('/api/auth/roles', (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.json({ roles: [] });
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const roles = [];
+  const ent = cuentas.entrenadores.find(e => e.email === email);
+  const cli = cuentas.clientes.find(c => c.email === email);
+  if (ent) roles.push({ rol:'entrenador', id:ent.id, nombre:ent.nombre });
+  if (cli) roles.push({ rol:'cliente', id:cli.id, usuario_id:cli.usuario_id, nombre:cli.nombre });
+  res.json({ email, nombre: (ent||cli||{}).nombre, roles });
+});
+
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/?error=google' }),
   (req, res) => {
-    const u = req.user;
-    const sesion = JSON.stringify({ ok: true, rol: u.rol, id: u.id, email: u.email, nombre: u.nombre, usuario_id: u.usuario_id || u.id });
+    const email = req.user.email;
+    const nombre = req.user.nombre || req.user.displayName;
+    const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+    const esEnt = cuentas.entrenadores.find(e => e.email === email);
+    const esCli = cuentas.clientes.find(c => c.email === email);
+    const roles = [];
+    if (esEnt) roles.push({rol:'entrenador', id: esEnt.id, nombre: esEnt.nombre});
+    if (esCli) roles.push({rol:'cliente', id: esCli.id, usuario_id: esCli.usuario_id, nombre: esCli.nombre});
+    const data = JSON.stringify({ email, nombre, roles });
     res.send(`<script>
-      localStorage.setItem('dt_sesion', '${sesion.replace(/'/g, "\'")}');
-      localStorage.setItem('dt_rol', '${u.rol}');
-      ${u.rol === 'cliente' ? "localStorage.setItem('dt_cliente_id', '" + (u.usuario_id || u.id) + "');" : ''}
+      localStorage.setItem('dt_google_data', '${data.replace(/'/g, "\'")}');
       window.location.href = '/';
     </script>`);
   }

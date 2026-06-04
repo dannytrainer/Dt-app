@@ -9767,6 +9767,7 @@ const ROL_KEY = 'dt_rol';
 const PASS_ENTRENADOR = 'DTapp';
 
 function initRol() {
+  if (checkGoogleLogin()) return;
   const rol = localStorage.getItem(ROL_KEY);
   if (rol === 'entrenador') {
     mostrarApp();
@@ -12603,6 +12604,97 @@ async function tcCambiarPassword() {
     if(d.ok){st.style.color='#4caf50';st.textContent='✓ Contraseña actualizada';document.getElementById('tc-pass-actual').value='';document.getElementById('tc-pass-nueva').value='';document.getElementById('tc-pass-confirmar').value='';}
     else{st.style.color='#e31e24';st.textContent=d.msg||'Contraseña actual incorrecta';}
   }catch(e){st.style.color='#e31e24';st.textContent='Error de conexión';}
+}
+</script>
+
+<!-- PANTALLA SELECCIÓN ROL GOOGLE -->
+<div id="pantalla-seleccion-rol" style="display:none;position:fixed;inset:0;background:#0a0a0a;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+  <img src="/images/icon-perfil.png" style="width:90px;height:90px;object-fit:contain;margin-bottom:24px">
+  <div id="sel-bienvenida" style="font-size:22px;font-weight:800;color:#ffffff;margin-bottom:8px;text-align:center;text-shadow:none;-webkit-text-fill-color:#ffffff"></div>
+  <div style="font-size:13px;color:#888;margin-bottom:36px;text-align:center">¿Cómo querés entrar hoy?</div>
+  <div id="sel-botones" style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px"></div>
+  <button onclick="cerrarSesionGoogle()" style="margin-top:28px;background:transparent;border:1px solid #333;border-radius:10px;color:#666;font-size:12px;cursor:pointer;padding:8px 20px">Cerrar sesión</button>
+</div>
+<script>
+// ── GOOGLE AUTH FLOW ─────────────────────────────────────────
+function checkGoogleLogin() {
+  const data = localStorage.getItem('dt_google_data');
+  if (!data) return false;
+  const d = JSON.parse(data);
+  if (!d.roles || d.roles.length === 0) {
+    // Usuario nuevo — solo entrenador por ahora
+    const nuevo = {ok:true, rol:'entrenador', id:'ent_'+Date.now(), email:d.email, nombre:d.nombre};
+    localStorage.setItem('dt_sesion', JSON.stringify(nuevo));
+    localStorage.setItem('dt_rol', 'entrenador');
+    localStorage.removeItem('dt_google_data');
+    return false;
+  }
+  if (d.roles.length === 1) {
+    // Solo un rol — entrar directo
+    seleccionarRol(d.roles[0]);
+    return true;
+  }
+  // Múltiples roles — mostrar selección
+  mostrarSeleccionRol(d);
+  return true;
+}
+
+function mostrarSeleccionRol(d) {
+  const panel = document.getElementById('pantalla-seleccion-rol');
+  if (!panel) return;
+  // Ocultar todo lo demás
+  ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente','app-entrenador'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  document.getElementById('sel-bienvenida').textContent = '¡Hola, ' + (d.nombre || 'Usuario') + '!';
+  const cont = document.getElementById('sel-botones');
+  cont.innerHTML = '';
+  // Último rol usado
+  const ultimoRol = localStorage.getItem('dt_ultimo_rol');
+  d.roles.forEach(r => {
+    const btn = document.createElement('button');
+    const esUltimo = ultimoRol === r.rol;
+    btn.style.cssText = 'width:100%;background:' + (r.rol==='entrenador'?'linear-gradient(135deg,#e31e24,#a01018)':'linear-gradient(135deg,#1a1a1a,#111)') + ';border:2px solid ' + (esUltimo?'#e31e24':'#2a2a2a') + ';border-radius:16px;color:#fff;font-size:15px;font-weight:700;padding:18px 16px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:14px;box-shadow:0 4px 20px rgba(0,0,0,0.3)';
+    btn.innerHTML = (r.rol==='entrenador' ? '🏋️ <div><div style="font-size:15px">Entrenador</div><div style="font-size:11px;opacity:0.7;font-weight:400">Panel de gestión</div></div>' : '👤 <div><div style="font-size:15px">Cliente</div><div style="font-size:11px;opacity:0.7;font-weight:400">Mi entrenamiento</div></div>');
+    if (esUltimo) btn.innerHTML += '<span style="margin-left:auto;font-size:10px;opacity:0.7">último usado</span>';
+    btn.onclick = function(){ seleccionarRol(r); };
+    cont.appendChild(btn);
+  });
+  panel.style.display = 'flex';
+}
+
+function seleccionarRol(r) {
+  const data = JSON.parse(localStorage.getItem('dt_google_data') || '{}');
+  localStorage.setItem('dt_sesion', JSON.stringify({ok:true, rol:r.rol, id:r.id, email:data.email, nombre:r.nombre, usuario_id:r.usuario_id||r.id}));
+  localStorage.setItem('dt_rol', r.rol);
+  localStorage.setItem('dt_ultimo_rol', r.rol);
+  if (r.rol === 'cliente') localStorage.setItem('dt_cliente_id', r.usuario_id || r.id);
+  localStorage.removeItem('dt_google_data');
+  const panel = document.getElementById('pantalla-seleccion-rol');
+  if (panel) panel.style.display = 'none';
+  if (r.rol === 'entrenador') mostrarApp();
+  else mostrarTerminalCliente(r.usuario_id || r.id);
+}
+
+function cerrarSesionGoogle() {
+  ['dt_sesion','dt_rol','dt_google_data','dt_ultimo_rol','dt_cliente_id','dt_cliente_tel'].forEach(k => localStorage.removeItem(k));
+  window.location.href = '/';
+}
+
+function cambiarRol() {
+  // Botón para cambiar de rol sin cerrar sesión
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  const email = sesion.email;
+  if (!email) { cerrarSesionGoogle(); return; }
+  fetch('/api/auth/roles?email=' + encodeURIComponent(email))
+    .then(r => r.json())
+    .then(d => {
+      if (d.roles && d.roles.length > 1) {
+        localStorage.setItem('dt_google_data', JSON.stringify(d));
+        mostrarSeleccionRol(d);
+      }
+    });
 }
 </script>
 </body>

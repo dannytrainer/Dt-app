@@ -43,8 +43,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  clientID: '822565773866-vpneg50rh8k0dm69mfd7biahmstns5pr.apps.googleusercontent.com',
+  clientSecret: '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',
   callbackURL: '/auth/google/callback'
 }, (accessToken, refreshToken, profile, done) => {
   const email = profile.emails[0].value;
@@ -75,6 +75,19 @@ passport.use(new GoogleStrategy({
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
+
+
+app.get('/api/auth/roles', (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.json({ roles: [] });
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const roles = [];
+  const ent = cuentas.entrenadores.find(e => e.email === email);
+  const cli = cuentas.clientes.find(c => c.email === email);
+  if (ent) roles.push({ rol:'entrenador', id:ent.id, nombre:ent.nombre });
+  if (cli) roles.push({ rol:'cliente', id:cli.id, usuario_id:cli.usuario_id, nombre:cli.nombre });
+  res.json({ email, nombre: (ent||cli||{}).nombre, roles });
+});
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
