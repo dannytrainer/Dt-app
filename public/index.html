@@ -12337,6 +12337,35 @@ function tcAbrirConfig() {
   fila('Tema', tema?'Modo claro':'Modo oscuro', tema?'&#9728; Claro':'&#127769; Oscuro', tema?'#e31e24':'#1a1a1a', 'tc-cfg-tema-btn', tcToggleTema);
   fila('Sonidos', 'Beeps y alertas', sonidos?'&#128276; On':'&#128277; Off', sonidos?'#e31e24':'#1a1a1a', 'tc-cfg-sonido-btn', tcToggleSonidos);
 
+  seccion('&#128279; Entrenador');
+
+  // Tarjeta vinculación entrenador
+  var dVinc = document.createElement('div');
+  dVinc.style.cssText = 'background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px';
+  dVinc.id = 'tc-vinc-card';
+
+  fetch('/api/cuentas/cliente?id=' + uid)
+    .then(r => r.json())
+    .then(cli => {
+      var entNombre = cli.entrenador_nombre || '';
+      var entId = cli.entrenador_id || '';
+      var html2 = '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:4px">&#127919; Entrenador vinculado</div>';
+      if (entId) {
+        html2 += '<div style="font-size:12px;color:#4caf50;margin-bottom:8px">&#10003; ' + (entNombre || entId) + '</div>';
+        html2 += '<div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">¿Querés cambiar de entrenador?</div>';
+      } else {
+        html2 += '<div style="font-size:12px;color:#e31e24;margin-bottom:8px">&#9888; Sin entrenador asignado</div>';
+      }
+      html2 += '<input id="tc-vinc-codigo" type="text" placeholder="Código del entrenador" style="background:var(--fondo);border:1px solid var(--borde);border-radius:10px;padding:10px 12px;color:var(--texto);font-size:13px;outline:none;width:100%;box-sizing:border-box;text-transform:uppercase;letter-spacing:2px">';
+      html2 += '<div id="tc-vinc-status" style="font-size:11px;text-align:center;min-height:14px"></div>';
+      html2 += '<button onclick="tcVincularEntrenador()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;width:100%;box-sizing:border-box">' + (entId ? '&#128260; Cambiar entrenador' : '&#128279; Vincularme') + '</button>';
+      dVinc.innerHTML = html2;
+    }).catch(() => {
+      dVinc.innerHTML = '<div style="font-size:12px;color:#555">No se pudo cargar info del entrenador</div>';
+    });
+
+  body.appendChild(dVinc);
+
   seccion('&#128179; Mi Cuenta');
   var pagoCont = document.createElement('div');
   pagoCont.id = 'tc-config-pago-ent';

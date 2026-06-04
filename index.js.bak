@@ -59,18 +59,8 @@ passport.use(new GoogleStrategy({
   if (usuario) {
     return done(null, { ...usuario, rol });
   }
-  const nuevo = {
-    id: 'ent_' + Date.now(),
-    email, nombre,
-    password: '',
-    rol: 'entrenador',
-    codigo_vinculacion: '',
-    activo: true,
-    fecha_registro: new Date().toISOString().split('T')[0]
-  };
-  cuentas.entrenadores.push(nuevo);
-  guardarJSON('cuentas.json', cuentas);
-  return done(null, { ...nuevo, rol: 'entrenador' });
+  // Usuario nuevo — dejar que el frontend elija rol
+  return done(null, { email, nombre, esNuevo: true });
 }));
 
 passport.serializeUser((user, done) => done(null, user));

@@ -12568,10 +12568,20 @@ window.addEventListener('DOMContentLoaded', () => {
 <script>
 // ── GOOGLE AUTH FLOW ─────────────────────────────────────────
 function checkGoogleLogin() {
+  // Si ya tiene sesión activa, entrar directo
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  const rol = localStorage.getItem('dt_rol');
+  if (sesion.email && rol) {
+    if (rol === 'entrenador') { mostrarApp(); return true; }
+    if (rol === 'cliente') {
+      const id = localStorage.getItem('dt_cliente_id') || sesion.usuario_id;
+      if (id) { mostrarTerminalCliente(id); return true; }
+    }
+  }
+  // Si viene de Google login reciente
   const data = localStorage.getItem('dt_google_data');
   if (!data) return false;
   const d = JSON.parse(data);
-  // Siempre mostrar selección de rol cuando viene de Google
   mostrarSeleccionRol(d);
   return true;
 }

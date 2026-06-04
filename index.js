@@ -67,6 +67,32 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
 
+
+// Obtener datos de cuenta cliente
+app.get('/api/cuentas/cliente', (req, res) => {
+  const id = req.query.id;
+  if (!id) return res.json({});
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const cli = cuentas.clientes.find(c => c.id === id || c.usuario_id === id);
+  if (!cli) return res.json({});
+  const ent = cuentas.entrenadores.find(e => e.id === cli.entrenador_id);
+  res.json({ ...cli, entrenador_nombre: ent ? ent.nombre : '' });
+});
+
+// Vincular cliente a entrenador por código
+app.post('/api/cuentas/vincular', (req, res) => {
+  const { cliente_id, codigo } = req.body;
+  if (!cliente_id || !codigo) return res.json({ ok:false, error:'Datos incompletos' });
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion && e.codigo_vinculacion.toUpperCase() === codigo.toUpperCase());
+  if (!ent) return res.json({ ok:false, error:'Código inválido' });
+  const cli = cuentas.clientes.find(c => c.id === cliente_id || c.usuario_id === cliente_id);
+  if (!cli) return res.json({ ok:false, error:'Cliente no encontrado' });
+  cli.entrenador_id = ent.id;
+  guardarJSON('cuentas.json', cuentas);
+  res.json({ ok:true, entrenador_nombre: ent.nombre });
+});
+
 app.get('/api/auth/roles', (req, res) => {
   const email = req.query.email;
   if (!email) return res.json({ roles: [] });
