@@ -9371,18 +9371,6 @@ function filtrarRutinas(){
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100)">
       <div>
         <div style="font-size:13px;font-weight:700;color:#fff">Configurar sonidos</div>
-<!-- CAMBIAR CONTRASEÑA ENTRENADOR -->
-<div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128274; Seguridad</div>
-<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
-  <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">Cambiar contraseña</div>
-  <div style="display:flex;flex-direction:column;gap:8px">
-    <input id="cfg-pass-actual" type="password" placeholder="Contraseña actual" style="background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;width:100%;box-sizing:border-box">
-    <input id="cfg-pass-nueva" type="password" placeholder="Nueva contraseña" style="background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;width:100%;box-sizing:border-box">
-    <input id="cfg-pass-confirmar" type="password" placeholder="Confirmar nueva contraseña" style="background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;width:100%;box-sizing:border-box">
-    <div id="cfg-pass-status" style="font-size:11px;text-align:center;min-height:16px"></div>
-    <button onclick="entCambiarPassword()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;width:100%;box-sizing:border-box">&#128274; Guardar nueva contraseña</button>
-  </div>
-</div>
         <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Cronos &middot; Timers &middot; HIIT</div>
       </div>
       <span style="color:#555;font-size:18px">&#8250;</span>
@@ -9980,11 +9968,24 @@ function volverRol() {
 }
 
 function cerrarSesion() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  const email = sesion.email;
+  const nombre = sesion.nombre;
   localStorage.removeItem(ROL_KEY);
   localStorage.removeItem('dt_cliente_tel');
   localStorage.removeItem('dt_cliente_id');
   localStorage.removeItem('dt_sesion');
-  location.reload();
+  localStorage.removeItem('dt_ultimo_rol');
+  if (email) {
+    fetch('/api/auth/roles?email=' + encodeURIComponent(email))
+      .then(r => r.json())
+      .then(d => {
+        localStorage.setItem('dt_google_data', JSON.stringify(d));
+        location.reload();
+      }).catch(() => location.reload());
+  } else {
+    location.reload();
+  }
 }
 
 window.addEventListener('DOMContentLoaded', initRol);
@@ -12332,19 +12333,7 @@ function tcAbrirConfig() {
     body.appendChild(d);
   }
 
-  
-seccion('&#128274; Seguridad');
-var dPass = document.createElement('div');
-dPass.style.cssText = 'background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px';
-dPass.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:4px">Cambiar contrase\u00f1a</div>'
-  + '<input id="tc-pass-actual" type="password" placeholder="Contrase\u00f1a actual" style="background:var(--fondo);border:1px solid var(--borde);border-radius:10px;padding:10px 12px;color:var(--texto);font-size:13px;outline:none;width:100%;box-sizing:border-box">'
-  + '<input id="tc-pass-nueva" type="password" placeholder="Nueva contrase\u00f1a" style="background:var(--fondo);border:1px solid var(--borde);border-radius:10px;padding:10px 12px;color:var(--texto);font-size:13px;outline:none;width:100%;box-sizing:border-box">'
-  + '<input id="tc-pass-confirmar" type="password" placeholder="Confirmar nueva contrase\u00f1a" style="background:var(--fondo);border:1px solid var(--borde);border-radius:10px;padding:10px 12px;color:var(--texto);font-size:13px;outline:none;width:100%;box-sizing:border-box">'
-  + '<div id="tc-pass-status" style="font-size:11px;text-align:center;min-height:16px"></div>'
-  + '<button onclick="tcCambiarPassword()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;width:100%;box-sizing:border-box">&#128274; Guardar nueva contrase\u00f1a</button>';
-body.appendChild(dPass);
-
-seccion('&#127912; Personalización');
+  seccion('&#127912; Personalización');
   fila('Tema', tema?'Modo claro':'Modo oscuro', tema?'&#9728; Claro':'&#127769; Oscuro', tema?'#e31e24':'#1a1a1a', 'tc-cfg-tema-btn', tcToggleTema);
   fila('Sonidos', 'Beeps y alertas', sonidos?'&#128276; On':'&#128277; Off', sonidos?'#e31e24':'#1a1a1a', 'tc-cfg-sonido-btn', tcToggleSonidos);
 
@@ -12566,50 +12555,11 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
-<script>
-async function entCambiarPassword() {
-  var actual=document.getElementById('cfg-pass-actual').value.trim();
-  var nueva=document.getElementById('cfg-pass-nueva').value.trim();
-  var confirmar=document.getElementById('cfg-pass-confirmar').value.trim();
-  var st=document.getElementById('cfg-pass-status');
-  if(!actual||!nueva||!confirmar){st.style.color='#e31e24';st.textContent='Completa todos los campos';return;}
-  if(nueva!==confirmar){st.style.color='#e31e24';st.textContent='Las contraseñas no coinciden';return;}
-  if(nueva.length<6){st.style.color='#e31e24';st.textContent='Mínimo 6 caracteres';return;}
-  st.style.color='#aaa';st.textContent='Guardando…';
-  try{
-    var sesion=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
-    var email=sesion.email;
-    if(!email){st.style.color='#e31e24';st.textContent='Sesión no válida, vuelve a iniciar sesión';return;}
-    var r=await fetch('/api/auth/cambiar-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password_actual:actual,password_nuevo:nueva})});
-    var d=await r.json();
-    if(d.ok){st.style.color='#4caf50';st.textContent='✓ Contraseña actualizada';document.getElementById('cfg-pass-actual').value='';document.getElementById('cfg-pass-nueva').value='';document.getElementById('cfg-pass-confirmar').value='';}
-    else{st.style.color='#e31e24';st.textContent=d.msg||'Contraseña actual incorrecta';}
-  }catch(e){st.style.color='#e31e24';st.textContent='Error de conexión';}
-}
-async function tcCambiarPassword() {
-  var actual=document.getElementById('tc-pass-actual').value.trim();
-  var nueva=document.getElementById('tc-pass-nueva').value.trim();
-  var confirmar=document.getElementById('tc-pass-confirmar').value.trim();
-  var st=document.getElementById('tc-pass-status');
-  if(!actual||!nueva||!confirmar){st.style.color='#e31e24';st.textContent='Completa todos los campos';return;}
-  if(nueva!==confirmar){st.style.color='#e31e24';st.textContent='Las contraseñas no coinciden';return;}
-  if(nueva.length<6){st.style.color='#e31e24';st.textContent='Mínimo 6 caracteres';return;}
-  st.style.color='#aaa';st.textContent='Guardando…';
-  try{
-    var sesion=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
-    var email=sesion.email;
-    if(!email){st.style.color='#e31e24';st.textContent='Sesión no válida, vuelve a iniciar sesión';return;}
-    var r=await fetch('/api/auth/cambiar-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password_actual:actual,password_nuevo:nueva})});
-    var d=await r.json();
-    if(d.ok){st.style.color='#4caf50';st.textContent='✓ Contraseña actualizada';document.getElementById('tc-pass-actual').value='';document.getElementById('tc-pass-nueva').value='';document.getElementById('tc-pass-confirmar').value='';}
-    else{st.style.color='#e31e24';st.textContent=d.msg||'Contraseña actual incorrecta';}
-  }catch(e){st.style.color='#e31e24';st.textContent='Error de conexión';}
-}
-</script>
+
 
 <!-- PANTALLA SELECCIÓN ROL GOOGLE -->
 <div id="pantalla-seleccion-rol" style="display:none;position:fixed;inset:0;background:#0a0a0a;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px">
-  <img src="/logo_trainer.png" style="width:80px;height:80px;border-radius:20px;object-fit:cover;margin-bottom:24px;border:2px solid #e31e24" onerror="this.src='/icon.png'">
+  <img src="/images/icon-perfil.png" style="width:90px;height:90px;object-fit:contain;margin-bottom:24px">
   <div id="sel-bienvenida" style="font-size:22px;font-weight:800;color:#ffffff;margin-bottom:8px;text-align:center;text-shadow:none;-webkit-text-fill-color:#ffffff"></div>
   <div style="font-size:13px;color:#888;margin-bottom:36px;text-align:center">¿Cómo querés entrar hoy?</div>
   <div id="sel-botones" style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px"></div>
@@ -12621,20 +12571,7 @@ function checkGoogleLogin() {
   const data = localStorage.getItem('dt_google_data');
   if (!data) return false;
   const d = JSON.parse(data);
-  if (!d.roles || d.roles.length === 0) {
-    // Usuario nuevo — solo entrenador por ahora
-    const nuevo = {ok:true, rol:'entrenador', id:'ent_'+Date.now(), email:d.email, nombre:d.nombre};
-    localStorage.setItem('dt_sesion', JSON.stringify(nuevo));
-    localStorage.setItem('dt_rol', 'entrenador');
-    localStorage.removeItem('dt_google_data');
-    return false;
-  }
-  if (d.roles.length === 1) {
-    // Solo un rol — entrar directo
-    seleccionarRol(d.roles[0]);
-    return true;
-  }
-  // Múltiples roles — mostrar selección
+  // Siempre mostrar selección de rol cuando viene de Google
   mostrarSeleccionRol(d);
   return true;
 }
@@ -12664,22 +12601,49 @@ function mostrarSeleccionRol(d) {
   panel.style.display = 'flex';
 }
 
-function seleccionarRol(r) {
+async function seleccionarRol(r) {
   const data = JSON.parse(localStorage.getItem('dt_google_data') || '{}');
-  localStorage.setItem('dt_sesion', JSON.stringify({ok:true, rol:r.rol, id:r.id, email:data.email, nombre:r.nombre, usuario_id:r.usuario_id||r.id}));
-  localStorage.setItem('dt_rol', r.rol);
-  localStorage.setItem('dt_ultimo_rol', r.rol);
-  if (r.rol === 'cliente') localStorage.setItem('dt_cliente_id', r.usuario_id || r.id);
+  let rolData = r;
+  // Si es usuario nuevo o no tiene ese rol, crearlo en el backend
+  if (!r.id) {
+    try {
+      const res = await fetch('/api/auth/crear-perfil', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email: data.email, nombre: data.nombre, rol: r.rol })
+      });
+      const d = await res.json();
+      if (d.ok) rolData = d;
+    } catch(e) { console.error('Error creando perfil:', e); }
+  }
+  localStorage.setItem('dt_sesion', JSON.stringify({ok:true, rol:rolData.rol, id:rolData.id, email:data.email, nombre:rolData.nombre||data.nombre, usuario_id:rolData.usuario_id||rolData.id}));
+  localStorage.setItem('dt_rol', rolData.rol);
+  localStorage.setItem('dt_ultimo_rol', rolData.rol);
+  if (rolData.rol === 'cliente') localStorage.setItem('dt_cliente_id', rolData.usuario_id || rolData.id);
   localStorage.removeItem('dt_google_data');
   const panel = document.getElementById('pantalla-seleccion-rol');
   if (panel) panel.style.display = 'none';
-  if (r.rol === 'entrenador') mostrarApp();
-  else mostrarTerminalCliente(r.usuario_id || r.id);
+  if (rolData.rol === 'entrenador') mostrarApp();
+  else mostrarTerminalCliente(rolData.usuario_id || rolData.id);
 }
 
 function cerrarSesionGoogle() {
-  ['dt_sesion','dt_rol','dt_google_data','dt_ultimo_rol','dt_cliente_id','dt_cliente_tel'].forEach(k => localStorage.removeItem(k));
-  window.location.href = '/';
+  // Salir → volver a selección de rol (no cerrar sesión Google)
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  const email = sesion.email;
+  const nombre = sesion.nombre;
+  ['dt_sesion','dt_rol','dt_ultimo_rol','dt_cliente_id','dt_cliente_tel'].forEach(k => localStorage.removeItem(k));
+  if (email) {
+    // Recargar roles y mostrar selección
+    fetch('/api/auth/roles?email=' + encodeURIComponent(email))
+      .then(r => r.json())
+      .then(d => {
+        localStorage.setItem('dt_google_data', JSON.stringify(d));
+        window.location.href = '/';
+      });
+  } else {
+    window.location.href = '/';
+  }
 }
 
 function cambiarRol() {

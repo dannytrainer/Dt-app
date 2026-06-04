@@ -43,8 +43,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  clientID: '822565773866-vpneg50rh8k0dm69mfd7biahmstns5pr.apps.googleusercontent.com',
+  clientSecret: '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',
   callbackURL: '/auth/google/callback'
 }, (accessToken, refreshToken, profile, done) => {
   const email = profile.emails[0].value;
