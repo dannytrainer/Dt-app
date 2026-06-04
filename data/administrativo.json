@@ -205,7 +205,18 @@
     "1780410974278": {
       "precio": 200000,
       "moneda": "COP",
-      "pagos": [],
+      "pagos": [
+        {
+          "monto": 200000,
+          "metodo": "efectivo",
+          "moneda": "COP",
+          "novedad": "",
+          "descuento_tipo": "",
+          "descuento_valor": 0,
+          "descuento_motivo": "",
+          "fecha": "2026-06-04"
+        }
+      ],
       "descuento_tipo": "pct",
       "descuento_valor": 0,
       "descuento_motivo": ""

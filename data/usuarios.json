@@ -437,8 +437,8 @@
     },
     "msg_pago": "Hola NATI pro acá Daniel bot recordando  que se cumple la fecha el dia 30🤖🤭",
     "foto": "data/fotos/1780069487489/perfil.jpg",
-    "premium": true,
-    "premium_hasta": "2026-06-02",
+    "premium": false,
+    "premium_hasta": null,
     "entrenador_id": "ent_001"
   },
   {
