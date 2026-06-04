@@ -15,3 +15,5 @@ check.py
 dt-app/
 !public/enciclopedia/
 !public/images/
+.env
+.env
