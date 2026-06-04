@@ -253,7 +253,14 @@ cron.schedule('* * * * *', async () => {
   }
 });
 
-app.get('/api/usuarios', (req, res) => res.json(cargarJSON('usuarios.json')));
+app.get('/api/usuarios', (req, res) => {
+  const todos = cargarJSON('usuarios.json');
+  const entrenador_id = req.query.entrenador_id;
+  if (entrenador_id) {
+    return res.json(todos.filter(u => u.entrenador_id === entrenador_id));
+  }
+  res.json(todos);
+});
 app.get('/api/usuarios/:id', (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
   const u = usuarios.find(x => x.id === req.params.id);
@@ -262,7 +269,7 @@ app.get('/api/usuarios/:id', (req, res) => {
 });
 app.post('/api/usuarios', (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
-  const nuevo = { id: Date.now().toString(), activo: true, ...req.body };
+  const nuevo = { id: Date.now().toString(), activo: true, entrenador_id: req.body.entrenador_id || 'ent_001', ...req.body };
   usuarios.push(nuevo);
   const carpetaFotos = path.join(__dirname, 'data/fotos', nuevo.id);
   fs.mkdirSync(path.join(carpetaFotos, 'antes'), { recursive: true });
@@ -468,11 +475,18 @@ app.post('/api/admin/config/update', (req, res) => {
   res.json({ok:true});
 });
 // CONFIG
-app.get('/api/config', (req, res) => res.json(cargarJSON('config.json')));
+app.get('/api/config', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const archivo = eid === 'ent_001' ? 'config.json' : 'config_' + eid + '.json';
+  const cfg = cargarJSON(archivo, cargarJSON('config.json'));
+  res.json(cfg);
+});
 app.post('/api/config', (req, res) => {
-  const cfg = cargarJSON('config.json');
+  const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const archivo = eid === 'ent_001' ? 'config.json' : 'config_' + eid + '.json';
+  const cfg = cargarJSON(archivo, cargarJSON('config.json'));
   Object.assign(cfg, req.body);
-  guardarJSON('config.json', cfg);
+  guardarJSON(archivo, cfg);
   res.json({ok:true});
 });
 
@@ -1108,6 +1122,69 @@ app.post('/api/habilitar-dia/:id', (req, res) => {
   if (!u.dias_habilitados.includes(dia)) u.dias_habilitados.push(dia);
   guardarJSON('usuarios.json', usuarios);
   res.json({ ok: true });
+});
+
+
+// ═══════════════════════════════
+// 🔐 AUTENTICACIÓN
+// ═══════════════════════════════
+
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  
+  // Buscar en entrenadores
+  const ent = cuentas.entrenadores.find(e => e.email === email && e.password === password);
+  if (ent) return res.json({ ok: true, rol: 'entrenador', id: ent.id, nombre: ent.nombre });
+  
+  // Buscar en clientes
+  const cli = cuentas.clientes.find(c => c.email === email && c.password === password);
+  if (cli) return res.json({ ok: true, rol: 'cliente', id: cli.id, usuario_id: cli.usuario_id, entrenador_id: cli.entrenador_id });
+  
+  return res.json({ ok: false, error: 'Email o contraseña incorrectos' });
+});
+
+app.post('/api/auth/registro', (req, res) => {
+  const { email, password, nombre, rol, codigo_entrenador } = req.body;
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  
+  // Verificar si ya existe
+  const existe = [...cuentas.entrenadores, ...cuentas.clientes].find(c => c.email === email);
+  if (existe) return res.json({ ok: false, error: 'Este email ya está registrado' });
+  
+  if (rol === 'entrenador') {
+    const nuevo = {
+      id: 'ent_' + Date.now(),
+      email, password, nombre,
+      codigo_vinculacion: nombre.substring(0,4).toUpperCase() + Date.now().toString().slice(-4),
+      activo: true,
+      fecha_registro: new Date().toISOString().split('T')[0]
+    };
+    cuentas.entrenadores.push(nuevo);
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, nombre: nuevo.nombre });
+  }
+  
+  if (rol === 'cliente') {
+    let entrenador_id = null;
+    let usuario_id = null;
+    if (codigo_entrenador) {
+      const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion === codigo_entrenador.toUpperCase());
+      entrenador_id = ent.id;
+    }
+    const nuevo = {
+      id: 'cli_' + Date.now(),
+      email, password, nombre,
+      entrenador_id, usuario_id,
+      activo: true,
+      fecha_registro: new Date().toISOString().split('T')[0]
+    };
+    cuentas.clientes.push(nuevo);
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, rol: 'cliente', id: nuevo.id, nombre: nuevo.nombre, entrenador_id });
+  }
+  
+  return res.json({ ok: false, error: 'Rol inválido' });
 });
 
 app.listen(3000, () => console.log('DT-APP corriendo en puerto 3000'));

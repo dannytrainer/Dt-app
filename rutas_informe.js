@@ -82,10 +82,11 @@ module.exports = function(app, fs) {
       const enciclopedia = cargarJSON('enciclopedia.json', []);
       const encCustom = cargarJSON('enciclopedia_personalizados.json', {ejercicios:[]});
       const encTodos = [...enciclopedia, ...(encCustom.ejercicios||[])];
-      const cfg = cargarJSON('config.json', {});
-      const nombreEntrenador = (cfg.nombre_entrenador || 'DANNY TRAINER').toUpperCase();
-
       const usuario = usuarios.find(u => u.id == id || u.telefono == id);
+      const entId = usuario ? (usuario.entrenador_id || 'ent_001') : 'ent_001';
+      const archivoConfig = entId === 'ent_001' ? 'config.json' : 'config_' + entId + '.json';
+      const cfg = cargarJSON(archivoConfig, cargarJSON('config.json', {}));
+      const nombreEntrenador = (cfg.nombre_entrenador || 'Entrenador').toUpperCase();
       if (!usuario) return res.status(404).send('<h2>Cliente no encontrado</h2>');
 
       const rutina       = rutinas[id] || rutinas[usuario.telefono] || {};
@@ -528,7 +529,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
   body{font-family:'DM Sans',sans-serif;background:#1c1c1c;color:#fff;font-size:13px;}
   .pagina{width:900px;margin:0 auto;background:var(--negro);position:relative;overflow:visible;}
   .marca-agua{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden;}
-  .marca-agua-inner{position:absolute;top:-100px;left:-100px;width:200%;height:200%;transform:rotate(-30deg);display:flex;flex-direction:column;gap:60px;}
+  .marca-agua-inner{position:absolute;top:-40%;left:-40%;width:220%;height:220%;transform:rotate(-25deg);display:flex;flex-direction:column;gap:0px;}
   .header{background:var(--negro);border-bottom:3px solid var(--rojo);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
   .logo-cuadro{width:48px;height:48px;background:var(--rojo);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;border-radius:4px;}
   .logo-texto h1{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;line-height:1;}
@@ -595,7 +596,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
 </style>
 </head>
 <body>
-<div class="marca-agua"><div class="marca-agua-inner">${Array(40).fill('<div style="white-space:nowrap;font-family:DM Sans,sans-serif;font-size:18px;font-weight:900;color:rgba(255,255,255,0.07);letter-spacing:3px;text-transform:uppercase;">' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · ' + nombreEntrenador + ' · ' + (cfg.instagram_entrenador||'') + '    ' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · ' + nombreEntrenador + ' · ' + (cfg.instagram_entrenador||'') + '    ' + (usuario.nombre||'CLIENTE').toUpperCase() + ' · ' + hoy + ' · ' + nombreEntrenador + ' · ' + (cfg.instagram_entrenador||'') + '</div>').join('')}</div></div>
+    <div class="marca-agua"><div class="marca-agua-inner">${Array(60).fill(`<div style="white-space:nowrap;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.06);letter-spacing:2px;text-transform:uppercase;line-height:1.2;margin-bottom:60px;"><span style="display:block;">${(nombreEntrenador||"ENTRENADOR").toUpperCase()} · ${(usuario.nombre||"CLIENTE").toUpperCase()} · ${hoy} · DTAPP &nbsp;&nbsp;&nbsp; ${(nombreEntrenador||"ENTRENADOR").toUpperCase()} · ${(usuario.nombre||"CLIENTE").toUpperCase()} · ${hoy} · DTAPP &nbsp;&nbsp;&nbsp; ${(nombreEntrenador||"ENTRENADOR").toUpperCase()} · ${(usuario.nombre||"CLIENTE").toUpperCase()} · ${hoy} · DTAPP &nbsp;&nbsp;&nbsp; ${(nombreEntrenador||"ENTRENADOR").toUpperCase()} · ${(usuario.nombre||"CLIENTE").toUpperCase()} · ${hoy} · DTAPP &nbsp;&nbsp;&nbsp; ${(nombreEntrenador||"ENTRENADOR").toUpperCase()} · ${(usuario.nombre||"CLIENTE").toUpperCase()} · ${hoy} · DTAPP</span><span style="display:block;margin-left:80px;">@DT_ENTRENAMIENTOS · ${(cfg.instagram_entrenador||"@ENTRENADOR").toUpperCase()} &nbsp;&nbsp;&nbsp; @DT_ENTRENAMIENTOS · ${(cfg.instagram_entrenador||"@ENTRENADOR").toUpperCase()} &nbsp;&nbsp;&nbsp; @DT_ENTRENAMIENTOS · ${(cfg.instagram_entrenador||"@ENTRENADOR").toUpperCase()} &nbsp;&nbsp;&nbsp; @DT_ENTRENAMIENTOS · ${(cfg.instagram_entrenador||"@ENTRENADOR").toUpperCase()} &nbsp;&nbsp;&nbsp; @DT_ENTRENAMIENTOS · ${(cfg.instagram_entrenador||"@ENTRENADOR").toUpperCase()}</span></div>`).join('')}</div></div>
 <div class="pagina">
 
   <!-- HEADER -->
@@ -892,7 +893,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1;">DT-APP</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">ASISTENTE PARA ENTRENADORES</div>
-          <a href="https://www.instagram.com/danny_trainer__" style="font-size:10px;color:var(--rojo);font-weight:600;text-decoration:none;margin-top:2px;display:inline-block;">@danny_trainer__</a>
+          <a href="https://www.instagram.com/dt_entrenamientos" style="font-size:10px;color:var(--rojo);font-weight:600;text-decoration:none;margin-top:2px;display:inline-block;">@dt_entrenamientos</a>
         </div>
       </div>
       <div style="text-align:center;">

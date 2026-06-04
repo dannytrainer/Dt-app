@@ -25,8 +25,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 --texto-tenue:#333333;
 --borde:rgba(255,255,255,0.10);
 --borde2:rgba(255,255,255,0.06);
---chip-activos:#4caf50;
---chip-person:#e31e24;
+--chip-activos:#1b5e20;
+--chip-person:#c62828;
 --chip-asesor:#4a9eff;
 --chip-pausados:#666;
 --test-fuerza:#e31e24;
@@ -42,7 +42,7 @@ body.modo-claro{
 --gris:rgba(230,230,235,0.75);
 --gris2:rgba(215,215,220,0.80);
 --texto:#111111;
---texto-suave:#222222;
+--texto-suave:#111111;
 --texto-medio:#666666;
 --texto-secundario:#888888;
 --texto-tenue:#aaaaaa;
@@ -74,7 +74,7 @@ body{background:var(--fondo);color:var(--texto)}
 .header h1{font-size:18px;font-weight:900;letter-spacing:2px;color:var(--texto)}
 .header p{font-size:10px;color:var(--rojo);font-weight:600;letter-spacing:1px}
 .sdot{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.son{background:#1a3a1a;color:#4caf50}
+.son{background:rgba(76,175,80,0.15);color:#2e7d32;border:1px solid rgba(76,175,80,0.3)}
 .soff{background:#3a1a1a;color:#e31e24}
 .nav{display:flex;background:var(--card);border-bottom:1px solid #222;overflow-x:auto}
 .nav button{flex:1;min-width:70px;padding:13px 6px;background:none;border:none;color:var(--texto-secundario);font-size:12px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent}
@@ -506,10 +506,10 @@ body.modo-claro [style*="color:white"] {
   color: var(--texto) !important;
 }
 
-body.modo-claro [style*="color:#aaa"],
+body.modo-claro [style*="color:var(--texto-medio)"],
 body.modo-claro [style*="color:#888"],
 body.modo-claro [style*="color:#666"],
-body.modo-claro [style*="color:#555"],
+body.modo-claro [style*="color:var(--texto-medio)"],
 body.modo-claro [style*="color:#777"],
 body.modo-claro [style*="color:#999"] {
   color: #444444 !important;
@@ -551,11 +551,11 @@ body.modo-claro * {
   --color-secundario: #444444;
 }
 
-body.modo-claro [style*="color:#aaa"] { color: #444 !important; }
+body.modo-claro [style*="color:var(--texto-medio)"] { color: #444 !important; }
 body.modo-claro [style*="color:#888"] { color: #444 !important; }
 body.modo-claro [style*="color:#777"] { color: #444 !important; }
 body.modo-claro [style*="color:#666"] { color: #333 !important; }
-body.modo-claro [style*="color:#555"] { color: #333 !important; }
+body.modo-claro [style*="color:var(--texto-medio)"] { color: #333 !important; }
 body.modo-claro [style*="color:#444"] { color: #222 !important; }
 body.modo-claro [style*="color:#333"] { color: #111 !important; }
 body.modo-claro [style*="color:#fff"] { color: #111 !important; }
@@ -621,7 +621,7 @@ body.modo-claro [style*="background:#1a1a1a"][style*="border-radius:8px"] {
   border: 1px solid rgba(0,0,0,0.08) !important;
 }
 
-body.modo-claro [style*="color:#555"][style*="text-transform:uppercase"] {
+body.modo-claro [style*="color:var(--texto-medio)"][style*="text-transform:uppercase"] {
   color: #666 !important;
 }
 
@@ -632,45 +632,91 @@ body.modo-claro #ent-cfg-tema-btn {
   border-color: var(--borde) !important;
 }
 
+
+/* Fix textos alimentación modo claro */
+body.modo-claro [style*="color:var(--texto-suave)"] {
+  color: #222222 !important;
+}
+body.modo-claro [style*="color:var(--texto)"] {
+  color: #111111 !important;
+}
+body.modo-claro [style*="color:var(--texto-medio)"] {
+  color: #555555 !important;
+}
+
+
+body.modo-claro [style*="color:var(--texto-suave)"] {
+  color: #111111 !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<div id="pantalla-rol" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0a0a0a;z-index:99999;flex-direction:column;align-items:center;justify-content:center;gap:24px">
+<div id="pantalla-registro" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0a0a0a;z-index:99999;flex-direction:column;align-items:center;justify-content:center;gap:16px;overflow-y:auto;padding:20px;box-sizing:border-box">
+  <img src="/icon.png" style="width:60px;height:60px;border-radius:16px;object-fit:cover"/>
+  <div style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:3px">DT-APP</div>
+  <div style="font-size:11px;color:var(--texto-medio);text-transform:uppercase;letter-spacing:2px;margin-top:-10px">Crear cuenta</div>
+  <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px">
+    <input id="reg-nombre" type="text" placeholder="Nombre completo" style="width:100%;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:15px;outline:none;box-sizing:border-box"/>
+    <input id="reg-email" type="email" placeholder="Correo electrónico" style="width:100%;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:15px;outline:none;box-sizing:border-box"/>
+    <input id="reg-pass" type="password" placeholder="Contraseña" style="width:100%;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:15px;outline:none;box-sizing:border-box"/>
+    <div style="display:flex;gap:8px;">
+      <button onclick="regSelRol('entrenador')" id="reg-btn-ent" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e31e24;background:#1a0000;color:#fff;font-size:13px;font-weight:700;cursor:pointer">🏋️ Entrenador</button>
+      <button onclick="regSelRol('cliente')" id="reg-btn-cli" style="flex:1;padding:12px;border-radius:12px;border:2px solid #333;background:#111;color:#888;font-size:13px;font-weight:700;cursor:pointer">👤 Cliente</button>
+    </div>
+    <div id="reg-codigo-div" style="display:none">
+      <input id="reg-codigo" type="text" placeholder="Código del entrenador" style="width:100%;padding:14px;border-radius:12px;border:2px solid #e31e24;background:#111;color:#e31e24;font-size:15px;outline:none;text-align:center;letter-spacing:4px;text-transform:uppercase;box-sizing:border-box"/>
+    </div>
+    <div id="reg-error" style="color:#e31e24;font-size:12px;display:none;text-align:center"></div>
+    <button onclick="hacerRegistro()" style="padding:16px;border-radius:14px;border:none;background:#e31e24;color:#fff;font-size:15px;font-weight:700;cursor:pointer">Crear cuenta</button>
+    <button onclick="mostrarPantalla('pantalla-rol')" style="background:transparent;border:none;color:var(--texto-medio);font-size:13px;cursor:pointer">← Ya tengo cuenta</button>
+  </div>
+</div>
+
+
+
+
+
+<div id="pantalla-rol" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0a0a0a;z-index:99999;flex-direction:column;align-items:center;justify-content:center;gap:20px">
   <img src="/icon.png" style="width:80px;height:80px;border-radius:20px;object-fit:cover;margin-bottom:8px"/>
   <div style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:3px">DT-APP</div>
-  <div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:2px;margin-top:-16px">¿Cómo deseas ingresar?</div>
+  <div style="font-size:11px;color:var(--texto-medio);text-transform:uppercase;letter-spacing:2px;margin-top:-16px">Asistente para entrenadores</div>
   <div style="display:flex;flex-direction:column;gap:12px;width:80%;max-width:320px;margin-top:8px">
-    <button onclick="seleccionarRol('entrenador')" style="padding:16px;border-radius:14px;border:2px solid #e31e24;background:#1a0000;color:#fff;font-size:15px;font-weight:700;cursor:pointer">🏋️ Soy entrenador</button>
-    <button onclick="seleccionarRol('cliente')" style="padding:16px;border-radius:14px;border:2px solid #333;background:#111;color:#fff;font-size:15px;font-weight:700;cursor:pointer">👤 Soy cliente</button>
+    <input id="login-email-unif" type="email" placeholder="Correo electrónico" style="width:100%;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:16px;outline:none;text-align:center;box-sizing:border-box"/>
+    <input id="login-pass-unif" type="password" placeholder="Contraseña" style="width:100%;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:16px;outline:none;text-align:center;box-sizing:border-box"/>
+    <div id="error-login-unif" style="color:#e31e24;font-size:12px;display:none;text-align:center">Correo o contraseña incorrectos</div>
+    <button onclick="loginUnificado()" style="padding:16px;border-radius:14px;border:none;background:#e31e24;color:#fff;font-size:15px;font-weight:700;cursor:pointer">Entrar</button>
+    <button onclick="document.getElementById('pantalla-registro').style.display='flex';document.getElementById('pantalla-rol').style.display='none';regSelRol('entrenador');" style="background:transparent;border:none;color:var(--texto-medio);font-size:13px;cursor:pointer">¿No tienes cuenta? Regístrate</button>
   </div>
 </div>
 
 <div id="pantalla-login-entrenador" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0a0a0a;z-index:99999;flex-direction:column;align-items:center;justify-content:center;gap:20px">
   <div style="font-size:24px;font-weight:900;color:#fff">🏋️ Entrenador</div>
-  <div style="font-size:13px;color:#555">Ingresa tu contraseña</div>
+  <div style="font-size:13px;color:var(--texto-medio)">Ingresa tus datos</div>
+                <input id="input-email-entrenador" type="email" placeholder="Email" style="width:80%;max-width:320px;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:16px;outline:none;text-align:center"/>
   <input id="input-pass-entrenador" type="password" placeholder="Contraseña" style="width:80%;max-width:320px;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:16px;outline:none;text-align:center"/>
   <div id="error-pass" style="color:#e31e24;font-size:12px;display:none">Contraseña incorrecta</div>
   <button onclick="loginEntrenador()" style="width:80%;max-width:320px;padding:14px;border-radius:12px;border:none;background:#e31e24;color:#fff;font-size:15px;font-weight:700;cursor:pointer">Entrar</button>
-  <button onclick="volverRol()" style="background:transparent;border:none;color:#555;font-size:13px;cursor:pointer">← Volver</button>
+  <button onclick="volverRol()" style="background:transparent;border:none;color:var(--texto-medio);font-size:13px;cursor:pointer">← Volver</button>
 </div>
 
 <div id="pantalla-login-cliente" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0a0a0a;z-index:99999;flex-direction:column;align-items:center;justify-content:center;gap:20px">
   <div style="font-size:24px;font-weight:900;color:#fff">👤 Cliente</div>
-  <div style="font-size:13px;color:#555">Ingresa tu número de teléfono</div>
+  <div style="font-size:13px;color:var(--texto-medio)">Ingresa tu número de teléfono</div>
   <input id="input-tel-cliente" type="tel" placeholder="+57 300 000 0000" style="width:80%;max-width:320px;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:16px;outline:none;text-align:center"/>
   <div id="vinc-code-box" style="display:none;width:80%;max-width:320px">
-    <div style="font-size:12px;color:#aaa;margin-bottom:8px;text-align:center">Número nuevo — ingresa el código de tu entrenador</div>
+    <div style="font-size:12px;color:var(--texto-medio);margin-bottom:8px;text-align:center">Número nuevo — ingresa el código de tu entrenador</div>
     <input id="input-codigo-vinc" type="text" placeholder="DT-XXXXXX" style="width:100%;padding:14px;border-radius:12px;border:2px solid #e31e24;background:#111;color:#e31e24;font-size:16px;outline:none;text-align:center;letter-spacing:4px;text-transform:uppercase;box-sizing:border-box"/>
   </div>
   <div id="error-tel" style="color:#e31e24;font-size:12px;display:none">Número no encontrado</div>
   <div id="error-vinc" style="color:#e31e24;font-size:12px;display:none">Código inválido</div>
   <button onclick="loginCliente()" style="width:80%;max-width:320px;padding:14px;border-radius:12px;border:none;background:#e31e24;color:#fff;font-size:15px;font-weight:700;cursor:pointer">Entrar</button>
-  <button onclick="volverRol()" style="background:transparent;border:none;color:#555;font-size:13px;cursor:pointer">← Volver</button>
+  <button onclick="volverRol()" style="background:transparent;border:none;color:var(--texto-medio);font-size:13px;cursor:pointer">← Volver</button>
 </div>
 <div id="app-entrenador" style="display:none"><div class="header" style="align-items:center">
-<a onclick="showPage('inicio')" style="cursor:pointer;flex-shrink:0"><img src="/icon.png" style="width:60px;height:60px;border-radius:12px;object-fit:cover;pointer-events:none"></a>
+<a onclick="showPage('inicio')" style="cursor:pointer;flex-shrink:0"><img src="/icon.png" style="width:60px;height:60px;border-radius:12px;object-fit:cover;pointer-events:none;filter:drop-shadow(0 0 3px rgba(227,30,36,0.8)) drop-shadow(0 0 1px rgba(0,0,0,0.9))"></a>
 <div style="flex:1;margin-left:6px">
 <div style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:2px;line-height:1">DT-APP</div>
 <div style="font-size:9px;color:var(--texto-secundario);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-top:1px">ASISTENTE PARA ENTRENADORES</div>
@@ -700,15 +746,15 @@ body.modo-claro #ent-cfg-tema-btn {
   </div>
 </div>
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px">
-  <div style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:12px;padding:12px 6px;text-align:center">
-    <div id="hi-stat-activos" style="font-size:22px;font-weight:800;color:var(--chip-activos);font-family:monospace">0</div>
-    <div style="font-size:9px;color:var(--chip-activos);opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Activos</div>
+  <div style="background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.25);border-radius:12px;padding:12px 6px;text-align:center">
+    <div id="hi-stat-activos" style="font-size:22px;font-weight:800;color:#388e3c;font-family:monospace">0</div>
+    <div style="font-size:9px;color:#388e3c;opacity:.9;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Activos</div>
   </div>
-  <div style="background:#1a0a0a;border:1px solid #3a1010;border-radius:12px;padding:12px 6px;text-align:center">
-    <div id="hi-stat-person" style="font-size:22px;font-weight:800;color:var(--chip-person);font-family:monospace">0</div>
-    <div style="font-size:9px;color:var(--chip-person);opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Person.</div>
+  <div style="background:rgba(227,30,36,0.10);border:1px solid rgba(227,30,36,0.25);border-radius:12px;padding:12px 6px;text-align:center">
+    <div id="hi-stat-person" style="font-size:22px;font-weight:800;color:#e53935;font-family:monospace">0</div>
+    <div style="font-size:9px;color:#e53935;opacity:.9;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Person.</div>
   </div>
-  <div style="background:#1a0000;border:1px solid #10203a;border-radius:12px;padding:12px 6px;text-align:center">
+  <div style="background:rgba(74,158,255,0.10);border:1px solid rgba(74,158,255,0.25);border-radius:12px;padding:12px 6px;text-align:center">
     <div id="hi-stat-asesor" style="font-size:22px;font-weight:800;color:var(--chip-asesor);font-family:monospace">0</div>
     <div style="font-size:9px;color:var(--chip-asesor);opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Asesor.</div>
   </div>
@@ -724,37 +770,37 @@ body.modo-claro #ent-cfg-tema-btn {
   <div onclick="showPage('clientes')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e31e24,#ff6b6b)"></div>
 
-    <div style="margin-bottom:8px"><img src="/images/icon-clientes.png" style="width:100px;height:100px;object-fit:contain"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-clientes.png" style="width:100px;height:100px;object-fit:contain;background:#fff;border-radius:12px"></div>
     <div style="font-size:15px;font-weight:700;color:var(--texto)">Clientes</div>
     <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Ver todos</div>
   </div>
   <div onclick="showPage('rutinas')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4a9eff,#7bc8ff)"></div>
-    <div style="margin-bottom:8px"><img src="/images/icon-rutinas.png" style="width:100px;height:100px;object-fit:contain"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-rutinas.png" style="width:100px;height:100px;object-fit:contain;background:#fff;border-radius:12px"></div>
     <div style="font-size:15px;font-weight:700;color:var(--texto)">Rutinas</div>
     <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Editar rutinas</div>
   </div>
   <div onclick="showPage('logs')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff9800,#ffd54f)"></div>
-    <div style="margin-bottom:8px"><img src="/images/icon-herramientas.png" style="width:100px;height:100px;object-fit:contain"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-herramientas.png" style="width:100px;height:100px;object-fit:contain;background:#fff;border-radius:12px"></div>
     <div style="font-size:15px;font-weight:700;color:var(--texto)">Herramientas</div>
     <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Cronos · HIIT · Calc</div>
   </div>
   <div onclick="showPage('enviar')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4caf50,#a5d6a7)"></div>
-    <div style="margin-bottom:8px"><img src="/images/icon-comunicacion.png" style="width:100px;height:100px;object-fit:contain"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-comunicacion.png" style="width:100px;height:100px;object-fit:contain;background:#fff;border-radius:12px"></div>
     <div style="font-size:15px;font-weight:700;color:var(--texto)">Enviar</div>
     <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">WhatsApp rutinas</div>
   </div>
   <div onclick="showPage('admin')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff9800,#ffe082)"></div>
-    <div style="margin-bottom:8px"><img src="/images/icon-administrativo.png" style="width:100px;height:100px;object-fit:contain"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-administrativo.png" style="width:100px;height:100px;object-fit:contain;background:#fff;border-radius:12px"></div>
     <div style="font-size:15px;font-weight:700;color:var(--texto)">Administrativo</div>
     <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Cobros y finanzas</div>
   </div>
   <div onclick="showPage('horarios')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--rojo),#ff6b6b)"></div>
-    <div style="margin-bottom:8px"><img src="/images/icon-horarios.png" style="width:100px;height:100px;object-fit:contain"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-horarios.png" style="width:100px;height:100px;object-fit:contain;background:#fff;border-radius:12px"></div>
     <div style="font-size:15px;font-weight:700;color:var(--texto)">Horarios</div>
     <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Finanzas del negocio</div>
   </div>
@@ -774,7 +820,7 @@ body.modo-claro #ent-cfg-tema-btn {
 </div>
 
 <div id="page-clientes" class="page">
-<input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:11px;color:var(--texto-suave);font-size:14px;outline:none;margin-bottom:12px"><div id="stats-clientes" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px"><div style="background:var(--card);border:1px solid #1a3a1a;border-radius:8px;padding:8px;text-align:center"><div id="stat-activos" style="font-size:20px;font-weight:700;color:#4caf50">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">🟢 Activos</div></div><div style="background:var(--card);border:1px solid #3a0000;border-radius:8px;padding:8px;text-align:center"><div id="stat-personalizados" style="font-size:20px;font-weight:700;color:#e31e24">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">💪 Person.</div></div><div style="background:var(--card);border:1px solid #2a0000;border-radius:8px;padding:8px;text-align:center"><div id="stat-asesorados" style="font-size:20px;font-weight:700;color:#e31e24">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">📋 Asesor.</div></div><div style="background:var(--card);border:1px solid #2a2a2a;border-radius:8px;padding:8px;text-align:center"><div id="stat-pausados" style="font-size:20px;font-weight:700;color:var(--texto-secundario)">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">⏸️ Pausados</div></div></div><p class="st">Clientes registrados</p>
+<input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:11px;color:var(--texto-suave);font-size:14px;outline:none;margin-bottom:12px"><div id="stats-clientes" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px"><div style="background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.25);border-radius:8px;padding:8px;text-align:center"><div id="stat-activos" style="font-size:20px;font-weight:700;color:#4caf50">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">🟢 Activos</div></div><div style="background:rgba(227,30,36,0.10);border:1px solid rgba(227,30,36,0.25);border-radius:8px;padding:8px;text-align:center"><div id="stat-personalizados" style="font-size:20px;font-weight:700;color:#e31e24">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">💪 Person.</div></div><div style="background:rgba(74,158,255,0.10);border:1px solid rgba(74,158,255,0.25);border-radius:8px;padding:8px;text-align:center"><div id="stat-asesorados" style="font-size:20px;font-weight:700;color:#4a9eff">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">📋 Asesor.</div></div><div style="background:rgba(100,100,100,0.10);border:1px solid rgba(100,100,100,0.20);border-radius:8px;padding:8px;text-align:center"><div id="stat-pausados" style="font-size:20px;font-weight:700;color:var(--texto-secundario)">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">⏸️ Pausados</div></div></div><p class="st">Clientes registrados</p>
 <div id="barra-pausa" style="margin-bottom:12px">
 <button onclick="abrirModalPausa()" id="btn-pausa-global" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-medio);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><span id="icono-pausa-global">⏸️</span><span id="lbl-pausa-global">Pausar envíos globalmente</span></button>
 </div>
@@ -1032,7 +1078,7 @@ body.modo-claro #ent-cfg-tema-btn {
       <input id="chat-ent-vid" type="file" accept="video/*" style="display:none" onchange="chatEntEnviarVideo(this)"/>
       <input id="chat-ent-vid-cam" type="file" accept="video/*" capture="camcorder" style="display:none" onchange="chatEntEnviarVideo(this)"/>
       <div style="position:relative">
-        <button onclick="chatEntToggleMenu()" id="chat-ent-plus" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:50%;width:40px;height:40px;color:#aaa;font-size:22px;cursor:pointer;flex-shrink:0">+</button>
+        <button onclick="chatEntToggleMenu()" id="chat-ent-plus" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:50%;width:40px;height:40px;color:var(--texto-medio);font-size:22px;cursor:pointer;flex-shrink:0">+</button>
         <div id="chat-ent-menu" style="display:none;position:absolute;bottom:50px;left:0;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:8px;min-width:160px;z-index:100">
           <div onclick="document.getElementById('chat-ent-img').click();chatEntToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer">🖼️ Galería</div>
           <div onclick="document.getElementById('chat-ent-cam').click();chatEntToggleMenu()" style="padding:10px 12px;color:#fff;font-size:13px;cursor:pointer">📸 Cámara</div>
@@ -1614,9 +1660,9 @@ const MONEDAS = ['COP','USD','EUR','GBP','MXN','ARS','BRL','PEN','CLP'];
 async function cargarAdmin(){
   try{
     const [usuarios, adminData, configData] = await Promise.all([
-      fetch('/api/usuarios').then(r=>r.json()),
+      fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()),
       fetch('/api/admin').then(r=>r.json()),
-      fetch('/api/config').then(r=>r.json())
+      fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json())
     ]);
     window._adminUsuarios = usuarios;
     window._adminData = adminData;
@@ -1635,7 +1681,7 @@ function showAdminTab(tab){
   if(tab==='dashboard') c.innerHTML=renderAdminDashboard();
   else if(tab==='clientes') c.innerHTML=renderAdminClientes();
   else if(tab==='config') {
-    fetch('/api/config').then(r=>r.json()).then(cfg=>{
+    fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg=>{
       if(!window._adminData) window._adminData={};
       window._adminData.config = cfg;
       c.innerHTML=renderAdminConfig();
@@ -1847,7 +1893,7 @@ function renderAdminDashboard(){
   window._dash={totalMes,totalMesAnt,totalPagos,totalDesc,monedas,metodos,metodosMesAnt,pagosMes,pagosMesAnt,proyeccionClientes,meses,mesActual,mesAnterior,anioActual,anioAnterior};
   window._chartInstances={};
   let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
-  html+='<div onclick="toggleDashPanel(\'dp-proy\')" style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
+  html+='<div onclick="toggleDashPanel(\'dp-proy\')" style="background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.25);border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
   html+='<div style="font-size:10px;color:#4caf50;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Proyección mes</div>';
   html+='<div style="font-size:20px;font-weight:800;color:#4caf50">'+totalMes.toLocaleString()+'</div>';
   html+='<div style="font-size:10px;color:var(--texto-tenue);margin-top:2px">'+meses[mesActual]+' '+anioActual+' · toca ▾</div>';
@@ -1858,7 +1904,7 @@ function renderAdminDashboard(){
   if(totalDesc>0)html+='<div style="margin-top:6px;font-size:11px;color:#f0c040">🏷️ Inversión en retención: '+totalDesc.toLocaleString()+'</div>';
   html+='<div style="overflow-y:scroll;max-height:280px;margin-top:12px"><canvas id="chart-proyeccion" style="width:100%;height:'+(proyeccionClientes.length*36+30)+'px"></canvas></div>';
   html+='</div></div>';
-  html+='<div onclick="toggleDashPanel(\'dp-cob\')" style="background:#1a0a0a;border:1px solid #3a1010;border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
+  html+='<div onclick="toggleDashPanel(\'dp-cob\')" style="background:var(--card);border:1px solid rgba(227,30,36,0.25);border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">';
   html+='<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cobrado este mes</div>';
   html+='<div style="font-size:20px;font-weight:800;color:#e31e24">'+totalPagos.toLocaleString()+'</div>';
   html+='<div style="font-size:10px;color:var(--texto-tenue);margin-top:2px">Toca para ver ▾</div>';
@@ -1887,7 +1933,7 @@ function renderAdminDashboard(){
     potencial+=d.precio||0;
   });
   if(potencial>0){
-    html+='<div style="background:#1a1500;border:1px solid #3a3000;border-radius:14px;padding:14px;margin-top:10px">';
+    html+='<div style="background:var(--card);border:1px solid rgba(240,192,64,0.25);border-radius:14px;padding:14px;margin-top:10px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">';
     html+='<div style="font-size:10px;color:#f0c040;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">💛 Potencial recuperable</div>';
     html+='<div style="font-size:20px;font-weight:800;color:#f0c040">'+potencial.toLocaleString()+'</div>';
     html+='<div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">'+pausados.length+' pausados · '+vencidos2.length+' vencidos</div>';
@@ -1994,7 +2040,7 @@ function renderAdminConfig(){
   html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">Comparte este código con tus clientes para que puedan registrarse.</div>';
   html+='<div style="background:var(--card);border:2px solid #e31e24;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
   html+='<div id="admin-codigo-vinc-txt" style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">' + (codigoActual || '——') + '</div>';
-  html+='<div style="font-size:10px;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:1px">Código actual</div>';
+  html+='<div style="font-size:10px;color:var(--texto-medio);margin-top:4px;text-transform:uppercase;letter-spacing:1px">Código actual</div>';
   html+='</div>';
   html+='<button onclick="generarCodigoVinculacion()" style="width:100%;background:#1a0000;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:10px;cursor:pointer">🔄 Generar nuevo código</button>';
   html+='</div>';
@@ -2152,7 +2198,7 @@ function copiarCodigoVinc() {
 
 // Cargar código guardado al abrir config
 function cargarCodigoVinc() {
-  fetch('/api/config').then(r=>r.json()).then(cfg=>{
+  fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg=>{
     const el = document.getElementById('vinc-codigo-txt');
     if (el && cfg.codigo_vinculacion) el.textContent = cfg.codigo_vinculacion;
     const el2 = document.getElementById('admin-codigo-vinc-txt');
@@ -2656,7 +2702,7 @@ async function guardarColores(){
       colores[item.var] = document.documentElement.style.getPropertyValue(item.var) || root.getPropertyValue(item.var).trim() || item.def;
     });
   });
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colores})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colores, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   toast('✅ Colores guardados');
 }
 
@@ -2688,7 +2734,7 @@ async function subirLogo(input){
 async function guardarNombreEntrenador(){
   const nombre=document.getElementById('cfg-nombre').value.trim();
   if(!nombre)return;
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre_entrenador:nombre})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre_entrenador:nombre, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   document.getElementById('nombre-entrenador').textContent=nombre;
   toast('✅ Nombre actualizado');
 }
@@ -2697,7 +2743,7 @@ function toggleTema(){
   document.getElementById('btn-tema').textContent = claro ? '☀️' : '🌙';
   localStorage.setItem('tema', claro ? 'claro' : 'oscuro');
   localStorage.setItem('dt_tema', claro ? 'claro' : 'oscuro');
-  fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:claro?'claro':'oscuro'})});
+  fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:claro?'claro':'oscuro', entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
 }
 function cargarTema(){
   const tema = localStorage.getItem('dt_tema') || localStorage.getItem('tema') || 'oscuro';
@@ -2712,12 +2758,12 @@ function cargarTema(){
 async function guardarInstagram(){
   const ig=document.getElementById('cfg-instagram').value.trim();
   if(!ig)return;
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({instagram_entrenador:ig})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({instagram_entrenador:ig, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   toast('✅ Instagram guardado');
 }
 async function cargarNombreEntrenador(){
   try{
-    const cfg=await fetch('/api/config').then(r=>r.json());
+    const cfg=await fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json());
     if(cfg.colores)aplicarColoresGuardados(cfg.colores);
     if(cfg.nombre_entrenador){
       document.getElementById('nombre-entrenador').textContent=cfg.nombre_entrenador;
@@ -2741,7 +2787,7 @@ function abrirConfig(){
   cargarNombreEntrenador();
   cargarCodigoVinc();
   // Mostrar estado premium entrenador
-  fetch('/api/config').then(r=>r.json()).then(cfg => {
+  fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg => {
     const el = document.getElementById('cfg-premium-estado');
     if (!el) return;
     const activo = cfg.premium_entrenador;
@@ -2821,7 +2867,7 @@ function enviarPagoWA(idx){
 }
 async function cargarInicio(){
   try{
-    const usuarios=await fetch('/api/usuarios').then(r=>r.json());
+    const usuarios=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json());
     const activos=usuarios.filter(u=>u.activo);
     const person=activos.filter(u=>u.tipo==='personalizado').length;
     const asesor=activos.filter(u=>u.tipo==='asesorado').length;
@@ -2852,7 +2898,7 @@ async function cargarInicio(){
       cobrosHtml='<div style="background:#0f1a0f;border:1px solid #1e3a1e;border-radius:16px;padding:20px;text-align:center;min-width:180px;flex-shrink:0"><div style="font-size:28px">✅</div><div style="font-size:13px;color:#4caf50;font-weight:700;margin-top:6px">Todo al día</div><div style="font-size:11px;color:var(--texto-tenue);margin-top:4px">Sin cobros pendientes</div></div>';
     }
     vencidos.forEach((u,_vi)=>{
-      cobrosHtml+='<div style="background:#1a0505;border:1px solid #3a0a0a;border-radius:16px;padding:16px;min-width:190px;flex-shrink:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🔴</span><span style="font-size:11px;font-weight:800;color:#e31e24;text-transform:uppercase;letter-spacing:.5px">Cobro vencido</span></div><div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">'+(u.msg_pago||'Pago pendiente')+'</div><div style="background:#2a0808;border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#e31e24;font-weight:700;cursor:pointer" id=\"wa-btn-'+ _vi +'\">📲 WhatsApp</div></div>';
+      cobrosHtml+='<div style="background:rgba(227,30,36,0.08);border:1px solid rgba(227,30,36,0.25);border-radius:16px;padding:16px;min-width:190px;flex-shrink:0;backdrop-filter:blur(10px)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🔴</span><span style="font-size:11px;font-weight:800;color:#e31e24;text-transform:uppercase;letter-spacing:.5px">Cobro vencido</span></div><div style="font-size:14px;color:var(--texto);font-weight:700;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:var(--texto-medio);margin-bottom:10px">'+(u.msg_pago||'Pago pendiente')+'</div><div style="background:rgba(227,30,36,0.15);border:1px solid rgba(227,30,36,0.3);border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#e31e24;font-weight:700;cursor:pointer" id=\"wa-btn-'+ _vi +'\">📲 WhatsApp</div></div>';
     });
     proximos.forEach(u=>{
       cobrosHtml+='<div style="background:#1a1000;border:1px solid #3a2500;border-radius:16px;padding:16px;min-width:190px;flex-shrink:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">⚠️</span><span style="font-size:11px;font-weight:800;color:#ff9800;text-transform:uppercase;letter-spacing:.5px">Próximo cobro</span></div><div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">Vence día '+u.dia_pago+'</div><div style="background:#2a1a00;border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#ff9800;font-weight:700;cursor:pointer" onclick="showPage(\'clientes\')">🔔 Recordar</div></div>';
@@ -2872,7 +2918,7 @@ async function cargarInicio(){
   }catch(e){console.error('cargarInicio',e);}
 }
 async function cargarClientes(){
-const res=await fetch('/api/usuarios');
+const res=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'));
 const usuarios=await res.json();
 const lista=document.getElementById('lista-clientes');
 const empty=document.getElementById('empty-clientes');
@@ -3046,6 +3092,7 @@ function cerrarModal(){document.getElementById('modal-cliente').classList.remove
 async function guardarCliente(){
 const id=document.getElementById('cliente-id').value;
 const datos={
+entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'),
 nombre:document.getElementById('cliente-nombre').value.trim(),
 telefono:document.getElementById('cliente-telefono').value.replace(/\D/g,''),
 tipo:document.getElementById('cliente-tipo').value,
@@ -3150,7 +3197,7 @@ async function initHorarios(){
 }
 
 function cargarClientesSelectH(){
-  fetch('/api/usuarios').then(r=>r.json()).then(usuarios=>{
+  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(usuarios=>{
     const sel = document.getElementById('h-cliente');
     if(!sel) return;
     sel.innerHTML = '<option value="">— Seleccionar cliente —</option>' +
@@ -3576,7 +3623,7 @@ async function eliminarHorario(){
 // ===== FIN HORARIOS =====
 
 async function cargarRutinasClientes(){
-const res=await fetch('/api/usuarios');
+const res=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'));
 const usuarios=await res.json();
 document.getElementById('lista-rutinas-clientes').innerHTML=usuarios.map(u=>`
 <div class="card" onclick="abrirRutina('${u.id}','${u.nombre}')" style="cursor:pointer">
@@ -4428,7 +4475,7 @@ function invEmpezar() {
     <div style="text-align:center;font-size:10px;color:var(--texto-secundario);margin-top:6px">Desliza en el canvas para mover · Toca FUEGO para disparar</div>
     <div id="inv-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px">
       <div id="inv-overlay-title" style="font-size:24px;font-weight:700;color:#e31e24;text-align:center"></div>
-      <div id="inv-overlay-sub" style="font-size:14px;color:#aaa;text-align:center"></div>
+      <div id="inv-overlay-sub" style="font-size:14px;color:var(--texto-medio);text-align:center"></div>
       <button id="inv-overlay-btn" style="background:#e31e24;color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px"></button>
     </div>`;
   invInit();
@@ -9020,7 +9067,7 @@ ${Object.entries(logs[f]).map(([n,e])=>`
 
 let _usuariosEnviar=[];
 function cargarSelectEnviar(){
-  fetch('/api/usuarios').then(r=>r.json()).then(u=>{
+  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(u=>{
     _usuariosEnviar=u.filter(x=>x.activo);
     _difusionSeleccionados=new Set();
     _difusionIniciado=false;
@@ -9171,12 +9218,12 @@ function cerrarModalPausa(){
 }
 async function ejecutarPausaGlobal(dias){
   let hasta = dias === -1 ? 'indefinido' : new Date(Date.now() + dias*86400000).toISOString().split('T')[0];
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: hasta})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: hasta, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   cerrarModalPausa();
   actualizarBtnPausaGlobal(hasta);
 }
 async function reactivarEnviosGlobal(){
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: null})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: null, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   actualizarBtnPausaGlobal(null);
 }
 function actualizarBtnPausaGlobal(hasta){
@@ -9241,7 +9288,7 @@ function filtrarRutinas(){
     <button onclick="cerrarConfig()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">&#8592;</button>
     <div style="flex:1">
       <div style="font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px"><img src="/images/icon-configuracion.png" style="width:18px;height:18px;object-fit:contain"> Configuraci&oacute;n</div>
-      <div style="font-size:11px;color:#555;margin-top:1px">DT-APP &middot; Danny Trainer</div>
+      <div style="font-size:11px;color:var(--texto-medio);margin-top:1px">DT-APP &middot; <span id="span-nombre-cfg"></span></div>
     </div>
   </div>
 
@@ -9251,9 +9298,9 @@ function filtrarRutinas(){
     <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128273; Premium</div>
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
       <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Plan Premium Entrenador — $50.000/mes</div>
-      <div id="cfg-premium-estado" style="font-size:11px;color:#555;margin-bottom:12px">Acceso completo a todas las funciones profesionales</div>
+      <div id="cfg-premium-estado" style="font-size:11px;color:var(--texto-medio);margin-bottom:12px">Acceso completo a todas las funciones profesionales</div>
       <button onclick="entPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Pagar $50.000 por WhatsApp</button>
-      <div style="font-size:11px;color:#555;margin-bottom:8px;text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>
+      <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px;text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>
       <div style="display:flex;gap:8px;align-items:center">
         <input id="cfg-codigo-premium" type="text" placeholder="INGRESA TU C&Oacute;DIGO..." style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">
         <button onclick="validarCodigoPremium()" style="background:#333;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Activar</button>
@@ -9265,10 +9312,10 @@ function filtrarRutinas(){
     <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128279; Vinculaci&oacute;n</div>
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
       <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">C&oacute;digo de vinculaci&oacute;n</div>
-      <div style="font-size:11px;color:#555;margin-bottom:12px">Comparte este c&oacute;digo con tus clientes para que puedan registrarse en tu app.</div>
+      <div style="font-size:11px;color:var(--texto-medio);margin-bottom:12px">Comparte este c&oacute;digo con tus clientes para que puedan registrarse en tu app.</div>
       <div id="vinc-codigo-display" style="background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
         <div id="vinc-codigo-txt" style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>
-        <div style="font-size:10px;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:1px">C&oacute;digo actual</div>
+        <div style="font-size:10px;color:var(--texto-medio);margin-top:4px;text-transform:uppercase;letter-spacing:1px">C&oacute;digo actual</div>
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="generarCodigoVinc()" id="btn-generar-vinc" style="flex:1;background:#1a0000;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:10px;cursor:pointer">&#128260; Generar</button>
@@ -9282,7 +9329,7 @@ function filtrarRutinas(){
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
       <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">Nombre del entrenador</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="cfg-nombre" type="text" placeholder="Tu nombre..." value="Danny Trainer" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none">
+        <input id="cfg-nombre" type="text" placeholder="Tu nombre..." value="" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none">
         <button onclick="guardarNombreEntrenador()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Guardar</button>
       </div>
     </div>
@@ -9293,7 +9340,7 @@ function filtrarRutinas(){
         <div style="flex:1">
           <input type="file" id="cfg-logo-input" accept="image/*" style="display:none" onchange="subirLogo(this)">
           <button onclick="document.getElementById('cfg-logo-input').click()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer;width:100%">&#128247; Logo del entrenador</button>
-          <div style="font-size:10px;color:#555;margin-top:6px;text-align:center">PNG o JPG &middot; m&aacute;x 5MB</div>
+          <div style="font-size:10px;color:var(--texto-medio);margin-top:6px;text-align:center">PNG o JPG &middot; m&aacute;x 5MB</div>
         </div>
       </div>
     </div>
@@ -9307,7 +9354,7 @@ function filtrarRutinas(){
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center">
       <div>
         <div style="font-size:13px;font-weight:700;color:#fff">Tema</div>
-        <div id="ent-cfg-tema-lbl" style="font-size:11px;color:#555">Modo oscuro</div>
+        <div id="ent-cfg-tema-lbl" style="font-size:11px;color:var(--texto-medio)">Modo oscuro</div>
       </div>
       <button id="ent-cfg-tema-btn" onclick="entToggleTema(this)" style="background:#1a1a1a;border:1px solid #333;border-radius:20px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:6px 16px">&#127769; Oscuro</button>
     </div>
@@ -9317,14 +9364,14 @@ function filtrarRutinas(){
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100)">
       <div>
         <div style="font-size:13px;font-weight:700;color:#fff">Configurar sonidos</div>
-        <div style="font-size:11px;color:#555;margin-top:2px">Cronos &middot; Timers &middot; HIIT</div>
+        <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Cronos &middot; Timers &middot; HIIT</div>
       </div>
       <span style="color:#555;font-size:18px">&#8250;</span>
     </div>
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('festivos')">
       <div>
         <div style="font-size:13px;font-weight:700;color:#fff">D&iacute;as festivos</div>
-        <div style="font-size:11px;color:#555;margin-top:2px">Sin env&iacute;o autom&aacute;tico</div>
+        <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Sin env&iacute;o autom&aacute;tico</div>
       </div>
       <span style="color:#555;font-size:18px">&#8250;</span>
     </div>
@@ -9334,7 +9381,7 @@ function filtrarRutinas(){
     <div onclick="entVerTerminos()" style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">
       <div>
         <div style="font-size:13px;font-weight:700;color:#fff">T&eacute;rminos y condiciones</div>
-        <div style="font-size:11px;color:#555;margin-top:2px">DT-APP &middot; Colombia &middot; 2026</div>
+        <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">DT-APP &middot; Colombia &middot; 2026</div>
       </div>
       <span style="color:#555;font-size:18px">&#8250;</span>
     </div>
@@ -9538,13 +9585,13 @@ function renderDiaPlan(semana, diaIdx) {
   dia.comidas.forEach(function(comida) {
     var mr = comida.macros_reales;
     var ico = comida.nombre.indexOf('Desayuno')>=0?'🌅':comida.nombre.indexOf('Snack')>=0?'🍎':comida.nombre.indexOf('Almuerzo')>=0?'🍱':comida.nombre.indexOf('Cena')>=0?'🌙':comida.nombre.indexOf('Pre')>=0?'⚡':'🍽️';
-    var h = '<div style="background:var(--card);border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:10px">';
+    var h = '<div style="background:var(--card);border:1px solid var(--borde);border-radius:12px;padding:12px;margin-bottom:10px">';
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:800;color:var(--texto)">'+ico+' '+comida.nombre+'</div><div style="font-size:12px;color:var(--texto-medio);font-weight:600">'+mr.kcal+' kcal</div></div>';
     var p1=Math.round(mr.proteina*10)/10, c1=Math.round(mr.carbos*10)/10, g1=Math.round(mr.grasas*10)/10;
     h += '<div style="display:flex;gap:6px;margin-bottom:10px"><span style="font-size:10px;background:#1a0a0a;color:#e31e24;border-radius:6px;padding:3px 8px">P: '+p1+'g</span><span style="font-size:10px;background:#1a120a;color:#f0a500;border-radius:6px;padding:3px 8px">C: '+c1+'g</span><span style="font-size:10px;background:#0a1a0a;color:#4caf50;border-radius:6px;padding:3px 8px">G: '+g1+'g</span></div>';
     comida.alimentos.forEach(function(al) {
-      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #1a1a1a">';
-      h += '<div style="flex:1"><div style="font-size:13px;color:#ddd;font-weight:600">'+al.nombre+(al.detalle?' <span style="color:#666;font-size:10px">('+al.detalle+')</span>':'')+'</div>';
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--borde)">';
+      var cAlim=document.body.classList.contains('modo-claro')?'#111':'#ddd';var cDet=document.body.classList.contains('modo-claro')?'#555':'#666';h += '<div style="flex:1"><div style="font-size:13px;color:'+cAlim+';font-weight:600">'+al.nombre+(al.detalle?' <span style="color:'+cDet+';font-size:10px">('+al.detalle+')</span>':'')+'</div>';
       h += '<div style="font-size:10px;color:var(--texto-tenue);margin-top:2px">'+al.macros.proteina+'g P · '+al.macros.carbohidratos+'g C · '+al.macros.grasas+'g G</div></div>';
       h += '<div style="text-align:right;margin-left:8px"><div style="font-size:15px;font-weight:800;color:var(--texto)">'+(al.unidad?al.unidad.texto:al.porcion_g+'g')+'</div>';
       h += '<div style="font-size:10px;color:var(--texto-secundario)">'+al.macros.calorias+' kcal</div></div></div>';
@@ -9604,7 +9651,7 @@ function compartirPlanWA() {
         c.alimentos.forEach(function(al) { txt += '  • '+al.nombre+' ('+al.preparacion+'): *'+(al.unidad ? al.unidad.texto : al.porcion_g+'g')+'*\n'; });
         txt += '\n';
       });
-      txt += '💪 _Danny Trainer — DT App_';
+      txt += '💪 _' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').nombre||'Entrenador') + ' — DT App_';
       var url = tel ? 'https://wa.me/'+tel+'?text='+encodeURIComponent(txt)
                     : 'https://wa.me/?text='+encodeURIComponent(txt);
       window.open(url, '_blank');
@@ -9623,7 +9670,7 @@ function compartirPlanWA() {
       <img src="/icon.png" style="width:36px;height:36px;border-radius:10px;object-fit:cover"/>
       <div>
         <div style="font-size:16px;font-weight:900;color:#e31e24;letter-spacing:2px">DT-APP</div>
-        <div id="tc-nombre-cliente" style="font-size:11px;color:#aaa;font-weight:600"></div>
+        <div id="tc-nombre-cliente" style="font-size:11px;color:var(--texto-medio);font-weight:600"></div>
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
@@ -9635,7 +9682,7 @@ function compartirPlanWA() {
   <!-- BANNER TIMER RUTINA -->
 <div id="tc-banner-timer" style="display:none;background:#0a0a0a;border-bottom:1px solid #1a1a1a;padding:8px 16px;align-items:center;justify-content:space-between;flex-shrink:0">
   <div style="display:flex;align-items:center;gap:10px">
-    <span style="font-size:11px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:1px">⏱ Rutina en curso</span>
+    <span style="font-size:11px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;letter-spacing:1px">⏱ Rutina en curso</span>
     <span id="tc-timer-rutina-txt" style="font-size:22px;font-weight:900;color:#e31e24;font-family:monospace;letter-spacing:2px">00:00:00</span>
   </div>
 
@@ -9644,7 +9691,7 @@ function compartirPlanWA() {
 <!-- BANNER TIMER RUTINA -->
 <div id="tc-banner-timer" style="display:none;background:#0a0a0a;border-bottom:1px solid #1a1a1a;padding:8px 16px;align-items:center;justify-content:space-between;flex-shrink:0">
   <div style="display:flex;align-items:center;gap:10px">
-    <span style="font-size:11px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:1px">⏱ Rutina en curso</span>
+    <span style="font-size:11px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;letter-spacing:1px">⏱ Rutina en curso</span>
     <span id="tc-timer-rutina-txt" style="font-size:22px;font-weight:900;color:#e31e24;font-family:monospace;letter-spacing:2px">00:00:00</span>
   </div>
 
@@ -9718,7 +9765,7 @@ function initRol() {
 }
 
 function mostrarPantalla(id) {
-  ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente'].forEach(p => {
+  ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente','pantalla-registro'].forEach(p => {
     const el = document.getElementById(p);
     el.style.display = 'none';
   });
@@ -9733,12 +9780,26 @@ function seleccionarRol(rol) {
 
 function loginEntrenador() {
   const pass = document.getElementById('input-pass-entrenador').value;
-  if (pass === PASS_ENTRENADOR) {
-    localStorage.setItem(ROL_KEY, 'entrenador');
-    mostrarApp();
-  } else {
-    document.getElementById('error-pass').style.display = 'block';
-  }
+  fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({email: document.getElementById('input-email-entrenador') ? document.getElementById('input-email-entrenador').value : 'danielgaviriabotero@gmail.com', password: pass})
+  }).then(r=>r.json()).then(data => {
+    if (data.ok) {
+      localStorage.setItem(ROL_KEY, 'entrenador');
+      localStorage.setItem('dt_sesion', JSON.stringify(data));
+      mostrarApp();
+    } else {
+      document.getElementById('error-pass').style.display = 'block';
+    }
+  }).catch(() => {
+    if (pass === PASS_ENTRENADOR) {
+      localStorage.setItem(ROL_KEY, 'entrenador');
+      mostrarApp();
+    } else {
+      document.getElementById('error-pass').style.display = 'block';
+    }
+  });
 }
 
 function loginCliente() {
@@ -9749,7 +9810,7 @@ function loginCliente() {
   if(errorTel) errorTel.style.display = 'none';
   if(errorVinc) errorVinc.style.display = 'none';
 
-  fetch('/api/usuarios').then(r=>r.json()).then(usuarios => {
+  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(usuarios => {
     const u = usuarios.find(u => u.telefono && u.telefono.replace(/\s/g,'') === tel && u.activo);
     if (u) {
       if(codeBox) codeBox.style.display = 'none';
@@ -9783,6 +9844,7 @@ function loginCliente() {
 }
 
 function mostrarApp() {
+  actualizarNombreEntrenador();
   ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente'].forEach(p => {
     document.getElementById(p).style.display = 'none';
   });
@@ -9799,6 +9861,97 @@ function mostrarTerminalCliente(tel) {
   iniciarTerminalCliente();
 }
 
+function regSelRol(rol) {
+  document.getElementById('reg-btn-ent').style.background = rol === 'entrenador' ? '#1a0000' : '#111';
+  document.getElementById('reg-btn-ent').style.borderColor = rol === 'entrenador' ? '#e31e24' : '#333';
+  document.getElementById('reg-btn-ent').style.color = rol === 'entrenador' ? '#fff' : '#888';
+  document.getElementById('reg-btn-cli').style.background = rol === 'cliente' ? '#1a0000' : '#111';
+  document.getElementById('reg-btn-cli').style.borderColor = rol === 'cliente' ? '#e31e24' : '#333';
+  document.getElementById('reg-btn-cli').style.color = rol === 'cliente' ? '#fff' : '#888';
+  document.getElementById('reg-codigo-div').style.display = rol === 'cliente' ? 'block' : 'none';
+  document.getElementById('reg-btn-ent').dataset.rol = rol;
+}
+
+async function hacerRegistro() {
+  const nombre = document.getElementById('reg-nombre').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value.trim();
+  const rol = document.getElementById('reg-btn-ent').dataset.rol || 'entrenador';
+  const codigo = document.getElementById('reg-codigo').value.trim();
+  const error = document.getElementById('reg-error');
+  error.style.display = 'none';
+
+  if (!nombre || !email || !pass) {
+    error.textContent = 'Completa todos los campos';
+    error.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/auth/registro', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({nombre, email, password: pass, rol, codigo_entrenador: codigo})
+    });
+    const data = await res.json();
+    if (data.ok) {
+      localStorage.setItem('dt_sesion', JSON.stringify(data));
+      localStorage.setItem(ROL_KEY, data.rol);
+      document.getElementById('pantalla-registro').style.display = 'none';
+      if (data.rol === 'entrenador') mostrarApp();
+      else if (data.rol === 'cliente') mostrarTerminalCliente(data.usuario_id);
+    } else {
+      error.textContent = data.error || 'Error al registrarse';
+      error.style.display = 'block';
+    }
+  } catch(e) {
+    error.textContent = 'Error de conexión';
+    error.style.display = 'block';
+  }
+}
+
+function actualizarNombreEntrenador() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  const nombre = sesion.nombre || 'Entrenador';
+  const els = ['nombre-entrenador', 'span-nombre-cfg', 'informe-nombre-ent'];
+  els.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = nombre;
+  });
+  const inp = document.getElementById('cfg-nombre');
+  if (inp && !inp.value) inp.value = nombre;
+}
+
+function loginUnificado() {
+  const email = document.getElementById('login-email-unif').value.trim();
+  const pass = document.getElementById('login-pass-unif').value.trim();
+  const error = document.getElementById('error-login-unif');
+  error.style.display = 'none';
+  if (!email || !pass) { error.textContent = 'Completa todos los campos'; error.style.display = 'block'; return; }
+  fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({email, password: pass})
+  }).then(r=>r.json()).then(data => {
+    if (data.ok) {
+      localStorage.setItem('dt_sesion', JSON.stringify(data));
+      localStorage.setItem(ROL_KEY, data.rol);
+      if (data.rol === 'entrenador') {
+        mostrarApp();
+      } else if (data.rol === 'cliente') {
+        localStorage.setItem('dt_cliente_id', data.usuario_id);
+        mostrarTerminalCliente(data.usuario_id);
+      }
+    } else {
+      error.textContent = data.error || 'Correo o contraseña incorrectos';
+      error.style.display = 'block';
+    }
+  }).catch(() => {
+    error.textContent = 'Error de conexión';
+    error.style.display = 'block';
+  });
+}
+
 function volverRol() {
   mostrarPantalla('pantalla-rol');
 }
@@ -9807,6 +9960,7 @@ function cerrarSesion() {
   localStorage.removeItem(ROL_KEY);
   localStorage.removeItem('dt_cliente_tel');
   localStorage.removeItem('dt_cliente_id');
+  localStorage.removeItem('dt_sesion');
   location.reload();
 }
 
@@ -9829,7 +9983,7 @@ function tcMostrarPremium() {
   el.innerHTML = '<div style="background:#111;border:2px solid #e31e24;border-radius:20px;padding:28px 20px;text-align:center;max-width:320px">' +
     '<div style="font-size:36px;margin-bottom:12px">⭐</div>' +
     '<div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:8px">Función Premium</div>' +
-    '<div style="font-size:13px;color:#aaa;line-height:1.6;margin-bottom:16px">Desbloquea todo el potencial de DT-APP por solo <span style="color:#e31e24;font-weight:700">$20.000/mes</span>. Escríbenos a @dt_entrenamientos en Instagram para activarlo.</div>' +
+    '<div style="font-size:13px;color:var(--texto-medio);line-height:1.6;margin-bottom:16px">Desbloquea todo el potencial de DT-APP por solo <span style="color:#e31e24;font-weight:700">$20.000/mes</span>. Escríbenos a @dt_entrenamientos en Instagram para activarlo.</div>' +
     '<button onclick="this.parentNode.parentNode.remove()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:14px;font-weight:700;cursor:pointer">Entendido</button>' +
     '</div>';
   document.body.appendChild(el);
@@ -9931,11 +10085,11 @@ function tcRenderRutina(cont) {
             } else {
               window._tcRecs = window._tcRecs || {};
               window._tcRecs[d] = rec;
-              diasHtml += '<div style="flex-shrink:0;padding:8px 14px;border-radius:20px;border:2px solid #1a1a1a;background:#111;color:#555;font-size:11px;font-weight:600;cursor:pointer" onclick="tcToggleRec(this,window._tcRecs[\'' + d + '\']);tcVerDia(\'' + d + '\')">&#9898; ' + label + '</div>';
+              diasHtml += '<div style="flex-shrink:0;padding:8px 14px;border-radius:20px;border:2px solid #1a1a1a;background:#111;color:var(--texto-medio);font-size:11px;font-weight:600;cursor:pointer" onclick="tcToggleRec(this,window._tcRecs[\'' + d + '\']);tcVerDia(\'' + d + '\')">&#9898; ' + label + '</div>';
             }
   });
   diasHtml += '</div>';
-  cont.innerHTML = diasHtml + '<div id="tc-rec-dropdown" style="display:none;background:#1a1a1a;border-left:3px solid #e31e24;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#ccc"></div><div id="tc-dia-contenido"></div>';
+  cont.innerHTML = diasHtml + '<div id="tc-rec-dropdown" style="display:none;background:#1a1a1a;border-left:3px solid #e31e24;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--texto-suave)"></div><div id="tc-dia-contenido"></div>';
   // Verificar si rutina ya fue completada hoy
   const _uid2 = (_tcUsuario && _tcUsuario.id) || 'x';
   const _diaActualHoy2 = DIAS_ES[new Date().getDay()];
@@ -9964,11 +10118,11 @@ function tcRenderRutina(cont) {
       _html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;text-align:left;margin-bottom:12px">';
       _html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">📋 Resumen de hoy</div>';
       _html += '<div style="display:flex;gap:8px;margin-bottom:8px">';
-      _html += '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + r.ejercicios + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Ejercicios</div></div>';
-      _html += '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + r.series + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series</div></div>';
-      if (r.cardios > 0) _html += '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + r.cardios + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Cardios</div></div>';
+      _html += '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + r.ejercicios + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Ejercicios</div></div>';
+      _html += '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + r.series + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Series</div></div>';
+      if (r.cardios > 0) _html += '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + r.cardios + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Cardios</div></div>';
       _html += '</div>';
-      if (r.tiempo > 0) _html += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#e31e24;font-family:monospace">' + hh + ':' + mm + ':' + ss + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Tiempo de rutina</div></div>';
+      if (r.tiempo > 0) _html += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#e31e24;font-family:monospace">' + hh + ':' + mm + ':' + ss + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Tiempo de rutina</div></div>';
       _html += '</div>';
       _html += '<div style="font-size:11px;color:#333;margin-top:8px">' + r.fecha + '</div>';
       _html += '</div>';
@@ -10059,7 +10213,7 @@ function tcVerDia(dia) {
   }
 
   if (ejercicios.length === 0 && cardio.length === 0) {
-    cont.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:12px">😴</div><div style="font-size:16px;font-weight:700;color:#555">Día de descanso</div><div style="font-size:13px;color:#444;margin-top:6px">Recuperación y hidratación</div></div>';
+    cont.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:12px">😴</div><div style="font-size:16px;font-weight:700;color:var(--texto-medio)">Día de descanso</div><div style="font-size:13px;color:#444;margin-top:6px">Recuperación y hidratación</div></div>';
     return;
   }
 
@@ -10069,7 +10223,7 @@ function tcVerDia(dia) {
   html += '<button onclick="tcIniciarRutina()" id="tc-btn-iniciar-rutina" style="width:100%;padding:10px;border-radius:10px;border:none;background:#0a0a0a;color:' + (yaIniciada?'#4caf50':'#e31e24') + ';font-size:13px;font-weight:700;cursor:pointer;border:1px solid ' + (yaIniciada?'#4caf50':'#e31e24') + ';margin-bottom:14px">' + (yaIniciada?'✅ Rutina en curso':'▶ Iniciar rutina') + '</button>';
 
   if (recordatorio) {
-    html += '<div style="background:#111;border-left:3px solid #e31e24;border-radius:10px;padding:12px 14px;margin-bottom:14px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">💬 Recordatorio</div><div style="font-size:13px;color:#ccc;line-height:1.5">' + recordatorio + '</div></div>';
+    html += '<div style="background:#111;border-left:3px solid #e31e24;border-radius:10px;padding:12px 14px;margin-bottom:14px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">💬 Recordatorio</div><div style="font-size:13px;color:var(--texto-suave);line-height:1.5">' + recordatorio + '</div></div>';
   }
   html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📋 ' + ejercicios.length + ' ejercicios</div>';
 
@@ -10081,17 +10235,17 @@ function tcVerDia(dia) {
       html += '<div style="background:#1a0000;border:1px solid #2a0000;border-radius:14px;padding:14px;margin-bottom:12px">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
       html += '<div><div style="font-size:13px;font-weight:700;color:#e31e24">' + (cx.momento||'Cardio') + '</div>';
-      html += '<div style="font-size:12px;color:#ccc;margin-top:2px">' + (cx.ejercicio||'') + '</div></div>';
+      html += '<div style="font-size:12px;color:var(--texto-suave);margin-top:2px">' + (cx.ejercicio||'') + '</div></div>';
       html += '<div style="display:flex;gap:6px;align-items:center">';
       html += '<div style="background:#1a0000;border-radius:8px;padding:6px 12px;text-align:center">';
       html += '<div style="font-size:16px;font-weight:900;color:#e31e24">' + (cx.tiempo||'—') + '</div>';
       html += '<div style="font-size:9px;color:#e31e24;text-transform:uppercase">min</div></div>';
-      html += '<div id="tc-cardio-enc-btn-' + ci + '" style="display:none;background:#111;border:1px solid #333;border-radius:8px;padding:5px 8px;color:#aaa;font-size:11px;font-weight:700;cursor:pointer;align-items:center;gap:4px">&#128065;</div>';
+      html += '<div id="tc-cardio-enc-btn-' + ci + '" style="display:none;background:#111;border:1px solid #333;border-radius:8px;padding:5px 8px;color:var(--texto-medio);font-size:11px;font-weight:700;cursor:pointer;align-items:center;gap:4px">&#128065;</div>';
       html += '</div>';
       html += '</div>';
       // buscar match cardio
       (function(cxi, cxej){ fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(cxej||'') + '?grupo=cardio', {method:'GET'}).then(function(r){return r.json();}).then(function(res){ if(res.encontrado){ var b=document.getElementById('tc-cardio-enc-btn-'+cxi); if(b){b.style.display='flex';b.onclick=function(){ if(tcEsPremium()){tcVerEnciclopedia(res.ejercicio.id);}else{tcMostrarPremium();} };}}}); })(ci, cx.ejercicio);
-      if (cx.notas) html += '<div style="font-size:11px;color:#555;font-style:italic;border-top:1px solid #1a2a3a;padding-top:8px;margin-top:4px">' + cx.notas + '</div>';
+      if (cx.notas) html += '<div style="font-size:11px;color:var(--texto-medio);font-style:italic;border-top:1px solid #1a2a3a;padding-top:8px;margin-top:4px">' + cx.notas + '</div>';
       html += '<button id="tc-cardio-btn-' + ci + '" onclick="tcCardioHecho(' + ci + ')" style="width:100%;margin-top:10px;padding:7px 10px;border-radius:8px;border:none;background:#1a0000;color:#e31e24;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #e31e24">✅ Cardio realizado</button>';
       html += '</div>';
     });
@@ -10106,7 +10260,7 @@ function tcVerDia(dia) {
       bombillas += '<span id="tc-bomb-' + i + '-' + s + '" onclick="tcDeshacerSerie(' + i + ',' + s + ')" style="font-size:22px;opacity:0.25;transition:.3s;cursor:pointer">⭕</span>';
     }
     html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-size:15px;font-weight:700;color:#fff">' + (ej.nombre||'Ejercicio') + '</div><div style="font-size:11px;color:#555;margin-top:2px">' + (ej.grupo||'') + '</div></div>';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-size:15px;font-weight:700;color:#fff">' + (ej.nombre||'Ejercicio') + '</div><div style="font-size:11px;color:var(--texto-medio);margin-top:2px">' + (ej.grupo||'') + '</div></div>';
     html += ej.video ? '<a href="' + ej.video + '" target="_blank" style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:5px 10px;color:#e31e24;font-size:11px;font-weight:700;text-decoration:none">▶ Video</a>' : '';
     // Botón Ver enciclopedia
     fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(ej.nombre||''), {method:'GET'})
@@ -10120,13 +10274,13 @@ function tcVerDia(dia) {
           }
         }
       }).catch(function(){});
-    html += '<div id="tc-enc-btn-' + i + '" style="display:none;background:#111;border:1px solid #333;border-radius:8px;padding:5px 10px;color:#aaa;font-size:11px;font-weight:700;cursor:pointer;align-items:center;gap:4px">&#128065; Ver</div>';
+    html += '<div id="tc-enc-btn-' + i + '" style="display:none;background:#111;border:1px solid #333;border-radius:8px;padding:5px 10px;color:var(--texto-medio);font-size:11px;font-weight:700;cursor:pointer;align-items:center;gap:4px">&#128065; Ver</div>';
     html += '</div>';
     html += '<div style="display:flex;gap:6px;margin-bottom:12px">';
-    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.series||'—') + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series</div></div>';
-    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.reps||'—') + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Reps</div></div>';
-    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#e31e24">' + (ej.rir||'—') + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">RIR</div></div>';
-    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.desc ? ej.desc + ' seg' : '—') + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Desc</div></div>';
+    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.series||'—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Series</div></div>';
+    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.reps||'—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Reps</div></div>';
+    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#e31e24">' + (ej.rir||'—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">RIR</div></div>';
+    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.desc ? ej.desc + ' seg' : '—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Desc</div></div>';
     if (ej.var) html += '<div onclick="tcScrollNotas()" style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px;cursor:pointer"><div style="font-size:16px;font-weight:900;color:#e31e24">' + ej.var + '</div><div style="font-size:9px;color:#e31e24;text-transform:uppercase">VAR</div></div>';
     html += '</div>';
     html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">' + bombillas + '</div>';
@@ -10134,7 +10288,7 @@ function tcVerDia(dia) {
     html += '</div>';
   });
   if (notas) {
-    html += '<div id="tc-notas-generales" style="background:#111;border:1px dashed #2a2a2a;border-radius:10px;padding:12px 14px;margin-top:4px;transition:border 0.3s,box-shadow 0.3s"><div style="font-size:10px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">📝 Notas</div><div style="font-size:12px;color:#888;line-height:1.5">' + notas + '</div></div>';
+    html += '<div id="tc-notas-generales" style="background:#111;border:1px dashed #2a2a2a;border-radius:10px;padding:12px 14px;margin-top:4px;transition:border 0.3s,box-shadow 0.3s"><div style="font-size:10px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">📝 Notas</div><div style="font-size:12px;color:#888;line-height:1.5">' + notas + '</div></div>';
   }
     html += '</div>';
   html += '<button onclick="tcDetenerRutina()" style="width:100%;padding:12px;border-radius:10px;border:1px solid #e31e24;background:#1a0000;color:#e31e24;font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;margin-bottom:8px">⏹ Finalizar rutina</button>';
@@ -10238,7 +10392,7 @@ function tcSerie(ejIdx, descanso, totalSeries) {
   let seg = descanso;
   _tcToast = document.createElement('div');
   _tcToast.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px';
-  _tcToast.innerHTML = '<div style="font-size:13px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:2px">⏱ Descanso</div><div id="tc-timer-txt" style="font-size:80px;font-weight:900;color:#e31e24;font-family:monospace;line-height:1">' + seg + '</div><div style="font-size:13px;color:#555">segundos</div><button onclick="tcPararTimer()" style="margin-top:12px;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:#aaa;font-size:13px;font-weight:700;padding:10px 30px;cursor:pointer">■ Saltar descanso</button>';
+  _tcToast.innerHTML = '<div style="font-size:13px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:2px">⏱ Descanso</div><div id="tc-timer-txt" style="font-size:80px;font-weight:900;color:#e31e24;font-family:monospace;line-height:1">' + seg + '</div><div style="font-size:13px;color:var(--texto-medio)">segundos</div><button onclick="tcPararTimer()" style="margin-top:12px;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:var(--texto-medio);font-size:13px;font-weight:700;padding:10px 30px;cursor:pointer">■ Saltar descanso</button>';
   document.body.appendChild(_tcToast);
   _tcTimer = setInterval(() => {
     seg--;
@@ -10379,7 +10533,7 @@ function tcConfirmarFinalizar() {
       const bars = Array.from({length: totalS}, (_, s) => s < hechas ? '🟢' : '⭕').join('');
       detalleRows += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1a1a1a">'
         + '<div><div style="font-size:12px;font-weight:700;color:#fff">' + (ej.nombre||'Ejercicio') + '</div>'
-        + '<div style="font-size:10px;color:#555;margin-top:1px">' + (ej.grupo||'') + (ej.reps ? ' · ' + ej.reps + ' reps' : '') + (ej.rir ? ' · RIR ' + ej.rir : '') + '</div></div>'
+        + '<div style="font-size:10px;color:var(--texto-medio);margin-top:1px">' + (ej.grupo||'') + (ej.reps ? ' · ' + ej.reps + ' reps' : '') + (ej.rir ? ' · RIR ' + ej.rir : '') + '</div></div>'
         + '<div style="text-align:right"><div style="font-size:13px;letter-spacing:2px">' + bars + '</div>'
         + '<div style="font-size:10px;color:' + (pct===100?'#4caf50':'#e31e24') + ';font-weight:700">' + hechas + '/' + totalS + ' series</div></div>'
         + '</div>';
@@ -10392,7 +10546,7 @@ function tcConfirmarFinalizar() {
         const hecho = !!_tcCardioCompletado[ci];
         cardioRows += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1a1a1a">'
           + '<div><div style="font-size:12px;font-weight:700;color:#fff">' + (cx.momento||'Cardio') + '</div>'
-          + '<div style="font-size:10px;color:#555">' + (cx.ejercicio||'') + (cx.tiempo ? ' · ' + cx.tiempo + ' min' : '') + '</div></div>'
+          + '<div style="font-size:10px;color:var(--texto-medio)">' + (cx.ejercicio||'') + (cx.tiempo ? ' · ' + cx.tiempo + ' min' : '') + '</div></div>'
           + '<div style="font-size:13px">' + (hecho ? '🟢 Hecho' : '⭕ No hecho') + '</div>'
           + '</div>';
       });
@@ -10432,8 +10586,8 @@ function tcConfirmarFinalizar() {
             const icon = ev.tipo === 'cardio' ? '🏃' : '💪';
             const label = ev.tipo === 'cardio' ? ev.nombre : ev.nombre + ' — Serie ' + ev.serieNum;
             crono += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #1a1a1a">'
-              + '<div style="font-size:11px;color:#ccc">' + icon + ' ' + label + '</div>'
-              + '<div style="font-size:11px;font-weight:700;color:#555;font-family:monospace">' + mm + ':' + ss + '</div>'
+              + '<div style="font-size:11px;color:var(--texto-suave)">' + icon + ' ' + label + '</div>'
+              + '<div style="font-size:11px;font-weight:700;color:var(--texto-medio);font-family:monospace">' + mm + ':' + ss + '</div>'
               + '</div>';
           });
           return crono;
@@ -10476,20 +10630,20 @@ function tcConfirmarFinalizar() {
   inner += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;width:100%;max-width:340px;margin-top:8px">';
   inner += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">📋 Resumen</div>';
   inner += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
-  inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + completados + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Ejercicios hechos</div></div>';
+  inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + completados + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Ejercicios hechos</div></div>';
   if (faltantes > 0) {
-    inner += '<div style="background:#1a0000;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + faltantes + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Ejercicios faltantes</div></div>';
+    inner += '<div style="background:#1a0000;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + faltantes + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Ejercicios faltantes</div></div>';
   }
-  inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + seriesHechas + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series hechas</div></div>';
+  inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + seriesHechas + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Series hechas</div></div>';
   if (seriesFaltantes > 0) {
-    inner += '<div style="background:#1a0000;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + seriesFaltantes + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series faltantes</div></div>';
+    inner += '<div style="background:#1a0000;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + seriesFaltantes + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Series faltantes</div></div>';
   }
   if (cardiosHechos > 0) {
-    inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + cardiosHechos + '/' + cardioTotal + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Cardios</div></div>';
-    if (minutosCardio > 0) inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + minutosCardio + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Min cardio</div></div>';
+    inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + cardiosHechos + '/' + cardioTotal + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Cardios</div></div>';
+    if (minutosCardio > 0) inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + minutosCardio + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Min cardio</div></div>';
   }
   if (tiempoSeg > 0) {
-    inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm+':'+ss + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Tiempo</div></div>';
+    inner += '<div style="background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm+':'+ss + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Tiempo</div></div>';
   }
   inner += '</div></div>';
   inner += '<button onclick="this.parentElement.remove();tcMostrarResumenFinal()" style="margin-top:8px;background:' + (completo?'#1a3a1a':'#1a1a00') + ';border:1px solid ' + (completo?'#4caf50':'#ff9800') + ';border-radius:12px;color:' + (completo?'#4caf50':'#ff9800') + ';font-size:14px;font-weight:700;padding:12px 40px;cursor:pointer">' + (completo?'💪 ¡Listo!':'👊 Entendido') + '</button>';
@@ -10521,11 +10675,11 @@ function tcMostrarResumenFinal() {
     html2 += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;text-align:left;margin-bottom:12px">';
     html2 += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">📋 Resumen de hoy</div>';
     html2 += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
-    html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + (r.ejerciciosHechos||r.ejercicios) + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Ejercicios</div></div>';
-    if (r.ejercicios - (r.ejerciciosHechos||r.ejercicios) > 0) html2 += '<div style="flex:1;min-width:80px;background:#1a0000;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#e31e24">' + (r.ejercicios-(r.ejerciciosHechos||r.ejercicios)) + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Faltantes</div></div>';
-    html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + (r.seriesHechas||r.series) + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series</div></div>';
-    if (r.cardios > 0) html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + r.cardios + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Cardios</div></div>';
-    if (r.tiempo > 0) html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm2+':'+ss + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Tiempo</div></div>';
+    html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + (r.ejerciciosHechos||r.ejercicios) + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Ejercicios</div></div>';
+    if (r.ejercicios - (r.ejerciciosHechos||r.ejercicios) > 0) html2 += '<div style="flex:1;min-width:80px;background:#1a0000;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#e31e24">' + (r.ejercicios-(r.ejerciciosHechos||r.ejercicios)) + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Faltantes</div></div>';
+    html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + (r.seriesHechas||r.series) + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Series</div></div>';
+    if (r.cardios > 0) html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:22px;font-weight:900;color:#4caf50">' + r.cardios + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Cardios</div></div>';
+    if (r.tiempo > 0) html2 += '<div style="flex:1;min-width:80px;background:#1a1a1a;border-radius:8px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm2+':'+ss + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Tiempo</div></div>';
     html2 += '</div></div>';
     html2 += '<div style="font-size:11px;color:#333;margin-top:8px">' + r.fecha + '</div>';
     html2 += '</div>';
@@ -10699,13 +10853,13 @@ function tcRenderAlimentacion(cont) {
   if (!_tcAlim || !_tcAlim.plan_generado) {
     cont.innerHTML = `<div style="text-align:center;padding:40px 20px">
       <div style="font-size:48px;margin-bottom:12px">🍽️</div>
-      <div style="font-size:16px;font-weight:700;color:#555">Plan nutricional</div>
+      <div style="font-size:16px;font-weight:700;color:var(--texto-medio)">Plan nutricional</div>
       <div style="font-size:13px;color:#444;margin-top:6px">Tu entrenador aún no ha generado tu plan</div>
     </div>`;
     return;
   }
 
-  cont.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:32px">⏳</div><div style="font-size:13px;color:#555;margin-top:8px">Cargando planes...</div></div>';
+  cont.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:32px">⏳</div><div style="font-size:13px;color:var(--texto-medio);margin-top:8px">Cargando planes...</div></div>';
 
   var id = _tcUsuario && _tcUsuario.id;
   if (!id) return;
@@ -10714,7 +10868,7 @@ function tcRenderAlimentacion(cont) {
     .then(function(r) { return r.json(); })
     .then(function(semana) {
       if (!semana || !Array.isArray(semana) || semana.length === 0) {
-        cont.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:13px;color:#555">No hay planes disponibles</div></div>';
+        cont.innerHTML = '<div style="text-align:center;padding:40px 20px"><div style="font-size:13px;color:var(--texto-medio)">No hay planes disponibles</div></div>';
         return;
       }
       window._tcPlanSemana = semana;
@@ -10736,31 +10890,33 @@ function tcRenderPlanDia(cont, semana, idx) {
     if (!tcEsPremium() && i >= 2) {
       tabs += '<button onclick="tcMostrarPremium()" style="min-width:48px;padding:6px 8px;border-radius:8px;border:none;background:#1a1a1a;color:#e31e24;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">⭐</button>';
     } else {
-      tabs += '<button onclick="tcRenderPlanDia(document.getElementById(\'tc-contenido\'),window._tcPlanSemana,' + i + ')" style="min-width:48px;padding:6px 8px;border-radius:8px;border:none;background:' + (activo ? '#e31e24' : '#1a1a1a') + ';color:' + (activo ? '#fff' : '#666') + ';font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">Plan ' + letras[i] + '</button>';
+      tabs += '<button onclick="tcRenderPlanDia(document.getElementById(\'tc-contenido\'),window._tcPlanSemana,' + i + ')" style="min-width:48px;padding:6px 8px;border-radius:8px;border:none;background:' + (activo ? '#e31e24' : '#1a1a1a') + ';color:' + (activo ? '#fff' : 'var(--texto-medio)') + ';font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">Plan ' + letras[i] + '</button>';
     }
   });
   tabs += '</div>';
 
   var totales = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
-  totales += '<div style="background:#111;border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#fff">' + t.calorias + '</div><div style="font-size:10px;color:#555;text-transform:uppercase">🔥 Kcal/día</div></div>';
-  totales += '<div style="background:#111;border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#e31e24">' + t.proteina + 'g</div><div style="font-size:10px;color:#555;text-transform:uppercase">🥩 Proteína</div></div>';
-  totales += '<div style="background:#111;border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#f0a500">' + t.carbohidratos + 'g</div><div style="font-size:10px;color:#555;text-transform:uppercase">🌾 Carbos</div></div>';
-  totales += '<div style="background:#111;border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#4caf50">' + t.grasas + 'g</div><div style="font-size:10px;color:#555;text-transform:uppercase">🥑 Grasas</div></div>';
+  totales += '<div style="background:var(--card);border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:var(--texto)">' + t.calorias + '</div><div style="font-size:10px;color:var(--texto-medio);text-transform:uppercase">🔥 Kcal/día</div></div>';
+  totales += '<div style="background:var(--card);border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#e31e24">' + t.proteina + 'g</div><div style="font-size:10px;color:var(--texto-medio);text-transform:uppercase">🥩 Proteína</div></div>';
+  totales += '<div style="background:var(--card);border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#f0a500">' + t.carbohidratos + 'g</div><div style="font-size:10px;color:var(--texto-medio);text-transform:uppercase">🌾 Carbos</div></div>';
+  totales += '<div style="background:var(--card);border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#4caf50">' + t.grasas + 'g</div><div style="font-size:10px;color:var(--texto-medio);text-transform:uppercase">🥑 Grasas</div></div>';
   totales += '</div>';
 
   var comidas = '';
   dia.comidas.forEach(function(comida) {
     var mr = comida.macros_reales;
     var ico = comida.nombre.indexOf('Desayuno')>=0?'🌅':comida.nombre.indexOf('Snack')>=0?'🍎':comida.nombre.indexOf('Almuerzo')>=0?'🍱':comida.nombre.indexOf('Cena')>=0?'🌙':comida.nombre.indexOf('Pre')>=0?'⚡':'🍽️';
-    var h = '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;margin-bottom:12px;overflow:hidden">';
-    h += '<div style="background:#161616;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">';
-    h += '<div style="font-size:14px;font-weight:700;color:#fff">' + ico + ' ' + comida.nombre + '</div>';
+    var h = '<div style="background:var(--card);border:1px solid var(--borde);border-radius:14px;margin-bottom:12px;overflow:hidden">';
+    h += '<div style="background:var(--card2);padding:10px 14px;display:flex;justify-content:space-between;align-items:center">';
+    h += '<div style="font-size:14px;font-weight:700;color:var(--texto)">' + ico + ' ' + comida.nombre + '</div>';
     h += '<div style="font-size:12px;color:#e31e24;font-weight:700">' + Math.round(mr.kcal) + ' kcal</div></div>';
     h += '<div style="padding:10px 14px">';
     comida.alimentos.forEach(function(a) {
-      h += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1a1a">';
-      h += '<div style="font-size:13px;color:#ccc">' + a.nombre + (a.detalle ? ' <span style="color:#555;font-size:11px">(' + a.detalle + ')</span>' : '') + '</div>';
-      h += '<div style="font-size:13px;font-weight:700;color:#fff">' + (a.unidad ? a.unidad.texto : a.porcion_g + 'g') + '</div></div>';
+      h += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--borde)">';
+      var colorAlim = document.body.classList.contains('modo-claro') ? '#111' : 'var(--texto-suave)';
+    var colorDetalle = document.body.classList.contains('modo-claro') ? '#666' : 'var(--texto-medio)';
+    h += '<div style="font-size:13px;color:' + colorAlim + '">' + a.nombre + (a.detalle ? ' <span style="color:' + colorDetalle + ';font-size:11px">(' + a.detalle + ')</span>' : '') + '</div>';
+      h += '<div style="font-size:13px;font-weight:700;color:var(--texto)">' + (a.unidad ? a.unidad.texto : a.porcion_g + 'g') + '</div></div>';
     });
     h += '</div></div>';
     comidas += h;
@@ -10786,13 +10942,13 @@ function tcRenderProgreso(cont) {
       html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📏 Medidas — ' + ultima.fecha + '</div>';
       html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
       [['Cintura','cintura'],['Cadera','cadera'],['Pecho','pecho'],['Brazo','brazo'],['Pierna','pierna'],['Hombros','hombros']].forEach(function(c){
-        if (ultima[c[1]]) html += '<div style="background:#1a1a1a;border-radius:8px;padding:8px 12px"><div style="font-size:18px;font-weight:900;color:#fff">' + ultima[c[1]] + '<span style="font-size:10px;color:#555"> cm</span></div><div style="font-size:9px;color:#555;text-transform:uppercase">' + c[0] + '</div></div>';
+        if (ultima[c[1]]) html += '<div style="background:#1a1a1a;border-radius:8px;padding:8px 12px"><div style="font-size:18px;font-weight:900;color:#fff">' + ultima[c[1]] + '<span style="font-size:10px;color:var(--texto-medio)"> cm</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">' + c[0] + '</div></div>';
       });
       html += '</div>';
       if (ultima.analisis) {
         html += '<div style="display:flex;gap:8px">';
-        html += '<div style="flex:1;background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:8px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + ultima.analisis.pctGrasa + '%</div><div style="font-size:9px;color:#555">% Grasa</div></div>';
-        html += '<div style="flex:1;background:#0a1a0a;border:1px solid #4caf50;border-radius:8px;padding:8px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + ultima.analisis.kgMusculo + ' kg</div><div style="font-size:9px;color:#555">Músculo</div></div>';
+        html += '<div style="flex:1;background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:8px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">' + ultima.analisis.pctGrasa + '%</div><div style="font-size:9px;color:var(--texto-medio)">% Grasa</div></div>';
+        html += '<div style="flex:1;background:#0a1a0a;border:1px solid #4caf50;border-radius:8px;padding:8px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">' + ultima.analisis.kgMusculo + ' kg</div><div style="font-size:9px;color:var(--texto-medio)">Músculo</div></div>';
         html += '</div>';
       }
       html += '</div>';
@@ -10811,7 +10967,7 @@ function tcRenderProgreso(cont) {
         if (lastFuerza[c[1]]) {
           var sc = lastFuerza[c[1]].score||0;
           var col = sc>=80?'#4caf50':sc>=60?'#ff9800':'#e31e24';
-          html += '<div style="background:#1a1a1a;border-radius:8px;padding:8px 12px"><div style="font-size:16px;font-weight:900;color:#fff">' + lastFuerza[c[1]].kg + 'kg <span style="font-size:11px;color:#555">x' + lastFuerza[c[1]].reps + '</span></div><div style="font-size:10px;color:' + col + ';font-weight:700">' + sc + 'pts</div><div style="font-size:9px;color:#555;text-transform:uppercase">' + c[0] + '</div></div>';
+          html += '<div style="background:#1a1a1a;border-radius:8px;padding:8px 12px"><div style="font-size:16px;font-weight:900;color:#fff">' + lastFuerza[c[1]].kg + 'kg <span style="font-size:11px;color:var(--texto-medio)">x' + lastFuerza[c[1]].reps + '</span></div><div style="font-size:10px;color:' + col + ';font-weight:700">' + sc + 'pts</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">' + c[0] + '</div></div>';
         }
       });
       html += '</div><div style="margin-top:8px;text-align:right;font-size:11px;color:#e31e24;font-weight:700">Score: ' + lastFuerza.scoreTotal + '/100</div></div>';
@@ -10825,7 +10981,7 @@ function tcRenderProgreso(cont) {
         if (lastResist[c[1]]) {
           var sc = lastResist[c[1]].score||0;
           var col = sc>=80?'#4caf50':sc>=60?'#ff9800':'#e31e24';
-          html += '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:900;color:#fff">' + lastResist[c[1]].valor + '</div><div style="font-size:10px;color:' + col + ';font-weight:700">' + sc + 'pts</div><div style="font-size:9px;color:#555;text-transform:uppercase">' + c[0] + '</div></div>';
+          html += '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:900;color:#fff">' + lastResist[c[1]].valor + '</div><div style="font-size:10px;color:' + col + ';font-weight:700">' + sc + 'pts</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">' + c[0] + '</div></div>';
         }
       });
       html += '</div><div style="margin-top:8px;text-align:right;font-size:11px;color:#e31e24;font-weight:700">Score: ' + lastResist.scoreTotal + '/100</div></div>';
@@ -10839,14 +10995,14 @@ function tcRenderProgreso(cont) {
         if (lastEspecif[c[1]]) {
           var sc = lastEspecif[c[1]].score||0;
           var col = sc>=80?'#4caf50':sc>=60?'#ff9800':'#e31e24';
-          html += '<div style="background:#1a1a1a;border-radius:8px;padding:8px 12px"><div style="font-size:16px;font-weight:900;color:#fff">' + lastEspecif[c[1]].valor + '<span style="font-size:10px;color:#555"> ' + c[2] + '</span></div><div style="font-size:10px;color:' + col + ';font-weight:700">' + sc + 'pts</div><div style="font-size:9px;color:#555;text-transform:uppercase">' + c[0] + '</div></div>';
+          html += '<div style="background:#1a1a1a;border-radius:8px;padding:8px 12px"><div style="font-size:16px;font-weight:900;color:#fff">' + lastEspecif[c[1]].valor + '<span style="font-size:10px;color:var(--texto-medio)"> ' + c[2] + '</span></div><div style="font-size:10px;color:' + col + ';font-weight:700">' + sc + 'pts</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">' + c[0] + '</div></div>';
         }
       });
       html += '</div><div style="margin-top:8px;text-align:right;font-size:11px;color:#e31e24;font-weight:700">Score: ' + lastEspecif.scoreTotal + '/100</div></div>';
     }
 
     if (!ultima && !lastFuerza && !lastResist && !lastEspecif) {
-      html = '<div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:12px">📊</div><div style="font-size:16px;font-weight:700;color:#555">Sin datos aún</div></div>';
+      html = '<div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:12px">📊</div><div style="font-size:16px;font-weight:700;color:var(--texto-medio)">Sin datos aún</div></div>';
     }
 
     cont.innerHTML = html;
@@ -10870,7 +11026,7 @@ function tcRenderPerfil(cont) {
     html += '<div style="width:90px;height:90px;border-radius:50%;background:#1a1a1a;border:3px solid #e31e24;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 10px">👤</div>';
   }
   html += '<div style="font-size:22px;font-weight:900;color:#fff">' + (u.nombre||'') + '</div>';
-  html += '<div style="font-size:12px;color:#555;margin-top:2px">' + (u.telefono||'') + '</div>';
+  html += '<div style="font-size:12px;color:var(--texto-medio);margin-top:2px">' + (u.telefono||'') + '</div>';
   html += '</div>';
 
   // Datos editables por el cliente
@@ -10878,19 +11034,19 @@ function tcRenderPerfil(cont) {
   html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
 
   // Nombre
-  html += '<div style="margin-bottom:12px"><div style="font-size:10px;color:#555;margin-bottom:4px">Nombre</div>';
+  html += '<div style="margin-bottom:12px"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:4px">Nombre</div>';
   html += '<input id="tc-perfil-nombre" value="' + (u.nombre||'') + '" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div>';
 
   // Fecha nacimiento
-  html += '<div style="margin-bottom:12px"><div style="font-size:10px;color:#555;margin-bottom:4px">Fecha de nacimiento</div>';
+  html += '<div style="margin-bottom:12px"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:4px">Fecha de nacimiento</div>';
   html += '<input id="tc-perfil-fnac" type="date" value="' + (p.fecha_nacimiento||'') + '" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div>';
 
   // Estatura
-  html += '<div style="margin-bottom:12px"><div style="font-size:10px;color:#555;margin-bottom:4px">Estatura (cm)</div>';
+  html += '<div style="margin-bottom:12px"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:4px">Estatura (cm)</div>';
   html += '<input id="tc-perfil-altura" type="number" value="' + (p.altura||'') + '" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div>';
 
   // Objetivo
-  html += '<div style="margin-bottom:4px"><div style="font-size:10px;color:#555;margin-bottom:4px">Objetivo</div>';
+  html += '<div style="margin-bottom:4px"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:4px">Objetivo</div>';
   html += '<select id="tc-perfil-objetivo" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box">';
   const objetivos = [['','Seleccionar...'],['perdida','Pérdida de grasa'],['musculo','Ganar músculo'],['rendimiento','Rendimiento deportivo'],['salud','Salud general'],['otro','Otro']];
   objetivos.forEach(o => { html += '<option value="' + o[0] + '"' + (p.etiqueta===o[0]?' selected':'') + '>' + o[1] + '</option>'; });
@@ -10901,28 +11057,28 @@ function tcRenderPerfil(cont) {
   html += '<button onclick="tcGuardarPerfilCliente()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:16px">💾 Guardar cambios</button>';
 
   // Datos solo visibles
-  html += '<div style="font-size:10px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📋 Mi plan</div>';
+  html += '<div style="font-size:10px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📋 Mi plan</div>';
   html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
-  html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1a"><span style="font-size:13px;color:#555">Tipo</span><span style="font-size:13px;color:#fff;font-weight:700">' + (u.tipo==='asesorado'?'📋 Asesorado':'🏟️ Personalizado') + '</span></div>';
-  html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1a"><span style="font-size:13px;color:#555">Pago</span><span style="font-size:13px;font-weight:700;color:' + estadoColor + '">' + estadoTxt + '</span></div>';
-  html += '<div style="display:flex;justify-content:space-between;padding:8px 0"><span style="font-size:13px;color:#555">Entrenador</span><span style="font-size:13px;color:#fff;font-weight:700">Danny Trainer</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1a"><span style="font-size:13px;color:var(--texto-medio)">Tipo</span><span style="font-size:13px;color:#fff;font-weight:700">' + (u.tipo==='asesorado'?'📋 Asesorado':'🏟️ Personalizado') + '</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1a"><span style="font-size:13px;color:var(--texto-medio)">Pago</span><span style="font-size:13px;font-weight:700;color:' + estadoColor + '">' + estadoTxt + '</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;padding:8px 0"><span style="font-size:13px;color:var(--texto-medio)">Entrenador</span><span style="font-size:13px;color:#fff;font-weight:700" id="informe-nombre-ent"></span></div>';
   html += '</div>';
 
   // Observaciones (solo lectura)
   if (p.notas) {
-    html += '<div style="font-size:10px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📝 Observaciones del entrenador</div>';
+    html += '<div style="font-size:10px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📝 Observaciones del entrenador</div>';
     html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px"><div style="font-size:12px;color:#888;line-height:1.6">' + p.notas + '</div></div>';
   }
 
   // Condiciones médicas (solo lectura)
   if (p.condiciones_medicas) {
-    html += '<div style="font-size:10px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🏥 Condiciones médicas</div>';
+    html += '<div style="font-size:10px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🏥 Condiciones médicas</div>';
     html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px"><div style="font-size:12px;color:#888;line-height:1.6">' + p.condiciones_medicas + '</div></div>';
   }
 
   // Preferencias alimentarias (solo lectura)
   if (p.preferencias_alimentarias) {
-    html += '<div style="font-size:10px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🥗 Preferencias alimentarias</div>';
+    html += '<div style="font-size:10px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🥗 Preferencias alimentarias</div>';
     html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px"><div style="font-size:12px;color:#888;line-height:1.6">' + p.preferencias_alimentarias + '</div></div>';
   }
 
@@ -10960,14 +11116,14 @@ function tcRenderTools(cont) {
   html += '<div style="padding:4px 0 16px 0">';
   html += '<div style="font-size:13px;color:#666;margin-bottom:16px;text-align:center;letter-spacing:1px;text-transform:uppercase">Herramientas</div>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
-  html += '<div onclick="tcToolAbrirHerr(&quot;cronometros&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-cronometro.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Cron&oacute;metro</div><div style="font-size:10px;color:#555;margin-top:4px">Series y tiempos</div></div>';
-  html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;temporizadores&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-temporizador.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Temporizador</div><div style="font-size:10px;color:#555;margin-top:4px">Descansos</div></div>';
-  html += '<div onclick="tcToolAbrirHerr(&apos;juegos&apos;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-juegos.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Juegos</div><div style="font-size:10px;color:#555;margin-top:4px">Mientras esperas</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&quot;cronometros&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-cronometro.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Cron&oacute;metro</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">Series y tiempos</div></div>';
+  html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;temporizadores&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-temporizador.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Temporizador</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">Descansos</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&apos;juegos&apos;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-juegos.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Juegos</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">Mientras esperas</div></div>';
   
-  html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;ruleta&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-ruleta.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Ruleta DT</div><div style="font-size:10px;color:#555;margin-top:4px">Ejercicio aleatorio</div></div>';
-  html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;conversores&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-calculadoras.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Conversores</div><div style="font-size:10px;color:#555;margin-top:4px">kg &middot; lb &middot; cm &middot; in</div></div>';
+  html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;ruleta&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-ruleta.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Ruleta DT</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">Ejercicio aleatorio</div></div>';
+  html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;conversores&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-calculadoras.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Conversores</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">kg &middot; lb &middot; cm &middot; in</div></div>';
   html += '';
-  html += '<div onclick="tcToolAbrirHerr(&quot;enciclopedia&quot;)" style="background:#111;border:1px solid #222;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer;grid-column:1/-1"><div style="margin-bottom:8px"><img src="/images/Enciclopedialogo.png" style="width:56px;height:56px;object-fit:contain;border-radius:12px"></div><div style="font-size:13px;font-weight:700;color:#fff">Enciclopedia</div><div style="font-size:10px;color:#555;margin-top:4px">Ejercicios &middot; T&eacute;cnica &middot; Nutrici&oacute;n</div></div>';
+  html += '<div onclick="tcToolAbrirHerr(&quot;enciclopedia&quot;)" style="background:#111;border:1px solid #222;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer;grid-column:1/-1"><div style="margin-bottom:8px"><img src="/images/Enciclopedialogo.png" style="width:56px;height:56px;object-fit:contain;border-radius:12px"></div><div style="font-size:13px;font-weight:700;color:#fff">Enciclopedia</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">Ejercicios &middot; T&eacute;cnica &middot; Nutrici&oacute;n</div></div>';
   html += '</div></div>';
   cont.innerHTML = html;
 }
@@ -11050,7 +11206,7 @@ function tcRenderConversores(c) {
           tcRenderConversores(c);
         }
       });
-      c.innerHTML = '<div style="padding:20px;text-align:center;color:#555">Cargando...</div>';
+      c.innerHTML = '<div style="padding:20px;text-align:center;color:var(--texto-medio)">Cargando...</div>';
       return;
     }
   }
@@ -11106,7 +11262,7 @@ function tcRenderConversores(c) {
   h += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:16px">';
   h += '<div style="font-size:12px;font-weight:700;color:#e31e24;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">&#128147; Frecuencia Cardiaca</div>';
   if(edad > 0) {
-    h += '<div style="font-size:11px;color:#555;margin-bottom:12px">Edad: ' + edad + ' a&ntilde;os &middot; FCm&aacute;x: ' + fcmax + ' bpm</div>';
+    h += '<div style="font-size:11px;color:var(--texto-medio);margin-bottom:12px">Edad: ' + edad + ' a&ntilde;os &middot; FCm&aacute;x: ' + fcmax + ' bpm</div>';
     var zonas = [
       {nombre:'Zona 1 &mdash; Recuperaci&oacute;n', pct:'50-60%', min:Math.round(fcmax*0.50), max:Math.round(fcmax*0.60), color:'#4caf50'},
       {nombre:'Zona 2 &mdash; Quema grasa',         pct:'60-70%', min:Math.round(fcmax*0.60), max:Math.round(fcmax*0.70), color:'#8bc34a'},
@@ -11117,12 +11273,12 @@ function tcRenderConversores(c) {
     zonas.forEach(function(z) {
       h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a">';
       h += '<div><div style="font-size:11px;font-weight:700;color:' + z.color + '">' + z.nombre + '</div>';
-      h += '<div style="font-size:10px;color:#555">' + z.pct + ' FCm&aacute;x</div></div>';
-      h += '<div style="font-size:13px;font-weight:700;color:#fff">' + z.min + '-' + z.max + ' <span style="font-size:10px;color:#555">bpm</span></div>';
+      h += '<div style="font-size:10px;color:var(--texto-medio)">' + z.pct + ' FCm&aacute;x</div></div>';
+      h += '<div style="font-size:13px;font-weight:700;color:#fff">' + z.min + '-' + z.max + ' <span style="font-size:10px;color:var(--texto-medio)">bpm</span></div>';
       h += '</div>';
     });
   } else {
-    h += '<div style="font-size:12px;color:#555;padding:8px 0">Agrega tu fecha de nacimiento en Perfil para ver tus zonas.</div>';
+    h += '<div style="font-size:12px;color:var(--texto-medio);padding:8px 0">Agrega tu fecha de nacimiento en Perfil para ver tus zonas.</div>';
   }
   h += '</div>';
 
@@ -11508,7 +11664,7 @@ function encMostrarLista() {
       html += "<div style=\"font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis\">" + e.nombre + "</div>";
       html += "<div style=\"display:flex;gap:6px;flex-wrap:wrap;margin-top:4px\">";
       if (e.nivel) html += "<span style=\"padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;background:" + nb + ";color:" + nc + "\">" + e.nivel + "</span>";
-      if (e.equipamiento) html += "<span style=\"padding:2px 7px;border-radius:4px;font-size:10px;background:#1e1e1e;color:#aaa;border:1px solid #333\">" + e.equipamiento + "</span>";
+      if (e.equipamiento) html += "<span style=\"padding:2px 7px;border-radius:4px;font-size:10px;background:#1e1e1e;color:var(--texto-medio);border:1px solid #333\">" + e.equipamiento + "</span>";
       if (e.es_personalizado) html += "<span style=\"padding:2px 7px;border-radius:4px;font-size:10px;background:rgba(255,171,64,0.15);color:#e65100\">&#11088; Personalizado</span>";
       html += "</div></div><span style=\"color:#666;font-size:14px\">&#8250;</span></div>";
     });
@@ -11582,7 +11738,7 @@ function encEditarFicha(id) {
     html += "</div>";
   });
   html += "</div>";
-  html += "<button onclick=\"encAgregarPasoEdit()\" style=\"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;color:#aaa;padding:7px 14px;cursor:pointer;font-size:12px;margin-bottom:12px\">+ Agregar paso</button>";
+  html += "<button onclick=\"encAgregarPasoEdit()\" style=\"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;color:var(--texto-medio);padding:7px 14px;cursor:pointer;font-size:12px;margin-bottom:12px\">+ Agregar paso</button>";
 
   html += "<button onclick=\"encGuardarEdicionV2(&quot;" + id + "&quot;)\" style=\"width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;padding:12px;font-size:14px;font-weight:700;cursor:pointer\">&#10003; Guardar cambios</button>";
   html += "</div>";
@@ -11673,7 +11829,7 @@ function encGestionPersonalizados() {
   html += "<button onclick=\"encFormNuevoPersonalizado()\" style=\"background:#e31e24;border:none;border-radius:8px;color:#fff;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:700\">+ Nuevo</button>";
   html += "</div>";
   if (personalizados.length === 0) {
-    html += "<div style=\"text-align:center;padding:40px 20px;color:#555;font-size:13px\">No tienes ejercicios personalizados.<br>Toca <b style=\"color:#fff\">+ Nuevo</b> para crear uno.</div>";
+    html += "<div style=\"text-align:center;padding:40px 20px;color:var(--texto-medio);font-size:13px\">No tienes ejercicios personalizados.<br>Toca <b style=\"color:#fff\">+ Nuevo</b> para crear uno.</div>";
   } else {
     personalizados.forEach(function(e) {
       var img = e.imagen_inicio || e.imagen_fin || "";
@@ -11761,15 +11917,15 @@ function encFormPersonalizado(e) {
     html += "</div>";
   });
   html += "</div>";
-  html += "<button onclick=\"encAgregarPaso()\" style=\"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;color:#aaa;padding:7px 14px;cursor:pointer;font-size:12px;margin-top:4px\">+ Agregar paso</button></div>";
+  html += "<button onclick=\"encAgregarPaso()\" style=\"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;color:var(--texto-medio);padding:7px 14px;cursor:pointer;font-size:12px;margin-top:4px\">+ Agregar paso</button></div>";
 
   html += "<div style=\"margin-bottom:12px\"><div style=\"font-size:10px;color:#666;margin-bottom:6px;text-transform:uppercase\">Foto posici&oacute;n inicial</div>";
   if (e && e.imagen_inicio) html += "<img src=\"" + e.imagen_inicio + "\" style=\"width:100%;max-height:140px;object-fit:contain;border-radius:10px;background:#1a1a1a;margin-bottom:8px\">";
-  html += "<input type=\"file\" id=\"enc-p-foto-inicio\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#aaa;font-size:13px;box-sizing:border-box\"></div>";
+  html += "<input type=\"file\" id=\"enc-p-foto-inicio\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:var(--texto-medio);font-size:13px;box-sizing:border-box\"></div>";
 
   html += "<div style=\"margin-bottom:16px\"><div style=\"font-size:10px;color:#666;margin-bottom:6px;text-transform:uppercase\">Foto posici&oacute;n final</div>";
   if (e && e.imagen_fin) html += "<img src=\"" + e.imagen_fin + "\" style=\"width:100%;max-height:140px;object-fit:contain;border-radius:10px;background:#1a1a1a;margin-bottom:8px\">";
-  html += "<input type=\"file\" id=\"enc-p-foto-fin\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#aaa;font-size:13px;box-sizing:border-box\"></div>";
+  html += "<input type=\"file\" id=\"enc-p-foto-fin\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:var(--texto-medio);font-size:13px;box-sizing:border-box\"></div>";
 
   html += "<button onclick=\"encGuardarPersonalizado(" + (e ? "&quot;" + e.id + "&quot;" : "null") + ")\" style=\"width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:20px\">&#10003; Guardar ejercicio</button>";
   html += "</div>";
@@ -11892,7 +12048,7 @@ function encMostrarGlosario(cat) {
     html += "<div style=\"font-size:14px;font-weight:700;color:#fff\">" + t.titulo + "</div>";
     html += "<span style=\"background:#1a1a1a;border:1px solid " + col + ";color:" + col + ";padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;flex-shrink:0;margin-left:8px\">" + (ci?ci.label:"") + "</span>";
     html += "</div>";
-    html += "<div id=\"gd" + t.id + "\" style=\"display:none;font-size:13px;color:#ccc;line-height:1.6;margin-top:8px;border-top:1px solid #2a2a2a;padding-top:8px\">" + t.descripcion + (t.imagen ? "<br><img src=\"/images/glosario/" + t.imagen + "\" style=\"max-width:100%;border-radius:8px;margin-top:8px\" onerror=\"this.style.display='none'\">":"") + "</div>";
+    html += "<div id=\"gd" + t.id + "\" style=\"display:none;font-size:13px;color:var(--texto-suave);line-height:1.6;margin-top:8px;border-top:1px solid #2a2a2a;padding-top:8px\">" + t.descripcion + (t.imagen ? "<br><img src=\"/images/glosario/" + t.imagen + "\" style=\"max-width:100%;border-radius:8px;margin-top:8px\" onerror=\"this.style.display='none'\">":"") + "</div>";
     html += "</div>";
   });
   cont.innerHTML = html;
@@ -11959,25 +12115,25 @@ function encAbrirFicha(id) {
   html += "<div style=\"font-size:22px;font-weight:900;color:#fff;text-transform:uppercase;line-height:1.1;margin-bottom:8px\">" + e.nombre + "</div>";
   html += "<div style=\"display:flex;gap:6px;flex-wrap:wrap\">";
   if (e.nivel) html += "<span style=\"padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;background:" + nb + ";color:" + nc + "\">" + e.nivel + "</span>";
-  if (e.equipamiento) html += "<span style=\"padding:3px 8px;border-radius:4px;font-size:11px;background:#1e1e1e;color:#aaa;border:1px solid #333\">" + e.equipamiento + "</span>";
+  if (e.equipamiento) html += "<span style=\"padding:3px 8px;border-radius:4px;font-size:11px;background:#1e1e1e;color:var(--texto-medio);border:1px solid #333\">" + e.equipamiento + "</span>";
   html += "</div></div>";
   if ((e.musculos_principales||[]).length > 0 || (e.musculos_secundarios||[]).length > 0) {
     html += "<div style=\"margin-bottom:16px\"><div style=\"font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px\">Musculos</div><div style=\"display:flex;flex-wrap:wrap;gap:6px\">";
     (e.musculos_principales||[]).forEach(function(m){html += "<span style=\"padding:4px 10px;border-radius:6px;font-size:12px;background:rgba(227,30,36,0.15);border:1px solid rgba(227,30,36,0.4);color:#ff6b6b\">&#11088; " + m + "</span>";});
-    (e.musculos_secundarios||[]).forEach(function(m){html += "<span style=\"padding:4px 10px;border-radius:6px;font-size:12px;background:#1a1a1a;border:1px solid #2a2a2a;color:#ccc\">" + m + "</span>";});
+    (e.musculos_secundarios||[]).forEach(function(m){html += "<span style=\"padding:4px 10px;border-radius:6px;font-size:12px;background:var(--gris);border:1px solid var(--borde);color:var(--texto-suave)\">" + m + "</span>";});
     html += "</div></div>";
   }
   if ((e.ejecucion||[]).length > 0) {
     html += "<div style=\"margin-bottom:16px\"><div style=\"font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px\">Ejecucion</div>";
     e.ejecucion.forEach(function(paso,i){
-      html += "<div style=\"display:flex;gap:10px;margin-bottom:10px\"><div style=\"width:24px;height:24px;background:#e31e24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px\">" + (i+1) + "</div><div style=\"font-size:13px;color:#ccc;line-height:1.5\">" + paso + "</div></div>";
+      html += "<div style=\"display:flex;gap:10px;margin-bottom:10px\"><div style=\"width:24px;height:24px;background:#e31e24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px\">" + (i+1) + "</div><div style=\"font-size:13px;color:var(--texto-suave);line-height:1.5\">" + paso + "</div></div>";
     });
     html += "</div>";
   }
   if ((e.errores_comunes||[]).length > 0) {
     html += "<div style=\"margin-bottom:16px\"><div style=\"font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px\">Errores comunes</div>";
     e.errores_comunes.forEach(function(err){
-      html += "<div style=\"display:flex;gap:8px;margin-bottom:8px\"><span style=\"color:#ffab40;font-size:14px;flex-shrink:0\">&#9888;</span><div style=\"font-size:13px;color:#ccc;line-height:1.5\">" + err + "</div></div>";
+      html += "<div style=\"display:flex;gap:8px;margin-bottom:8px\"><span style=\"color:#ffab40;font-size:14px;flex-shrink:0\">&#9888;</span><div style=\"font-size:13px;color:var(--texto-suave);line-height:1.5\">" + err + "</div></div>";
     });
     html += "</div>";
   }
@@ -12013,14 +12169,14 @@ function entVerTerminos() {
   h += "<div style='background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:2'>";
   h += "<button onclick='entCerrarTerminos()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
   h += "<span style='font-size:15px;font-weight:700;color:#fff'>T&eacute;rminos y Condiciones</span></div>";
-  h += "<div style='padding:20px;color:#ccc;font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:16px'>";
+  h += "<div style='padding:20px;color:var(--texto-suave);font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:16px'>";
   h += "<div style='text-align:center;padding:16px;background:#111;border-radius:14px;border:1px solid #1a1a1a'>";
   h += "<div style='font-size:16px;font-weight:900;color:#e31e24;margin-bottom:4px'>DT-APP</div>";
   h += "<div style='font-size:11px;color:#555'>@dt_entrenamientos &middot; Gesti&oacute;n Deportiva Digital</div>";
   h += "<div style='font-size:10px;color:#333;margin-top:4px'>Colombia &middot; Mayo 2026</div></div>";
   h += "<div style='background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px'>";
   h += "<div style='font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px'>Resumen ejecutivo</div>";
-  h += "<div style='font-size:12px;color:#aaa;line-height:1.8'>";
+  h += "<div style='font-size:12px;color:var(--texto-medio);line-height:1.8'>";
   h += "&#9679; DT-APP es herramienta de gesti&oacute;n deportiva. No es IPS ni provee servicios m&eacute;dicos.<br>";
   h += "&#9679; Los pagos entre cliente y entrenador son directos. DT-APP no intermedia.<br>";
   h += "&#9679; Los datos se almacenan localmente. DT-APP no tiene acceso a ellos.<br>";
@@ -12042,8 +12198,8 @@ function entVerTerminosCompletos() {
   h += "<div style='background:#111;border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:2'>";
   h += "<button onclick='entCerrarTerminosCompletos()' style='background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer'>&#8592;</button>";
   h += "<span style='font-size:14px;font-weight:700;color:#fff'>Corpus Legal &middot; DT-APP</span></div>";
-  h += "<div style='padding:20px;color:#ccc;font-size:12px;line-height:1.8;display:flex;flex-direction:column;gap:20px'>";
-  h += "<div style='font-size:10px;color:#555;text-align:center'>DT-APP &middot; @dt_entrenamientos &middot; Colombia &middot; Mayo 2026<br>Marco: C&oacute;d. Comercio &middot; Ley 1480/2011 &middot; Ley 1581/2012 &middot; Decreto 1074/2015 &middot; Ley 527/1999</div>";
+  h += "<div style='padding:20px;color:var(--texto-suave);font-size:12px;line-height:1.8;display:flex;flex-direction:column;gap:20px'>";
+  h += "<div style='font-size:10px;color:var(--texto-medio);text-align:center'>DT-APP &middot; @dt_entrenamientos &middot; Colombia &middot; Mayo 2026<br>Marco: C&oacute;d. Comercio &middot; Ley 1480/2011 &middot; Ley 1581/2012 &middot; Decreto 1074/2015 &middot; Ley 527/1999</div>";
   h += "<div><div style='font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px'>1. T&eacute;rminos y Condiciones</div><div style='color:#aaa'>";
   h += "<b style='color:#fff'>Cl. 1.1.</b> Contrato de adhesi&oacute;n electr&oacute;nico v&aacute;lido conforme Ley 527/1999. El uso implica aceptaci&oacute;n incondicional.<br><br>";
   h += "<b style='color:#fff'>Cl. 1.2.</b> DT-APP es exclusivamente herramienta SaaS de gesti&oacute;n deportiva. No es IPS ni provee servicios m&eacute;dicos.<br><br>";
@@ -12161,7 +12317,7 @@ function tcAbrirConfig() {
   var pagoCont = document.createElement('div');
   pagoCont.id = 'tc-config-pago-ent';
   pagoCont.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px';
-  pagoCont.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Pago al entrenador</div><div style="font-size:12px;color:#555">Cargando...</div>';
+  pagoCont.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Pago al entrenador</div><div style="font-size:12px;color:var(--texto-medio)">Cargando...</div>';
   body.appendChild(pagoCont);
   // PLAN PREMIUM
   var premDiv = document.createElement('div');
@@ -12169,10 +12325,10 @@ function tcAbrirConfig() {
   var premEstado = (_tcUsuario && _tcUsuario.premium) ? '✅ Activo' : '⭐ Activar';
   var premColor = (_tcUsuario && _tcUsuario.premium) ? '#4caf50' : '#e31e24';
   premDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">Plan Premium — $20.000/mes</div>' +
-    '<div style="font-size:12px;color:#555;margin-bottom:12px">Acceso completo a la app</div>' +
+    '<div style="font-size:12px;color:var(--texto-medio);margin-bottom:12px">Acceso completo a la app</div>' +
     ((_tcUsuario && _tcUsuario.premium) ?
       '<div style="color:' + premColor + ';font-weight:700">✅ Premium activo</div>' +
-      (_tcUsuario.premium_hasta ? '<div style="font-size:11px;color:#555;margin-top:4px">Activo hasta: ' + _tcUsuario.premium_hasta + '</div>' : '') :
+      (_tcUsuario.premium_hasta ? '<div style="font-size:11px;color:var(--texto-medio);margin-top:4px">Activo hasta: ' + _tcUsuario.premium_hasta + '</div>' : '') :
       '<div style="margin-bottom:12px"><button onclick="tcPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;padding:11px;box-sizing:border-box">💳 Pagar $20.000 por WhatsApp</button></div>' +
       '<div style="display:flex;gap:8px"><input id="tc-cod-premium" placeholder="¿Ya tienes un código? Ingrésalo" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"><button onclick="tcActivarPremiumConfig()" style="background:#333;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:8px 12px;flex-shrink:0">Activar</button></div>'
     );
@@ -12182,7 +12338,7 @@ function tcAbrirConfig() {
   var aportDiv = document.createElement('div');
   aportDiv.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px';
   aportDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">🏆 Apoya a tu entrenador</div>' +
-    '<div style="font-size:12px;color:#555;line-height:1.6">Próximamente podrás aportar directamente a tu entrenador desde aquí.</div>' +
+    '<div style="font-size:12px;color:var(--texto-medio);line-height:1.6">Próximamente podrás aportar directamente a tu entrenador desde aquí.</div>' +
     '<div style="width:100%;margin-top:12px;background:#111;border:1px solid #222;border-radius:8px;color:#333;font-size:13px;font-weight:700;padding:10px;box-sizing:border-box;text-align:center">🔒 Próximamente</div>';
   body.appendChild(aportDiv);
 
@@ -12190,7 +12346,7 @@ function tcAbrirConfig() {
   var devDiv = document.createElement('div');
   devDiv.style.cssText = 'background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px';
   devDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">☕ Invita un café al desarrollador</div>' +
-    '<div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:12px">¿Te gusta la app? Puedes apoyar su desarrollo con lo que quieras. Cada aporte ayuda a seguir mejorando.</div>' +
+    '<div style="font-size:12px;color:var(--texto-medio);line-height:1.6;margin-bottom:12px">¿Te gusta la app? Puedes apoyar su desarrollo con lo que quieras. Cada aporte ayuda a seguir mejorando.</div>' +
     '<button onclick="tcAportarDesarrollador()" style="width:100%;background:#0a1a2a;border:1px solid #2196f3;border-radius:8px;color:#2196f3;font-size:13px;font-weight:700;cursor:pointer;padding:10px;box-sizing:border-box">☕ Aportar al desarrollador</button>';
   body.appendChild(devDiv);
 
@@ -12209,7 +12365,7 @@ function tcAbrirConfig() {
       var color = estado==='aldia'?'#4caf50':estado==='proximo'?'#ff9800':'#f44336';
       var label = estado==='aldia'?'&#9989; Al día':estado==='proximo'?'&#9888; Próximo':'&#10060; Vencido';
       var precio = (d && d.precio) ? d.precio + ' ' + (d.moneda||'') : '';
-      box.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">Pago al entrenador</div><div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#555">' + precio + '</span><span style="font-size:12px;font-weight:700;color:' + color + '">' + label + '</span></div>';
+      box.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">Pago al entrenador</div><div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--texto-medio)">' + precio + '</span><span style="font-size:12px;font-weight:700;color:' + color + '">' + label + '</span></div>';
     }).catch(function(){});
   }
 }
@@ -12233,8 +12389,8 @@ function tcVerTerminos() {
   header.appendChild(tit);
   el.appendChild(header);
   var cont = document.createElement('div');
-  cont.style.cssText = 'padding:20px;color:#ccc;font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:16px';
-  cont.innerHTML = '<div style="text-align:center;padding:16px;background:#111;border-radius:14px;border:1px solid #1a1a1a"><div style="font-size:16px;font-weight:900;color:#e31e24;margin-bottom:4px">DT-APP</div><div style="font-size:11px;color:#555">@dt_entrenamientos &middot; Gestión Deportiva Digital</div><div style="font-size:10px;color:#333;margin-top:4px">Colombia &middot; Mayo 2026</div></div><div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px"><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">Resumen ejecutivo</div><div style="font-size:12px;color:#aaa;line-height:1.8">&#9679; DT-APP es una herramienta de gestión deportiva. No es IPS ni provee servicios médicos.<br>&#9679; Los pagos entre cliente y entrenador son acuerdos directos. DT-APP no intermedia.<br>&#9679; Los datos se almacenan localmente. DT-APP no tiene acceso a ellos.<br>&#9679; El cliente asume los riesgos de la práctica física. Consulta un médico antes de entrenar.<br>&#9679; Verifica siempre las certificaciones de tu entrenador antes de contratarlo.<br>&#9679; Los planes alimentarios son orientativos y no reemplazan al nutricionista.</div></div>';
+  cont.style.cssText = 'padding:20px;color:var(--texto-suave);font-size:13px;line-height:1.7;display:flex;flex-direction:column;gap:16px';
+  cont.innerHTML = '<div style="text-align:center;padding:16px;background:#111;border-radius:14px;border:1px solid #1a1a1a"><div style="font-size:16px;font-weight:900;color:#e31e24;margin-bottom:4px">DT-APP</div><div style="font-size:11px;color:var(--texto-medio)">@dt_entrenamientos &middot; Gestión Deportiva Digital</div><div style="font-size:10px;color:#333;margin-top:4px">Colombia &middot; Mayo 2026</div></div><div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px"><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">Resumen ejecutivo</div><div style="font-size:12px;color:var(--texto-medio);line-height:1.8">&#9679; DT-APP es una herramienta de gestión deportiva. No es IPS ni provee servicios médicos.<br>&#9679; Los pagos entre cliente y entrenador son acuerdos directos. DT-APP no intermedia.<br>&#9679; Los datos se almacenan localmente. DT-APP no tiene acceso a ellos.<br>&#9679; El cliente asume los riesgos de la práctica física. Consulta un médico antes de entrenar.<br>&#9679; Verifica siempre las certificaciones de tu entrenador antes de contratarlo.<br>&#9679; Los planes alimentarios son orientativos y no reemplazan al nutricionista.</div></div>';
   var btnCompleto = document.createElement('button');
   btnCompleto.style.cssText = 'background:#1a1a1a;border:1px solid #e31e24;border-radius:12px;color:#e31e24;font-size:13px;font-weight:700;cursor:pointer;padding:14px;width:100%';
   btnCompleto.innerHTML = '&#128196; Ver documento legal completo';
@@ -12265,8 +12421,8 @@ function tcVerCompletosTerminos() {
   header.appendChild(tit);
   el.appendChild(header);
   var cont = document.createElement('div');
-  cont.style.cssText = 'padding:20px;color:#ccc;font-size:12px;line-height:1.8;display:flex;flex-direction:column;gap:20px';
-  cont.innerHTML = '<div style="font-size:10px;color:#555;text-align:center">DT-APP &middot; @dt_entrenamientos &middot; Colombia &middot; Mayo 2026<br>Marco: Cód. Comercio &middot; Ley 1480/2011 &middot; Ley 1581/2012 &middot; Decreto 1074/2015 &middot; Ley 527/1999</div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">1. Términos y Condiciones</div><div style="color:#aaa"><b style="color:#fff">Cl. 1.1.</b> Contrato de adhesión electrónico válido conforme Ley 527/1999 y Cód. Comercio. El uso implica aceptación incondicional.<br><br><b style="color:#fff">Cl. 1.2.</b> DT-APP es exclusivamente herramienta SaaS de gestión deportiva. No es IPS, no provee servicios médicos ni nutricionales clínicos.<br><br><b style="color:#fff">Cl. 1.3.</b> Acceso restringido a mayores de 18 años. Menores requieren autorización de representante legal.<br><br><b style="color:#fff">Cl. 1.4.</b> Pagos entre entrenador y cliente son directos y externos. DT-APP no intermedia. Aportes al Plan Premium son voluntarios y no reembolsables.<br><br><b style="color:#fff">Cl. 1.5.</b> Código fuente, diseños y marcas protegidos por Ley 23/1982, Ley 1915/2018 y Decisión Andina 486/2000. Licencia personal, revocable y no transferible.<br><br><b style="color:#fff">Cl. 1.6.</b> Prohibido usar la plataforma para difundir material ilegal, alterar su funcionamiento o fines ajenos al acondicionamiento físico.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">2. Privacidad y Datos Personales</div><div style="color:#aaa"><b style="color:#fff">Cl. 2.1.</b> Cumple Ley 1581/2012 y Decreto 1074/2015.<br><br><b style="color:#fff">Cl. 2.2.</b> Toda información se almacena únicamente de forma local en el dispositivo del Entrenador. DT-APP no posee servidores centrales.<br><br><b style="color:#fff">Cl. 2.3.</b> El Entrenador es Responsable del Tratamiento. DT-APP es proveedor tecnológico sin acceso a los datos.<br><br><b style="color:#fff">Cl. 2.4.</b> Al vincularse, el Cliente autoriza al Entrenador a visualizar sus datos con fines deportivos. El Entrenador no podrá transferirlos a terceros.<br><br><b style="color:#fff">Cl. 2.5.</b> Solicitudes de supresión de datos deben dirigirse directamente al Entrenador.<br><br><b style="color:#fff">Cl. 2.6.</b> Cada usuario es responsable de la seguridad de su dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">3. Almacenamiento Local</div><div style="color:#aaa">DT-APP no implementa cookies de rastreo. Usa LocalStorage funcional para sesión, plantillas e historial deportivo. El usuario puede eliminar estos datos desde configuración del dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">4. Descargo de Responsabilidad</div><div style="color:#aaa"><b style="color:#fff">Cl. 4.1.</b> DT-APP no provee asesoramiento médico. No reemplaza consulta profesional.<br><br><b style="color:#fff">Cl. 4.2.</b> El Cliente asume voluntariamente los riesgos de la práctica física. DT-APP no responde por lesiones derivadas de ejecución incorrecta, preexistencias médicas o condiciones de instalaciones.<br><br><b style="color:#fff">Cl. 4.3.</b> Los planes alimentarios son orientativos. No reemplazan al nutricionista certificado.<br><br><b style="color:#fff">Cl. 4.4.</b> Es responsabilidad del Cliente verificar certificaciones del Entrenador. DT-APP desaprueba planes genéricos sin fundamento técnico.<br><br><b style="color:#fff">Cl. 4.5.</b> Toda controversia se rige por leyes de Colombia. Jurisdicción: tribunales de Medellín.</div></div><div style="font-size:10px;color:#333;text-align:center;padding:8px 0">Al usar DT-APP aceptas la totalidad de este Corpus Legal.<br>DT-APP &middot; @dt_entrenamientos &middot; Colombia, 2026</div>';
+  cont.style.cssText = 'padding:20px;color:var(--texto-suave);font-size:12px;line-height:1.8;display:flex;flex-direction:column;gap:20px';
+  cont.innerHTML = '<div style="font-size:10px;color:var(--texto-medio);text-align:center">DT-APP &middot; @dt_entrenamientos &middot; Colombia &middot; Mayo 2026<br>Marco: Cód. Comercio &middot; Ley 1480/2011 &middot; Ley 1581/2012 &middot; Decreto 1074/2015 &middot; Ley 527/1999</div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">1. Términos y Condiciones</div><div style="color:var(--texto-medio)"><b style="color:#fff">Cl. 1.1.</b> Contrato de adhesión electrónico válido conforme Ley 527/1999 y Cód. Comercio. El uso implica aceptación incondicional.<br><br><b style="color:#fff">Cl. 1.2.</b> DT-APP es exclusivamente herramienta SaaS de gestión deportiva. No es IPS, no provee servicios médicos ni nutricionales clínicos.<br><br><b style="color:#fff">Cl. 1.3.</b> Acceso restringido a mayores de 18 años. Menores requieren autorización de representante legal.<br><br><b style="color:#fff">Cl. 1.4.</b> Pagos entre entrenador y cliente son directos y externos. DT-APP no intermedia. Aportes al Plan Premium son voluntarios y no reembolsables.<br><br><b style="color:#fff">Cl. 1.5.</b> Código fuente, diseños y marcas protegidos por Ley 23/1982, Ley 1915/2018 y Decisión Andina 486/2000. Licencia personal, revocable y no transferible.<br><br><b style="color:#fff">Cl. 1.6.</b> Prohibido usar la plataforma para difundir material ilegal, alterar su funcionamiento o fines ajenos al acondicionamiento físico.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">2. Privacidad y Datos Personales</div><div style="color:var(--texto-medio)"><b style="color:#fff">Cl. 2.1.</b> Cumple Ley 1581/2012 y Decreto 1074/2015.<br><br><b style="color:#fff">Cl. 2.2.</b> Toda información se almacena únicamente de forma local en el dispositivo del Entrenador. DT-APP no posee servidores centrales.<br><br><b style="color:#fff">Cl. 2.3.</b> El Entrenador es Responsable del Tratamiento. DT-APP es proveedor tecnológico sin acceso a los datos.<br><br><b style="color:#fff">Cl. 2.4.</b> Al vincularse, el Cliente autoriza al Entrenador a visualizar sus datos con fines deportivos. El Entrenador no podrá transferirlos a terceros.<br><br><b style="color:#fff">Cl. 2.5.</b> Solicitudes de supresión de datos deben dirigirse directamente al Entrenador.<br><br><b style="color:#fff">Cl. 2.6.</b> Cada usuario es responsable de la seguridad de su dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">3. Almacenamiento Local</div><div style="color:var(--texto-medio)">DT-APP no implementa cookies de rastreo. Usa LocalStorage funcional para sesión, plantillas e historial deportivo. El usuario puede eliminar estos datos desde configuración del dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">4. Descargo de Responsabilidad</div><div style="color:var(--texto-medio)"><b style="color:#fff">Cl. 4.1.</b> DT-APP no provee asesoramiento médico. No reemplaza consulta profesional.<br><br><b style="color:#fff">Cl. 4.2.</b> El Cliente asume voluntariamente los riesgos de la práctica física. DT-APP no responde por lesiones derivadas de ejecución incorrecta, preexistencias médicas o condiciones de instalaciones.<br><br><b style="color:#fff">Cl. 4.3.</b> Los planes alimentarios son orientativos. No reemplazan al nutricionista certificado.<br><br><b style="color:#fff">Cl. 4.4.</b> Es responsabilidad del Cliente verificar certificaciones del Entrenador. DT-APP desaprueba planes genéricos sin fundamento técnico.<br><br><b style="color:#fff">Cl. 4.5.</b> Toda controversia se rige por leyes de Colombia. Jurisdicción: tribunales de Medellín.</div></div><div style="font-size:10px;color:#333;text-align:center;padding:8px 0">Al usar DT-APP aceptas la totalidad de este Corpus Legal.<br>DT-APP &middot; @dt_entrenamientos &middot; Colombia, 2026</div>';
   el.appendChild(cont);
   document.body.appendChild(el);
 }
@@ -12288,6 +12444,92 @@ function tcToggleSonidos(btn) {
   btn.innerHTML = sonidos ? '&#128276; On' : '&#128277; Off';
   btn.style.background = sonidos ? '#e31e24' : '#1a1a1a';
 }
+</script>
+
+<script>
+// ═══════════════════════════════
+// 🔐 AUTH
+// ═══════════════════════════════
+let _sesion = JSON.parse(localStorage.getItem('dt_sesion') || 'null');
+
+function loginTab(tab) {
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-registro').style.display = tab === 'registro' ? 'block' : 'none';
+  document.getElementById('tab-login').style.background = tab === 'login' ? '#e63946' : 'transparent';
+  document.getElementById('tab-login').style.color = tab === 'login' ? 'white' : '#888';
+  document.getElementById('tab-registro').style.background = tab === 'registro' ? '#e63946' : 'transparent';
+  document.getElementById('tab-registro').style.color = tab === 'registro' ? 'white' : '#888';
+}
+
+function regRol(rol) {
+  document.getElementById('reg-tab-ent').style.background = rol === 'entrenador' ? '#e63946' : 'transparent';
+  document.getElementById('reg-tab-ent').style.color = rol === 'entrenador' ? 'white' : '#888';
+  document.getElementById('reg-tab-cli').style.background = rol === 'cliente' ? '#e63946' : 'transparent';
+  document.getElementById('reg-tab-cli').style.color = rol === 'cliente' ? 'white' : '#888';
+  document.getElementById('reg-codigo-div').style.display = rol === 'cliente' ? 'block' : 'none';
+  document.getElementById('reg-tab-ent').dataset.rol = rol;
+}
+
+async function hacerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-pass').value.trim();
+  if (!email || !password) return mostrarErrorLogin('Completa todos los campos');
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, password})
+    });
+    const data = await res.json();
+    if (data.ok) {
+      localStorage.setItem('dt_sesion', JSON.stringify(data));
+      _sesion = data;
+      document.getElementById('pantalla-login').style.display = 'none';
+      iniciarApp();
+    } else {
+      mostrarErrorLogin(data.error || 'Error al iniciar sesión');
+    }
+  } catch(e) {
+    mostrarErrorLogin('Error de conexión');
+  }
+}
+
+function mostrarErrorLogin(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function mostrarErrorReg(msg) {
+  const el = document.getElementById('reg-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+
+
+function iniciarApp() {
+  if (!_sesion) {
+    document.getElementById('pantalla-login').style.display = 'flex';
+    return;
+  }
+  document.getElementById('pantalla-login').style.display = 'none';
+  if (_sesion.rol === 'entrenador') {
+    if (typeof init === 'function') init();
+  } else if (_sesion.rol === 'cliente') {
+    if (typeof tcInit === 'function') tcInit();
+  }
+}
+
+// Al cargar la página
+window.addEventListener('DOMContentLoaded', () => {
+  if (_sesion) {
+    document.getElementById('pantalla-login').style.display = 'none';
+    iniciarApp();
+  } else {
+    document.getElementById('pantalla-login').style.display = 'flex';
+  }
+});
 </script>
 </body>
 <script>
@@ -12433,7 +12675,7 @@ async function abrirChatEntrenador() {
   document.getElementById('chat-ent-lista').style.flexDirection = 'column';
   document.getElementById('chat-ent-individual').style.display = 'none';
   if (!window._adminUsuarios || window._adminUsuarios.length === 0) {
-    window._adminUsuarios = await fetch('/api/usuarios').then(r=>r.json()).catch(()=>[]);
+    window._adminUsuarios = await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).catch(()=>[]);
   }
   cargarListaChatClientes();
 }
@@ -12667,7 +12909,7 @@ function tcActivarPremiumConfig() {
     if (d.ok) {
       alert('¡Premium activado! Recarga la app.');
       _tcUsuario.premium = true;
-      var hasta = d.hasta ? '<div style="font-size:11px;color:#555;margin-top:4px">Activo hasta: ' + d.hasta + '</div>' : '';
+      var hasta = d.hasta ? '<div style="font-size:11px;color:var(--texto-medio);margin-top:4px">Activo hasta: ' + d.hasta + '</div>' : '';
       document.getElementById('tc-cod-premium').parentNode.innerHTML = '<div style="color:#4caf50;font-weight:700">✅ Premium activo</div>' + hasta;
     } else {
       alert(d.msg || 'Código inválido');

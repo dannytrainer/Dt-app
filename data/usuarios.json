@@ -44,7 +44,8 @@
       "martes": [
         "2026-06-01"
       ]
-    }
+    },
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778354312296",
@@ -71,7 +72,8 @@
     },
     "sesiones_total": 2,
     "sesiones_ciclo": 2,
-    "foto": "data/fotos/1778354312296/perfil.jpg"
+    "foto": "data/fotos/1778354312296/perfil.jpg",
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778376855974",
@@ -96,7 +98,8 @@
     "msg_pago": "",
     "sesiones_total": 3,
     "sesiones_ciclo": 3,
-    "foto": "data/fotos/1778376855974/perfil.jpg"
+    "foto": "data/fotos/1778376855974/perfil.jpg",
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778377049231",
@@ -137,7 +140,8 @@
       ]
     },
     "premium": true,
-    "premium_hasta": "2026-06-03"
+    "premium_hasta": "2026-06-03",
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778377208321",
@@ -164,7 +168,8 @@
       "lunes": [
         "2026-05-25"
       ]
-    }
+    },
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778377380425",
@@ -193,7 +198,8 @@
       "lunes": [
         "2026-05-24"
       ]
-    }
+    },
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778377616786",
@@ -226,8 +232,9 @@
         "2026-05-23"
       ]
     },
-    "sesiones_total": 7,
-    "sesiones_ciclo": 7
+    "sesiones_total": 8,
+    "sesiones_ciclo": 8,
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778378152347",
@@ -248,7 +255,8 @@
       "etiqueta": "hipertrofia",
       "notas": "Rino plastia \nMamoplastia "
     },
-    "foto": "data/fotos/1778378152347/perfil.jpg"
+    "foto": "data/fotos/1778378152347/perfil.jpg",
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778379130440",
@@ -270,7 +278,8 @@
       "notas": "Columna \nCadera\nMédula ",
       "unidades": "kg"
     },
-    "msg_pago": "Hola vale para recordarte que ya viene quincena 🤖🤭"
+    "msg_pago": "Hola vale para recordarte que ya viene quincena 🤖🤭",
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778379342983",
@@ -290,7 +299,8 @@
       "altura": "172",
       "etiqueta": "hipertrofia",
       "notas": ""
-    }
+    },
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778379484797",
@@ -313,7 +323,8 @@
       "unidades": "kg"
     },
     "foto": "data/fotos/1778379484797/perfil.jpg",
-    "msg_pago": "David. BN o no por acá Daniel bot recordando que nuestra fecha de cobro son los 20"
+    "msg_pago": "David. BN o no por acá Daniel bot recordando que nuestra fecha de cobro son los 20",
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778379762356",
@@ -325,7 +336,8 @@
     "tipo_pago": "mensual",
     "dia_pago": null,
     "dia_pago2": null,
-    "estado_pago": "aldia"
+    "estado_pago": "aldia",
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778389775722",
@@ -353,7 +365,8 @@
       "notas": "",
       "unidades": "kg",
       "fecha_nacimiento": "1995-06-16"
-    }
+    },
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1778687454932",
@@ -375,7 +388,8 @@
       "etiqueta": "hipertrofia",
       "notas": ""
     },
-    "foto": "data/fotos/1778687454932/perfil.jpg"
+    "foto": "data/fotos/1778687454932/perfil.jpg",
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1779311725122",
@@ -396,7 +410,8 @@
       "etiqueta": "hipertrofia",
       "notas": "Mocosa ",
       "unidades": "kg"
-    }
+    },
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1780069487489",
@@ -421,7 +436,8 @@
     "msg_pago": "Hola NATI pro acá Daniel bot recordando  que se cumple la fecha el dia 30🤖🤭",
     "foto": "data/fotos/1780069487489/perfil.jpg",
     "premium": true,
-    "premium_hasta": "2026-06-02"
+    "premium_hasta": "2026-06-02",
+    "entrenador_id": "ent_001"
   },
   {
     "id": "1780410974278",
@@ -434,6 +450,44 @@
     "dia_pago": null,
     "dia_pago2": null,
     "estado_pago": "aldia",
-    "msg_pago": ""
+    "msg_pago": "",
+    "entrenador_id": "ent_001"
+  },
+  {
+    "id": "1780494967362",
+    "activo": true,
+    "nombre": "Santiago Restrpo",
+    "telefono": "573015192634",
+    "tipo": "asesorado",
+    "hora_envio": "07:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia"
+  },
+  {
+    "id": "1780513976565",
+    "activo": true,
+    "nombre": "Prueba",
+    "telefono": "573006197955",
+    "tipo": "asesorado",
+    "hora_envio": "07:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia"
+  },
+  {
+    "id": "1780518763692",
+    "activo": true,
+    "entrenador_id": "ent_1780471058170",
+    "nombre": "Prueba",
+    "telefono": "573006197955",
+    "tipo": "asesorado",
+    "hora_envio": "07:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia"
   }
 ]

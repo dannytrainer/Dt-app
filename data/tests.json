@@ -1647,6 +1647,30 @@
           "score": 80
         },
         "scoreTotal": 55
+      },
+      {
+        "fecha": "2026-06-03",
+        "tipo": "fuerza",
+        "peso": 45,
+        "pecho": {
+          "kg": 10,
+          "reps": 15,
+          "rm": 15,
+          "score": 20
+        },
+        "femoral": {
+          "kg": 40,
+          "reps": 5,
+          "rm": 47,
+          "score": 40
+        },
+        "cuad": {
+          "kg": 25,
+          "reps": 6,
+          "rm": 30,
+          "score": 20
+        },
+        "scoreTotal": 27
       }
     ]
   },
