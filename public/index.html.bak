@@ -9767,7 +9767,6 @@ function initRol() {
     const tel = localStorage.getItem('dt_cliente_tel');
     const id = localStorage.getItem('dt_cliente_id');
     if (tel && id) {
-      if (!JSON.parse(localStorage.getItem('dt_sesion')||'{}').email) { localStorage.setItem('dt_sesion', JSON.stringify({email: tel.replace(/\D/g,'')+'@dtapp.com', rol:'cliente', id: id})); }
       mostrarTerminalCliente(tel);
     } else {
       mostrarPantalla('pantalla-rol');

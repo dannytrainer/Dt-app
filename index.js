@@ -1125,6 +1125,37 @@ app.post('/api/habilitar-dia/:id', (req, res) => {
 });
 
 
+
+// ═══════════════════════════════
+// 🔐 CAMBIAR CONTRASEÑA
+// ═══════════════════════════════
+app.post('/api/auth/cambiar-password', (req, res) => {
+  console.log('CAMBIAR-PASS recibido:', JSON.stringify(req.body));
+  const { email, password_actual, password_nuevo } = req.body;
+  if (!email || !password_actual || !password_nuevo) 
+    return res.json({ ok: false, msg: 'Datos incompletos' });
+  
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  
+  // Buscar en entrenadores
+  const ent = cuentas.entrenadores.find(e => e.email === email && e.password === password_actual);
+  if (ent) {
+    ent.password = password_nuevo;
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, msg: 'Contraseña actualizada' });
+  }
+  
+  // Buscar en clientes
+  const cli = cuentas.clientes.find(c => c.email === email && c.password === password_actual);
+  if (cli) {
+    cli.password = password_nuevo;
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, msg: 'Contraseña actualizada' });
+  }
+  
+  return res.json({ ok: false, msg: 'Contraseña actual incorrecta' });
+});
+
 // ═══════════════════════════════
 // 🔐 AUTENTICACIÓN
 // ═══════════════════════════════

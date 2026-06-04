@@ -45,7 +45,9 @@
         "2026-06-01"
       ]
     },
-    "entrenador_id": "ent_001"
+    "entrenador_id": "ent_001",
+    "premium": true,
+    "premium_hasta": "2026-07-04"
   },
   {
     "id": "1778354312296",
