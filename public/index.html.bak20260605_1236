@@ -12683,6 +12683,7 @@ function mostrarSeleccionRol(d) {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
+  alert('mostrarSeleccionRol d=' + JSON.stringify(d));
   document.getElementById('sel-bienvenida').textContent = '¡Hola, ' + (d.nombre || 'Usuario') + '!';
   const cont = document.getElementById('sel-botones');
   cont.innerHTML = '';
@@ -12704,6 +12705,7 @@ async function seleccionarRolGoogle(r) {
   const googleData = JSON.parse(localStorage.getItem('dt_google_data') || '{}');
   const sesionActual = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   const data = Object.assign({}, sesionActual, googleData);
+  alert('email=' + data.email + ' rol=' + r.rol + ' id=' + r.id);
   let rolData = r;
   // Si es usuario nuevo o no tiene ese rol, crearlo en el backend
   if (!r.id) {

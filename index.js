@@ -198,10 +198,18 @@ module.exports = { getSock: () => sock };
 
 async function conectarWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState('auth');
-  sock = makeWASocket({ auth: state, printQRInTerminal: true });
+  sock = makeWASocket({ auth: state, printQRInTerminal: false });
   sock.ev.on('creds.update', saveCreds);
-  sock.ev.on('connection.update', ({ connection, lastDisconnect, qr }) => {
-    if (qr) qrcode.generate(qr, { small: true });
+
+  if (!sock.authState.creds.registered) {
+    setTimeout(async () => {
+      const code = await sock.requestPairingCode('573006197897');
+      console.log('🔑 CÓDIGO DE VINCULACIÓN: ' + code);
+      console.log('👉 WhatsApp > Dispositivos vinculados > Vincular con número');
+    }, 3000);
+  }
+
+  sock.ev.on('connection.update', ({ connection, lastDisconnect }) => {
     if (connection === 'close') { global.waConectado=false;
       const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
       if (shouldReconnect) conectarWhatsApp();
@@ -1326,11 +1334,11 @@ app.post('/api/auth/login', (req, res) => {
   
   // Buscar en entrenadores
   const ent = cuentas.entrenadores.find(e => e.email === email && e.password === password);
-  if (ent) return res.json({ ok: true, rol: 'entrenador', id: ent.id, nombre: ent.nombre, roles: [{rol:'entrenador', id: ent.id, nombre: ent.nombre}, {rol:'cliente', id: null, nombre: ent.nombre}] });
+  if (ent) return res.json({ ok: true, rol: 'entrenador', id: ent.id, email: ent.email, nombre: ent.nombre, roles: [{rol:'entrenador', id: ent.id, nombre: ent.nombre}, {rol:'cliente', id: null, nombre: ent.nombre}] });
   
   // Buscar en clientes
   const cli = cuentas.clientes.find(c => c.email === email && c.password === password);
-  if (cli) return res.json({ ok: true, rol: 'cliente', id: cli.id, usuario_id: cli.usuario_id, entrenador_id: cli.entrenador_id, roles: [{rol:'entrenador', id: null, nombre: cli.nombre}, {rol:'cliente', id: cli.id, nombre: cli.nombre}] });
+  if (cli) return res.json({ ok: true, rol: 'cliente', id: cli.id, email: cli.email, nombre: cli.nombre, usuario_id: cli.usuario_id, entrenador_id: cli.entrenador_id, roles: [{rol:'entrenador', id: null, nombre: cli.nombre}, {rol:'cliente', id: cli.id, nombre: cli.nombre}] });
   
   return res.json({ ok: false, error: 'Email o contraseña incorrectos' });
 });
