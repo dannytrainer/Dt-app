@@ -736,9 +736,13 @@ app.post('/api/alimentacion/:id/plan', (req, res) => {
   }
 });
 
-app.get('/api/horarios', (req, res) => res.json(cargarJSON('horarios.json')));
+app.get('/api/horarios', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  res.json(cargarJSON('horarios_' + eid + '.json', []));
+});
 app.post('/api/horarios', (req, res) => {
-  guardarJSON('horarios.json', req.body);
+  const eid = req.body.entrenador_id || 'ent_001';
+  guardarJSON('horarios_' + eid + '.json', req.body);
   res.json({ok:true});
 });
 

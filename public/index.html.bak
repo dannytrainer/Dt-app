@@ -3187,7 +3187,8 @@ let _horarioDiasSel = [];
 let _horarioEditId = null;
 
 async function cargarHorarios(){
-  const res = await fetch('/api/horarios');
+  const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  const res = await fetch('/api/horarios?entrenador_id=' + _eid);
   _horariosData = await res.json();
   if(!_horariosData.recurrentes) _horariosData.recurrentes = [];
   if(!_horariosData.unicos) _horariosData.unicos = [];
@@ -3555,6 +3556,7 @@ async function guardarHorario(){
     }
   }
 
+  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
   await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
   toast('✅ Horario guardado');
   cerrarModalHorario();
@@ -3622,6 +3624,7 @@ async function eliminarHorario(){
   await cargarHorarios();
   _horariosData.recurrentes = _horariosData.recurrentes.filter(e=>e.id!==_horarioEditId);
   _horariosData.unicos = _horariosData.unicos.filter(e=>e.id!==_horarioEditId);
+  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
   await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
   toast('🗑️ Eliminado');
   cerrarModalHorario();

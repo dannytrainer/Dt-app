@@ -89,5 +89,6 @@
     }
   ],
   "premium_entrenador": true,
-  "premium_entrenador_hasta": "2026-07-04"
+  "premium_entrenador_hasta": "2026-07-04",
+  "entrenador_id": "ent_001"
 }

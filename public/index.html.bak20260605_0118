@@ -9800,18 +9800,16 @@ function loginEntrenador() {
     if (data.ok) {
       const emailUsado = document.getElementById('input-email-entrenador') ? document.getElementById('input-email-entrenador').value : 'danielgaviriabotero@gmail.com';
       data.email = data.email || emailUsado;
-      data.roles = data.roles || [{rol:'entrenador',id:data.id},{rol:'cliente',id:null}];
+      localStorage.setItem(ROL_KEY, 'entrenador');
       localStorage.setItem('dt_sesion', JSON.stringify(data));
-      localStorage.setItem(ROL_KEY, data.rol || 'entrenador');
-      mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
+      mostrarApp();
     } else {
       document.getElementById('error-pass').style.display = 'block';
     }
   }).catch(() => {
     if (pass === PASS_ENTRENADOR) {
       localStorage.setItem(ROL_KEY, 'entrenador');
-      localStorage.setItem('dt_sesion', JSON.stringify({email:'danielgaviriabotero@gmail.com', rol:'entrenador'}));
-      mostrarSeleccionRol({nombre:'Danny Trainer', email:'danielgaviriabotero@gmail.com', roles:[{rol:'entrenador',id:'ent_001'},{rol:'cliente',id:null}]});
+      mostrarApp();
     } else {
       document.getElementById('error-pass').style.display = 'block';
     }
@@ -9830,11 +9828,11 @@ function loginCliente() {
     const u = usuarios.find(u => u.telefono && u.telefono.replace(/\s/g,'') === tel && u.activo);
     if (u) {
       if(codeBox) codeBox.style.display = 'none';
-      localStorage.setItem('dt_cliente_id', u.id);
+      localStorage.setItem(ROL_KEY, 'cliente');
       localStorage.setItem('dt_cliente_tel', tel);
-      const emailCli = tel.replace(/\D/g,'')+'@dtapp.com';
-      localStorage.setItem('dt_sesion', JSON.stringify({email: emailCli, rol:'cliente', id: u.id}));
-      mostrarSeleccionRol({nombre: u.nombre||tel, email: emailCli, roles:[{rol:'entrenador',id:null},{rol:'cliente',id:u.id,usuario_id:u.id}]});
+      localStorage.setItem('dt_cliente_id', u.id);
+      localStorage.setItem('dt_sesion', JSON.stringify({email: tel.replace(/\D/g,'')+'@dtapp.com', rol:'cliente', id: u.id}));
+      mostrarTerminalCliente(tel);
     } else {
       if(codeBox && codeBox.style.display === 'none') {
         codeBox.style.display = 'block';
@@ -9848,11 +9846,11 @@ function loginCliente() {
         body: JSON.stringify({telefono: tel, codigo})
       }).then(r=>r.json()).then(data => {
         if (data.ok) {
-          localStorage.setItem('dt_cliente_id', data.id);
+          localStorage.setItem(ROL_KEY, 'cliente');
           localStorage.setItem('dt_cliente_tel', tel);
-          const emailCli2 = tel.replace(/\D/g,'')+'@dtapp.com';
-          localStorage.setItem('dt_sesion', JSON.stringify({email: emailCli2, rol:'cliente', id: data.id}));
-          mostrarSeleccionRol({nombre: tel, email: emailCli2, roles:[{rol:'entrenador',id:null},{rol:'cliente',id:data.id,usuario_id:data.id}]});
+          localStorage.setItem('dt_cliente_id', data.id);
+          mostrarTerminalCliente(tel);
+          localStorage.setItem('dt_sesion', JSON.stringify({email: tel.replace(/\D/g,'')+'@dtapp.com', rol:'cliente', id: data.id}));
         } else {
           if(errorVinc){ errorVinc.style.display='block'; errorVinc.textContent = data.error || 'Código inválido'; }
         }
@@ -9917,11 +9915,11 @@ async function hacerRegistro() {
     });
     const data = await res.json();
     if (data.ok) {
-      data.roles = data.roles || [{rol:'entrenador',id:data.id},{rol:'cliente',id:data.usuario_id||null}];
       localStorage.setItem('dt_sesion', JSON.stringify(data));
       localStorage.setItem(ROL_KEY, data.rol);
       document.getElementById('pantalla-registro').style.display = 'none';
-      mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
+      if (data.rol === 'entrenador') mostrarApp();
+      else if (data.rol === 'cliente') mostrarTerminalCliente(data.usuario_id);
     } else {
       error.textContent = data.error || 'Error al registrarse';
       error.style.display = 'block';
@@ -9956,11 +9954,14 @@ function loginUnificado() {
     body: JSON.stringify({email, password: pass})
   }).then(r=>r.json()).then(data => {
     if (data.ok) {
-      data.roles = data.roles || [{rol:'entrenador',id:data.id},{rol:'cliente',id:data.usuario_id||null}];
       localStorage.setItem('dt_sesion', JSON.stringify(data));
       localStorage.setItem(ROL_KEY, data.rol);
-      if (data.usuario_id) localStorage.setItem('dt_cliente_id', data.usuario_id);
-      mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
+      if (data.rol === 'entrenador') {
+        mostrarApp();
+      } else if (data.rol === 'cliente') {
+        localStorage.setItem('dt_cliente_id', data.usuario_id);
+        mostrarTerminalCliente(data.usuario_id);
+      }
     } else {
       error.textContent = data.error || 'Correo o contraseña incorrectos';
       error.style.display = 'block';
@@ -9986,19 +9987,9 @@ function salirARol() {
   if (sesion.email && sesion.email.indexOf('@dtapp.com') === -1) {
     cambiarRol();
   } else {
-    // Cuenta normal: mostrar selector de rol
-    const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+    // Cuenta normal: volver a pantalla login
     ['dt_rol','dt_cliente_tel','dt_cliente_id','dt_ultimo_rol'].forEach(k => localStorage.removeItem(k));
-    if (sesion.email) {
-      fetch('/api/auth/roles?email=' + encodeURIComponent(sesion.email))
-        .then(r=>r.json()).then(d => {
-          d.nombre = d.nombre || sesion.nombre || sesion.email;
-          localStorage.setItem('dt_google_data', JSON.stringify(d));
-          mostrarSeleccionRol(d);
-        }).catch(() => mostrarPantalla('pantalla-rol'));
-    } else {
-      mostrarPantalla('pantalla-rol');
-    }
+    mostrarPantalla('pantalla-rol');
   }
 }
 
@@ -12647,23 +12638,6 @@ function checkGoogleLogin() {
   const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   const rol = localStorage.getItem('dt_rol');
   if (sesion.email && rol) {
-    if (sesion.roles && sesion.roles.length > 0) {
-      mostrarSeleccionRol({nombre: sesion.nombre||sesion.email, email: sesion.email, roles: sesion.roles});
-      return true;
-    }
-    // Sesión sin roles — buscarlos
-    alert('buscando roles para: ' + sesion.email);
-    fetch('/api/auth/roles?email=' + encodeURIComponent(sesion.email))
-      .then(r=>r.json()).then(d => {
-        d.nombre = d.nombre || sesion.nombre || sesion.email;
-        const s = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
-        s.roles = d.roles;
-        localStorage.setItem('dt_sesion', JSON.stringify(s));
-        mostrarSeleccionRol(d);
-      }).catch(() => {
-        if (rol === 'entrenador') mostrarApp();
-      });
-    return true;
     if (rol === 'entrenador') { mostrarApp(); return true; }
     if (rol === 'cliente') {
       const id = localStorage.getItem('dt_cliente_id') || sesion.usuario_id;
@@ -12701,17 +12675,16 @@ function mostrarSeleccionRol(d) {
     btn.style.cssText = 'width:100%;background:' + (r.rol==='entrenador'?'linear-gradient(135deg,#e31e24,#a01018)':'linear-gradient(135deg,#1a1a1a,#111)') + ';border:2px solid ' + (esUltimo?'#e31e24':'#2a2a2a') + ';border-radius:16px;color:#fff;font-size:15px;font-weight:700;padding:18px 16px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:14px;box-shadow:0 4px 20px rgba(0,0,0,0.3)';
     btn.innerHTML = (r.rol==='entrenador' ? '🏋️ <div><div style="font-size:15px">Entrenador</div><div style="font-size:11px;opacity:0.7;font-weight:400">Panel de gestión</div></div>' : '👤 <div><div style="font-size:15px">Cliente</div><div style="font-size:11px;opacity:0.7;font-weight:400">Mi entrenamiento</div></div>');
     if (esUltimo) btn.innerHTML += '<span style="margin-left:auto;font-size:10px;opacity:0.7">último usado</span>';
-    btn.onclick = function(){ seleccionarRolGoogle(r); };
+    btn.onclick = function(){ seleccionarRol(r); };
     cont.appendChild(btn);
   });
   panel.style.display = 'flex';
 }
 
-async function seleccionarRolGoogle(r) {
+async function seleccionarRol(r) {
   const googleData = JSON.parse(localStorage.getItem('dt_google_data') || '{}');
   const sesionActual = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   const data = Object.assign({}, sesionActual, googleData);
-  alert('email=' + data.email + ' rol=' + r.rol + ' id=' + r.id);
   let rolData = r;
   // Si es usuario nuevo o no tiene ese rol, crearlo en el backend
   if (!r.id) {

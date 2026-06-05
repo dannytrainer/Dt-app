@@ -148,9 +148,11 @@ app.get('/api/auth/roles', (req, res) => {
   const roles = [];
   const ent = cuentas.entrenadores.find(e => e.email === email);
   const cli = cuentas.clientes.find(c => c.email === email);
-  if (ent) roles.push({ rol:'entrenador', id:ent.id, nombre:ent.nombre });
-  if (cli) roles.push({ rol:'cliente', id:cli.id, usuario_id:cli.usuario_id, nombre:cli.nombre });
-  res.json({ email, nombre: (ent||cli||{}).nombre, roles });
+  const cuenta = ent || cli;
+  const nombreCuenta = cuenta ? cuenta.nombre : email;
+  roles.push({ rol:'entrenador', id: ent ? ent.id : null, nombre: nombreCuenta });
+  roles.push({ rol:'cliente', id: cli ? cli.id : null, usuario_id: cli ? cli.usuario_id : null, nombre: nombreCuenta });
+  res.json({ email, nombre: nombreCuenta, roles });
 });
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }));
@@ -164,8 +166,9 @@ app.get('/auth/google/callback',
     const esEnt = cuentas.entrenadores.find(e => e.email === email);
     const esCli = cuentas.clientes.find(c => c.email === email);
     const roles = [];
-    if (esEnt) roles.push({rol:'entrenador', id: esEnt.id, nombre: esEnt.nombre});
-    if (esCli) roles.push({rol:'cliente', id: esCli.id, usuario_id: esCli.usuario_id, nombre: esCli.nombre});
+    const nombreGoogle = (esEnt||esCli||{}).nombre || nombre;
+    roles.push({rol:'entrenador', id: esEnt ? esEnt.id : null, nombre: nombreGoogle});
+    roles.push({rol:'cliente', id: esCli ? esCli.id : null, usuario_id: esCli ? esCli.usuario_id : null, nombre: nombreGoogle});
     const data = JSON.stringify({ email, nombre, roles });
     res.send(`<script>
       localStorage.setItem('dt_google_data', '${data.replace(/'/g, "\'")}');
@@ -1067,14 +1070,16 @@ app.get('/api/enciclopedia', (req, res) => {
 });
 
 app.get('/api/enciclopedia/personalizados', (req, res) => {
-  const data = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const eid = req.query.entrenador_id || 'ent_001';
+  const data = cargarPersonalizados(eid);
   res.json(data.ejercicios || []);
 });
 
 app.post('/api/enciclopedia/personalizados', (req, res) => {
+  const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
   const config = cargarJSON('config.json', {});
   const plan = config.plan || 'free';
-  const data = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const data = cargarPersonalizados(eid);
   if (!data.ejercicios) data.ejercicios = [];
   if (plan === 'free' && data.ejercicios.length >= 10)
     return res.status(403).json({ error: 'Límite del plan Free alcanzado (10 ejercicios)' });
@@ -1085,7 +1090,8 @@ app.post('/api/enciclopedia/personalizados', (req, res) => {
 });
 
 app.put('/api/enciclopedia/personalizados/:id', (req, res) => {
-  const data = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const data = cargarPersonalizados(eid);
   const idx = (data.ejercicios||[]).findIndex(e => e.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
   data.ejercicios[idx] = { ...data.ejercicios[idx], ...req.body };
@@ -1094,7 +1100,8 @@ app.put('/api/enciclopedia/personalizados/:id', (req, res) => {
 });
 
 app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
-  const data = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const eid = req.query.entrenador_id || 'ent_001';
+  const data = cargarPersonalizados(eid);
   data.ejercicios = (data.ejercicios||[]).filter(e => e.id !== req.params.id);
   guardarJSON('enciclopedia_personalizados.json', data);
   res.json({ ok: true });
@@ -1319,11 +1326,11 @@ app.post('/api/auth/login', (req, res) => {
   
   // Buscar en entrenadores
   const ent = cuentas.entrenadores.find(e => e.email === email && e.password === password);
-  if (ent) return res.json({ ok: true, rol: 'entrenador', id: ent.id, nombre: ent.nombre });
+  if (ent) return res.json({ ok: true, rol: 'entrenador', id: ent.id, nombre: ent.nombre, roles: [{rol:'entrenador', id: ent.id, nombre: ent.nombre}, {rol:'cliente', id: null, nombre: ent.nombre}] });
   
   // Buscar en clientes
   const cli = cuentas.clientes.find(c => c.email === email && c.password === password);
-  if (cli) return res.json({ ok: true, rol: 'cliente', id: cli.id, usuario_id: cli.usuario_id, entrenador_id: cli.entrenador_id });
+  if (cli) return res.json({ ok: true, rol: 'cliente', id: cli.id, usuario_id: cli.usuario_id, entrenador_id: cli.entrenador_id, roles: [{rol:'entrenador', id: null, nombre: cli.nombre}, {rol:'cliente', id: cli.id, nombre: cli.nombre}] });
   
   return res.json({ ok: false, error: 'Email o contraseña incorrectos' });
 });
@@ -1341,12 +1348,13 @@ app.post('/api/auth/registro', (req, res) => {
       id: 'ent_' + Date.now(),
       email, password, nombre,
       codigo_vinculacion: nombre.substring(0,4).toUpperCase() + Date.now().toString().slice(-4),
+      roles: ['entrenador', 'cliente'],
       activo: true,
       fecha_registro: new Date().toISOString().split('T')[0]
     };
     cuentas.entrenadores.push(nuevo);
     guardarJSON('cuentas.json', cuentas);
-    return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, nombre: nuevo.nombre });
+    return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, nombre: nuevo.nombre, roles: [{rol:'entrenador', id: nuevo.id, nombre: nuevo.nombre}, {rol:'cliente', id: null, nombre: nuevo.nombre}] });
   }
   
   if (rol === 'cliente') {
@@ -1362,14 +1370,41 @@ app.post('/api/auth/registro', (req, res) => {
       id: cliId,
       email, password, nombre,
       entrenador_id, usuario_id,
+      roles: ['entrenador', 'cliente'],
       activo: true,
       fecha_registro: new Date().toISOString().split('T')[0]
     };
     cuentas.clientes.push(nuevo);
     guardarJSON('cuentas.json', cuentas);
-    return res.json({ ok: true, rol: 'cliente', id: nuevo.id, nombre: nuevo.nombre, entrenador_id });
+    return res.json({ ok: true, rol: 'cliente', id: nuevo.id, nombre: nuevo.nombre, entrenador_id, roles: [{rol:'entrenador', id: null, nombre: nuevo.nombre}, {rol:'cliente', id: nuevo.id, nombre: nuevo.nombre}] });
   }
   
+  return res.json({ ok: false, error: 'Rol inválido' });
+});
+
+app.post('/api/auth/crear-perfil', (req, res) => {
+  const { email, nombre, rol } = req.body;
+  if (!email) return res.json({ ok: false, error: 'Email requerido' });
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  // Buscar si ya existe
+  const ent = cuentas.entrenadores.find(e => e.email === email);
+  if (ent && rol === 'entrenador') return res.json({ ok: true, rol: 'entrenador', id: ent.id, nombre: ent.nombre });
+  const cli = cuentas.clientes.find(c => c.email === email);
+  if (cli && rol === 'cliente') return res.json({ ok: true, rol: 'cliente', id: cli.id, usuario_id: cli.usuario_id, nombre: cli.nombre });
+  // Si no existe, crear
+  if (rol === 'entrenador') {
+    const nuevo = { id: 'ent_' + Date.now(), email, nombre: nombre||email, password: '', codigo_vinculacion: (nombre||email).substring(0,4).toUpperCase() + Date.now().toString().slice(-4), roles: ['entrenador','cliente'], activo: true, fecha_registro: new Date().toISOString().split('T')[0] };
+    cuentas.entrenadores.push(nuevo);
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, nombre: nuevo.nombre });
+  }
+  if (rol === 'cliente') {
+    const cliId = 'cli_' + Date.now();
+    const nuevo = { id: cliId, email, nombre: nombre||email, password: '', usuario_id: cliId, entrenador_id: null, roles: ['entrenador','cliente'], activo: true, fecha_registro: new Date().toISOString().split('T')[0] };
+    cuentas.clientes.push(nuevo);
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, rol: 'cliente', id: cliId, usuario_id: cliId, nombre: nuevo.nombre });
+  }
   return res.json({ ok: false, error: 'Rol inválido' });
 });
 
