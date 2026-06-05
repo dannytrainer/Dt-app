@@ -491,5 +491,38 @@
     "dia_pago": null,
     "dia_pago2": null,
     "estado_pago": "aldia"
+  },
+  {
+    "id": "cli_1780622095140",
+    "activo": true,
+    "nombre": "Anlly",
+    "telefono": "estefania.fq092@hotmail.com",
+    "tipo": "asesorado",
+    "hora_envio": "08:00",
+    "dia_pago": 1,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-06-04",
+      "sexo": "",
+      "edad": "",
+      "altura": "",
+      "objetivo": "",
+      "etiqueta": "general",
+      "notas": "",
+      "unidades": "kg",
+      "fecha_nacimiento": ""
+    },
+    "tipo_pago": "mensual",
+    "dia_pago2": null,
+    "sesiones_total": 1,
+    "sesiones_ciclo": 1,
+    "ciclo_inicio": "2026-06-04",
+    "msg_pago": "",
+    "msg_q1": "",
+    "msg_q2": "",
+    "foto": "",
+    "vinculado": true,
+    "entrenador_id": "ent_001",
+    "dias_desbloqueados": {}
   }
 ]

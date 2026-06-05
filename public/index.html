@@ -3187,7 +3187,8 @@ let _horarioDiasSel = [];
 let _horarioEditId = null;
 
 async function cargarHorarios(){
-  const res = await fetch('/api/horarios');
+  const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  const res = await fetch('/api/horarios?entrenador_id=' + _eid);
   _horariosData = await res.json();
   if(!_horariosData.recurrentes) _horariosData.recurrentes = [];
   if(!_horariosData.unicos) _horariosData.unicos = [];
@@ -3555,6 +3556,7 @@ async function guardarHorario(){
     }
   }
 
+  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
   await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
   toast('✅ Horario guardado');
   cerrarModalHorario();
@@ -3622,6 +3624,7 @@ async function eliminarHorario(){
   await cargarHorarios();
   _horariosData.recurrentes = _horariosData.recurrentes.filter(e=>e.id!==_horarioEditId);
   _horariosData.unicos = _horariosData.unicos.filter(e=>e.id!==_horarioEditId);
+  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
   await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
   toast('🗑️ Eliminado');
   cerrarModalHorario();
@@ -9971,17 +9974,19 @@ function cerrarSesion() {
   const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   const email = sesion.email;
   const nombre = sesion.nombre;
-  localStorage.removeItem(ROL_KEY);
-  localStorage.removeItem('dt_cliente_tel');
-  localStorage.removeItem('dt_cliente_id');
-  localStorage.removeItem('dt_sesion');
-  localStorage.removeItem('dt_ultimo_rol');
+  ['dt_rol','dt_cliente_tel','dt_cliente_id','dt_sesion','dt_ultimo_rol'].forEach(k => localStorage.removeItem(k));
   if (email) {
     fetch('/api/auth/roles?email=' + encodeURIComponent(email))
       .then(r => r.json())
       .then(d => {
+        if (!d.roles) d.roles = [];
+        if (!d.roles.find(r => r.rol === 'entrenador')) d.roles.push({rol:'entrenador', id:null, nombre: nombre});
+        if (!d.roles.find(r => r.rol === 'cliente')) d.roles.push({rol:'cliente', id:null, nombre: nombre});
+        d.nombre = d.nombre || nombre;
         localStorage.setItem('dt_google_data', JSON.stringify(d));
-        location.reload();
+        ['app-entrenador','tc-main','terminal-cliente'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
+        document.querySelectorAll('[id^="tc-"]').forEach(el => { if(el.style) el.style.display='none'; });
+        mostrarSeleccionRol(d);
       }).catch(() => location.reload());
   } else {
     location.reload();
@@ -12592,7 +12597,7 @@ window.addEventListener('DOMContentLoaded', () => {
   <div id="sel-bienvenida" style="font-size:22px;font-weight:800;color:#ffffff;margin-bottom:8px;text-align:center;text-shadow:none;-webkit-text-fill-color:#ffffff"></div>
   <div style="font-size:13px;color:#888;margin-bottom:36px;text-align:center">¿Cómo querés entrar hoy?</div>
   <div id="sel-botones" style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px"></div>
-  <button onclick="cerrarSesionGoogle()" style="margin-top:28px;background:transparent;border:1px solid #333;border-radius:10px;color:#666;font-size:12px;cursor:pointer;padding:8px 20px">Cerrar sesión</button>
+  <button onclick="['dt_sesion','dt_rol','dt_ultimo_rol','dt_cliente_id','dt_cliente_tel','dt_google_data'].forEach(k=>localStorage.removeItem(k));location.reload();" style="margin-top:28px;background:transparent;border:1px solid #333;border-radius:10px;color:#666;font-size:12px;cursor:pointer;padding:8px 20px">🔄 Cambiar cuenta</button>
 </div>
 <script>
 // ── GOOGLE AUTH FLOW ─────────────────────────────────────────
@@ -12698,6 +12703,44 @@ function cambiarRol() {
         mostrarSeleccionRol(d);
       }
     });
+}
+</script>
+
+<script>
+async function tcVincularEntrenador() {
+  var codigo = document.getElementById('tc-vinc-codigo');
+  var st = document.getElementById('tc-vinc-status');
+  if (!codigo) { alert('No se encontró el campo de código'); return; }
+  var cod = codigo.value.trim().toUpperCase();
+  if (!cod) { st.style.color='#e31e24'; st.textContent='Ingresá el código del entrenador'; return; }
+  st.style.color='#aaa'; st.textContent='Verificando...';
+  try {
+    var uid = localStorage.getItem('dt_cliente_id');
+    var sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+    var clienteId = uid || sesion.id || sesion.usuario_id;
+    if (!clienteId) { st.style.color='#e31e24'; st.textContent='Error: sesión no válida'; return; }
+    var r = await fetch('/api/cuentas/vincular', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ cliente_id: clienteId, codigo: cod })
+    });
+    var d = await r.json();
+    if (d.ok) {
+      st.style.color='#4caf50';
+      st.textContent='✓ Vinculado con ' + d.entrenador_nombre;
+      codigo.value = '';
+      setTimeout(() => {
+        var panel = document.getElementById('tc-config-panel');
+        if (panel) panel.remove();
+      }, 1500);
+    } else {
+      st.style.color='#e31e24';
+      st.textContent = d.error || 'Código inválido';
+    }
+  } catch(e) {
+    st.style.color='#e31e24';
+    st.textContent='Error de conexión';
+  }
 }
 </script>
 </body>

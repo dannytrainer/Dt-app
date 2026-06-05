@@ -4235,5 +4235,420 @@
       ]
     },
     "plan_fecha": "2026-05-30T05:37:26.997Z"
+  },
+  "cli_1780622095140": {
+    "peso_actual": 70,
+    "peso_objetivo": 72,
+    "proteina": 3,
+    "carbos": 3.5,
+    "grasas": 1,
+    "objetivo": "hipertrofia",
+    "comidas": 4,
+    "pretreno": false,
+    "pretreno_pos": 2,
+    "nivel_eco": 2,
+    "medico": [],
+    "vida": [],
+    "alergias": [],
+    "plan_generado": {
+      "id_cliente": "cli_1780622095140",
+      "nombre": "Anlly",
+      "sexo": "M",
+      "edad": 30,
+      "generado": "2026-06-05T01:50:29.047Z",
+      "peso_actual": 70,
+      "peso_objetivo": 72,
+      "nivel_eco": "medio",
+      "filtros_activos": [],
+      "totales": {
+        "proteina": 216,
+        "carbohidratos": 252,
+        "grasas": 72,
+        "calorias": 2520
+      },
+      "comidas": [
+        {
+          "nombre": "Desayuno",
+          "macros_objetivo": {
+            "proteina": 51,
+            "carbos": 74,
+            "grasas": 18,
+            "kcal": 662
+          },
+          "macros_reales": {
+            "proteina": 51,
+            "carbos": 73.7,
+            "grasas": 18.7,
+            "kcal": 659
+          },
+          "alimentos": [
+            {
+              "nombre": "Camote / Batata",
+              "preparacion": "Al horno",
+              "porcion_g": 284,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 5.7,
+                "carbohidratos": 59.6,
+                "grasas": 0.3,
+                "calorias": 256
+              },
+              "nota": "Energía",
+              "detalle": null,
+              "unidad": null
+            },
+            {
+              "nombre": "Chuleta de cerdo",
+              "preparacion": "Sudada",
+              "porcion_g": 166,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 41.5,
+                "carbohidratos": 1.7,
+                "grasas": 16.6,
+                "calorias": 328
+              },
+              "nota": "Proteína principal",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 2,
+                "nombre": "chuletas",
+                "texto": "2 chuletas (180g)"
+              }
+            },
+            {
+              "nombre": "Ensalada de frutas",
+              "preparacion": "Fresca",
+              "porcion_g": 150,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.8,
+                "carbohidratos": 16.5,
+                "grasas": 0.5,
+                "calorias": 65
+              },
+              "nota": "Ensalada de frutas",
+              "detalle": "Papaya, Naranja",
+              "unidad": {
+                "cantidad": 1,
+                "nombre": "tajada",
+                "texto": "1 tajada (150g)"
+              }
+            }
+          ]
+        },
+        {
+          "nombre": "Snack 1",
+          "macros_objetivo": {
+            "proteina": 23,
+            "carbos": 27,
+            "grasas": 8,
+            "kcal": 272
+          },
+          "macros_reales": {
+            "proteina": 23.5,
+            "carbos": 13.5,
+            "grasas": 27.1,
+            "kcal": 382
+          },
+          "alimentos": [
+            {
+              "nombre": "Papaya",
+              "preparacion": "Fresca",
+              "porcion_g": 100,
+              "categoria": "fruta",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 0.5,
+                "carbohidratos": 11,
+                "grasas": 0.3,
+                "calorias": 43
+              },
+              "nota": "Micronutrientes",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 0.5,
+                "nombre": "tajadas",
+                "texto": "media tajada (100g)"
+              }
+            },
+            {
+              "nombre": "Huevo",
+              "preparacion": "Revuelto",
+              "porcion_g": 85,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 9.9,
+                "carbohidratos": 1.1,
+                "grasas": 11.3,
+                "calorias": 145
+              },
+              "nota": "Proteína principal",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 2,
+                "nombre": "huevos",
+                "texto": "2 huevos (120g)"
+              }
+            },
+            {
+              "nombre": "Queso blanco",
+              "preparacion": "Fresco",
+              "porcion_g": 38,
+              "categoria": "lacteo",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 6.3,
+                "carbohidratos": 0.6,
+                "grasas": 7.6,
+                "calorias": 95
+              },
+              "nota": "Complemento proteína",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 2,
+                "nombre": "tajadas",
+                "texto": "2 tajadas (54g)"
+              }
+            }
+          ]
+        },
+        {
+          "nombre": "Almuerzo",
+          "macros_objetivo": {
+            "proteina": 68,
+            "carbos": 93,
+            "grasas": 22,
+            "kcal": 842
+          },
+          "macros_reales": {
+            "proteina": 78.7,
+            "carbos": 99.3,
+            "grasas": 21.8,
+            "kcal": 920
+          },
+          "alimentos": [
+            {
+              "nombre": "Pechuga de pollo",
+              "preparacion": "A la plancha",
+              "porcion_g": 166,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 51.5,
+                "carbohidratos": 0,
+                "grasas": 6,
+                "calorias": 274
+              },
+              "nota": "Proteína principal",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 1,
+                "nombre": "filete",
+                "texto": "1 filete (180g)"
+              }
+            },
+            {
+              "nombre": "Lomo de cerdo",
+              "preparacion": "A la plancha",
+              "porcion_g": 41,
+              "categoria": "proteina",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 11.1,
+                "carbohidratos": 0,
+                "grasas": 3.7,
+                "calorias": 77
+              },
+              "nota": "Complemento proteína",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 0.5,
+                "nombre": "filetes",
+                "texto": "medio filete (45g)"
+              }
+            },
+            {
+              "nombre": "Yuca",
+              "preparacion": "Cocida",
+              "porcion_g": 162,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 2.3,
+                "carbohidratos": 61.6,
+                "grasas": 0.5,
+                "calorias": 259
+              },
+              "nota": "Energía",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 1,
+                "nombre": "porción",
+                "texto": "1 porción (150g)"
+              }
+            },
+            {
+              "nombre": "Papa",
+              "preparacion": "Sancocho",
+              "porcion_g": 258,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 4.6,
+                "carbohidratos": 38.7,
+                "grasas": 0.2,
+                "calorias": 181
+              },
+              "nota": "Energía",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 1.5,
+                "nombre": "papas medianas",
+                "texto": "1 papa mediana y medio (240g)"
+              }
+            },
+            {
+              "nombre": "Ensalada variada",
+              "preparacion": "En crema",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 2.8,
+                "carbohidratos": 5,
+                "grasas": 4,
+                "calorias": 65
+              },
+              "nota": "Ensalada variada",
+              "detalle": "Champiñones, Espárragos, Mazorca",
+              "unidad": null
+            },
+            {
+              "nombre": "Nueces",
+              "preparacion": "Natural",
+              "porcion_g": 7,
+              "categoria": "grasa",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 1,
+                "carbohidratos": 0.9,
+                "grasas": 4.6,
+                "calorias": 46
+              },
+              "nota": "Grasa saludable",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 2,
+                "nombre": "nueces",
+                "texto": "2 nueces (10g)"
+              }
+            }
+          ]
+        },
+        {
+          "nombre": "Cena",
+          "macros_objetivo": {
+            "proteina": 74,
+            "carbos": 58,
+            "grasas": 24,
+            "kcal": 744
+          },
+          "macros_reales": {
+            "proteina": 81.7,
+            "carbos": 47.5,
+            "grasas": 34.4,
+            "kcal": 825
+          },
+          "alimentos": [
+            {
+              "nombre": "Pernil de cerdo",
+              "preparacion": "Desmechado",
+              "porcion_g": 141,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 35.3,
+                "carbohidratos": 0,
+                "grasas": 16.9,
+                "calorias": 296
+              },
+              "nota": "Proteína principal",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 1.5,
+                "nombre": "porciones",
+                "texto": "1 porcion y media (200g)"
+              }
+            },
+            {
+              "nombre": "Muslo de pollo",
+              "preparacion": "Al horno",
+              "porcion_g": 63,
+              "categoria": "proteina",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 17,
+                "carbohidratos": 0,
+                "grasas": 6.9,
+                "calorias": 135
+              },
+              "nota": "Complemento proteína",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 1,
+                "nombre": "muslo",
+                "texto": "1 muslo (89g)"
+              }
+            },
+            {
+              "nombre": "Papa",
+              "preparacion": "Al horno",
+              "porcion_g": 208,
+              "categoria": "carbohidrato",
+              "nivel": "economico",
+              "macros": {
+                "proteina": 5.2,
+                "carbohidratos": 43.6,
+                "grasas": 0.2,
+                "calorias": 193
+              },
+              "nota": "Energía",
+              "detalle": null,
+              "unidad": {
+                "cantidad": 1.5,
+                "nombre": "papas medianas",
+                "texto": "1 papa mediana y medio (193g)"
+              }
+            },
+            {
+              "nombre": "Ensalada variada",
+              "preparacion": "Crudo",
+              "porcion_g": 100,
+              "categoria": "verdura",
+              "nivel": "medio",
+              "macros": {
+                "proteina": 2.8,
+                "carbohidratos": 7,
+                "grasas": 0.4,
+                "calorias": 34
+              },
+              "nota": "Ensalada variada",
+              "detalle": "Brócoli, Espinaca",
+              "unidad": {
+                "cantidad": 1,
+                "nombre": "taza",
+                "texto": "1 taza (100g)"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "plan_fecha": "2026-06-05T01:50:29.062Z"
   }
 }

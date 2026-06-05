@@ -1694,5 +1694,68 @@
       "ejercicios": [],
       "cardio": []
     }
+  },
+  "cli_1780622095140": {
+    "lunes": {
+      "recordatorio": "",
+      "rutina": "",
+      "ejercicios": [
+        {
+          "nombre": "Sentadilla",
+          "series": "",
+          "reps": "10",
+          "rir": "2",
+          "desc": "30",
+          "var": ""
+        },
+        {
+          "nombre": "Curl femoral ",
+          "series": "4",
+          "reps": "15",
+          "rir": "2",
+          "desc": "60",
+          "var": ""
+        },
+        {
+          "nombre": "",
+          "series": "",
+          "reps": "",
+          "rir": "",
+          "desc": "",
+          "var": ""
+        }
+      ],
+      "cardio": []
+    },
+    "jueves": {
+      "recordatorio": "Pierna ",
+      "rutina": "V1 dropset",
+      "ejercicios": [
+        {
+          "nombre": "Sentadill",
+          "series": "3",
+          "reps": "8",
+          "rir": "2",
+          "desc": "60",
+          "var": "V1"
+        },
+        {
+          "nombre": "Prensa",
+          "series": "3",
+          "reps": "10",
+          "rir": "2",
+          "desc": "30",
+          "var": "V1"
+        }
+      ],
+      "cardio": [
+        {
+          "momento": "Calentamiento ",
+          "ejercicio": "Bici",
+          "tiempo": "10",
+          "notas": "Hiit"
+        }
+      ]
+    }
   }
 }

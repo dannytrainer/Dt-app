@@ -67,6 +67,80 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
 
+
+// Obtener datos de cuenta cliente
+app.get('/api/cuentas/cliente', (req, res) => {
+  const id = req.query.id;
+  if (!id) return res.json({});
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const cli = cuentas.clientes.find(c => c.id === id || c.usuario_id === id);
+  if (!cli) return res.json({});
+  const ent = cuentas.entrenadores.find(e => e.id === cli.entrenador_id);
+  res.json({ ...cli, entrenador_nombre: ent ? ent.nombre : '' });
+});
+
+// Vincular cliente a entrenador por código
+app.post('/api/cuentas/vincular', (req, res) => {
+  const { cliente_id, codigo } = req.body;
+  if (!cliente_id || !codigo) return res.json({ ok:false, error:'Datos incompletos' });
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion && e.codigo_vinculacion.toUpperCase() === codigo.toUpperCase());
+  if (!ent) return res.json({ ok:false, error:'Código inválido' });
+  const cli = cuentas.clientes.find(c => c.id === cliente_id || c.usuario_id === cliente_id);
+  if (!cli) return res.json({ ok:false, error:'Cliente no encontrado' });
+  cli.entrenador_id = ent.id;
+  guardarJSON('cuentas.json', cuentas);
+
+  // Crear en usuarios.json si no existe
+  const usuarios = cargarJSON('usuarios.json', []);
+  const uid = cli.usuario_id || cli.id;
+  const yaExiste = usuarios.find(u => u.id === uid);
+  if (!yaExiste) {
+    const nuevoUsuario = {
+      id: uid,
+      activo: true,
+      nombre: cli.nombre,
+      telefono: cli.email,
+      tipo: 'asesorado',
+      hora_envio: '08:00',
+      dia_pago: 1,
+      estado_pago: 'aldia',
+      perfil: {
+        fecha_inicio: new Date().toISOString().split('T')[0],
+        sexo: '',
+        edad: '',
+        altura: '',
+        objetivo: '',
+        etiqueta: 'general',
+        notas: '',
+        unidades: 'kg',
+        fecha_nacimiento: ''
+      },
+      tipo_pago: 'mensual',
+      dia_pago2: null,
+      sesiones_total: 0,
+      sesiones_ciclo: 0,
+      ciclo_inicio: new Date().toISOString().split('T')[0],
+      msg_pago: '',
+      msg_q1: '',
+      msg_q2: '',
+      foto: '',
+      vinculado: true,
+      entrenador_id: ent.id,
+      dias_desbloqueados: {}
+    };
+    usuarios.push(nuevoUsuario);
+    guardarJSON('usuarios.json', usuarios);
+  } else {
+    // Actualizar entrenador_id si ya existe
+    yaExiste.entrenador_id = ent.id;
+    yaExiste.vinculado = true;
+    guardarJSON('usuarios.json', usuarios);
+  }
+
+  res.json({ ok:true, entrenador_nombre: ent.nombre });
+});
+
 app.get('/api/auth/roles', (req, res) => {
   const email = req.query.email;
   if (!email) return res.json({ roles: [] });
@@ -79,7 +153,7 @@ app.get('/api/auth/roles', (req, res) => {
   res.json({ email, nombre: (ent||cli||{}).nombre, roles });
 });
 
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }));
 
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/?error=google' }),
@@ -1278,8 +1352,10 @@ app.post('/api/auth/registro', (req, res) => {
       const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion === codigo_entrenador.toUpperCase());
       entrenador_id = ent.id;
     }
+    const cliId = 'cli_' + Date.now();
+    usuario_id = cliId;
     const nuevo = {
-      id: 'cli_' + Date.now(),
+      id: cliId,
       email, password, nombre,
       entrenador_id, usuario_id,
       activo: true,

@@ -90,6 +90,54 @@ app.post('/api/cuentas/vincular', (req, res) => {
   if (!cli) return res.json({ ok:false, error:'Cliente no encontrado' });
   cli.entrenador_id = ent.id;
   guardarJSON('cuentas.json', cuentas);
+
+  // Crear en usuarios.json si no existe
+  const usuarios = cargarJSON('usuarios.json', []);
+  const uid = cli.usuario_id || cli.id;
+  const yaExiste = usuarios.find(u => u.id === uid);
+  if (!yaExiste) {
+    const nuevoUsuario = {
+      id: uid,
+      activo: true,
+      nombre: cli.nombre,
+      telefono: cli.email,
+      tipo: 'asesorado',
+      hora_envio: '08:00',
+      dia_pago: 1,
+      estado_pago: 'aldia',
+      perfil: {
+        fecha_inicio: new Date().toISOString().split('T')[0],
+        sexo: '',
+        edad: '',
+        altura: '',
+        objetivo: '',
+        etiqueta: 'general',
+        notas: '',
+        unidades: 'kg',
+        fecha_nacimiento: ''
+      },
+      tipo_pago: 'mensual',
+      dia_pago2: null,
+      sesiones_total: 0,
+      sesiones_ciclo: 0,
+      ciclo_inicio: new Date().toISOString().split('T')[0],
+      msg_pago: '',
+      msg_q1: '',
+      msg_q2: '',
+      foto: '',
+      vinculado: true,
+      entrenador_id: ent.id,
+      dias_desbloqueados: {}
+    };
+    usuarios.push(nuevoUsuario);
+    guardarJSON('usuarios.json', usuarios);
+  } else {
+    // Actualizar entrenador_id si ya existe
+    yaExiste.entrenador_id = ent.id;
+    yaExiste.vinculado = true;
+    guardarJSON('usuarios.json', usuarios);
+  }
+
   res.json({ ok:true, entrenador_nombre: ent.nombre });
 });
 
@@ -105,7 +153,7 @@ app.get('/api/auth/roles', (req, res) => {
   res.json({ email, nombre: (ent||cli||{}).nombre, roles });
 });
 
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }));
 
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/?error=google' }),
@@ -688,9 +736,13 @@ app.post('/api/alimentacion/:id/plan', (req, res) => {
   }
 });
 
-app.get('/api/horarios', (req, res) => res.json(cargarJSON('horarios.json')));
+app.get('/api/horarios', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  res.json(cargarJSON('horarios_' + eid + '.json', []));
+});
 app.post('/api/horarios', (req, res) => {
-  guardarJSON('horarios.json', req.body);
+  const eid = req.body.entrenador_id || 'ent_001';
+  guardarJSON('horarios_' + eid + '.json', req.body);
   res.json({ok:true});
 });
 
@@ -1304,8 +1356,10 @@ app.post('/api/auth/registro', (req, res) => {
       const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion === codigo_entrenador.toUpperCase());
       entrenador_id = ent.id;
     }
+    const cliId = 'cli_' + Date.now();
+    usuario_id = cliId;
     const nuevo = {
-      id: 'cli_' + Date.now(),
+      id: cliId,
       email, password, nombre,
       entrenador_id, usuario_id,
       activo: true,
