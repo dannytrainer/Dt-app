@@ -37,7 +37,8 @@
       }
     ],
     "descFinSerie": 60,
-    "descFinCircuito": 600
+    "descFinCircuito": 600,
+    "entrenador_id": "ent_001"
   },
   {
     "id": 1778768183768,
@@ -67,7 +68,8 @@
       }
     ],
     "descFinSerie": 60,
-    "descFinCircuito": 600
+    "descFinCircuito": 600,
+    "entrenador_id": "ent_001"
   },
   {
     "id": 1780376136164,
@@ -79,6 +81,7 @@
     "sets": 1,
     "descEntreSets": 60,
     "finalizacion": 5,
-    "tipo": "intervalo"
+    "tipo": "intervalo",
+    "entrenador_id": "ent_001"
   }
 ]

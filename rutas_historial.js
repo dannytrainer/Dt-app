@@ -77,8 +77,11 @@ app.get('/api/calculos/:id', (req, res) => {
 
 // ═══ COMPETENCIAS EXTERNAS ═══
 app.get('/api/competencias', (req, res) => {
-  try { res.json(JSON.parse(fs.readFileSync('data/competencias.json', 'utf8'))); }
-  catch { res.json([]); }
+  try {
+    const entId = req.query.entrenador_id || 'ent_001';
+    let data = JSON.parse(fs.readFileSync('data/competencias.json', 'utf8'));
+    res.json(data.filter(c => c.entrenador_id === entId));
+  } catch { res.json([]); }
 });
 
 app.post('/api/competencias', (req, res) => {

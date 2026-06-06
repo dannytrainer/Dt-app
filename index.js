@@ -194,45 +194,47 @@ const guardarJSON = (archivo, datos) => {
 };
 
 // Mapa de sesiones WA por entrenador
-const waSessions = {}; // { ent_id: { sock, conectado, pairingCode } }
+const { fork } = require('child_process');
 
-async function conectarWhatsApp(entId, telefono) {
+// Mapa de procesos hijo por entrenador
+const waSessions = {}; // { ent_id: { proceso, conectado, pairingCode, pendientes } }
+
+function conectarWhatsApp(entId, telefono) {
   if (!entId) entId = 'ent_001';
-  if (!waSessions[entId]) waSessions[entId] = { sock: null, conectado: false, pairingCode: null, telefono: null };
+  if (waSessions[entId] && waSessions[entId].proceso) {
+    console.log('⚠️ Ya existe proceso para ['+entId+']');
+    return;
+  }
+  waSessions[entId] = { proceso: null, conectado: false, pairingCode: null, pendientes: {} };
   const sess = waSessions[entId];
-  if (telefono) sess.telefono = telefono;
-  const telefonoGuardado = sess.telefono;
-
-  if (sess.sock) {
-    try { sess.sock.end(); } catch(e) {}
-    sess.sock = null;
-  }
-
-  const authFolder = 'auth_' + entId;
-  const { state, saveCreds } = await useMultiFileAuthState(authFolder);
-  sess.sock = makeWASocket({ auth: state, printQRInTerminal: false });
-  sess.sock.ev.on('creds.update', saveCreds);
-
-  if (!sess.sock.authState.creds.registered && telefonoGuardado) {
-    setTimeout(async () => {
-      try {
-        const code = await sess.sock.requestPairingCode(telefonoGuardado.replace(/\D/g,''));
-        sess.pairingCode = code;
-        console.log('🔑 CÓDIGO WA ['+entId+']: ' + code);
-      } catch(e) { console.log('Error pairingCode:', e.message); }
-    }, 3000);
-  }
-
-  sess.sock.ev.on('connection.update', ({ connection, lastDisconnect }) => {
-    if (connection === 'close') {
-      sess.conectado = false;
-      const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-      if (shouldReconnect) conectarWhatsApp(entId, null);
-    }
-    if (connection === 'open') { sess.conectado = true; console.log('✅ WA conectado ['+entId+']'); }
+  const env = { ...process.env, ENT_ID: entId };
+  if (telefono) env.ENT_TELEFONO = telefono;
+  const worker = fork(path.join(__dirname, 'wa-worker.js'), [], { env, silent: false });
+  sess.proceso = worker;
+  worker.on('message', (msg) => {
+    if (msg.tipo === 'estado') { sess.conectado = msg.conectado; if (msg.pairingCode) sess.pairingCode = msg.pairingCode; }
+    if (msg.tipo === 'codigo') { sess.pairingCode = msg.codigo; }
+    if (msg.tipo === 'resultado') { const cb = sess.pendientes[msg.id]; if (cb) { cb(msg.ok); delete sess.pendientes[msg.id]; } }
   });
+  worker.on('exit', (code) => {
+    console.log('⚠️ Worker ['+entId+'] terminó con código '+code);
+    sess.proceso = null;
+    sess.conectado = false;
+  });
+  console.log('🚀 Worker iniciado para ['+entId+']');
 }
 
+async function enviarMensaje(telefono, mensaje, entId) {
+  if (!entId) entId = 'ent_001';
+  const sess = waSessions[entId];
+  if (!sess || !sess.conectado || !sess.proceso) return false;
+  return new Promise((resolve) => {
+    const id = Date.now() + '_' + Math.random();
+    sess.pendientes[id] = resolve;
+    sess.proceso.send({ tipo: 'enviar', id, telefono, mensaje });
+    setTimeout(() => { if (sess.pendientes[id]) { delete sess.pendientes[id]; resolve(false); } }, 15000);
+  });
+}
 
 app.get('/api/wa/estado', (req, res) => {
   const entId = req.query.entrenador_id || 'ent_001';
@@ -245,37 +247,11 @@ app.post('/api/wa/conectar', async (req, res) => {
   if (!entrenador_id || !telefono) return res.json({ ok: false, error: 'Faltan datos' });
   const sess = waSessions[entrenador_id];
   if (sess && sess.conectado) return res.json({ ok: false, error: 'Ya conectado' });
-  await conectarWhatsApp(entrenador_id, telefono);
+  conectarWhatsApp(entrenador_id, telefono);
   res.json({ ok: true });
 });
 
-async function enviarMensaje(telefono, mensaje, entId) {
-  if (!entId) entId = 'ent_001';
-  const sess = waSessions[entId];
-  if (!sess || !sess.conectado) return false;
-  try {
-    let jid;
-    if(String(telefono).startsWith('grupo:')){
-      const codigo = telefono.replace('grupo:','');
-      try {
-        const info = await sess.sock.groupGetInviteInfo(codigo);
-        jid = info.id;
-      } catch(e) {
-        console.log('groupGetInviteInfo error:', e.message);
-        return false;
-      }
-    } else if(String(telefono).endsWith('@g.us')){
-      jid = telefono;
-    } else {
-      jid = telefono + '@s.whatsapp.net';
-    }
-    await sess.sock.sendMessage(jid, { text: mensaje });
-    return true;
-  } catch (e) {
-    console.log('Error enviando:', e.message);
-    return false;
-  }
-}
+
 
 const DIAS = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
 
@@ -602,11 +578,16 @@ app.delete('/api/festivos/:fecha', (req, res) => {
   guardarJSON('festivos.json', festivos);
   res.json({ ok: true });
 });
-app.get('/api/hiit', (req, res) => res.json(cargarJSON('hiit.json')));
+app.get('/api/hiit', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const data = cargarJSON('hiit.json');
+  res.json(data.filter(c => (c.entrenador_id || 'ent_001') === eid));
+});
 app.post('/api/hiit', (req, res) => {
   const data = cargarJSON('hiit.json');
   const circuito = req.body;
   if(!circuito.id) circuito.id = Date.now();
+  if(!circuito.entrenador_id) circuito.entrenador_id = 'ent_001';
   const idx = data.findIndex(c => c.id === circuito.id);
   if(idx >= 0) data[idx] = circuito;
   else data.push(circuito);

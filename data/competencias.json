@@ -120,7 +120,8 @@
     ],
     "estado": "finalizada",
     "id": "1778882564233",
-    "creada": "2026-05-15"
+    "creada": "2026-05-15",
+    "entrenador_id": "ent_001"
   },
   {
     "nombre": "Prueba e",
@@ -152,6 +153,7 @@
     "participantes": [],
     "estado": "finalizada",
     "id": "1778883040930",
-    "creada": "2026-05-15"
+    "creada": "2026-05-15",
+    "entrenador_id": "ent_001"
   }
 ]
