@@ -100,7 +100,7 @@ app.post('/api/cuentas/vincular', (req, res) => {
       id: uid,
       activo: true,
       nombre: cli.nombre,
-      telefono: cli.email,
+      telefono: cli.telefono || cli.email,
       tipo: 'asesorado',
       hora_envio: '08:00',
       dia_pago: 1,
@@ -193,39 +193,72 @@ const guardarJSON = (archivo, datos) => {
   fs.writeFileSync(ruta, JSON.stringify(datos, null, 2));
 };
 
-let sock;
-module.exports = { getSock: () => sock };
+// Mapa de sesiones WA por entrenador
+const waSessions = {}; // { ent_id: { sock, conectado, pairingCode } }
 
-async function conectarWhatsApp() {
-  const { state, saveCreds } = await useMultiFileAuthState('auth');
-  sock = makeWASocket({ auth: state, printQRInTerminal: false });
-  sock.ev.on('creds.update', saveCreds);
+async function conectarWhatsApp(entId, telefono) {
+  if (!entId) entId = 'ent_001';
+  if (!waSessions[entId]) waSessions[entId] = { sock: null, conectado: false, pairingCode: null, telefono: null };
+  const sess = waSessions[entId];
+  if (telefono) sess.telefono = telefono;
+  const telefonoGuardado = sess.telefono;
 
-  if (!sock.authState.creds.registered) {
+  if (sess.sock) {
+    try { sess.sock.end(); } catch(e) {}
+    sess.sock = null;
+  }
+
+  const authFolder = 'auth_' + entId;
+  const { state, saveCreds } = await useMultiFileAuthState(authFolder);
+  sess.sock = makeWASocket({ auth: state, printQRInTerminal: false });
+  sess.sock.ev.on('creds.update', saveCreds);
+
+  if (!sess.sock.authState.creds.registered && telefonoGuardado) {
     setTimeout(async () => {
-      const code = await sock.requestPairingCode('573006197897');
-      console.log('🔑 CÓDIGO DE VINCULACIÓN: ' + code);
-      console.log('👉 WhatsApp > Dispositivos vinculados > Vincular con número');
+      try {
+        const code = await sess.sock.requestPairingCode(telefonoGuardado.replace(/\D/g,''));
+        sess.pairingCode = code;
+        console.log('🔑 CÓDIGO WA ['+entId+']: ' + code);
+      } catch(e) { console.log('Error pairingCode:', e.message); }
     }, 3000);
   }
 
-  sock.ev.on('connection.update', ({ connection, lastDisconnect }) => {
-    if (connection === 'close') { global.waConectado=false;
+  sess.sock.ev.on('connection.update', ({ connection, lastDisconnect }) => {
+    if (connection === 'close') {
+      sess.conectado = false;
       const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-      if (shouldReconnect) conectarWhatsApp();
+      if (shouldReconnect) conectarWhatsApp(entId, null);
     }
-    if (connection === 'open') { console.log('✅ WhatsApp conectado!'); global.waConectado=true; }
+    if (connection === 'open') { sess.conectado = true; console.log('✅ WA conectado ['+entId+']'); }
   });
 }
 
-async function enviarMensaje(telefono, mensaje) {
-  if(global.waConectado===false) return false;
+
+app.get('/api/wa/estado', (req, res) => {
+  const entId = req.query.entrenador_id || 'ent_001';
+  const sess = waSessions[entId] || { conectado: false, pairingCode: null };
+  res.json({ conectado: sess.conectado, codigo: sess.pairingCode });
+});
+
+app.post('/api/wa/conectar', async (req, res) => {
+  const { entrenador_id, telefono } = req.body;
+  if (!entrenador_id || !telefono) return res.json({ ok: false, error: 'Faltan datos' });
+  const sess = waSessions[entrenador_id];
+  if (sess && sess.conectado) return res.json({ ok: false, error: 'Ya conectado' });
+  await conectarWhatsApp(entrenador_id, telefono);
+  res.json({ ok: true });
+});
+
+async function enviarMensaje(telefono, mensaje, entId) {
+  if (!entId) entId = 'ent_001';
+  const sess = waSessions[entId];
+  if (!sess || !sess.conectado) return false;
   try {
     let jid;
     if(String(telefono).startsWith('grupo:')){
       const codigo = telefono.replace('grupo:','');
       try {
-        const info = await sock.groupGetInviteInfo(codigo);
+        const info = await sess.sock.groupGetInviteInfo(codigo);
         jid = info.id;
       } catch(e) {
         console.log('groupGetInviteInfo error:', e.message);
@@ -236,7 +269,7 @@ async function enviarMensaje(telefono, mensaje) {
     } else {
       jid = telefono + '@s.whatsapp.net';
     }
-    await sock.sendMessage(jid, { text: mensaje });
+    await sess.sock.sendMessage(jid, { text: mensaje });
     return true;
   } catch (e) {
     console.log('Error enviando:', e.message);
@@ -378,7 +411,7 @@ cron.schedule('* * * * *', async () => {
               }
               const mensaje = lineas.join('\n');
               if (!mensaje.trim()) continue;
-              const resultado = await enviarMensaje(usuario.telefono, mensaje);
+              const resultado = await enviarMensaje(usuario.telefono, mensaje, usuario.entrenador_id);
               logs[hoy][usuario.id] = resultado ? 'enviado' : 'error';
               guardarJSON('logs.json', logs);
     }
@@ -395,10 +428,10 @@ cron.schedule('* * * * *', async () => {
       const diaman = manana.getDate();
       if (diaman === usuario.dia_pago) {
         const msg = usuario.msg_pago || ('Hola ' + usuario.nombre + ', recuerda que mañana es tu fecha de pago.');
-        await enviarMensaje(usuario.telefono, msg);
+        await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
       } else if (usuario.tipo_pago === 'quincenal' && diaman === usuario.dia_pago2) {
         const msg = usuario.msg_q2 || ('Hola ' + usuario.nombre + ', recuerda que mañana es tu segunda quincena.');
-        await enviarMensaje(usuario.telefono, msg);
+        await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
       }
     }
 
@@ -772,8 +805,9 @@ app.post('/api/grupo-info', async (req, res) => {
 app.get('/api/status',(req,res)=>res.json({conectado:global.waConectado||false}));
 app.get('/api/logs', (req, res) => res.json(cargarJSON('logs.json')));
 app.post('/api/enviar', async (req, res) => {
-  const { telefono, mensaje } = req.body;
-  const resultado = await enviarMensaje(telefono, mensaje);
+  const { telefono, mensaje, entrenador_id } = req.body;
+  const entId = entrenador_id || 'ent_001';
+  const resultado = await enviarMensaje(telefono, mensaje, entId);
   res.json({ ok: resultado });
 });
 app.post('/api/enviar-rutina/:id', async (req, res) => {
@@ -838,7 +872,7 @@ app.post('/api/enviar-rutina/:id', async (req, res) => {
     lineas.push('');
   }
   let texto = lineas.join('\n');
-  const resultado = await enviarMensaje(usuario.telefono, texto);
+  const resultado = await enviarMensaje(usuario.telefono, texto, usuario.entrenador_id);
   res.json({ ok: resultado });
 });
 app.post('/api/enviar-dia/:id/:dia', async (req, res) => {
@@ -918,7 +952,7 @@ lineas.push('');    });
 
   const texto = lineas.join('\n');
 
-  const resultado = await enviarMensaje(usuario.telefono, texto);
+  const resultado = await enviarMensaje(usuario.telefono, texto, usuario.entrenador_id);
 
   res.json({ ok: resultado });
 });
@@ -1125,7 +1159,7 @@ app.get('/api/enciclopedia/:id', (req, res) => {
   res.json(ej);
 });
 
-conectarWhatsApp();
+conectarWhatsApp('ent_001', '573006197897');
 
 // PREMIUM — validar código
 app.post('/api/premium/activar', (req, res) => {
@@ -1344,7 +1378,7 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.post('/api/auth/registro', (req, res) => {
-  const { email, password, nombre, rol, codigo_entrenador } = req.body;
+  const { email, password, nombre, rol, codigo_entrenador, telefono } = req.body;
   const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
   
   // Verificar si ya existe
@@ -1355,14 +1389,15 @@ app.post('/api/auth/registro', (req, res) => {
     const nuevo = {
       id: 'ent_' + Date.now(),
       email, password, nombre,
-      codigo_vinculacion: nombre.substring(0,4).toUpperCase() + Date.now().toString().slice(-4),
+      codigo_vinculacion: Array.from({length:3}, () => Math.random().toString(36).substring(2,6).toUpperCase()).join('-'),
       roles: ['entrenador', 'cliente'],
       activo: true,
       fecha_registro: new Date().toISOString().split('T')[0]
     };
     cuentas.entrenadores.push(nuevo);
     guardarJSON('cuentas.json', cuentas);
-    return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, nombre: nuevo.nombre, roles: [{rol:'entrenador', id: nuevo.id, nombre: nuevo.nombre}, {rol:'cliente', id: null, nombre: nuevo.nombre}] });
+    guardarJSON('config_' + nuevo.id + '.json', { nombre_entrenador: nuevo.nombre, email: nuevo.email, codigo_vinculacion: nuevo.codigo_vinculacion, msg_prellenado: false });
+    return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, email: nuevo.email, nombre: nuevo.nombre, roles: [{rol:'entrenador', id: nuevo.id, nombre: nuevo.nombre}, {rol:'cliente', id: null, nombre: nuevo.nombre}] });
   }
   
   if (rol === 'cliente') {
@@ -1377,6 +1412,7 @@ app.post('/api/auth/registro', (req, res) => {
     const nuevo = {
       id: cliId,
       email, password, nombre,
+      telefono: telefono ? telefono.replace(/\D/g,'') : '',
       entrenador_id, usuario_id,
       roles: ['entrenador', 'cliente'],
       activo: true,
@@ -1384,6 +1420,32 @@ app.post('/api/auth/registro', (req, res) => {
     };
     cuentas.clientes.push(nuevo);
     guardarJSON('cuentas.json', cuentas);
+    // Agregar a usuarios.json
+    const usuarios = cargarJSON('usuarios.json', []);
+    const yaExiste = usuarios.find(u => u.id === cliId);
+    if (!yaExiste) {
+      usuarios.push({
+        id: cliId,
+        activo: true,
+        nombre: nuevo.nombre,
+        telefono: nuevo.telefono || nuevo.email,
+        tipo: 'asesorado',
+        hora_envio: '08:00',
+        dia_pago: 1,
+        estado_pago: 'aldia',
+        perfil: { fecha_inicio: new Date().toISOString().split('T')[0], sexo:'', edad:'', altura:'', objetivo:'', etiqueta:'general', notas:'', unidades:'kg', fecha_nacimiento:'' },
+        tipo_pago: 'mensual',
+        dia_pago2: null,
+        sesiones_total: 0,
+        sesiones_ciclo: 0,
+        ciclo_inicio: new Date().toISOString().split('T')[0],
+        msg_pago:'', msg_q1:'', msg_q2:'', foto:'',
+        vinculado: true,
+        entrenador_id: entrenador_id,
+        dias_desbloqueados: {}
+      });
+      guardarJSON('usuarios.json', usuarios);
+    }
     return res.json({ ok: true, rol: 'cliente', id: nuevo.id, nombre: nuevo.nombre, entrenador_id, roles: [{rol:'entrenador', id: null, nombre: nuevo.nombre}, {rol:'cliente', id: nuevo.id, nombre: nuevo.nombre}] });
   }
   
@@ -1401,7 +1463,7 @@ app.post('/api/auth/crear-perfil', (req, res) => {
   if (cli && rol === 'cliente') return res.json({ ok: true, rol: 'cliente', id: cli.id, usuario_id: cli.usuario_id, nombre: cli.nombre });
   // Si no existe, crear
   if (rol === 'entrenador') {
-    const nuevo = { id: 'ent_' + Date.now(), email, nombre: nombre||email, password: '', codigo_vinculacion: (nombre||email).substring(0,4).toUpperCase() + Date.now().toString().slice(-4), roles: ['entrenador','cliente'], activo: true, fecha_registro: new Date().toISOString().split('T')[0] };
+    const nuevo = { id: 'ent_' + Date.now(), email, nombre: nombre||email, password: '', codigo_vinculacion: Array.from({length:3}, () => Math.random().toString(36).substring(2,6).toUpperCase()).join('-'), roles: ['entrenador','cliente'], activo: true, fecha_registro: new Date().toISOString().split('T')[0] };
     cuentas.entrenadores.push(nuevo);
     guardarJSON('cuentas.json', cuentas);
     return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, nombre: nuevo.nombre });

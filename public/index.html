@@ -662,6 +662,7 @@ body.modo-claro [style*="color:var(--texto-suave)"] {
     <input id="reg-nombre" type="text" placeholder="Nombre completo" style="width:100%;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:15px;outline:none;box-sizing:border-box"/>
     <input id="reg-email" type="email" placeholder="Correo electrónico" style="width:100%;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:15px;outline:none;box-sizing:border-box"/>
     <input id="reg-pass" type="password" placeholder="Contraseña" style="width:100%;padding:14px;border-radius:12px;border:2px solid #333;background:#111;color:#fff;font-size:15px;outline:none;box-sizing:border-box"/>
+    <div id="reg-tel-div" style="display:none"><input id="reg-telefono" type="tel" placeholder="+57 300 000 0000" style="width:100%;padding:14px;border-radius:12px;border:2px solid #e31e24;background:#111;color:#fff;font-size:15px;outline:none;box-sizing:border-box"/></div>
     <div style="display:flex;gap:8px;">
       <button onclick="regSelRol('entrenador')" id="reg-btn-ent" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e31e24;background:#1a0000;color:#fff;font-size:13px;font-weight:700;cursor:pointer">🏋️ Entrenador</button>
       <button onclick="regSelRol('cliente')" id="reg-btn-cli" style="flex:1;padding:12px;border-radius:12px;border:2px solid #333;background:#111;color:#888;font-size:13px;font-weight:700;cursor:pointer">👤 Cliente</button>
@@ -2025,72 +2026,93 @@ function renderAdminClientes(){
 
 function renderAdminConfig(){
   const cfg=(window._adminData||{}).config||{};
+  const tab=window._configTab||'general';
   let html='<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:80px">';
-  html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
-  html+='<div style="font-size:13px;color:var(--texto);font-weight:600;margin-bottom:10px">Moneda por defecto</div>';
-  html+='<select id="admin-moneda-default" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:13px">';
-  MONEDAS.forEach(m=>{html+='<option value="'+m+'"'+(cfg.moneda_default===m?' selected':'')+'>'+m+'</option>';});
-  html+='</select></div>';
-  html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
-  html+='<div style="font-size:13px;color:var(--texto);font-weight:600;margin-bottom:10px">Mensaje recordatorio por defecto</div>';
-  html+='<textarea id="admin-msg-default" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:80px;box-sizing:border-box">'+(cfg.msg_default||'')+'</textarea></div>';
-  html+='<div style="background:var(--gris);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center">';
-  html+='<div><div style="font-size:13px;color:var(--texto);font-weight:600">Mensaje prellenado en WhatsApp</div>';
-  html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">Abrir chat con mensaje o vacío</div></div>';
-  html+='<label class="switch"><input type="checkbox" id="admin-prellenado"'+(cfg.msg_prellenado?' checked':'')+' onchange="guardarAdminConfig()"><span class="slider"></span></label></div>';
-  html+='<button onclick="guardarAdminConfig()" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:var(--texto);font-size:14px;font-weight:700;padding:12px;cursor:pointer">💾 Guardar configuración</button>';
-
-  // CÓDIGO DE VINCULACIÓN
-  const codigoActual = cfg.codigo_vinculacion || '';
-  html+='<div style="background:var(--gris);border-radius:14px;padding:16px;margin-top:10px">';
-  html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:6px">🔗 Código de vinculación</div>';
-  html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">Comparte este código con tus clientes para que puedan registrarse.</div>';
-  html+='<div style="background:var(--card);border:2px solid #e31e24;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
-  html+='<div id="admin-codigo-vinc-txt" style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">' + (codigoActual || '——') + '</div>';
-  html+='<div style="font-size:10px;color:var(--texto-medio);margin-top:4px;text-transform:uppercase;letter-spacing:1px">Código actual</div>';
-  html+='</div>';
-  html+='<button onclick="generarCodigoVinculacion()" style="width:100%;background:#1a0000;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:10px;cursor:pointer">🔄 Generar nuevo código</button>';
-  html+='</div>';
-
-  html+='<div style="height:1px;background:var(--gris2);margin:16px 0"></div>';
-
-  // SECCIÓN PROMOCIONES PERSONALIZADAS
-  html+='<div style="margin-top:18px"><div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:10px">🎁 Promociones personalizadas</div>';
-  html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">El motor las sugerirá automáticamente según la condición. Tú decides si la envías.</div>';
-
-  // Lista promos existentes
-  const promosCustom=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
-  promosCustom.forEach((p,i)=>{
-    html+='<div style="background:var(--gris);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #e91e63">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
-    html+='<span style="font-size:13px;color:var(--texto);font-weight:600">'+p.nombre+'</span>';
-    html+='<div style="display:flex;gap:8px;align-items:center">';
-    html+='<label class="switch"><input type="checkbox" '+(p.activa?'checked':'')+' onchange="togglePromoCustom('+i+',this.checked)"><span class="slider"></span></label>';
-    html+='<button onclick="borrarPromoCustom('+i+')" style="background:#2a0a0a;border:1px solid #5a1a1a;border-radius:8px;color:#e31e24;font-size:11px;padding:4px 8px;cursor:pointer">🗑️</button>';
-    html+='</div></div>';
-    html+='<div style="font-size:11px;color:var(--texto-medio)">'+(p.condicion==='nuevo'?'🆕 Nuevos clientes':p.condicion==='pausado'?'⏸️ Pausados':p.condicion==='activo'?'✅ Activos':'👥 Todos')+' · '+p.descuento+'% descuento</div>';
-    html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:4px;font-style:italic">'+p.mensaje.substring(0,60)+(p.mensaje.length>60?'...':'')+'</div>';
-    html+='</div>';
+  html+='<div style="display:flex;gap:6px;margin-bottom:4px">';
+  [{id:'general',icon:'⚙️',lbl:'General'},{id:'vinculacion',icon:'🔗',lbl:'Vinculación'},{id:'whatsapp',icon:'💬',lbl:'WhatsApp'},{id:'premium',icon:'🔑',lbl:'Premium'}].forEach(t=>{
+    const a=t.id===tab;
+    html+='<button onclick="window._configTab=\''+t.id+'\';document.getElementById(\'admin-tab-content\').innerHTML=renderAdminConfig();if(\''+t.id+'\'===\'whatsapp\')cargarEstadoWA();else cargarCodigoVinc();" style="flex:1;padding:8px 2px;border-radius:10px;border:'+(a?'2px solid #e31e24':'1px solid #333')+';background:'+(a?'#1a0000':'#111')+';color:'+(a?'#e31e24':'#888')+';font-size:10px;font-weight:700;cursor:pointer">'+t.icon+'<br>'+t.lbl+'</button>';
   });
-
-  // Formulario nueva promo
-  html+='<div style="background:var(--gris);border-radius:14px;padding:14px;margin-top:10px">';
-  html+='<div style="font-size:12px;color:#e91e63;font-weight:700;margin-bottom:10px">➕ Nueva promoción</div>';
-  html+='<input type="text" id="np-nombre" placeholder="Nombre (ej: Promo familia julio)" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:8px">';
-  html+='<select id="np-condicion" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:13px;margin-bottom:8px">';
-  html+='<option value="nuevo">🆕 Nuevos clientes (registro &lt; 30 días)</option>';
-  html+='<option value="pausado">⏸️ Clientes pausados</option>';
-  html+='<option value="activo">✅ Clientes activos</option>';
-  html+='<option value="todos">👥 Todos los clientes</option>';
-  html+='</select>';
-  html+='<div style="display:flex;gap:8px;margin-bottom:8px">';
-  html+='<input type="number" id="np-descuento" placeholder="% descuento (ej: 20)" min="0" max="100" style="flex:1;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:13px;outline:none">';
-  html+='<div style="display:flex;align-items:center;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;font-size:11px;color:var(--texto-secundario);white-space:nowrap">% off</div>';
   html+='</div>';
-  html+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre}, {precio}, {descuento}, {precio_con_descuento}" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:80px;box-sizing:border-box;margin-bottom:8px"></textarea>';
-  html+='<div style="font-size:10px;color:var(--texto-secundario);margin-bottom:10px">Variables: {nombre} {precio} {descuento} {precio_con_descuento}</div>';
-  html+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:10px;color:#e91e63;font-size:13px;font-weight:700;padding:10px;cursor:pointer">💾 Guardar promoción</button>';
-  html+='</div></div>';
+
+  if(tab==='general'){
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:600;margin-bottom:10px">Moneda por defecto</div>';
+    html+='<select id="admin-moneda-default" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:13px">';
+    MONEDAS.forEach(m=>{html+='<option value="'+m+'"'+(cfg.moneda_default===m?' selected':'')+'>'+m+'</option>';});
+    html+='</select></div>';
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:600;margin-bottom:10px">Mensaje recordatorio por defecto</div>';
+    html+='<textarea id="admin-msg-default" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:80px;box-sizing:border-box">'+(cfg.msg_default||'')+'</textarea></div>';
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center">';
+    html+='<div><div style="font-size:13px;color:var(--texto);font-weight:600">Mensaje prellenado en WhatsApp</div>';
+    html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">Abrir chat con mensaje o vacío</div></div>';
+    html+='<label class="switch"><input type="checkbox" id="admin-prellenado"'+(cfg.msg_prellenado?' checked':'')+' onchange="guardarAdminConfig()"><span class="slider"></span></label></div>';
+    html+='<button onclick="guardarAdminConfig()" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:var(--texto);font-size:14px;font-weight:700;padding:12px;cursor:pointer">💾 Guardar</button>';
+  }
+
+  if(tab==='vinculacion'){
+    const cod=cfg.codigo_vinculacion||'';
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:6px">Código de vinculación</div>';
+    html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">Comparte este código con tus clientes.</div>';
+    html+='<div style="display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid #e31e24;border-radius:12px;padding:10px 14px">';
+    html+='<div id="admin-codigo-vinc-txt" style="flex:1;font-size:18px;font-weight:900;color:#e31e24;letter-spacing:4px;font-family:monospace;white-space:nowrap">'+(cod||'——')+'</div>';
+    html+='<button onclick="copiarCodigoVinc()" style="background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">📋 Copiar</button>';
+    html+='</div></div>';
+    html+='<div style="margin-top:10px"><div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:10px">🎁 Promociones personalizadas</div>';
+    html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">El motor las sugerirá según condición. Tú decides si envías.</div>';
+    const promosCustom=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+    promosCustom.forEach((p,i)=>{
+      html+='<div style="background:var(--gris);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #e91e63">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+      html+='<span style="font-size:13px;color:var(--texto);font-weight:600">'+p.nombre+'</span>';
+      html+='<div style="display:flex;gap:8px;align-items:center">';
+      html+='<label class="switch"><input type="checkbox" '+(p.activa?'checked':'')+' onchange="togglePromoCustom('+i+',this.checked)"><span class="slider"></span></label>';
+      html+='<button onclick="borrarPromoCustom('+i+')" style="background:#2a0a0a;border:1px solid #5a1a1a;border-radius:8px;color:#e31e24;font-size:11px;padding:4px 8px;cursor:pointer">🗑️</button>';
+      html+='</div></div>';
+      html+='<div style="font-size:11px;color:var(--texto-medio)">'+(p.condicion==='nuevo'?'🆕 Nuevos':p.condicion==='pausado'?'⏸️ Pausados':p.condicion==='activo'?'✅ Activos':'👥 Todos')+' · '+p.descuento+'% off</div>';
+      html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:4px;font-style:italic">'+p.mensaje.substring(0,60)+(p.mensaje.length>60?'...':'')+'</div>';
+      html+='</div>';
+    });
+    html+='<div style="background:var(--gris);border-radius:14px;padding:14px;margin-top:10px">';
+    html+='<div style="font-size:12px;color:#e91e63;font-weight:700;margin-bottom:10px">➕ Nueva promoción</div>';
+    html+='<input type="text" id="np-nombre" placeholder="Nombre (ej: Promo julio)" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:8px">';
+    html+='<select id="np-condicion" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:13px;margin-bottom:8px">';
+    html+='<option value="nuevo">🆕 Nuevos clientes</option>';
+    html+='<option value="pausado">⏸️ Pausados</option>';
+    html+='<option value="activo">✅ Activos</option>';
+    html+='<option value="todos">👥 Todos</option>';
+    html+='</select>';
+    html+='<div style="display:flex;gap:8px;margin-bottom:8px">';
+    html+='<input type="number" id="np-descuento" placeholder="% descuento" min="0" max="100" style="flex:1;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:13px;outline:none">';
+    html+='<div style="display:flex;align-items:center;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;font-size:11px;color:var(--texto-secundario)">% off</div>';
+    html+='</div>';
+    html+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre}, {precio}, {descuento}" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:80px;box-sizing:border-box;margin-bottom:8px"></textarea>';
+    html+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:10px;color:#e91e63;font-size:13px;font-weight:700;padding:10px;cursor:pointer">💾 Guardar promoción</button>';
+    html+='</div></div>';
+  }
+
+  if(tab==='whatsapp'){
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:12px">💬 Conexión WhatsApp</div>';
+    html+='<div id="wa-estado-box" style="background:var(--card);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
+    html+='<div id="wa-estado-txt" style="font-size:15px;font-weight:700;color:#888">Verificando...</div>';
+    html+='</div>';
+    html+='<div id="wa-codigo-box" style="display:none;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
+    html+='<div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Ingresa este código en WhatsApp → Dispositivos vinculados → Vincular con número</div>';
+    html+='<div id="wa-codigo-txt" style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>';
+    html+='</div></div>';
+  }
+
+  if(tab==='premium'){
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px;text-align:center">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:8px">🔑 Plan Premium</div>';
+    html+='<div style="font-size:12px;color:var(--texto-secundario)">Administra tu plan desde el panel principal.</div>';
+    html+='</div>';
+  }
+
+  html+='</div>';
   return html;
 }
 
@@ -2204,6 +2226,59 @@ function copiarCodigoVinc() {
 }
 
 // Cargar código guardado al abrir config
+async function cargarEstadoWA() {
+  const entId = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+  try {
+    const res = await fetch('/api/wa/estado?entrenador_id=' + entId);
+    const data = await res.json();
+    const txt = document.getElementById('wa-estado-txt');
+    const box = document.getElementById('wa-codigo-box');
+    const cod = document.getElementById('wa-codigo-txt');
+    const btnCon = document.getElementById('wa-btn-conectar');
+    if (!txt) return;
+    if (data.conectado) {
+      txt.textContent = '✅ WhatsApp conectado';
+      txt.style.color = '#4caf50';
+      if (box) box.style.display = 'none';
+      if (btnCon) btnCon.style.display = 'none';
+    } else {
+      txt.textContent = '🔴 No conectado';
+      txt.style.color = '#e31e24';
+      if (data.codigo && box && cod) {
+        box.style.display = 'block';
+        cod.textContent = data.codigo;
+        if (btnCon) btnCon.style.display = 'none';
+      } else {
+        if (btnCon) btnCon.style.display = 'block';
+      }
+    }
+  } catch(e) {
+    const txt = document.getElementById('wa-estado-txt');
+    if (txt) { txt.textContent = '⚠️ Error al verificar'; txt.style.color = '#ff9800'; }
+  }
+}
+
+async function conectarMiWhatsApp() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  const tel = prompt('Ingresa tu número de WhatsApp con código de país (ej: 573006197897):');
+  if (!tel) return;
+  const btn = document.getElementById('wa-btn-conectar');
+  if (btn) { btn.textContent = '⏳ Conectando...'; btn.disabled = true; }
+  const res = await fetch('/api/wa/conectar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId, telefono: tel })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    setTimeout(cargarEstadoWA, 5000);
+  } else {
+    toast(data.error || 'Error al conectar');
+    if (btn) { btn.textContent = '📲 Conectar WhatsApp'; btn.disabled = false; }
+  }
+}
+
 function cargarCodigoVinc() {
   fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg=>{
     const el = document.getElementById('vinc-codigo-txt');
@@ -2793,6 +2868,8 @@ function abrirConfig(){
   sh.style.display='flex';
   cargarNombreEntrenador();
   cargarCodigoVinc();
+  cargarEstadoWA();
+  cargarEstadoWA();
   // Mostrar estado premium entrenador
   fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg => {
     const el = document.getElementById('cfg-premium-estado');
@@ -9323,17 +9400,25 @@ function filtrarRutinas(){
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
       <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">C&oacute;digo de vinculaci&oacute;n</div>
       <div style="font-size:11px;color:var(--texto-medio);margin-bottom:12px">Comparte este c&oacute;digo con tus clientes para que puedan registrarse en tu app.</div>
-      <div id="vinc-codigo-display" style="background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
-        <div id="vinc-codigo-txt" style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>
-        <div style="font-size:10px;color:var(--texto-medio);margin-top:4px;text-transform:uppercase;letter-spacing:1px">C&oacute;digo actual</div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button onclick="generarCodigoVinc()" id="btn-generar-vinc" style="flex:1;background:#1a0000;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:10px;cursor:pointer">&#128260; Generar</button>
-        <button onclick="copiarCodigoVinc()" style="flex:1;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px;cursor:pointer">&#128203; Copiar</button>
-        <button onclick="toggleLockCodigo()" id="btn-lock-vinc" style="background:#1a1a1a;border:1px solid #333;border-radius:10px;color:#fff;font-size:16px;padding:10px 14px;cursor:pointer">&#128275;</button>
+      <div style="display:flex;align-items:center;gap:8px;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:10px 14px">
+        <div id="vinc-codigo-txt" style="flex:1;font-size:16px;font-weight:900;color:#e31e24;letter-spacing:3px;font-family:monospace;white-space:nowrap">——————</div>
+        <button onclick="copiarCodigoVinc()" style="background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">&#128203; Copiar</button>
       </div>
     </div>
 
+    <!-- WHATSAPP -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128172; WhatsApp</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">Conexi&oacute;n WhatsApp</div>
+      <div id="wa-estado-box" style="background:#0a0a0a;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
+        <div id="wa-estado-txt" style="font-size:14px;font-weight:700;color:#888">Verificando...</div>
+      </div>
+      <div id="wa-codigo-box" style="display:none;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Ingresa este c&oacute;digo en WhatsApp &rarr; Dispositivos vinculados &rarr; Vincular con n&uacute;mero</div>
+        <div id="wa-codigo-txt" style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>
+      </div>
+      <button id="wa-btn-conectar" onclick="conectarMiWhatsApp()" style="display:none;width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer">&#128242; Conectar WhatsApp</button>
+    </div>
     <!-- APARIENCIA -->
     <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#127912; Apariencia</div>
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
@@ -9891,6 +9976,7 @@ function regSelRol(rol) {
   document.getElementById('reg-btn-cli').style.borderColor = rol === 'cliente' ? '#e31e24' : '#333';
   document.getElementById('reg-btn-cli').style.color = rol === 'cliente' ? '#fff' : '#888';
   document.getElementById('reg-codigo-div').style.display = rol === 'cliente' ? 'block' : 'none';
+  document.getElementById('reg-tel-div').style.display = rol === 'cliente' ? 'block' : 'none';
   document.getElementById('reg-btn-ent').dataset.rol = rol;
 }
 
@@ -9900,6 +9986,7 @@ async function hacerRegistro() {
   const pass = document.getElementById('reg-pass').value.trim();
   const rol = document.getElementById('reg-btn-ent').dataset.rol || 'entrenador';
   const codigo = document.getElementById('reg-codigo').value.trim();
+  const telefono = document.getElementById('reg-telefono').value.trim();
   const error = document.getElementById('reg-error');
   error.style.display = 'none';
 
@@ -9908,12 +9995,17 @@ async function hacerRegistro() {
     error.style.display = 'block';
     return;
   }
+  if (rol === 'cliente' && !telefono) {
+    error.textContent = 'Ingresa tu número de teléfono';
+    error.style.display = 'block';
+    return;
+  }
 
   try {
     const res = await fetch('/api/auth/registro', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({nombre, email, password: pass, rol, codigo_entrenador: codigo})
+      body: JSON.stringify({nombre, email, password: pass, rol, codigo_entrenador: codigo, telefono})
     });
     const data = await res.json();
     if (data.ok) {
