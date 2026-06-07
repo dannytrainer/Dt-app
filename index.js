@@ -179,7 +179,15 @@ app.get('/auth/google/callback',
 
 
 app.use(express.urlencoded({extended:true, limit:'50mb'}));
-app.use(express.static('public'));
+app.use(express.static('public', {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+  }
+}));
 app.use('/images/glosario', express.static('public/images/glosario'));
 app.use('/data/fotos', express.static(path.join(__dirname,'data/fotos')));
 
@@ -220,6 +228,15 @@ function conectarWhatsApp(entId, telefono) {
     console.log('⚠️ Worker ['+entId+'] terminó con código '+code);
     sess.proceso = null;
     sess.conectado = false;
+    // Reconectar automáticamente si no fue salida limpia
+    if (code !== 0 && code !== null) {
+      console.log('🔄 Reconectando worker ['+entId+'] en 5 segundos...');
+      setTimeout(() => {
+        if (!waSessions[entId] || !waSessions[entId].proceso) {
+          conectarWhatsApp(entId, null);
+        }
+      }, 5000);
+    }
   });
   console.log('🚀 Worker iniciado para ['+entId+']');
 }
@@ -486,10 +503,14 @@ app.post('/api/chat/:id/leer', (req, res) => {
 });
 
 app.get('/api/chat/no-leidos/entrenador', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
   const chats = cargarJSON('chats.json', {});
+  const usuarios = cargarJSON('usuarios.json', []);
+  const misClientes = usuarios.filter(u => u.entrenador_id === eid).map(u => u.id);
   let total = 0;
   const porCliente = {};
   Object.keys(chats).forEach(id => {
+    if (!misClientes.includes(id)) return;
     const noLeidos = chats[id].filter(m => m.autor === 'cliente' && !m.leidoEntrenador).length;
     if (noLeidos > 0) { porCliente[id] = noLeidos; total += noLeidos; }
   });
@@ -612,18 +633,29 @@ app.post('/api/config/logo', upload.single('logo'), (req, res) => {
 });
 
 // ADMINISTRATIVO
-app.get('/api/admin', (req, res) => res.json(cargarJSON('administrativo.json')));
+app.get('/api/admin', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
+  res.json(data);
+});
 app.get('/api/admin/:id', (req, res) => {
-  const data = cargarJSON('administrativo.json');
+  const eid = req.query.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
   res.json(data.clientes[req.params.id] || {});
 });
 app.post('/api/admin/:id', (req, res) => {
-  const data = cargarJSON('administrativo.json');
+  const eid = req.body.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
   if(!data.clientes[req.params.id]) data.clientes[req.params.id] = {precio:0,moneda:'COP',pagos:[]};
   const {msg_pago, ...resto} = req.body;
   Object.assign(data.clientes[req.params.id], resto);
-  guardarJSON('administrativo.json', data);
-  // Guardar msg_pago en usuarios.json
+  guardarJSON(archivo, data);
   if(msg_pago !== undefined){
     const usuarios = cargarJSON('usuarios.json');
     const idx = usuarios.findIndex(u => String(u.id) === String(req.params.id));
@@ -632,20 +664,25 @@ app.post('/api/admin/:id', (req, res) => {
   res.json({ok:true});
 });
 app.post('/api/admin/:id/pago', (req, res) => {
-  const data = cargarJSON('administrativo.json');
+  const eid = req.body.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
   if(!data.clientes[req.params.id]) data.clientes[req.params.id] = {precio:0,moneda:'COP',pagos:[]};
   data.clientes[req.params.id].pagos.push({...req.body, fecha: new Date().toISOString().split('T')[0]});
-  guardarJSON('administrativo.json', data);
-  // Actualizar estado_pago en usuarios.json
+  guardarJSON(archivo, data);
   const usuarios = cargarJSON('usuarios.json');
   const idx = usuarios.findIndex(u => u.id === req.params.id);
   if(idx !== -1){ usuarios[idx].estado_pago = 'aldia'; guardarJSON('usuarios.json', usuarios); }
   res.json({ok:true});
 });
 app.post('/api/admin/config/update', (req, res) => {
-  const data = cargarJSON('administrativo.json');
+  const eid = req.body.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
   Object.assign(data.config, req.body);
-  guardarJSON('administrativo.json', data);
+  guardarJSON(archivo, data);
   res.json({ok:true});
 });
 // CONFIG
@@ -687,12 +724,14 @@ app.post('/api/enciclopedia/personalizados/:id/foto/:tipo', uploadFotoEjercicio.
     var tipo = req.params.tipo;
     var ext = req.file.originalname.split('.').pop();
     var ruta = '/enciclopedia/imgs/' + id + '-' + tipo + '.' + ext;
-    var data = JSON.parse(require('fs').readFileSync('./data/enciclopedia_personalizados.json'));
+    var eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+    var customPath = './data/enciclopedia_personalizados_' + eid + '.json';
+    var data = fs.existsSync(customPath) ? JSON.parse(require('fs').readFileSync(customPath)) : {ejercicios:[]};
     var idx = data.ejercicios.findIndex(function(e) { return e.id === id; });
     if (idx === -1) return res.status(404).json({ok: false});
     if (tipo === 'inicio') data.ejercicios[idx].imagen_inicio = ruta;
     else data.ejercicios[idx].imagen_fin = ruta;
-    require('fs').writeFileSync('./data/enciclopedia_personalizados.json', JSON.stringify(data, null, 2));
+    require('fs').writeFileSync(customPath, JSON.stringify(data, null, 2));
     res.json({ok: true, imagen: ruta});
   } catch(e) {
     res.status(500).json({ok: false, error: e.message});
@@ -772,19 +811,46 @@ app.post('/api/horarios', (req, res) => {
 });
 
 app.post('/api/grupo-info', async (req, res) => {
-  const { link } = req.body;
+  const { link, entrenador_id } = req.body;
   if(!link) return res.json({ok:false, error:'Sin link'});
   try {
+    const entId = entrenador_id || 'ent_001';
+    const sess = waSessions[entId];
+    if(!sess || !sess.conectado || !sess.proceso) return res.json({ok:false, error:'WhatsApp no conectado'});
     const codigo = link.split('/').pop();
-    const info = await sock.groupGetInviteInfo(codigo);
-    res.json({ok:true, jid:info.id, nombre:info.subject, participantes:info.size});
+    const msgId = Date.now() + '_grp';
+    const resultado = await new Promise((resolve) => {
+      sess.pendientes[msgId] = resolve;
+      sess.proceso.send({ tipo: 'grupoInfo', id: msgId, codigo });
+      setTimeout(() => { if(sess.pendientes[msgId]) { delete sess.pendientes[msgId]; resolve(null); } }, 10000);
+    });
+    if(!resultado) return res.json({ok:false, error:'No se pudo obtener info del grupo'});
+    res.json({ok:true, jid:resultado.id, nombre:resultado.subject, participantes:resultado.size});
   } catch(e) {
     res.json({ok:false, error:e.message});
   }
 });
 
-app.get('/api/status',(req,res)=>res.json({conectado:global.waConectado||false}));
-app.get('/api/logs', (req, res) => res.json(cargarJSON('logs.json')));
+app.get('/api/status',(req,res)=>{
+  const eid = req.query.entrenador_id || 'ent_001';
+  const sess = waSessions[eid];
+  res.json({conectado: sess ? sess.conectado : false});
+});
+app.get('/api/logs', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const logs = cargarJSON('logs.json');
+  const usuarios = cargarJSON('usuarios.json', []);
+  const misClientes = usuarios.filter(u => u.entrenador_id === eid).map(u => u.id);
+  const logsFiltrados = {};
+  Object.keys(logs).forEach(fecha => {
+    const dia = {};
+    Object.keys(logs[fecha]).forEach(cid => {
+      if (misClientes.includes(cid)) dia[cid] = logs[fecha][cid];
+    });
+    if (Object.keys(dia).length > 0) logsFiltrados[fecha] = dia;
+  });
+  res.json(logsFiltrados);
+});
 app.post('/api/enviar', async (req, res) => {
   const { telefono, mensaje, entrenador_id } = req.body;
   const entId = entrenador_id || 'ent_001';
@@ -951,9 +1017,11 @@ function cargarEnciclopedia() {
   try { return JSON.parse(fs.readFileSync(encPath, 'utf8')); } catch(e) { return []; }
 }
 
-function cargarPersonalizados() {
-  if (!fs.existsSync(encCustomPath)) return { limite_free: 10, ejercicios: [] };
-  try { return JSON.parse(fs.readFileSync(encCustomPath, 'utf8')); } catch(e) { return { limite_free: 10, ejercicios: [] }; }
+function cargarPersonalizados(entId) {
+  const eid = entId || 'ent_001';
+  const customPath = path.join(__dirname, 'data', 'enciclopedia_personalizados_' + eid + '.json');
+  if (!fs.existsSync(customPath)) return { limite_free: 10, ejercicios: [] };
+  try { return JSON.parse(fs.readFileSync(customPath, 'utf8')); } catch(e) { return { limite_free: 10, ejercicios: [] }; }
 }
 
 
@@ -966,7 +1034,7 @@ require("./rutas_historial")(app, fs);
 // ── ENCICLOPEDIA ──
 app.get('/ejercicio/:id', (req, res) => {
   const oficiales = cargarJSON('enciclopedia.json', []);
-  const custom = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const custom = cargarPersonalizados(req.query.entrenador_id || 'ent_001');
   const todos = [...oficiales, ...(custom.ejercicios || [])];
   const ej = todos.find(e => e.id === req.params.id);
   if (!ej) return res.status(404).send('<h2>Ejercicio no encontrado</h2>');
@@ -1022,8 +1090,9 @@ ${ej.errores_comunes.map(e => `<div class="error"><span>⚠️</span><span>${e}<
 
 
 app.get('/api/enciclopedia/buscar-match/:nombre', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
   const oficiales = cargarJSON('enciclopedia.json', []);
-  const custom = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const custom = cargarPersonalizados(eid);
   const todos = [...oficiales, ...(custom.ejercicios || [])];
   
   const nombre = decodeURIComponent(req.params.nombre).toLowerCase().trim();
@@ -1075,8 +1144,9 @@ app.put('/api/enciclopedia/editar/:id', (req, res) => {
 
 
 app.get('/api/enciclopedia', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
   const oficiales = cargarJSON('enciclopedia.json', []);
-  const custom = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const custom = cargarPersonalizados(eid);
   let todos = [...oficiales, ...(custom.ejercicios || [])];
   if (req.query.grupo) todos = todos.filter(e => e.grupo === req.query.grupo);
   if (req.query.equipamiento) todos = todos.filter(e => e.equipamiento === req.query.equipamiento);
@@ -1108,7 +1178,8 @@ app.post('/api/enciclopedia/personalizados', (req, res) => {
     return res.status(403).json({ error: 'Límite del plan Free alcanzado (10 ejercicios)' });
   const nuevo = { ...req.body, id: 'custom-' + Date.now(), es_personalizado: true };
   data.ejercicios.push(nuevo);
-  guardarJSON('enciclopedia_personalizados.json', data);
+  const customPath1 = 'enciclopedia_personalizados_' + eid + '.json';
+  guardarJSON(customPath1, data);
   res.json(nuevo);
 });
 
@@ -1118,7 +1189,8 @@ app.put('/api/enciclopedia/personalizados/:id', (req, res) => {
   const idx = (data.ejercicios||[]).findIndex(e => e.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
   data.ejercicios[idx] = { ...data.ejercicios[idx], ...req.body };
-  guardarJSON('enciclopedia_personalizados.json', data);
+  const customPath2 = 'enciclopedia_personalizados_' + eid + '.json';
+  guardarJSON(customPath2, data);
   res.json(data.ejercicios[idx]);
 });
 
@@ -1126,14 +1198,16 @@ app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
   const eid = req.query.entrenador_id || 'ent_001';
   const data = cargarPersonalizados(eid);
   data.ejercicios = (data.ejercicios||[]).filter(e => e.id !== req.params.id);
-  guardarJSON('enciclopedia_personalizados.json', data);
+  const customPath3 = 'enciclopedia_personalizados_' + eid + '.json';
+  guardarJSON(customPath3, data);
   res.json({ ok: true });
 });
 
 app.get('/api/enciclopedia/:id', (req, res) => {
   const id = req.params.id;
+  const eid = req.query.entrenador_id || 'ent_001';
   const oficiales = cargarJSON('enciclopedia.json', []);
-  const custom = cargarJSON('enciclopedia_personalizados.json', { ejercicios: [] });
+  const custom = cargarPersonalizados(eid);
   const todos = [...oficiales, ...(custom.ejercicios || [])];
   const ej = todos.find(e => e.id === id);
   if (!ej) return res.status(404).json({ error: 'No encontrado' });
@@ -1199,20 +1273,97 @@ app.post('/api/premium/webhook', (req, res) => {
 
 // PREMIUM — generar código (solo Danny)
 app.post('/api/premium/generar', (req, res) => {
-  const { dias } = req.body || {};
+  const { dias, codigo_manual, permanente } = req.body || {};
   const config = cargarJSON('config.json', {});
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let codigo = 'DTP-';
-  for (let i=0; i<8; i++) codigo += chars[Math.floor(Math.random()*chars.length)];
+  let codigo = codigo_manual ? codigo_manual.toUpperCase().trim() : 'DTP-';
+  if (!codigo_manual) {
+    for (let i=0; i<8; i++) codigo += chars[Math.floor(Math.random()*chars.length)];
+  }
+  // Verificar que no exista ya
   if (!config.codigos_premium) config.codigos_premium = [];
+  if (config.codigos_premium.find(c => c.codigo === codigo)) {
+    return res.json({ ok: false, error: 'Ese código ya existe' });
+  }
+  const diasFinal = permanente ? 99999 : (dias || 30);
   config.codigos_premium.push({
     codigo,
     usado: false,
-    dias: dias || 30,
+    dias: diasFinal,
+    permanente: !!permanente,
     fechaCreacion: new Date().toISOString()
   });
   guardarJSON('config.json', config);
-  res.json({ ok: true, codigo, dias: dias || 30 });
+  res.json({ ok: true, codigo, dias: diasFinal, permanente: !!permanente });
+});
+
+app.get('/api/premium/codigos', (req, res) => {
+  const config = cargarJSON('config.json', {});
+  res.json(config.codigos_premium || []);
+});
+
+app.delete('/api/premium/codigos/:codigo', (req, res) => {
+  const config = cargarJSON('config.json', {});
+  config.codigos_premium = (config.codigos_premium || []).filter(c => c.codigo !== req.params.codigo);
+  guardarJSON('config.json', config);
+  res.json({ ok: true });
+});
+
+
+// SUPERADMIN - activar premium directo a entrenador
+app.post('/api/premium/activar-entrenador-directo', (req, res) => {
+  const { id, dias } = req.body;
+  if (!id) return res.json({ ok: false, error: 'Falta id' });
+  const d = dias || 30;
+  const hasta = new Date();
+  hasta.setDate(hasta.getDate() + d);
+  const hastaStr = hasta.toISOString().split('T')[0];
+  const archivo = id === 'ent_001' ? 'config.json' : 'config_' + id + '.json';
+  const cfg = cargarJSON(archivo, cargarJSON('config.json', {}));
+  cfg.premium_entrenador = true;
+  cfg.premium_entrenador_hasta = hastaStr;
+  guardarJSON(archivo, cfg);
+  res.json({ ok: true, hasta: hastaStr });
+});
+
+// SUPERADMIN - activar premium directo a cliente
+app.post('/api/premium/activar-cliente-directo', (req, res) => {
+  const { id, dias } = req.body;
+  if (!id) return res.json({ ok: false, error: 'Falta id' });
+  const d = dias || 30;
+  const hasta = new Date();
+  hasta.setDate(hasta.getDate() + d);
+  const hastaStr = hasta.toISOString().split('T')[0];
+  const usuarios = cargarJSON('usuarios.json', []);
+  const u = usuarios.find(x => x.id === id);
+  if (!u) return res.json({ ok: false, error: 'Cliente no encontrado' });
+  u.premium = true;
+  u.premium_hasta = hastaStr;
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true, hasta: hastaStr });
+});
+
+// SUPERADMIN - listar entrenadores
+app.get('/api/superadmin/entrenadores', (req, res) => {
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const usuarios = cargarJSON('usuarios.json', []);
+  const resultado = cuentas.entrenadores.map(e => {
+    const misClientes = usuarios.filter(u => u.entrenador_id === e.id);
+    const cfg = cargarJSON(e.id === 'ent_001' ? 'config.json' : 'config_' + e.id + '.json', {});
+    return {
+      id: e.id,
+      nombre: e.nombre,
+      email: e.email,
+      activo: e.activo !== false,
+      fecha_registro: e.fecha_registro || null,
+      total_clientes: misClientes.length,
+      clientes_activos: misClientes.filter(u => u.activo).length,
+      premium: cfg.premium_entrenador || false,
+      premium_hasta: cfg.premium_entrenador_hasta || null,
+      codigo_vinculacion: e.codigo_vinculacion || null
+    };
+  });
+  res.json(resultado);
 });
 
 app.listen(3000, () => console.log('Interfaz en http://localhost:3000'));
@@ -1240,12 +1391,25 @@ app.post('/api/informe/:id/enviar', async (req, res) => {
     });
 
     const buffer = Buffer.from(htmlContent, 'utf-8');
-    await sock.sendMessage(jid, {
-      document: buffer,
-      mimetype: 'text/html',
-      fileName: 'Informe-Premium-' + nombre.replace(/ /g, '-') + '.html'
+    const entId = usuario.entrenador_id || 'ent_001';
+    const sess = waSessions[entId];
+    if (!sess || !sess.conectado || !sess.proceso) {
+      return res.json({ ok: false, error: 'WhatsApp no conectado para este entrenador' });
+    }
+    const msgId = Date.now() + '_inf';
+    const resultado = await new Promise((resolve) => {
+      sess.pendientes[msgId] = resolve;
+      sess.proceso.send({
+        tipo: 'enviarDoc',
+        id: msgId,
+        telefono: usuario.telefono,
+        buffer: buffer.toString('base64'),
+        mimetype: 'text/html',
+        fileName: 'Informe-Premium-' + nombre.replace(/ /g, '-') + '.html'
+      });
+      setTimeout(() => { if (sess.pendientes[msgId]) { delete sess.pendientes[msgId]; resolve(false); } }, 15000);
     });
-    res.json({ ok: true, mensaje: 'Informe enviado a ' + nombre });
+    res.json({ ok: resultado, mensaje: resultado ? 'Informe enviado a ' + nombre : 'Error al enviar' });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
@@ -1378,6 +1542,8 @@ app.post('/api/auth/registro', (req, res) => {
     cuentas.entrenadores.push(nuevo);
     guardarJSON('cuentas.json', cuentas);
     guardarJSON('config_' + nuevo.id + '.json', { nombre_entrenador: nuevo.nombre, email: nuevo.email, codigo_vinculacion: nuevo.codigo_vinculacion, msg_prellenado: false });
+    // Arrancar worker WA para nuevo entrenador
+    conectarWhatsApp(nuevo.id, null);
     return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, email: nuevo.email, nombre: nuevo.nombre, roles: [{rol:'entrenador', id: nuevo.id, nombre: nuevo.nombre}, {rol:'cliente', id: null, nombre: nuevo.nombre}] });
   }
   

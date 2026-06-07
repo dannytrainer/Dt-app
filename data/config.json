@@ -21,74 +21,14 @@
   "codigo_vinculacion": "8DKS-NM5X-WHYW",
   "codigos_premium": [
     {
-      "codigo": "DTP-5ZL4346J",
+      "codigo": "FUERZAELCASTILLO",
       "usado": false,
-      "fechaCreacion": "2026-06-01T07:30:18.606Z"
-    },
-    {
-      "codigo": "DTP-R5JDAKZR",
-      "usado": true,
-      "dias": 1,
-      "fechaCreacion": "2026-06-01T22:36:21.077Z",
-      "usadoPor": "1780069487489",
-      "fechaUso": "2026-06-01T22:37:32.961Z"
-    },
-    {
-      "codigo": "DTP-TBER4ZY8",
-      "usado": true,
-      "dias": 1,
-      "fechaCreacion": "2026-06-01T23:13:17.376Z",
-      "fechaUso": "2026-06-01T23:14:09.426Z",
-      "usadoPor": "entrenador"
-    },
-    {
-      "codigo": "DTP-DXJGHH8K",
-      "usado": true,
-      "dias": 1,
-      "fechaCreacion": "2026-06-01T23:17:32.290Z",
-      "fechaUso": "2026-06-01T23:18:04.953Z",
-      "usadoPor": "entrenador"
-    },
-    {
-      "codigo": "DTP-A9A9MJ8T",
-      "usado": false,
-      "dias": 1,
-      "fechaCreacion": "2026-06-02T05:10:23.080Z"
-    },
-    {
-      "codigo": "DTP-S7R5XWWB",
-      "usado": true,
-      "dias": 1,
-      "fechaCreacion": "2026-06-02T05:11:57.389Z",
-      "usadoPor": "1778377049231",
-      "fechaUso": "2026-06-02T05:12:35.011Z"
-    },
-    {
-      "codigo": "DTP-AF4KYWDP",
-      "usado": true,
       "dias": 30,
-      "fechaCreacion": "2026-06-04T01:21:58.611Z",
-      "fechaUso": "2026-06-04T01:24:30.544Z",
-      "usadoPor": "entrenador"
-    },
-    {
-      "codigo": "DTP-CPT6KA57",
-      "usado": true,
-      "dias": 30,
-      "fechaCreacion": "2026-06-04T01:27:29.200Z",
-      "usadoPor": "573006197897",
-      "fechaUso": "2026-06-04T01:27:51.496Z"
-    },
-    {
-      "codigo": "DTP-YSUWPTR2",
-      "usado": true,
-      "dias": 30,
-      "fechaCreacion": "2026-06-04T01:28:36.251Z",
-      "usadoPor": "1778216541791",
-      "fechaUso": "2026-06-04T01:28:51.393Z"
+      "permanente": false,
+      "fechaCreacion": "2026-06-07T08:52:25.547Z"
     }
   ],
-  "premium_entrenador": true,
-  "premium_entrenador_hasta": "2026-07-04",
+  "premium_entrenador": false,
+  "premium_entrenador_hasta": null,
   "entrenador_id": "ent_001"
 }

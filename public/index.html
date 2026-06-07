@@ -75,7 +75,7 @@ body{background:var(--fondo);color:var(--texto)}
 .header p{font-size:10px;color:var(--rojo);font-weight:600;letter-spacing:1px}
 .sdot{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
 .son{background:rgba(76,175,80,0.15);color:#2e7d32;border:1px solid rgba(76,175,80,0.3)}
-.soff{background:#e31e24;color:#fff}
+.soff{background:#3a1a1a;color:#e31e24}
 .nav{display:flex;background:var(--card);border-bottom:1px solid #222;overflow-x:auto}
 .nav button{flex:1;min-width:70px;padding:13px 6px;background:none;border:none;color:var(--texto-secundario);font-size:12px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent}
 .nav button.active{color:var(--rojo);border-bottom-color:var(--rojo)}
@@ -1107,7 +1107,7 @@ body.modo-claro [style*="color:var(--texto-suave)"] {
 <div class="mt" id="modal-titulo">➕ Nuevo cliente</div>
 <input type="hidden" id="cliente-id">
 <div class="ig"><label>Nombre</label><input type="text" id="cliente-nombre" placeholder="Nombre del cliente"></div>
-<div class="ig"><label>Teléfono (código país + número)</label><input type="tel" id="cliente-telefono" placeholder="+57 300 000 0000"></div>
+<div class="ig"><label>Teléfono (código país + número)</label><input type="tel" id="cliente-telefono" placeholder="+57 315 6634805"></div>
 <div class="ig"><label>Tipo de cliente</label>
 <select id="cliente-tipo">
 <option value="asesorado">Asesorado (recibe rutina)</option>
@@ -1361,15 +1361,7 @@ if(p==='logs')cargarLogs();
 if(p==='enviar'){cargarSelectEnviar();cargarDifusion();}
 if(p==='admin')cargarAdmin();
 if(p==='horarios')initHorarios();
-  if(!window._navIgnoreHistory){history.pushState({page:p},'','#'+p);}
 }
-
-window.addEventListener('popstate',function(e){
-  const p=(e.state&&e.state.page)?e.state.page:'inicio';
-  window._navIgnoreHistory=true;
-  showPage(p);
-  window._navIgnoreHistory=false;
-});
 function toast(msg,ok=true){
 const t=document.getElementById('toast');
 t.textContent=msg;
@@ -2269,7 +2261,7 @@ async function cargarEstadoWA() {
 async function conectarMiWhatsApp() {
   const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
   const entId = sesion.id || 'ent_001';
-  const tel = prompt('Ingresa tu número de WhatsApp con código de país (ej: 57300 000 0000):');
+  const tel = prompt('Ingresa tu número de WhatsApp con código de país (ej: 573006197897):');
   if (!tel) return;
   const btn = document.getElementById('wa-btn-conectar');
   if (btn) { btn.textContent = '⏳ Conectando...'; btn.disabled = true; }
@@ -2872,6 +2864,10 @@ async function cargarNombreEntrenador(){
   }catch(e){console.error('cargarNombreEntrenador',e);}
 }
 function abrirConfig(){
+  // Mostrar botón superadmin solo para Danny
+  const _sesaCheck = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const _btnSA = document.getElementById('btn-superadmin');
+  if (_btnSA) _btnSA.style.display = _sesaCheck.email === 'danielgaviriabotero@gmail.com' ? 'block' : 'none';
   const sh=document.getElementById('config-sheet');
   sh.style.display='flex';
   cargarNombreEntrenador();
@@ -6624,8 +6620,7 @@ var _compExtMetricas = {
 async function verCompetenciasExternas() {
   var c = document.getElementById('herramienta-contenido');
   try {
-    var entId = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
-    var res = await fetch('/api/competencias?entrenador_id=' + entId);
+    var res = await fetch('/api/competencias');
     _compExt = await res.json();
   } catch(e) { _compExt = []; }
 
@@ -6839,15 +6834,13 @@ async function _guardarCompExt() {
   var puntos    = document.getElementById('cp-puntos').value;
   if (!nombre) { alert('Ponle un nombre a la competencia'); return; }
   if (!_compPruebasSeleccionadas.length) { alert('Selecciona al menos una prueba'); return; }
-  var entId = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
   var datos = {
     nombre: nombre,
     categoria: categoria,
     sistemaPuntos: puntos,
     pruebas: _compPruebasSeleccionadas,
     participantes: [],
-    estado: 'activa',
-    entrenador_id: entId
+    estado: 'activa'
   };
   try {
     var res = await fetch('/api/competencias', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(datos)});
@@ -8113,8 +8106,7 @@ function calcRenderConversores(c){
 let _hiitCircuitos=[];
 async function hiitCargar(){
   try{
-    const entId=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
-    const r=await fetch('/api/hiit?entrenador_id='+entId);
+    const r=await fetch('/api/hiit');
     const todos=await r.json();
     _hiitCircuitos=todos.filter(x=>x.tipo!=='intervalo');
     _intervCircuitos=todos.filter(x=>x.tipo==='intervalo');
@@ -8274,7 +8266,6 @@ async function intervGuardar() {
   if (!iv.nombre.trim()) { alert('Ponle un nombre'); return; }
   iv.tipo = 'intervalo';
   if (!iv.id) iv.id = Date.now();
-  iv.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
   await fetch('/api/hiit', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(iv)});
   var idx = _intervCircuitos.findIndex(function(x){return x.id===iv.id;});
   if (idx >= 0) _intervCircuitos[idx] = iv;
@@ -8567,7 +8558,6 @@ function hiitDragEnd(){
 }
 
 async function hiitGuardar(){
-  _hiitActual.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
   await fetch('/api/hiit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_hiitActual)});
   await hiitCargar();
   toast('💾 Circuito guardado');
@@ -8968,7 +8958,7 @@ function dtSonido(tipo){
 
 let _dtSonidoConfig={
   crono:{inicio:'campana'},
-  timer:{inicio:'alarma',fin:'alarma'},
+  timer:{inicio:'alarma',fin:'doble_pip'},
   hiit:{inicio:'silbato',descanso:'doble_pip',preparacion:'pip',final:'descenso'}
 };
 let _cronoTab='individual';
@@ -9393,197 +9383,115 @@ function filtrarRutinas(){
     </div>
   </div>
 
-  <div style="padding:16px;display:flex;flex-direction:column;gap:8px">
+  <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
 
-  <style>
-  .cfg-acord { border-radius:14px; overflow:hidden; background:var(--card); border:1px solid var(--borde); }
-  .cfg-acord-header {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:14px 16px; cursor:pointer; user-select:none;
-  }
-  .cfg-acord-header:active { background:var(--gris); }
-  .cfg-acord-titulo { font-size:12px; font-weight:700; color:var(--texto); display:flex; align-items:center; gap:8px; }
-  .cfg-acord-icono { font-size:11px; color:#e31e24; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
-  .cfg-acord-arrow { font-size:18px; color:var(--texto-medio); transition:transform 0.3s; }
-  .cfg-acord-arrow.open { transform:rotate(90deg); }
-  .cfg-acord-body { max-height:0; overflow:hidden; transition:max-height 0.4s ease; }
-  .cfg-acord-body.open { max-height:2000px; }
-  .cfg-acord-inner { padding:0 16px 16px 16px; display:flex; flex-direction:column; gap:10px; }
-  </style>
-
-  <script>
-  function toggleAcord(id) {
-    var body = document.getElementById('acord-body-'+id);
-    var arrow = document.getElementById('acord-arrow-'+id);
-    var isOpen = body.classList.contains('open');
-    body.classList.toggle('open', !isOpen);
-    arrow.classList.toggle('open', !isOpen);
-  }
-  </script>
-
-  <!-- PREMIUM -->
-  <div class="cfg-acord">
-    <div class="cfg-acord-header" onclick="toggleAcord('premium')">
-      <div class="cfg-acord-titulo">&#128273; <span class="cfg-acord-icono">Premium</span></div>
-      <span id="acord-arrow-premium" class="cfg-acord-arrow open">&#8250;</span>
+    <!-- PREMIUM -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128273; Premium</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Plan Premium Entrenador — $50.000/mes</div>
+      <div id="cfg-premium-estado" style="font-size:11px;color:var(--texto-medio);margin-bottom:12px">Acceso completo a todas las funciones profesionales</div>
+      <button onclick="entPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Pagar $50.000 por WhatsApp</button>
+      <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px;text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="cfg-codigo-premium" type="text" placeholder="INGRESA TU C&Oacute;DIGO..." style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">
+        <button onclick="validarCodigoPremium()" style="background:#333;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Activar</button>
+      </div>
+      <div id="cfg-codigo-status" style="font-size:11px;margin-top:8px;text-align:center"></div>
     </div>
-    <div id="acord-body-premium" class="cfg-acord-body open">
-      <div class="cfg-acord-inner">
-        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Plan Premium Entrenador — $50.000/mes</div>
-        <div id="cfg-premium-estado" style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Acceso completo a todas las funciones profesionales</div>
-        <button onclick="entPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;box-sizing:border-box">💳 Pagar $50.000 por WhatsApp</button>
-        <div style="font-size:11px;color:var(--texto-medio);text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input id="cfg-codigo-premium" type="text" placeholder="INGRESA TU CÓDIGO..." style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">
-          <button onclick="validarCodigoPremium()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Activar</button>
-        </div>
-        <div id="cfg-codigo-status" style="font-size:11px;text-align:center"></div>
+
+    <!-- VINCULACION -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128279; Vinculaci&oacute;n</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">C&oacute;digo de vinculaci&oacute;n</div>
+      <div style="font-size:11px;color:var(--texto-medio);margin-bottom:12px">Comparte este c&oacute;digo con tus clientes para que puedan registrarse en tu app.</div>
+      <div style="display:flex;align-items:center;gap:8px;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:10px 14px">
+        <div id="vinc-codigo-txt" style="flex:1;font-size:16px;font-weight:900;color:#e31e24;letter-spacing:3px;font-family:monospace;white-space:nowrap">——————</div>
+        <button onclick="copiarCodigoVinc()" style="background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">&#128203; Copiar</button>
       </div>
     </div>
-  </div>
 
-  <!-- APARIENCIA -->
-  <div class="cfg-acord">
-    <div class="cfg-acord-header" onclick="toggleAcord('apariencia')">
-      <div class="cfg-acord-titulo">&#127912; <span class="cfg-acord-icono">Apariencia</span></div>
-      <span id="acord-arrow-apariencia" class="cfg-acord-arrow open">&#8250;</span>
+    <!-- WHATSAPP -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128172; WhatsApp</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">Conexi&oacute;n WhatsApp</div>
+      <div id="wa-estado-box" style="background:#0a0a0a;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
+        <div id="wa-estado-txt" style="font-size:14px;font-weight:700;color:#888">Verificando...</div>
+      </div>
+      <div id="wa-codigo-box" style="display:none;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Ingresa este c&oacute;digo en WhatsApp &rarr; Dispositivos vinculados &rarr; Vincular con n&uacute;mero</div>
+        <div id="wa-codigo-txt" style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>
+      </div>
+      <button id="wa-btn-conectar" onclick="conectarMiWhatsApp()" style="display:none;width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer">&#128242; Conectar WhatsApp</button>
     </div>
-    <div id="acord-body-apariencia" class="cfg-acord-body open">
-      <div class="cfg-acord-inner">
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#fff">Tema</div>
-            <div id="ent-cfg-tema-lbl" style="font-size:11px;color:var(--texto-medio)">Modo oscuro</div>
-          </div>
-          <button id="ent-cfg-tema-btn" onclick="entToggleTema(this)" style="background:#1a1a1a;border:1px solid #333;border-radius:20px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:6px 16px">&#127769; Oscuro</button>
+    <!-- APARIENCIA -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#127912; Apariencia</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">Nombre del entrenador</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="cfg-nombre" type="text" placeholder="Tu nombre..." value="" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none">
+        <button onclick="guardarNombreEntrenador()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Guardar</button>
+      </div>
+    </div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">Logo de la app</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <img id="cfg-logo-preview" src="/logo_trainer.png" style="width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid #2a2a2a" onerror="this.src='/icon.png'">
+        <div style="flex:1">
+          <input type="file" id="cfg-logo-input" accept="image/*" style="display:none" onchange="subirLogo(this)">
+          <button onclick="document.getElementById('cfg-logo-input').click()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer;width:100%">&#128247; Logo del entrenador</button>
+          <div style="font-size:10px;color:var(--texto-medio);margin-top:6px;text-align:center">PNG o JPG &middot; m&aacute;x 5MB</div>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- VINCULACION -->
-  <div class="cfg-acord">
-    <div class="cfg-acord-header" onclick="toggleAcord('vinculacion')">
-      <div class="cfg-acord-titulo">&#128279; <span class="cfg-acord-icono">Vinculación</span></div>
-      <span id="acord-arrow-vinculacion" class="cfg-acord-arrow">&#8250;</span>
-    </div>
-    <div id="acord-body-vinculacion" class="cfg-acord-body">
-      <div class="cfg-acord-inner">
-        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Código de vinculación</div>
-        <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Comparte este código con tus clientes para que puedan registrarse en tu app.</div>
-        <div style="display:flex;align-items:center;gap:8px;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:10px 14px">
-          <div id="vinc-codigo-txt" style="flex:1;font-size:16px;font-weight:900;color:#e31e24;letter-spacing:3px;font-family:monospace;white-space:nowrap">——————</div>
-          <button onclick="copiarCodigoVinc()" style="background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">&#128203; Copiar</button>
-        </div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">&#128247; Instagram del entrenador</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="cfg-instagram" type="text" placeholder="@tu_instagram" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none">
+        <button onclick="guardarInstagram()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Guardar</button>
       </div>
     </div>
-  </div>
-
-  <!-- WHATSAPP -->
-  <div class="cfg-acord">
-    <div class="cfg-acord-header" onclick="toggleAcord('whatsapp')">
-      <div class="cfg-acord-titulo">&#128172; <span class="cfg-acord-icono">WhatsApp</span></div>
-      <span id="acord-arrow-whatsapp" class="cfg-acord-arrow">&#8250;</span>
-    </div>
-    <div id="acord-body-whatsapp" class="cfg-acord-body">
-      <div class="cfg-acord-inner">
-        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">Conexión WhatsApp</div>
-        <div id="wa-estado-box" style="background:#0a0a0a;border-radius:12px;padding:14px;text-align:center">
-          <div id="wa-estado-txt" style="font-size:14px;font-weight:700;color:#888">Verificando...</div>
-        </div>
-        <div id="wa-codigo-box" style="display:none;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:14px;text-align:center">
-          <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Ingresa este código en WhatsApp → Dispositivos vinculados → Vincular con número</div>
-          <div id="wa-codigo-txt" style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>
-        </div>
-        <button id="wa-btn-conectar" onclick="conectarMiWhatsApp()" style="display:none;width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer">&#128242; Conectar WhatsApp</button>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff">Tema</div>
+        <div id="ent-cfg-tema-lbl" style="font-size:11px;color:var(--texto-medio)">Modo oscuro</div>
       </div>
+      <button id="ent-cfg-tema-btn" onclick="entToggleTema(this)" style="background:#1a1a1a;border:1px solid #333;border-radius:20px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:6px 16px">&#127769; Oscuro</button>
     </div>
-  </div>
 
-  <!-- PERFIL -->
-  <div class="cfg-acord">
-    <div class="cfg-acord-header" onclick="toggleAcord('perfil')">
-      <div class="cfg-acord-titulo">&#127775; <span class="cfg-acord-icono">Perfil</span></div>
-      <span id="acord-arrow-perfil" class="cfg-acord-arrow">&#8250;</span>
-    </div>
-    <div id="acord-body-perfil" class="cfg-acord-body">
-      <div class="cfg-acord-inner">
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">Nombre del entrenador</div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input id="cfg-nombre" type="text" placeholder="Tu nombre..." value="" style="flex:1;background:#111;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none">
-            <button onclick="guardarNombreEntrenador()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Guardar</button>
-          </div>
-        </div>
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">Logo de la app</div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <img id="cfg-logo-preview" src="/logo_trainer.png" style="width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid #2a2a2a" onerror="this.src='/icon.png'">
-            <div style="flex:1">
-              <input type="file" id="cfg-logo-input" accept="image/*" style="display:none" onchange="subirLogo(this)">
-              <button onclick="document.getElementById('cfg-logo-input').click()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer;width:100%">&#128247; Logo del entrenador</button>
-              <div style="font-size:10px;color:var(--texto-medio);margin-top:6px;text-align:center">PNG o JPG · máx 5MB</div>
-            </div>
-          </div>
-        </div>
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px">
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">&#128247; Instagram del entrenador</div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input id="cfg-instagram" type="text" placeholder="@tu_instagram" style="flex:1;background:#111;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none">
-            <button onclick="guardarInstagram()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Guardar</button>
-          </div>
-        </div>
+    <!-- SISTEMA -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128266; Sistema</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100)">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff">Configurar sonidos</div>
+        <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Cronos &middot; Timers &middot; HIIT</div>
       </div>
+      <span style="color:#555;font-size:18px">&#8250;</span>
     </div>
-  </div>
-
-  <!-- SISTEMA -->
-  <div class="cfg-acord">
-    <div class="cfg-acord-header" onclick="toggleAcord('sistema')">
-      <div class="cfg-acord-titulo">&#128266; <span class="cfg-acord-icono">Sistema</span></div>
-      <span id="acord-arrow-sistema" class="cfg-acord-arrow">&#8250;</span>
-    </div>
-    <div id="acord-body-sistema" class="cfg-acord-body">
-      <div class="cfg-acord-inner">
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100)">
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#fff">Configurar sonidos</div>
-            <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Cronos · Timers · HIIT</div>
-          </div>
-          <span style="color:#555;font-size:18px">&#8250;</span>
-        </div>
-        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('festivos')">
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#fff">Días festivos</div>
-            <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Sin envío automático</div>
-          </div>
-          <span style="color:#555;font-size:18px">&#8250;</span>
-        </div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('festivos')">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff">D&iacute;as festivos</div>
+        <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Sin env&iacute;o autom&aacute;tico</div>
       </div>
+      <span style="color:#555;font-size:18px">&#8250;</span>
     </div>
-  </div>
 
-  <!-- LEGAL -->
-  <div class="cfg-acord">
-    <div class="cfg-acord-header" onclick="toggleAcord('legal')">
-      <div class="cfg-acord-titulo">&#128221; <span class="cfg-acord-icono">Legal</span></div>
-      <span id="acord-arrow-legal" class="cfg-acord-arrow">&#8250;</span>
-    </div>
-    <div id="acord-body-legal" class="cfg-acord-body">
-      <div class="cfg-acord-inner">
-        <div onclick="entVerTerminos()" style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#fff">Términos y condiciones</div>
-            <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">DT-APP · Colombia · 2026</div>
-          </div>
-          <span style="color:#555;font-size:18px">&#8250;</span>
-        </div>
+    <!-- LEGAL -->
+    <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128221; Legal</div>
+    <div onclick="entVerTerminos()" style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff">T&eacute;rminos y condiciones</div>
+        <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">DT-APP &middot; Colombia &middot; 2026</div>
       </div>
+      <span style="color:#555;font-size:18px">&#8250;</span>
     </div>
-  </div>
+    <div id="btn-superadmin" style="display:none"><button onclick="try{abrirSuperAdmin();}catch(e){alert('Error: '+e.message);}" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:12px;margin-bottom:8px;cursor:pointer">⚙️ SUPERADMIN</button></div>
+    <div id="dt-version-tap" onclick="dtVersionTap()" style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;text-align:center;cursor:pointer;user-select:none;margin-top:8px">
+      <div style="font-size:11px;color:var(--texto-medio)">DT-APP · Versión 1.0.0</div>
+      <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">© 2026 Danny Trainer</div>
+    </div>
 
-  <div style="height:30px"></div>
-</div>
+    <div style="height:30px"></div>
+  </div></div>
 </div>
 
 <script>
@@ -12610,7 +12518,7 @@ function tcAbrirConfig() {
       '<div style="color:' + premColor + ';font-weight:700">✅ Premium activo</div>' +
       (_tcUsuario.premium_hasta ? '<div style="font-size:11px;color:var(--texto-medio);margin-top:4px">Activo hasta: ' + _tcUsuario.premium_hasta + '</div>' : '') :
       '<div style="margin-bottom:12px"><button onclick="tcPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;padding:11px;box-sizing:border-box">💳 Pagar $20.000 por WhatsApp</button></div>' +
-      '<div style="display:flex;gap:8px"><input id="tc-cod-premium" placeholder="¿Ya tienes un código? Ingrésalo" style="flex:1;background:var(--card);border:1px solid var(--borde);border-radius:8px;padding:8px 10px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box"><button onclick="tcActivarPremiumConfig()" style="background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:8px 12px;flex-shrink:0">Activar</button></div>'
+      '<div style="display:flex;gap:8px"><input id="tc-cod-premium" placeholder="¿Ya tienes un código? Ingrésalo" style="flex:1;background:var(--card);border:1px solid var(--borde);border-radius:8px;padding:8px 10px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box"><button onclick="tcActivarPremiumConfig()" style="background:var(--gris);border:none;border-radius:8px;color:var(--texto);font-size:12px;font-weight:700;cursor:pointer;padding:8px 12px;flex-shrink:0">Activar</button></div>'
     );
   body.appendChild(premDiv);
   
@@ -12910,7 +12818,7 @@ async function seleccionarRolGoogle(r) {
       if (d.ok) rolData = d;
     } catch(e) { console.error('Error creando perfil:', e); }
   }
-  localStorage.setItem('dt_sesion', JSON.stringify({ok:true, rol:rolData.rol, id:rolData.id, email:data.email||email, nombre:rolData.nombre||data.nombre, usuario_id:rolData.usuario_id||rolData.id, roles:data.roles||[]}));
+  localStorage.setItem('dt_sesion', JSON.stringify({ok:true, rol:rolData.rol, id:rolData.id, email:data.email||r.email||'', nombre:rolData.nombre||data.nombre, usuario_id:rolData.usuario_id||rolData.id, roles:data.roles||[]}));
   localStorage.setItem('dt_rol', rolData.rol);
   localStorage.setItem('dt_ultimo_rol', rolData.rol);
   if (rolData.rol === 'cliente') localStorage.setItem('dt_cliente_id', rolData.usuario_id || rolData.id);
@@ -13010,7 +12918,6 @@ async function tcVincularEntrenador() {
   }
 }
 </script>
-</body>
 <script>
 // ======== IMAGEN Y VOZ CHAT ========
 function comprimirImagen(file, callback) {
@@ -13422,11 +13329,174 @@ function tcAportarDesarrollador() {
   window.open(wa, '_blank');
 }
 
-    if (fondos.some(function(x){return bg===x;})) {
-      el.style.setProperty('background-color','rgba(255,255,255,0.75)','important');
-      el.style.setProperty('color','#111111','important');
+
+
+// ── SUPERADMIN ──────────────────────────────────────────
+let _dtVersionTaps = 0;
+let _dtVersionTimer = null;
+
+function dtVersionTap() {
+  _dtVersionTaps++;
+  if (_dtVersionTaps >= 7) {
+    _dtVersionTaps = 0;
+    const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+    alert('Email: ' + (sesion.email || 'VACIO'));
+    if (sesion.email === 'danielgaviriabotero@gmail.com') {
+      abrirSuperAdmin();
     }
-  });
+  }
+}
+
+async function abrirSuperAdmin() {
+  let panel = document.getElementById('superadmin-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'superadmin-panel';
+    panel.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:var(--fondo);z-index:99999;overflow-y:auto;';
+    document.body.appendChild(panel);
+  }
+  panel.style.display = 'block';
+  panel.innerHTML = '<div style="padding:16px"><div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><button onclick="document.getElementById(&quot;superadmin-panel&quot;).style.display=&quot;none&quot;" style="background:var(--gris);border:none;border-radius:8px;color:var(--texto);padding:8px 12px;font-size:13px;cursor:pointer">← Volver</button><div style="font-size:16px;font-weight:900;color:#e31e24">⚙️ SUPERADMIN</div></div><div id="sa-contenido">Cargando...</div></div>';
+  await cargarSuperAdmin();
+}
+
+async function cargarSuperAdmin() {
+  const [entrenadores, configRes, usuariosRes] = await Promise.all([
+    fetch('/api/superadmin/entrenadores').then(r=>r.json()).catch(()=>[]),
+    fetch('/api/config?entrenador_id=ent_001').then(r=>r.json()).catch(()=>({})),
+    fetch('/api/usuarios').then(r=>r.json()).catch(()=>[])
+  ]);
+  const codigos = configRes.codigos_premium || [];
+  const totalEnt = entrenadores.length;
+  const entPremium = entrenadores.filter(e=>e.premium).length;
+  const totalCli = usuariosRes.length;
+  const cliPremium = usuariosRes.filter(u=>u.premium).length;
+  const codsDisp = codigos.filter(c=>!c.usado).length;
+
+  let html = '<div style="display:flex;flex-direction:column;gap:12px">';
+
+  // 4 contadores
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+  html += '<div style="background:var(--card);border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#e31e24">'+totalEnt+'</div><div style="font-size:11px;color:var(--texto-medio)">Entrenadores</div></div>';
+  html += '<div style="background:var(--card);border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#f0a500">'+entPremium+'</div><div style="font-size:11px;color:var(--texto-medio)">Entrenadores Premium</div></div>';
+  html += '<div style="background:var(--card);border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#4a9eff">'+totalCli+'</div><div style="font-size:11px;color:var(--texto-medio)">Clientes</div></div>';
+  html += '<div style="background:var(--card);border-radius:12px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:900;color:#4caf50">'+cliPremium+'</div><div style="font-size:11px;color:var(--texto-medio)">Clientes Premium</div></div>';
+  html += '</div>';
+
+  // Buscador
+  html += '<div style="background:var(--card);border-radius:12px;padding:14px">';
+  html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:10px">🔍 Buscar usuario por email</div>';
+  html += '<div style="display:flex;gap:8px">';
+  html += '<input id="sa-buscar-email" type="email" placeholder="correo@ejemplo.com" style="flex:1;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none">';
+  html += '<button onclick="saBuscarUsuario()" style="background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Buscar</button>';
+  html += '</div>';
+  html += '<div id="sa-resultado-busqueda" style="margin-top:10px"></div>';
+  html += '</div>';
+
+  // Generar código
+  html += '<div style="background:var(--card);border-radius:12px;padding:14px">';
+  html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:10px">🎟️ Generar código Premium</div>';
+  html += '<input id="sa-codigo-manual" type="text" placeholder="Código manual (ej: GIMNASIO-ELITE)" style="width:100%;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px;text-transform:uppercase">';
+  html += '<select id="sa-duracion" style="width:100%;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;margin-bottom:8px"><option value="30">30 días</option><option value="90">3 meses</option><option value="180">6 meses</option><option value="365">1 año</option><option value="0">Permanente</option></select>';
+  html += '<button onclick="saGenerarCodigo()" style="width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer">Generar código</button>';
+  html += '<div id="sa-codigo-resultado" style="margin-top:8px;text-align:center;font-size:13px;color:#4caf50"></div>';
+  html += '</div>';
+
+  // Lista códigos
+  if (codigos.length > 0) {
+    html += '<div style="background:var(--card);border-radius:12px;padding:14px">';
+    html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:10px">🎟️ Códigos ('+codsDisp+' disponibles)</div>';
+    codigos.forEach(function(c) {
+      html += '<div style="background:var(--gris);border-radius:10px;padding:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">';
+      html += '<div><div style="font-size:13px;font-weight:700;color:#e31e24;font-family:monospace">'+c.codigo+'</div>';
+      html += '<div style="font-size:10px;color:var(--texto-medio)">'+(c.permanente?'Permanente':(c.dias||'?')+' días')+' · '+(c.usado?'✅ Usado por '+c.usadoPor:'⏳ Disponible')+'</div></div>';
+      if (!c.usado) html += '<button onclick="saBorrarCodigo(\'+c.codigo+\')" style="background:#3a1a1a;border:none;border-radius:6px;color:#e31e24;font-size:11px;padding:5px 8px;cursor:pointer">Borrar</button>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  document.getElementById('sa-contenido').innerHTML = html;
+}
+
+async function saBuscarUsuario() {
+  const email = document.getElementById('sa-buscar-email').value.trim().toLowerCase();
+  const div = document.getElementById('sa-resultado-busqueda');
+  if (!email) { div.innerHTML = '<div style="color:#e31e24;font-size:12px">Ingresa un email</div>'; return; }
+  div.innerHTML = '<div style="color:#888;font-size:12px">Buscando...</div>';
+  const [entrenadores, usuariosRes, cuentasRes] = await Promise.all([
+    fetch('/api/superadmin/entrenadores').then(r=>r.json()).catch(()=>[]),
+    fetch('/api/usuarios').then(r=>r.json()).catch(()=>[]),
+    fetch('/api/auth/roles?email='+encodeURIComponent(email)).then(r=>r.json()).catch(()=>({}))
+  ]);
+  const ent = entrenadores.find(e=>e.email.toLowerCase()===email);
+  const cli = usuariosRes.find(u=>(u.email||'').toLowerCase()===email || (u.telefono||'').toLowerCase()===email);
+  if (!ent && !cli) { div.innerHTML = '<div style="color:#e31e24;font-size:12px">No se encontró ningún usuario con ese email</div>'; return; }
+  let html = '';
+  if (ent) {
+    html += '<div style="background:var(--gris);border-radius:10px;padding:12px;margin-bottom:8px">';
+    html += '<div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:4px">🏋️ Entrenador</div>';
+    html += '<div style="font-size:14px;font-weight:700;color:var(--texto)">'+ent.nombre+'</div>';
+    html += '<div style="font-size:11px;color:var(--texto-medio)">'+ent.email+' · '+ent.total_clientes+' clientes</div>';
+    html += '<div style="font-size:11px;color:var(--texto-medio)">Desde: '+ent.fecha_registro+'</div>';
+    if (ent.premium) html += '<div style="font-size:11px;color:#f0a500;margin-top:4px">⭐ Premium hasta '+ent.premium_hasta+'</div>';
+    else html += '<div style="font-size:11px;color:#888;margin-top:4px">Sin premium</div>';
+    html += '<button onclick="saActivarPremium(\''+ent.id+'\',\'entrenador\',\''+ent.nombre+'\')" style="margin-top:8px;width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:8px;cursor:pointer">⭐ Activar Premium 30 días</button>';
+    html += '</div>';
+  }
+  if (cli) {
+    html += '<div style="background:var(--gris);border-radius:10px;padding:12px">';
+    html += '<div style="font-size:11px;color:#4a9eff;font-weight:700;text-transform:uppercase;margin-bottom:4px">👤 Cliente</div>';
+    html += '<div style="font-size:14px;font-weight:700;color:var(--texto)">'+cli.nombre+'</div>';
+    html += '<div style="font-size:11px;color:var(--texto-medio)">ID: '+cli.id+'</div>';
+    if (cli.premium) html += '<div style="font-size:11px;color:#4caf50;margin-top:4px">✅ Premium hasta '+cli.premium_hasta+'</div>';
+    else html += '<div style="font-size:11px;color:#888;margin-top:4px">Sin premium</div>';
+    html += '<button onclick="saActivarPremium(\''+cli.id+'\',\'cliente\',\''+cli.nombre+'\')" style="margin-top:8px;width:100%;background:#4a9eff;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:8px;cursor:pointer">⭐ Activar Premium 30 días</button>';
+    html += '</div>';
+  }
+  div.innerHTML = html;
+}
+
+async function saActivarPremium(id, tipo, nombre) {
+  if (!confirm('¿Activar 30 días premium a ' + nombre + '?')) return;
+  const endpoint = tipo === 'entrenador' ? '/api/premium/activar-entrenador-directo' : '/api/premium/activar-cliente-directo';
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({id, dias: 30})
+  }).then(r=>r.json()).catch(()=>({ok:false}));
+  if (res.ok) {
+    alert('✅ Premium activado hasta ' + res.hasta);
+    saBuscarUsuario();
+  } else {
+    alert('❌ Error: ' + (res.error||'desconocido'));
+  }
+}
+
+async function saGenerarCodigo() {
+  const codigoManual = document.getElementById('sa-codigo-manual').value.trim();
+  const duracion = document.getElementById('sa-duracion').value;
+  const permanente = duracion === '0';
+  const res = await fetch('/api/premium/generar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ codigo_manual: codigoManual || null, dias: permanente ? 0 : parseInt(duracion), permanente: permanente })
+  }).then(function(r){return r.json();}).catch(function(){return {ok:false};});
+  const div = document.getElementById('sa-codigo-resultado');
+  if (res.ok) {
+    div.innerHTML = '✅ Código: <b style="font-family:monospace;color:#e31e24">'+res.codigo+'</b>';
+    document.getElementById('sa-codigo-manual').value = '';
+    await cargarSuperAdmin();
+  } else {
+    div.innerHTML = '❌ '+(res.error||'Error al generar');
+  }
+}
+
+async function saBorrarCodigo(codigo) {
+  if (!confirm('¿Borrar código '+codigo+'?')) return;
+  await fetch('/api/premium/codigos/'+encodeURIComponent(codigo), {method:'DELETE'});
+  await cargarSuperAdmin();
 }
 
 </script>

@@ -7,7 +7,7 @@
     "tipo": "asesorado",
     "hora_envio": "08:25",
     "dia_pago": 10,
-    "estado_pago": "aldia",
+    "estado_pago": "proximo",
     "perfil": {
       "fecha_inicio": "2026-05-09",
       "sexo": "M",
@@ -43,6 +43,9 @@
       ],
       "martes": [
         "2026-06-01"
+      ],
+      "viernes": [
+        "2026-06-06"
       ]
     },
     "entrenador_id": "ent_001",
@@ -51,7 +54,7 @@
   },
   {
     "id": "1778354312296",
-    "activo": true,
+    "activo": false,
     "nombre": "Manuela guarin",
     "telefono": "573212155809",
     "tipo": "personalizado",

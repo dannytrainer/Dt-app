@@ -9,7 +9,7 @@ let sock = null;
 let conectado = false;
 let pairingCode = null;
 
-const enviar = (msg) => { if (process.send) process.send(msg); };
+const enviar = (msg) => { try { if (process.send) process.send(msg); } catch(e) { console.log('IPC cerrado, ignorando:', e.message); } };
 
 async function iniciar() {
   const { state, saveCreds } = await useMultiFileAuthState(authFolder);
@@ -49,7 +49,7 @@ async function iniciar() {
 }
 
 process.on('message', async (msg) => {
-  if (msg.tipo === 'enviar') {
+  if (msg.tipo === 'enviar' || msg.tipo === 'enviarDoc') {
     if (!conectado || !sock) {
       enviar({ tipo: 'resultado', id: msg.id, ok: false, error: 'No conectado' });
       return;
@@ -63,12 +63,34 @@ process.on('message', async (msg) => {
       } else if (String(msg.telefono).endsWith('@g.us')) {
         jid = msg.telefono;
       } else {
-        jid = msg.telefono + '@s.whatsapp.net';
+        jid = msg.telefono.replace(/[^0-9]/g,'') + '@s.whatsapp.net';
       }
-      await sock.sendMessage(jid, { text: msg.mensaje });
+      if (msg.tipo === 'enviarDoc') {
+        const buffer = Buffer.from(msg.buffer, 'base64');
+        await sock.sendMessage(jid, {
+          document: buffer,
+          mimetype: msg.mimetype || 'text/html',
+          fileName: msg.fileName || 'informe.html'
+        });
+      } else {
+        await sock.sendMessage(jid, { text: msg.mensaje });
+      }
       enviar({ tipo: 'resultado', id: msg.id, ok: true });
     } catch(e) {
       enviar({ tipo: 'resultado', id: msg.id, ok: false, error: e.message });
+    }
+  }
+
+  if (msg.tipo === 'grupoInfo') {
+    if (!conectado || !sock) {
+      enviar({ tipo: 'resultado', id: msg.id, ok: null });
+      return;
+    }
+    try {
+      const info = await sock.groupGetInviteInfo(msg.codigo);
+      enviar({ tipo: 'resultado', id: msg.id, ok: info });
+    } catch(e) {
+      enviar({ tipo: 'resultado', id: msg.id, ok: null });
     }
   }
 
