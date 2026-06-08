@@ -1291,6 +1291,11 @@ app.post('/api/premium/generar', (req, res) => {
     usado: false,
     dias: diasFinal,
     permanente: !!permanente,
+    es_convenio: !!(req.body.es_convenio),
+    es_unico: !!(req.body.es_unico),
+    tipo: req.body.tipo || 'cliente',
+    activo: req.body.activo !== false,
+    usados: [],
     fechaCreacion: new Date().toISOString()
   });
   guardarJSON('config.json', config);
@@ -1309,6 +1314,78 @@ app.delete('/api/premium/codigos/:codigo', (req, res) => {
   res.json({ ok: true });
 });
 
+
+// CONVENIO - activar premium con código reutilizable
+app.post('/api/convenio/activar', (req, res) => {
+  const { codigo, email, tipo } = req.body;
+  console.log('CONVENIO activar:', { codigo, email, tipo, userId: req.body.userId, deviceId: req.body.deviceId ? 'presente' : 'ausente' });
+  if (!codigo) return res.json({ ok: false, error: 'Falta el código' });
+  const config = cargarJSON('config.json', {});
+  const codigos = config.codigos_premium || [];
+  const cod = codigos.find(c => c.codigo === codigo.trim().toUpperCase() && (c.es_convenio || c.es_unico));
+  if (!cod) return res.json({ ok: false, error: 'Código inválido' });
+  if (!cod.activo) return res.json({ ok: false, error: 'Código ya utilizado' });
+  // Códigos únicos no requieren email
+  if (cod.es_unico && !email) email = 'anonimo_' + Date.now();
+  // Verificar si ya lo usó este email, ID o dispositivo
+  if (!cod.usados) cod.usados = [];
+  const uid_body = req.body.userId || null;
+  const deviceId = req.body.deviceId || null;
+  const yaUsoEmail = email && cod.usados.includes(email.toLowerCase());
+  const yaUsoId = uid_body && cod.usados.includes(uid_body);
+  const yaUsoDevice = deviceId && cod.usados.includes(deviceId);
+  if (yaUsoEmail || yaUsoId || yaUsoDevice) {
+    return res.json({ ok: false, error: 'Ya activaste este código con esta cuenta o dispositivo' });
+  }
+  // Activar premium
+  const dias = cod.dias || 30;
+  const hasta = new Date();
+  hasta.setDate(hasta.getDate() + dias);
+  const hastaStr = hasta.toISOString().split('T')[0];
+  // Si es código único, desactivar después del primer uso
+  if (cod.es_unico) {
+    cod.activo = false;
+    cod.usado = true;
+    cod.usadoPor = email;
+    cod.fechaUso = new Date().toISOString();
+  } else {
+    // Convenio: guardar email, ID y dispositivo para bloquear reusos
+    cod.usados.push(email.toLowerCase());
+    if (uid_body) cod.usados.push(uid_body);
+    if (deviceId) cod.usados.push(deviceId);
+  }
+  guardarJSON('config.json', config);
+  // Aplicar según tipo
+  if (cod.tipo === 'entrenador') {
+    const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+    const ent = cuentas.entrenadores.find(e => e.email.toLowerCase() === email.toLowerCase());
+    if (!ent) return res.json({ ok: false, error: 'Entrenador no encontrado' });
+    const archivo = ent.id === 'ent_001' ? 'config.json' : 'config_' + ent.id + '.json';
+    const cfg = cargarJSON(archivo, {});
+    cfg.premium_entrenador = true;
+    cfg.premium_entrenador_hasta = hastaStr;
+    guardarJSON(archivo, cfg);
+  } else {
+    const usuarios = cargarJSON('usuarios.json', []);
+    let u = usuarios.find(x => (x.email||'').toLowerCase() === email.toLowerCase()) || (uid_body ? usuarios.find(x => x.id === uid_body) : null);
+    // Si no existe, buscarlo en cuentas.json y crearlo
+    if (!u) {
+      const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+      const cli = cuentas.clientes.find(c => c.id === uid_body || (c.email||'').toLowerCase() === email.toLowerCase());
+      if (cli) {
+        u = { id: cli.usuario_id||cli.id, nombre: cli.nombre, email: cli.email||'', telefono: cli.telefono||'', activo: true, tipo: 'asesorado', hora_envio: '08:00', entrenador_id: cli.entrenador_id||'ent_001', premium: false, premium_hasta: null };
+        usuarios.push(u);
+      }
+    }
+    if (!u && cod.es_unico) { res.json({ ok: true, hasta: hastaStr, dias }); return; }
+    if (!u) return res.json({ ok: false, error: 'Cliente no encontrado' });
+    if (!u && cod.es_unico) { res.json({ ok: true, hasta: hastaStr, dias }); return; }
+    u.premium = true;
+    u.premium_hasta = hastaStr;
+    guardarJSON('usuarios.json', usuarios);
+  }
+  res.json({ ok: true, hasta: hastaStr, dias });
+});
 
 // SUPERADMIN - activar premium directo a entrenador
 app.post('/api/premium/activar-entrenador-directo', (req, res) => {
@@ -1366,7 +1443,6 @@ app.get('/api/superadmin/entrenadores', (req, res) => {
   res.json(resultado);
 });
 
-app.listen(3000, () => console.log('Interfaz en http://localhost:3000'));
 require('./rutas_informe')(app, fs);
 app.post('/api/informe/:id/enviar', async (req, res) => {
   try {
@@ -1552,6 +1628,7 @@ app.post('/api/auth/registro', (req, res) => {
     let usuario_id = null;
     if (codigo_entrenador) {
       const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion === codigo_entrenador.toUpperCase());
+      if (!ent) return res.json({ ok: false, error: 'Código de entrenador inválido' });
       entrenador_id = ent.id;
     }
     const cliId = 'cli_' + Date.now();

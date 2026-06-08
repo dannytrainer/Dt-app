@@ -608,5 +608,17 @@
     "vinculado": true,
     "entrenador_id": null,
     "dias_desbloqueados": {}
+  },
+  {
+    "id": "cli_1780691493128",
+    "nombre": "Prueba",
+    "email": "prueba@gmail.com",
+    "telefono": "1234",
+    "activo": true,
+    "tipo": "asesorado",
+    "hora_envio": "08:00",
+    "entrenador_id": "ent_001",
+    "premium": true,
+    "premium_hasta": "2026-06-15"
   }
 ]

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DT App</title>
+<title>DT-APP v1780853923</title>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#e31e24">
 <style>
@@ -2899,7 +2899,26 @@ async function validarCodigoPremium(){
   const codigo = (input.value || '').trim().toUpperCase();
   if(!codigo){ status.style.color='#666'; status.textContent='Ingresa un código.'; return; }
   status.style.color='#888'; status.textContent='Verificando...';
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const email = sesion.email || '';
   try {
+    // Intentar primero como código de convenio
+    const deviceId = getDeviceId();
+    const resConv = await fetch('/api/convenio/activar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ codigo, email, tipo: 'entrenador', deviceId })
+    });
+    const dConv = await resConv.json();
+    if(dConv.ok){
+      status.style.color='#4caf50';
+      status.textContent='✅ Premium activado' + (dConv.hasta ? ' — Activo hasta: ' + dConv.hasta : '');
+      input.value='';
+      localStorage.setItem('dt_premium','1');
+      localStorage.setItem('dt_premium_hasta', dConv.hasta || '');
+      return;
+    }
+    // Si no es convenio, intentar código personal
     const res = await fetch('/api/premium/activar-entrenador', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
@@ -2914,7 +2933,7 @@ async function validarCodigoPremium(){
       localStorage.setItem('dt_premium_hasta', d.hasta || '');
     } else {
       status.style.color='#e31e24';
-      status.textContent='❌ ' + (d.msg || 'Código inválido');
+      status.textContent='❌ ' + (dConv.error || d.msg || 'Código inválido');
     }
   } catch(e) {
     status.style.color='#e31e24';
@@ -9484,7 +9503,7 @@ function filtrarRutinas(){
       </div>
       <span style="color:#555;font-size:18px">&#8250;</span>
     </div>
-    <div id="btn-superadmin" style="display:none"><button onclick="try{abrirSuperAdmin();}catch(e){alert('Error: '+e.message);}" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:12px;margin-bottom:8px;cursor:pointer">⚙️ SUPERADMIN</button></div>
+    <div id="btn-superadmin" style="display:none"></div>
     <div id="dt-version-tap" onclick="dtVersionTap()" style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;text-align:center;cursor:pointer;user-select:none;margin-top:8px">
       <div style="font-size:11px;color:var(--texto-medio)">DT-APP · Versión 1.0.0</div>
       <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">© 2026 Danny Trainer</div>
@@ -13281,26 +13300,73 @@ async function chatEntEnviarVideo(input) {
   input.value = '';
 }
 
-function tcActivarPremiumConfig() {
+function getDeviceId() {
+  let did = localStorage.getItem('dt_device_id');
+  if (!did) {
+    // Generar fingerprint basado en características del dispositivo
+    const nav = window.navigator;
+    const screen = window.screen;
+    const fp = [
+      nav.userAgent,
+      nav.language,
+      screen.width + 'x' + screen.height,
+      screen.colorDepth,
+      new Date().getTimezoneOffset(),
+      nav.hardwareConcurrency || '',
+      nav.deviceMemory || ''
+    ].join('|');
+    // Hash simple
+    let hash = 0;
+    for (let i = 0; i < fp.length; i++) {
+      hash = ((hash << 5) - hash) + fp.charCodeAt(i);
+      hash |= 0;
+    }
+    did = 'fp_' + Math.abs(hash) + '_' + Date.now().toString(36);
+    localStorage.setItem('dt_device_id', did);
+  }
+  return did;
+}
+
+async function tcActivarPremiumConfig() {
   var codigo = document.getElementById('tc-cod-premium').value.trim().toUpperCase();
   if (!codigo) { alert('Ingresa el código'); return; }
   var uid = localStorage.getItem('dt_cliente_id');
   if (!uid) { alert('Error: no hay usuario'); return; }
-  
-  fetch('/api/premium/activar', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({codigo, userId: uid})
-  }).then(r => r.json()).then(d => {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const email = sesion.email || '';
+  try {
+    const deviceId = getDeviceId();
+    const resConv = await fetch('/api/convenio/activar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ codigo, email, tipo: 'cliente', userId: uid, deviceId })
+    });
+    const dConv = await resConv.json();
+    if (dConv.ok) {
+      _tcUsuario.premium = true;
+      _tcUsuario.premium_hasta = dConv.hasta;
+      // Guardar en servidor
+      if (uid) await fetch('/api/usuarios/' + uid, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({premium:true, premium_hasta:dConv.hasta})}).catch(()=>{});
+      var hasta = dConv.hasta ? '<div style="font-size:11px;color:var(--texto-medio);margin-top:4px">Activo hasta: ' + dConv.hasta + '</div>' : '';
+      document.getElementById('tc-cod-premium').parentNode.innerHTML = '<div style="color:#4caf50;font-weight:700">✅ Premium activo</div>' + hasta;
+      alert('¡Premium activado! Activo hasta: ' + dConv.hasta);
+      return;
+    }
+    const res = await fetch('/api/premium/activar', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({codigo, userId: uid})
+    });
+    const d = await res.json();
     if (d.ok) {
       alert('¡Premium activado! Recarga la app.');
       _tcUsuario.premium = true;
-      var hasta = d.hasta ? '<div style="font-size:11px;color:var(--texto-medio);margin-top:4px">Activo hasta: ' + d.hasta + '</div>' : '';
-      document.getElementById('tc-cod-premium').parentNode.innerHTML = '<div style="color:#4caf50;font-weight:700">✅ Premium activo</div>' + hasta;
+      var hasta2 = d.hasta ? '<div style="font-size:11px;color:var(--texto-medio);margin-top:4px">Activo hasta: ' + d.hasta + '</div>' : '';
+      document.getElementById('tc-cod-premium').parentNode.innerHTML = '<div style="color:#4caf50;font-weight:700">✅ Premium activo</div>' + hasta2;
     } else {
-      alert(d.msg || 'Código inválido');
+      alert(dConv.error || d.msg || 'Código inválido');
     }
-  }).catch(e => alert('Error: ' + e.message));
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 function tcAbrirContactoAporte() {
@@ -13331,6 +13397,8 @@ function tcAportarDesarrollador() {
 
 
 
+</script>
+<script>
 // ── SUPERADMIN ──────────────────────────────────────────
 let _dtVersionTaps = 0;
 let _dtVersionTimer = null;
@@ -13340,7 +13408,6 @@ function dtVersionTap() {
   if (_dtVersionTaps >= 7) {
     _dtVersionTaps = 0;
     const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
-    alert('Email: ' + (sesion.email || 'VACIO'));
     if (sesion.email === 'danielgaviriabotero@gmail.com') {
       abrirSuperAdmin();
     }
@@ -13395,23 +13462,33 @@ async function cargarSuperAdmin() {
 
   // Generar código
   html += '<div style="background:var(--card);border-radius:12px;padding:14px">';
-  html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:10px">🎟️ Generar código Premium</div>';
-  html += '<input id="sa-codigo-manual" type="text" placeholder="Código manual (ej: GIMNASIO-ELITE)" style="width:100%;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px;text-transform:uppercase">';
-  html += '<select id="sa-duracion" style="width:100%;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;margin-bottom:8px"><option value="30">30 días</option><option value="90">3 meses</option><option value="180">6 meses</option><option value="365">1 año</option><option value="0">Permanente</option></select>';
-  html += '<button onclick="saGenerarCodigo()" style="width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer">Generar código</button>';
+  html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:10px">🎟️ Generar código de convenio</div>';
+  html += '<input id="sa-codigo-manual" type="text" placeholder="Nombre del convenio (ej: FUERZA-CASTILLO)" style="width:100%;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px;text-transform:uppercase">';
+  html += '<select id="sa-duracion" style="width:100%;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;margin-bottom:8px"><option value="7">7 días</option><option value="15">15 días</option><option value="30">30 días</option><option value="60">2 meses</option><option value="90">3 meses</option><option value="180">6 meses</option><option value="365">1 año</option><option value="0">Permanente</option></select>';
+  html += '<select id="sa-tipo-codigo" style="width:100%;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;margin-bottom:8px"><option value="cliente">👤 Para clientes</option><option value="entrenador">🏋️ Para entrenadores</option></select>';
+  html += '<select id="sa-modalidad" style="width:100%;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;margin-bottom:8px"><option value="convenio">🔄 Convenio (múltiples usos, uno por cuenta)</option><option value="unico">1️⃣ Un solo uso total</option></select>';
+  html += '<button onclick="saGenerarCodigo()" style="width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer">Crear código de convenio</button>';
   html += '<div id="sa-codigo-resultado" style="margin-top:8px;text-align:center;font-size:13px;color:#4caf50"></div>';
   html += '</div>';
 
-  // Lista códigos
-  if (codigos.length > 0) {
+  // Lista convenios
+  const convenios = codigos.filter(c => c.es_convenio || c.es_unico);
+  if (convenios.length > 0) {
     html += '<div style="background:var(--card);border-radius:12px;padding:14px">';
-    html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:10px">🎟️ Códigos ('+codsDisp+' disponibles)</div>';
-    codigos.forEach(function(c) {
-      html += '<div style="background:var(--gris);border-radius:10px;padding:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">';
-      html += '<div><div style="font-size:13px;font-weight:700;color:#e31e24;font-family:monospace">'+c.codigo+'</div>';
-      html += '<div style="font-size:10px;color:var(--texto-medio)">'+(c.permanente?'Permanente':(c.dias||'?')+' días')+' · '+(c.usado?'✅ Usado por '+c.usadoPor:'⏳ Disponible')+'</div></div>';
-      if (!c.usado) html += '<button onclick="saBorrarCodigo(\'+c.codigo+\')" style="background:#3a1a1a;border:none;border-radius:6px;color:#e31e24;font-size:11px;padding:5px 8px;cursor:pointer">Borrar</button>';
+    html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:10px">🤝 Códigos de convenio</div>';
+    convenios.forEach(function(c) {
+      const usados = (c.usados||[]).length;
+      const tipoColor = c.tipo === 'entrenador' ? '#f0a500' : '#4a9eff';
+      const tipoLabel = c.tipo === 'entrenador' ? '🏋️ Entrenador' : '👤 Cliente';
+      const modalidadLabel = c.es_unico ? '1️⃣ Único' : '🔄 Convenio';
+      html += '<div style="display:flex;justify-content:space-between;align-items:start">';
+      html += '<div style="flex:1">';
+      html += '<div style="font-size:14px;font-weight:700;color:#e31e24;font-family:monospace">'+c.codigo+'</div>';
+      html += '<div style="font-size:11px;color:var(--texto-medio);margin-top:2px"><span style="color:'+tipoColor+'">'+tipoLabel+'</span> · '+modalidadLabel+' · '+(c.permanente||c.dias>=99999?'Permanente':c.dias+' días')+(c.es_unico?'':' · <span style="color:#4caf50">'+usados+' usos</span>')+'</div>';
+      html += '<div style="margin-top:6px"><span style="background:'+(c.activo?'#1a3a1a':'#3a1a1a')+';color:'+(c.activo?'#4caf50':'#e31e24')+';font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">'+(c.activo?'✅ Activo':'🔴 Inactivo')+'</span></div>';
       html += '</div>';
+      html += '<button onclick="saBorrarConvenio(this)" data-codigo="'+c.codigo+'" style="background:#3a1a1a;border:none;border-radius:6px;color:#e31e24;font-size:11px;padding:5px 8px;cursor:pointer;margin-left:8px">Borrar</button>';
+      html += '</div></div>';
     });
     html += '</div>';
   }
@@ -13425,46 +13502,65 @@ async function saBuscarUsuario() {
   const div = document.getElementById('sa-resultado-busqueda');
   if (!email) { div.innerHTML = '<div style="color:#e31e24;font-size:12px">Ingresa un email</div>'; return; }
   div.innerHTML = '<div style="color:#888;font-size:12px">Buscando...</div>';
-  const [entrenadores, usuariosRes, cuentasRes] = await Promise.all([
+  const [entrenadores, usuariosRes] = await Promise.all([
     fetch('/api/superadmin/entrenadores').then(r=>r.json()).catch(()=>[]),
-    fetch('/api/usuarios').then(r=>r.json()).catch(()=>[]),
-    fetch('/api/auth/roles?email='+encodeURIComponent(email)).then(r=>r.json()).catch(()=>({}))
+    fetch('/api/usuarios').then(r=>r.json()).catch(()=>[])
   ]);
   const ent = entrenadores.find(e=>e.email.toLowerCase()===email);
-  const cli = usuariosRes.find(u=>(u.email||'').toLowerCase()===email || (u.telefono||'').toLowerCase()===email);
+  const cli = usuariosRes.find(u=>(u.email||'').toLowerCase()===email);
   if (!ent && !cli) { div.innerHTML = '<div style="color:#e31e24;font-size:12px">No se encontró ningún usuario con ese email</div>'; return; }
+  
+  const selectorDias = '<select id="sa-dias-premium" style="width:100%;background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:8px;color:var(--texto);font-size:12px;margin-top:8px;margin-bottom:6px"><option value="7">7 días</option><option value="15">15 días</option><option value="30" selected>30 días</option><option value="60">2 meses</option><option value="90">3 meses</option><option value="180">6 meses</option><option value="365">1 año</option><option value="99999">Permanente</option></select>';
+
   let html = '';
   if (ent) {
     html += '<div style="background:var(--gris);border-radius:10px;padding:12px;margin-bottom:8px">';
     html += '<div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:4px">🏋️ Entrenador</div>';
     html += '<div style="font-size:14px;font-weight:700;color:var(--texto)">'+ent.nombre+'</div>';
     html += '<div style="font-size:11px;color:var(--texto-medio)">'+ent.email+' · '+ent.total_clientes+' clientes</div>';
-    html += '<div style="font-size:11px;color:var(--texto-medio)">Desde: '+ent.fecha_registro+'</div>';
     if (ent.premium) html += '<div style="font-size:11px;color:#f0a500;margin-top:4px">⭐ Premium hasta '+ent.premium_hasta+'</div>';
-    else html += '<div style="font-size:11px;color:#888;margin-top:4px">Sin premium</div>';
-    html += '<button onclick="saActivarPremium(\''+ent.id+'\',\'entrenador\',\''+ent.nombre+'\')" style="margin-top:8px;width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:8px;cursor:pointer">⭐ Activar Premium 30 días</button>';
+    else html += '<div style="font-size:11px;color:#888;margin-top:4px">Sin premium activo</div>';
+    html += selectorDias.replace('id="sa-dias-premium"','id="sa-dias-ent"');
+    html += '<button onclick="saActivarPremiumEnt(this)" data-id="'+ent.id+'" data-nombre="'+ent.nombre+'" style="width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:8px;cursor:pointer">⭐ Activar Premium Entrenador</button>';
     html += '</div>';
   }
   if (cli) {
     html += '<div style="background:var(--gris);border-radius:10px;padding:12px">';
     html += '<div style="font-size:11px;color:#4a9eff;font-weight:700;text-transform:uppercase;margin-bottom:4px">👤 Cliente</div>';
     html += '<div style="font-size:14px;font-weight:700;color:var(--texto)">'+cli.nombre+'</div>';
-    html += '<div style="font-size:11px;color:var(--texto-medio)">ID: '+cli.id+'</div>';
+    html += '<div style="font-size:11px;color:var(--texto-medio)">'+cli.email+'</div>';
     if (cli.premium) html += '<div style="font-size:11px;color:#4caf50;margin-top:4px">✅ Premium hasta '+cli.premium_hasta+'</div>';
-    else html += '<div style="font-size:11px;color:#888;margin-top:4px">Sin premium</div>';
-    html += '<button onclick="saActivarPremium(\''+cli.id+'\',\'cliente\',\''+cli.nombre+'\')" style="margin-top:8px;width:100%;background:#4a9eff;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:8px;cursor:pointer">⭐ Activar Premium 30 días</button>';
+    else html += '<div style="font-size:11px;color:#888;margin-top:4px">Sin premium activo</div>';
+    html += selectorDias.replace('id="sa-dias-premium"','id="sa-dias-cli"');
+    html += '<button onclick="saActivarPremiumCli(this)" data-id="'+cli.id+'" data-nombre="'+cli.nombre+'" style="width:100%;background:#4a9eff;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:8px;cursor:pointer">⭐ Activar Premium Cliente</button>';
     html += '</div>';
   }
   div.innerHTML = html;
 }
 
+async function saActivarPremiumEnt(btn) {
+  const id = btn.getAttribute('data-id');
+  const nombre = btn.getAttribute('data-nombre');
+  await saActivarPremium(id, 'entrenador', nombre);
+}
+
+async function saActivarPremiumCli(btn) {
+  const id = btn.getAttribute('data-id');
+  const nombre = btn.getAttribute('data-nombre');
+  await saActivarPremium(id, 'cliente', nombre);
+}
+
 async function saActivarPremium(id, tipo, nombre) {
-  if (!confirm('¿Activar 30 días premium a ' + nombre + '?')) return;
+  const selectorId = tipo === 'entrenador' ? 'sa-dias-ent' : 'sa-dias-cli';
+  const sel = document.getElementById(selectorId);
+  const dias = sel ? parseInt(sel.value) : 30;
+  const diasTexto = dias >= 99999 ? 'permanente' : dias + ' días';
+  if (!confirm('¿Activar premium ' + diasTexto + ' a ' + nombre + '?')) return;
   const endpoint = tipo === 'entrenador' ? '/api/premium/activar-entrenador-directo' : '/api/premium/activar-cliente-directo';
   const res = await fetch(endpoint, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({id, dias: 30})
+    body: JSON.stringify({id, dias})
   }).then(r=>r.json()).catch(()=>({ok:false}));
   if (res.ok) {
     alert('✅ Premium activado hasta ' + res.hasta);
@@ -13475,22 +13571,41 @@ async function saActivarPremium(id, tipo, nombre) {
 }
 
 async function saGenerarCodigo() {
-  const codigoManual = document.getElementById('sa-codigo-manual').value.trim();
+  const codigoManual = document.getElementById('sa-codigo-manual').value.trim().toUpperCase();
   const duracion = document.getElementById('sa-duracion').value;
+  const tipo = document.getElementById('sa-tipo-codigo').value;
+  const modalidad = document.getElementById('sa-modalidad').value;
   const permanente = duracion === '0';
+  const div = document.getElementById('sa-codigo-resultado');
+  if (!codigoManual) { div.innerHTML = '❌ Debes escribir un nombre'; return; }
   const res = await fetch('/api/premium/generar', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ codigo_manual: codigoManual || null, dias: permanente ? 0 : parseInt(duracion), permanente: permanente })
-  }).then(function(r){return r.json();}).catch(function(){return {ok:false};});
-  const div = document.getElementById('sa-codigo-resultado');
+    body: JSON.stringify({
+      codigo_manual: codigoManual,
+      dias: permanente ? 99999 : parseInt(duracion),
+      permanente: permanente,
+      es_convenio: modalidad === 'convenio',
+      es_unico: modalidad === 'unico',
+      tipo: tipo,
+      activo: true
+    })
+  }).then(r=>r.json()).catch(()=>({ok:false}));
   if (res.ok) {
-    div.innerHTML = '✅ Código: <b style="font-family:monospace;color:#e31e24">'+res.codigo+'</b>';
+    const label = modalidad === 'convenio' ? 'Convenio creado' : 'Código único creado';
+    div.innerHTML = '✅ '+label+': <b style="font-family:monospace;color:#e31e24">'+res.codigo+'</b>';
     document.getElementById('sa-codigo-manual').value = '';
     await cargarSuperAdmin();
   } else {
     div.innerHTML = '❌ '+(res.error||'Error al generar');
   }
+}
+
+async function saBorrarConvenio(btn) {
+  const codigo = btn.getAttribute('data-codigo');
+  if (!confirm('¿Borrar convenio ' + codigo + '? Los usuarios que ya lo activaron mantienen su premium.')) return;
+  await fetch('/api/premium/codigos/' + encodeURIComponent(codigo), {method:'DELETE'});
+  await cargarSuperAdmin();
 }
 
 async function saBorrarCodigo(codigo) {
