@@ -651,6 +651,45 @@ body.modo-claro [style*="color:var(--texto-suave)"] {
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// ═══════════════════════════════
+// 🔔 NOTIFICACIONES PUSH
+// ═══════════════════════════════
+async function iniciarNotificacionesPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    const permiso = await Notification.requestPermission();
+    if (permiso !== 'granted') return;
+    const vapidResp = await fetch('/api/push/vapidkey');
+    const { publicKey } = await vapidResp.json();
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: publicKey
+    });
+    const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+    const userId = sesion.id || null;
+    if (userId) {
+      await fetch('/api/push/suscribir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, suscripcion: sub })
+      });
+      console.log('✅ Notificaciones push activadas');
+    }
+  } catch(e) {
+    console.log('Push error:', e);
+  }
+}
+
+window.addEventListener('load', () => {
+  setTimeout(iniciarNotificacionesPush, 5000);
+});
+
+// También llamar después del login
+window.activarPushTrasLogin = iniciarNotificacionesPush;
+</script>
 </head>
 <body>
 
@@ -2828,11 +2867,18 @@ function toggleTema(){
   fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:claro?'claro':'oscuro', entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
 }
 function cargarTema(){
-  const tema = localStorage.getItem('dt_tema') || localStorage.getItem('tema') || 'oscuro';
+  let tema = localStorage.getItem('dt_tema') || localStorage.getItem('tema');
+  if (!tema) {
+    tema = window.matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'oscuro';
+  }
   if(tema === 'claro'){
     document.body.classList.add('modo-claro');
     const btn = document.getElementById('btn-tema');
     if(btn) btn.textContent = '☀️';
+  } else {
+    document.body.classList.remove('modo-claro');
+    const btn = document.getElementById('btn-tema');
+    if(btn) btn.textContent = '🌙';
   }
   localStorage.setItem('dt_tema', tema);
   localStorage.setItem('tema', tema);
@@ -9917,6 +9963,7 @@ function loginEntrenador() {
       localStorage.setItem('dt_sesion', JSON.stringify(data));
       localStorage.setItem(ROL_KEY, data.rol || 'entrenador');
       mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
+      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
     } else {
       document.getElementById('error-pass').style.display = 'block';
     }
@@ -10080,9 +10127,21 @@ function loginUnificado() {
       localStorage.setItem('dt_sesion', JSON.stringify(data));
       localStorage.setItem(ROL_KEY, data.rol);
       if (data.usuario_id) localStorage.setItem('dt_cliente_id', data.usuario_id);
+      localStorage.removeItem('dt_login_intentos');
       mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
     } else {
-      error.textContent = data.error || 'Correo o contraseña incorrectos';
+      // Contador de intentos
+      const intentos = parseInt(localStorage.getItem('dt_login_intentos') || '0') + 1;
+      localStorage.setItem('dt_login_intentos', intentos);
+      const restantes = 10 - intentos;
+      if (data.error && data.error.includes('Demasiados')) {
+        error.textContent = '🔒 Cuenta bloqueada 15 minutos por demasiados intentos fallidos.';
+        localStorage.removeItem('dt_login_intentos');
+      } else if (restantes <= 3 && restantes > 0) {
+        error.textContent = '⚠️ Contraseña incorrecta. Te quedan ' + restantes + ' intentos antes de bloquearte 15 minutos.';
+      } else {
+        error.textContent = data.error || 'Correo o contraseña incorrectos';
+      }
       error.style.display = 'block';
     }
   }).catch(() => {

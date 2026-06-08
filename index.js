@@ -24,11 +24,38 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+const bcrypt = require('bcryptjs');
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { ok: false, error: 'Demasiados intentos. Espera 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+const webpush = require('web-push');
+
+webpush.setVapidDetails(
+  'mailto:danielgaviriabotero@gmail.com',
+  'BHrlCtod3sDE_5ZGf6hSqbdE5xhY9u7-5FCb2i-P10_FWBsh75lD9Wh7BdaCnXHewyTJ5c5bJ46aOP_acsCIeno',
+  'ZiHf28auc-e9kRZv73vo_Qls0FTpSqPw4T6KwHkn3W8'
+);
+
+// Suscripciones push persistentes
+const PUSH_FILE = 'data/push_suscripciones.json';
+let pushSuscripciones = {};
+try { pushSuscripciones = JSON.parse(require('fs').readFileSync(PUSH_FILE)); } catch(e) {}
+
+function guardarPush() {
+  require('fs').writeFileSync(PUSH_FILE, JSON.stringify(pushSuscripciones, null, 2));
+}
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(express.json({limit:'50mb'}));
 // ═══════════════════════════════
 // 🔐 GOOGLE AUTH
@@ -45,7 +72,7 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
   clientID: '822565773866-vpneg50rh8k0dm69mfd7biahmstns5pr.apps.googleusercontent.com',
   clientSecret: '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',
-  callbackURL: '/auth/google/callback'
+  callbackURL: 'https://dt-app.net/auth/google/callback'
 }, (accessToken, refreshToken, profile, done) => {
   const email = profile.emails[0].value;
   const nombre = profile.displayName;
@@ -1561,17 +1588,17 @@ app.post('/api/auth/cambiar-password', (req, res) => {
   const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
   
   // Buscar en entrenadores
-  const ent = cuentas.entrenadores.find(e => e.email === email && e.password === password_actual);
-  if (ent) {
-    ent.password = password_nuevo;
+  const ent = cuentas.entrenadores.find(e => e.email === email);
+  if (ent && bcrypt.compareSync(password_actual, ent.password)) {
+    ent.password = bcrypt.hashSync(password_nuevo, 10);
     guardarJSON('cuentas.json', cuentas);
     return res.json({ ok: true, msg: 'Contraseña actualizada' });
   }
   
   // Buscar en clientes
-  const cli = cuentas.clientes.find(c => c.email === email && c.password === password_actual);
-  if (cli) {
-    cli.password = password_nuevo;
+  const cli = cuentas.clientes.find(c => c.email === email);
+  if (cli && bcrypt.compareSync(password_actual, cli.password)) {
+    cli.password = bcrypt.hashSync(password_nuevo, 10);
     guardarJSON('cuentas.json', cuentas);
     return res.json({ ok: true, msg: 'Contraseña actualizada' });
   }
@@ -1583,22 +1610,22 @@ app.post('/api/auth/cambiar-password', (req, res) => {
 // 🔐 AUTENTICACIÓN
 // ═══════════════════════════════
 
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', loginLimiter, (req, res) => {
   const { email, password } = req.body;
   const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
   
   // Buscar en entrenadores
-  const ent = cuentas.entrenadores.find(e => e.email === email && e.password === password);
-  if (ent) return res.json({ ok: true, rol: 'entrenador', id: ent.id, email: ent.email, nombre: ent.nombre, roles: [{rol:'entrenador', id: ent.id, nombre: ent.nombre}, {rol:'cliente', id: null, nombre: ent.nombre}] });
+  const ent = cuentas.entrenadores.find(e => e.email === email);
+  if (ent && bcrypt.compareSync(password, ent.password)) return res.json({ ok: true, rol: 'entrenador', id: ent.id, email: ent.email, nombre: ent.nombre, roles: [{rol:'entrenador', id: ent.id, nombre: ent.nombre}, {rol:'cliente', id: null, nombre: ent.nombre}] });
   
   // Buscar en clientes
-  const cli = cuentas.clientes.find(c => c.email === email && c.password === password);
-  if (cli) return res.json({ ok: true, rol: 'cliente', id: cli.id, email: cli.email, nombre: cli.nombre, usuario_id: cli.usuario_id, entrenador_id: cli.entrenador_id, roles: [{rol:'entrenador', id: null, nombre: cli.nombre}, {rol:'cliente', id: cli.id, nombre: cli.nombre}] });
+  const cli = cuentas.clientes.find(c => c.email === email);
+  if (cli && bcrypt.compareSync(password, cli.password)) return res.json({ ok: true, rol: 'cliente', id: cli.id, email: cli.email, nombre: cli.nombre, usuario_id: cli.usuario_id, entrenador_id: cli.entrenador_id, roles: [{rol:'entrenador', id: null, nombre: cli.nombre}, {rol:'cliente', id: cli.id, nombre: cli.nombre}] });
   
   return res.json({ ok: false, error: 'Email o contraseña incorrectos' });
 });
 
-app.post('/api/auth/registro', (req, res) => {
+app.post('/api/auth/registro', loginLimiter, (req, res) => {
   const { email, password, nombre, rol, codigo_entrenador, telefono } = req.body;
   const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
   
@@ -1609,7 +1636,7 @@ app.post('/api/auth/registro', (req, res) => {
   if (rol === 'entrenador') {
     const nuevo = {
       id: 'ent_' + Date.now(),
-      email, password, nombre,
+      email, password: bcrypt.hashSync(password, 10), nombre,
       codigo_vinculacion: Array.from({length:3}, () => Math.random().toString(36).substring(2,6).toUpperCase()).join('-'),
       roles: ['entrenador', 'cliente'],
       activo: true,
@@ -1635,7 +1662,7 @@ app.post('/api/auth/registro', (req, res) => {
     usuario_id = cliId;
     const nuevo = {
       id: cliId,
-      email, password, nombre,
+      email, password: bcrypt.hashSync(password, 10), nombre,
       telefono: telefono ? telefono.replace(/\D/g,'') : '',
       entrenador_id, usuario_id,
       roles: ['entrenador', 'cliente'],
@@ -1700,6 +1727,31 @@ app.post('/api/auth/crear-perfil', (req, res) => {
     return res.json({ ok: true, rol: 'cliente', id: cliId, usuario_id: cliId, nombre: nuevo.nombre });
   }
   return res.json({ ok: false, error: 'Rol inválido' });
+});
+
+// ═══════════════════════════════
+// 🔔 NOTIFICACIONES PUSH
+// ═══════════════════════════════
+
+app.post('/api/push/suscribir', (req, res) => {
+  const { userId, suscripcion } = req.body;
+  if (!userId || !suscripcion) return res.json({ ok: false });
+  pushSuscripciones[userId] = suscripcion;
+  guardarPush();
+  res.json({ ok: true });
+});
+
+app.post('/api/push/enviar', (req, res) => {
+  const { userId, titulo, mensaje } = req.body;
+  const sub = pushSuscripciones[userId];
+  if (!sub) return res.json({ ok: false, msg: 'Sin suscripción' });
+  webpush.sendNotification(sub, JSON.stringify({ titulo, mensaje }))
+    .then(() => res.json({ ok: true }))
+    .catch(err => res.json({ ok: false, msg: err.message }));
+});
+
+app.get('/api/push/vapidkey', (req, res) => {
+  res.json({ publicKey: 'BHrlCtod3sDE_5ZGf6hSqbdE5xhY9u7-5FCb2i-P10_FWBsh75lD9Wh7BdaCnXHewyTJ5c5bJ46aOP_acsCIeno' });
 });
 
 app.listen(3000, () => console.log('DT-APP corriendo en puerto 3000'));
