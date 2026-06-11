@@ -12779,6 +12779,11 @@ function mostrarErrorReg(msg) {
 
 
 
+function guardarSesion(data) {
+  data.expira = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+  localStorage.setItem('dt_sesion', JSON.stringify(data));
+}
+
 function iniciarApp() {
   if (!_sesion) {
     document.getElementById('pantalla-login').style.display = 'flex';
@@ -13673,4 +13678,33 @@ async function saBorrarCodigo(codigo) {
   await cargarSuperAdmin();
 }
 
+</script>
+<script>
+// Verificación de expiración de sesión
+(function() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  if (sesion.email && sesion.expira && new Date() > new Date(sesion.expira)) {
+    ['dt_rol','dt_cliente_tel','dt_cliente_id','dt_sesion','dt_ultimo_rol','dt_google_data'].forEach(k => localStorage.removeItem(k));
+    location.reload();
+  }
+})();
+</script>
+<script>
+// Interceptar dt_sesion — normalizar estructura y agregar expiración
+const _setItemOriginal = localStorage.setItem.bind(localStorage);
+localStorage.setItem = function(key, value) {
+  if (key === 'dt_sesion') {
+    try {
+      const data = JSON.parse(value);
+      if (!data.id && data.usuario_id) data.id = data.usuario_id;
+      if (!data.usuario_id && data.id) data.usuario_id = data.id;
+      if (!data.nombre && data.email) data.nombre = data.email.split('@')[0];
+      if (!data.rol) data.rol = 'cliente';
+      if (!data.roles) data.roles = [{rol: data.rol, id: data.id}];
+      if (!data.expira) data.expira = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+      value = JSON.stringify(data);
+    } catch(e) {}
+  }
+  _setItemOriginal(key, value);
+};
 </script>

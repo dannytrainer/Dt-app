@@ -21,20 +21,6 @@
   "codigo_vinculacion": "8DKS-NM5X-WHYW",
   "codigos_premium": [
     {
-      "codigo": "TEST",
-      "usado": true,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": false,
-      "es_unico": true,
-      "tipo": "cliente",
-      "activo": false,
-      "usados": [],
-      "fechaCreacion": "2026-06-08T00:29:01.759Z",
-      "usadoPor": "prueba@gmail.com",
-      "fechaUso": "2026-06-08T00:29:41.583Z"
-    },
-    {
       "codigo": "TEST2",
       "usado": true,
       "dias": 7,
@@ -140,9 +126,49 @@
         "fp_43601270_mq4h4jzy"
       ],
       "fechaCreacion": "2026-06-08T01:21:55.231Z"
+    },
+    {
+      "codigo": "DAVID",
+      "usado": false,
+      "dias": 30,
+      "permanente": false,
+      "es_convenio": true,
+      "es_unico": false,
+      "tipo": "entrenador",
+      "activo": true,
+      "usados": [
+        "davidmgomez53@gmail.com",
+        "fp_371849820_mq6rjqqf"
+      ],
+      "fechaCreacion": "2026-06-09T14:56:46.335Z"
+    },
+    {
+      "codigo": "DANIEL",
+      "usado": true,
+      "dias": 99999,
+      "permanente": true,
+      "es_convenio": false,
+      "es_unico": true,
+      "tipo": "entrenador",
+      "activo": false,
+      "usados": [],
+      "fechaCreacion": "2026-06-10T01:35:51.598Z",
+      "usadoPor": "danielgaviriabotero@gmail.com",
+      "fechaUso": "2026-06-10T01:36:39.470Z"
+    },
+    {
+      "codigo": "DANIELYO",
+      "usado": false,
+      "dias": 99999,
+      "permanente": true,
+      "es_convenio": false,
+      "es_unico": true,
+      "tipo": "entrenador",
+      "activo": true,
+      "usados": [],
+      "fechaCreacion": "2026-06-10T01:36:16.034Z"
     }
   ],
-  "premium_entrenador": false,
-  "premium_entrenador_hasta": null,
-  "entrenador_id": "ent_001"
+  "entrenador_id": "ent_001",
+  "cobro_auto_activo": true
 }

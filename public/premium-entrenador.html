@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Entrenador — DT-APP</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0a; color: #fff; font-family: -apple-system, sans-serif; min-height: 100vh; }
+.header { background: linear-gradient(135deg, #1a0000, #0a0a0a); padding: 30px 20px; text-align: center; border-bottom: 2px solid #e31e24; }
+.logo { width: 70px; height: 70px; border-radius: 16px; margin-bottom: 12px; }
+.badge { background: #e31e24; color: #fff; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; display: inline-block; margin-bottom: 10px; }
+h1 { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+.subtitulo { font-size: 14px; color: #888; line-height: 1.5; }
+.launch { background: rgba(227,30,36,0.1); border: 1px solid rgba(227,30,36,0.3); border-radius: 10px; padding: 10px 16px; margin: 16px 20px 0; font-size: 12px; color: #e31e24; font-weight: 700; text-align: center; }
+.img-placeholder { margin: 20px; height: 160px; background: linear-gradient(135deg, #111, #1a0a0a); border: 1px dashed #333; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #333; font-size: 13px; }
+.beneficios { padding: 0 20px; margin-bottom: 20px; }
+.beneficios h2 { font-size: 15px; font-weight: 800; color: #e31e24; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+.benefit { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #1a1a1a; }
+.benefit-icon { font-size: 20px; flex-shrink: 0; }
+.benefit-text { font-size: 13px; color: #ccc; line-height: 1.4; }
+.benefit-text strong { color: #fff; }
+.planes { padding: 0 20px; margin-bottom: 20px; }
+.planes h2 { font-size: 15px; font-weight: 800; color: #e31e24; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+.plan { background: #111; border: 1px solid #222; border-radius: 14px; padding: 16px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.2s; }
+.plan.activo { border-color: #e31e24; background: #1a0000; }
+.plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.plan-nombre { font-size: 14px; font-weight: 800; color: #fff; }
+.plan-precio { font-size: 18px; font-weight: 900; color: #e31e24; }
+.plan-dia { font-size: 11px; color: #888; margin-bottom: 4px; }
+.plan-ahorro { font-size: 11px; color: #4caf50; font-weight: 700; }
+.plan-lanzamiento { font-size: 11px; color: #f0a500; font-weight: 700; }
+.proximo { background: #111; border: 1px solid #1a1a1a; border-radius: 14px; padding: 16px; margin-bottom: 10px; opacity: 0.5; }
+.proximo-badge { font-size: 10px; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.btn-pagar { display: block; width: 100%; padding: 16px; border-radius: 14px; border: none; background: linear-gradient(135deg, #e31e24, #a01018); color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; margin-bottom: 12px; letter-spacing: 0.5px; }
+.btn-cliente { display: block; width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #333; background: transparent; color: #888; font-size: 13px; font-weight: 700; cursor: pointer; margin-bottom: 8px; text-align: center; text-decoration: none; }
+.footer { text-align: center; padding: 20px; font-size: 11px; color: #333; }
+.seccion { padding: 0 20px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="/icon.png" class="logo" alt="DT-APP">
+  <div class="badge">⚡ Premium Entrenador</div>
+  <h1>Convierte tu pasión<br>en empresa</h1>
+  <p class="subtitulo">Todo tu negocio fitness en un solo lugar</p>
+</div>
+
+<div class="launch">⏰ Precio especial de lanzamiento — Este precio no estará disponible siempre</div>
+
+<div class="img-placeholder" id="img-hero">
+  🖼️ Imagen próximamente
+</div>
+
+<div class="beneficios">
+  <h2>🏆 Lo que desbloqueas</h2>
+  <div class="benefit"><div class="benefit-icon">👥</div><div class="benefit-text"><strong>Clientes ilimitados</strong> — Sin restricciones, crece sin límites</div></div>
+  <div class="benefit"><div class="benefit-icon">💰</div><div class="benefit-text"><strong>Cobros automáticos</strong> — Recordatorios y gestión de pagos automática</div></div>
+  <div class="benefit"><div class="benefit-icon">📊</div><div class="benefit-text"><strong>Informes Premium HTML</strong> — Reportes profesionales para tus clientes</div></div>
+  <div class="benefit"><div class="benefit-icon">📚</div><div class="benefit-text"><strong>Enciclopedia personalizada</strong> — Hasta 10 ejercicios propios</div></div>
+  <div class="benefit"><div class="benefit-icon">🔥</div><div class="benefit-text"><strong>HIIT completo</strong> — Intervalos y circuitos sin límite</div></div>
+  <div class="benefit"><div class="benefit-icon">🏅</div><div class="benefit-text"><strong>Competencias</strong> — Retos y seguimiento de competencias</div></div>
+  <div class="benefit"><div class="benefit-icon">🍽️</div><div class="benefit-text"><strong>Alimentación completa</strong> — Los 7 planes disponibles</div></div>
+  <div class="benefit"><div class="benefit-icon">📈</div><div class="benefit-text"><strong>Historial completo</strong> — Seguimiento total de tus clientes</div></div>
+  <div class="benefit"><div class="benefit-icon">⚙️</div><div class="benefit-text"><strong>+15 módulos profesionales</strong> — Todas las herramientas de gestión</div></div>
+</div>
+
+<div class="planes">
+  <h2>💳 Elige tu plan</h2>
+
+  <div class="plan activo" id="plan-mensual" onclick="seleccionarPlan('mensual', 4999900)">
+    <div class="plan-header">
+      <span class="plan-nombre">Mensual</span>
+      <span class="plan-precio">$49.999</span>
+    </div>
+    <div class="plan-dia">$1.666/día</div>
+    <div class="plan-lanzamiento">🚀 Precio de lanzamiento</div>
+  </div>
+
+  <div class="plan" id="plan-trimestral" onclick="seleccionarPlan('trimestral', 12499900)">
+    <div class="plan-header">
+      <span class="plan-nombre">Trimestral</span>
+      <span class="plan-precio">$124.999</span>
+    </div>
+    <div class="plan-dia">$1.388/día</div>
+    <div class="plan-ahorro">✅ Ahorras 15 días</div>
+  </div>
+
+  <div class="plan" id="plan-anual" onclick="seleccionarPlan('anual', 49999900)">
+    <div class="plan-header">
+      <span class="plan-nombre">Anual</span>
+      <span class="plan-precio">$499.999</span>
+    </div>
+    <div class="plan-dia">$1.369/día</div>
+    <div class="plan-ahorro">✅ Ahorras 2 meses</div>
+  </div>
+
+  <div class="proximo">
+    <div class="proximo-badge">🔜 Próximamente</div>
+    <div style="font-size:13px;color:#555">Planes semestrales y más opciones</div>
+  </div>
+</div>
+
+<div class="seccion">
+  <button class="btn-pagar" onclick="irAPagar()">💳 Continuar al pago</button>
+  <a href="/premium-cliente.html" class="btn-cliente">👤 Ver Premium para tus clientes →</a>
+</div>
+
+<div class="footer">DT-APP · @dt_entrenamientos · Colombia 2026</div>
+
+<script>
+let planSeleccionado = 'mensual';
+let montoSeleccionado = 4999900;
+
+function seleccionarPlan(plan, monto) {
+  planSeleccionado = plan;
+  montoSeleccionado = monto;
+  ['mensual','trimestral','anual'].forEach(p => {
+    document.getElementById('plan-' + p).classList.remove('activo');
+  });
+  document.getElementById('plan-' + plan).classList.add('activo');
+}
+
+function irAPagar() {
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get('uid');
+  if (!userId) { alert('Error: sesión no encontrada. Vuelve a la app.'); return; }
+  
+  fetch('/api/wompi/crear-pago', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ 
+      plan: 'entrenador_' + planSeleccionado, 
+      entrenador_id: userId,
+      amount_override: montoSeleccionado
+    })
+  }).then(r => r.json()).then(d => {
+    if (!d.ok) { alert('Error al generar pago'); return; }
+    var f = document.createElement('form');
+    f.method = 'GET';
+    f.action = 'https://checkout.wompi.co/p/';
+    Object.entries({
+      'public-key': d.pub_key,
+      'currency': 'COP',
+      'amount-in-cents': montoSeleccionado,
+      'reference': d.reference,
+      'signature:integrity': d.firma,
+      'redirect-url': 'https://dt-app.net/pago-exitoso.html'
+    }).forEach(([k,v]) => {
+      var i = document.createElement('input');
+      i.type = 'hidden'; i.name = k; i.value = v;
+      f.appendChild(i);
+    });
+    document.body.appendChild(f);
+    f.submit();
+  }).catch(e => alert('Error: ' + e.message));
+}
+</script>
+</body>
+</html>

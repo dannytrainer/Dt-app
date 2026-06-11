@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fondo negro -->
+  <rect width="512" height="512" fill="#0a0a0a" rx="80"/>
+  
+  <!-- D izquierda (rectángulo blanco) -->
+  <rect x="60" y="80" width="90" height="352" fill="white"/>
+  
+  <!-- Semicírculo derecho (D) -->
+  <path d="M150 80 Q420 80 420 256 Q420 432 150 432 Z" fill="white"/>
+  
+  <!-- Franja negra vertical (palo mancuerna) -->
+  <rect x="232" y="60" width="48" height="392" fill="#0a0a0a"/>
+  
+  <!-- Palo rojo vertical -->
+  <rect x="246" y="60" width="20" height="392" fill="#e31e24"/>
+  
+  <!-- Disco superior grande 1 -->
+  <rect x="158" y="140" width="196" height="38" fill="#e31e24" rx="8"/>
+  <!-- Disco superior grande 2 -->
+  <rect x="168" y="182" width="176" height="32" fill="#c0151a" rx="8"/>
+  
+  <!-- Disco inferior 1 -->
+  <rect x="178" y="310" width="156" height="32" fill="#e31e24" rx="8"/>
+  <!-- Disco inferior 2 -->
+  <rect x="188" y="346" width="136" height="26" fill="#c0151a" rx="8"/>
+  
+  <!-- Tope superior -->
+  <rect x="242" y="110" width="28" height="34" fill="#e31e24" rx="4"/>
+  <!-- Tope inferior -->
+  <rect x="242" y="372" width="28" height="30" fill="#e31e24" rx="4"/>
+</svg>

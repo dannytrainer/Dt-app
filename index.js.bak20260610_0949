@@ -1,0 +1,1905 @@
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination:(req,file,cb)=>cb(null,'./public/'),
+  filename:(req,file,cb)=>cb(null,'logo_trainer.png')
+});
+const upload = multer({storage,limits:{fileSize:5*1024*1024}});
+const storageFoto = multer.diskStorage({
+  destination:(req,file,cb)=>{
+    const id = req.params ? req.params.id : 'tmp';
+    const dir = require('path').join(__dirname,'data/fotos',id);
+    require('fs').mkdirSync(dir,{recursive:true});
+    cb(null,dir);
+  },
+  filename:(req,file,cb)=>{
+    const ext = file.originalname.split('.').pop();
+    cb(null,'perfil.'+ext);
+  }
+});
+const uploadFoto = multer({storage:storageFoto,limits:{fileSize:5*1024*1024}});
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const qrcode = require('qrcode-terminal');
+const cron = require('node-cron');
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+
+const bcrypt = require('bcryptjs');
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { ok: false, error: 'Demasiados intentos. Espera 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+const webpush = require('web-push');
+
+webpush.setVapidDetails(
+  'mailto:danielgaviriabotero@gmail.com',
+  'BHrlCtod3sDE_5ZGf6hSqbdE5xhY9u7-5FCb2i-P10_FWBsh75lD9Wh7BdaCnXHewyTJ5c5bJ46aOP_acsCIeno',
+  'ZiHf28auc-e9kRZv73vo_Qls0FTpSqPw4T6KwHkn3W8'
+);
+
+// Suscripciones push persistentes
+const PUSH_FILE = 'data/push_suscripciones.json';
+let pushSuscripciones = {};
+try { pushSuscripciones = JSON.parse(require('fs').readFileSync(PUSH_FILE)); } catch(e) {}
+
+function guardarPush() {
+  require('fs').writeFileSync(PUSH_FILE, JSON.stringify(pushSuscripciones, null, 2));
+}
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const session = require('express-session');
+
+const app = express();
+app.set('trust proxy', 1);
+app.use(express.json({limit:'50mb'}));
+// ═══════════════════════════════
+// 🔐 GOOGLE AUTH
+// ═══════════════════════════════
+app.use(session({
+  secret: 'dtapp_secret_2026',
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new GoogleStrategy({
+  clientID: '822565773866-vpneg50rh8k0dm69mfd7biahmstns5pr.apps.googleusercontent.com',
+  clientSecret: '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',
+  callbackURL: 'https://dt-app.net/auth/google/callback'
+}, (accessToken, refreshToken, profile, done) => {
+  const email = profile.emails[0].value;
+  const nombre = profile.displayName;
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  let usuario = cuentas.entrenadores.find(e => e.email === email);
+  let rol = 'entrenador';
+  if (!usuario) {
+    usuario = cuentas.clientes.find(c => c.email === email);
+    rol = 'cliente';
+  }
+  if (usuario) {
+    return done(null, { ...usuario, rol });
+  }
+  // Usuario nuevo — dejar que el frontend elija rol
+  return done(null, { email, nombre, esNuevo: true });
+}));
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+
+
+// Obtener datos de cuenta cliente
+app.get('/api/cuentas/cliente', (req, res) => {
+  const id = req.query.id;
+  if (!id) return res.json({});
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const cli = cuentas.clientes.find(c => c.id === id || c.usuario_id === id);
+  if (!cli) return res.json({});
+  const ent = cuentas.entrenadores.find(e => e.id === cli.entrenador_id);
+  res.json({ ...cli, entrenador_nombre: ent ? ent.nombre : '' });
+});
+
+// Vincular cliente a entrenador por código
+app.post('/api/cuentas/vincular', (req, res) => {
+  const { cliente_id, codigo } = req.body;
+  if (!cliente_id || !codigo) return res.json({ ok:false, error:'Datos incompletos' });
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion && e.codigo_vinculacion.toUpperCase() === codigo.toUpperCase());
+  if (!ent) return res.json({ ok:false, error:'Código inválido' });
+  const cli = cuentas.clientes.find(c => c.id === cliente_id || c.usuario_id === cliente_id);
+  if (!cli) return res.json({ ok:false, error:'Cliente no encontrado' });
+  cli.entrenador_id = ent.id;
+  guardarJSON('cuentas.json', cuentas);
+
+  // Crear en usuarios.json si no existe
+  const usuarios = cargarJSON('usuarios.json', []);
+  const uid = cli.usuario_id || cli.id;
+  const yaExiste = usuarios.find(u => u.id === uid);
+  if (!yaExiste) {
+    const nuevoUsuario = {
+      id: uid,
+      activo: true,
+      nombre: cli.nombre,
+      telefono: cli.telefono || cli.email,
+      tipo: 'asesorado',
+      hora_envio: '08:00',
+      dia_pago: 1,
+      estado_pago: 'aldia',
+      perfil: {
+        fecha_inicio: new Date().toISOString().split('T')[0],
+        sexo: '',
+        edad: '',
+        altura: '',
+        objetivo: '',
+        etiqueta: 'general',
+        notas: '',
+        unidades: 'kg',
+        fecha_nacimiento: ''
+      },
+      tipo_pago: 'mensual',
+      dia_pago2: null,
+      sesiones_total: 0,
+      sesiones_ciclo: 0,
+      ciclo_inicio: new Date().toISOString().split('T')[0],
+      msg_pago: '',
+      msg_q1: '',
+      msg_q2: '',
+      foto: '',
+      vinculado: true,
+      entrenador_id: ent.id,
+      dias_desbloqueados: {}
+    };
+    usuarios.push(nuevoUsuario);
+    guardarJSON('usuarios.json', usuarios);
+  } else {
+    // Actualizar entrenador_id si ya existe
+    yaExiste.entrenador_id = ent.id;
+    yaExiste.vinculado = true;
+    guardarJSON('usuarios.json', usuarios);
+  }
+
+  res.json({ ok:true, entrenador_nombre: ent.nombre });
+});
+
+app.get('/api/auth/roles', (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.json({ roles: [] });
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const roles = [];
+  const ent = cuentas.entrenadores.find(e => e.email === email);
+  const cli = cuentas.clientes.find(c => c.email === email);
+  const cuenta = ent || cli;
+  const nombreCuenta = cuenta ? cuenta.nombre : email;
+  roles.push({ rol:'entrenador', id: ent ? ent.id : null, nombre: nombreCuenta });
+  roles.push({ rol:'cliente', id: cli ? cli.id : null, usuario_id: cli ? cli.usuario_id : null, nombre: nombreCuenta });
+  res.json({ email, nombre: nombreCuenta, roles });
+});
+
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }));
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/?error=google' }),
+  (req, res) => {
+    const email = req.user.email;
+    const nombre = req.user.nombre || req.user.displayName;
+    const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+    const esEnt = cuentas.entrenadores.find(e => e.email === email);
+    const esCli = cuentas.clientes.find(c => c.email === email);
+    const roles = [];
+    const nombreGoogle = (esEnt||esCli||{}).nombre || nombre;
+    roles.push({rol:'entrenador', id: esEnt ? esEnt.id : null, nombre: nombreGoogle});
+    roles.push({rol:'cliente', id: esCli ? esCli.id : null, usuario_id: esCli ? esCli.usuario_id : null, nombre: nombreGoogle});
+    const data = JSON.stringify({ email, nombre, roles });
+    res.send(`<script>
+      localStorage.setItem('dt_google_data', '${data.replace(/'/g, "\'")}');
+      window.location.href = '/';
+    </script>`);
+  }
+);
+
+
+app.use(express.urlencoded({extended:true, limit:'50mb'}));
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  next();
+});
+
+app.use(express.static('public', {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+  }
+}));
+app.use('/images/glosario', express.static('public/images/glosario'));
+app.use('/data/fotos', express.static(path.join(__dirname,'data/fotos')));
+
+const cargarJSON = (archivo, def=[]) => {
+  const ruta = path.join(__dirname, 'data', archivo);
+  try{return JSON.parse(fs.readFileSync(ruta, 'utf8'));}catch{return def;}
+};
+
+const guardarJSON = (archivo, datos) => {
+  const ruta = path.join(__dirname, 'data', archivo);
+  fs.writeFileSync(ruta, JSON.stringify(datos, null, 2));
+};
+
+// Mapa de sesiones WA por entrenador
+const { fork } = require('child_process');
+
+// Mapa de procesos hijo por entrenador
+const waSessions = {}; // { ent_id: { proceso, conectado, pairingCode, pendientes } }
+
+function conectarWhatsApp(entId, telefono) {
+  if (!entId) entId = 'ent_001';
+  if (waSessions[entId] && waSessions[entId].proceso) {
+    console.log('⚠️ Ya existe proceso para ['+entId+']');
+    return;
+  }
+  waSessions[entId] = { proceso: null, conectado: false, pairingCode: null, pendientes: {} };
+  const sess = waSessions[entId];
+  const env = { ...process.env, ENT_ID: entId };
+  if (telefono) env.ENT_TELEFONO = telefono;
+  const worker = fork(path.join(__dirname, 'wa-worker.js'), [], { env, silent: false });
+  sess.proceso = worker;
+  worker.on('message', (msg) => {
+    if (msg.tipo === 'estado') { sess.conectado = msg.conectado; if (msg.pairingCode) sess.pairingCode = msg.pairingCode; }
+    if (msg.tipo === 'codigo') { sess.pairingCode = msg.codigo; }
+    if (msg.tipo === 'resultado') { const cb = sess.pendientes[msg.id]; if (cb) { cb(msg.ok); delete sess.pendientes[msg.id]; } }
+  });
+  worker.on('exit', (code) => {
+    console.log('⚠️ Worker ['+entId+'] terminó con código '+code);
+    sess.proceso = null;
+    sess.conectado = false;
+    // Reconectar automáticamente si no fue salida limpia
+    if (code !== 0 && code !== null) {
+      console.log('🔄 Reconectando worker ['+entId+'] en 5 segundos...');
+      setTimeout(() => {
+        if (!waSessions[entId] || !waSessions[entId].proceso) {
+          conectarWhatsApp(entId, null);
+        }
+      }, 5000);
+    }
+  });
+  console.log('🚀 Worker iniciado para ['+entId+']');
+}
+
+async function enviarMensaje(telefono, mensaje, entId) {
+  if (!entId) entId = 'ent_001';
+  const sess = waSessions[entId];
+  if (!sess || !sess.conectado || !sess.proceso) return false;
+  return new Promise((resolve) => {
+    const id = Date.now() + '_' + Math.random();
+    sess.pendientes[id] = resolve;
+    sess.proceso.send({ tipo: 'enviar', id, telefono, mensaje });
+    setTimeout(() => { if (sess.pendientes[id]) { delete sess.pendientes[id]; resolve(false); } }, 15000);
+  });
+}
+
+app.get('/api/wa/estado', (req, res) => {
+  const entId = req.query.entrenador_id || 'ent_001';
+  const sess = waSessions[entId] || { conectado: false, pairingCode: null };
+  res.json({ conectado: sess.conectado, codigo: sess.pairingCode });
+});
+
+app.post('/api/clientes/vincular-entrenador', (req, res) => {
+  const { cliente_id, codigo } = req.body;
+  const cuentas = cargarJSON('cuentas.json', { entrenadores: [], clientes: [] });
+  const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion === codigo.toUpperCase());
+  const cli = cuentas.clientes.find(c => c.id === cliente_id);
+  cli.entrenador_id = ent.id;
+  guardarJSON('cuentas.json', cuentas);
+  res.json({ ok: true, nombre_entrenador: ent.nombre });
+});
+
+app.post('/api/wa/conectar', async (req, res) => {
+  const { entrenador_id, telefono } = req.body;
+  if (!entrenador_id || !telefono) return res.json({ ok: false, error: 'Faltan datos' });
+  const sess = waSessions[entrenador_id];
+  if (sess && sess.conectado) return res.json({ ok: false, error: 'Ya conectado' });
+  conectarWhatsApp(entrenador_id, telefono);
+  // Guardar teléfono en cuentas.json
+  try {
+    const cuentas = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
+    const ent = cuentas.entrenadores.find(e => e.id === entrenador_id);
+    if (ent) { ent.telefono = telefono; fs.writeFileSync(path.join(__dirname, 'data/cuentas.json'), JSON.stringify(cuentas, null, 2)); }
+  } catch(e) { console.log('Error guardando telefono:', e.message); }
+  res.json({ ok: true });
+});
+
+
+
+const DIAS = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+
+// Backup automático cada noche a las 2am
+cron.schedule('0 2 * * *', () => {
+  try {
+    const fecha = new Date().toISOString().split('T')[0];
+    const origen = path.join(__dirname, 'data');
+    const destino = path.join(__dirname, 'backups', fecha);
+    fs.mkdirSync(destino, { recursive: true });
+    const archivos = fs.readdirSync(origen).filter(f => f.endsWith('.json'));
+    archivos.forEach(archivo => {
+      fs.copyFileSync(path.join(origen, archivo), path.join(destino, archivo));
+    });
+    // Eliminar backups de más de 7 días
+    const backupsDir = path.join(__dirname, 'backups');
+    const carpetas = fs.readdirSync(backupsDir);
+    carpetas.forEach(carpeta => {
+      const fechaCarpeta = new Date(carpeta);
+      const dias = (new Date() - fechaCarpeta) / (1000 * 60 * 60 * 24);
+      if (dias > 7) fs.rmSync(path.join(backupsDir, carpeta), { recursive: true });
+    });
+    console.log('✅ Backup completado:', fecha);
+  } catch(e) {
+    console.error('❌ Error en backup:', e.message);
+  }
+});
+
+cron.schedule('* * * * *', async () => {
+  // Auto actualizar estado de pago
+  try {
+    const hoy2 = new Date();
+    const diaHoy = hoy2.getDate();
+    let usuarios2 = JSON.parse(fs.readFileSync(path.join(__dirname,'data','usuarios.json'),'utf8'));
+    let cambio = false;
+    usuarios2 = usuarios2.map(u => {
+      if (!u.activo) return u;
+      const diasAntes = 3;
+      const esDiaPago = u.dia_pago === diaHoy;
+      const esVencido = u.dia_pago < diaHoy && u.estado_pago !== 'aldia';
+      const esProximo = u.dia_pago === diaHoy + diasAntes || (u.tipo_pago === 'quincenal' && u.dia_pago2 === diaHoy + diasAntes);
+      if (esVencido && u.estado_pago !== 'vencido') { u.estado_pago = 'vencido'; cambio = true; }
+      else if (esDiaPago && u.estado_pago === 'vencido') { u.estado_pago = 'vencido'; }
+      else if (esProximo && u.estado_pago === 'aldia') { u.estado_pago = 'proximo'; cambio = true; }
+      return u;
+    });
+    if (cambio) fs.writeFileSync(path.join(__dirname,'data','usuarios.json'), JSON.stringify(usuarios2, null, 2));
+  } catch(e) {}
+
+  // Envío automático de rutinas y recordatorio de pago
+  try {
+    const ahora = new Date();
+    const horaActual = ahora.getHours().toString().padStart(2,'0') + ':' + ahora.getMinutes().toString().padStart(2,'0');
+    const DIAS = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+    const diaActual = DIAS[ahora.getDay()];
+    const hoy = ahora.toISOString().split('T')[0];
+    const festivos = cargarJSON('festivos.json');
+    const usuarios = cargarJSON('usuarios.json');
+    const rutinas = cargarJSON('rutinas.json');
+    const logs = cargarJSON('logs.json');
+    if (!logs[hoy]) logs[hoy] = {};
+
+    if (festivos.find(f => f.fecha === hoy)) {
+      guardarJSON('logs.json', logs);
+      return;
+    }
+
+    // Respetar pausa global
+    const cfg = cargarJSON('config.json');
+    const pausadoHasta = cfg.envios_pausados_hasta || null;
+    if (pausadoHasta) {
+      if (pausadoHasta === 'indefinido') return;
+      if (new Date(pausadoHasta) >= new Date(hoy)) return;
+    }
+
+    for (const usuario of usuarios) {
+      if (!usuario.activo) continue;
+      // Verificar premium del entrenador para envio automatico
+      const entId_cron = usuario.entrenador_id || 'ent_001';
+      const cfgEnt = cargarJSON(entId_cron === 'ent_001' ? 'config.json' : 'config_' + entId_cron + '.json', {});
+      const hoy_cron = new Date().toISOString().split('T')[0];
+      const entTienePremium = cfgEnt.premium_entrenador && cfgEnt.premium_entrenador_hasta && cfgEnt.premium_entrenador_hasta >= hoy_cron;
+      if (!entTienePremium) continue;
+      if (cfgEnt.cobro_auto_activo === false) continue;
+      const [hh,mm] = usuario.hora_envio.split(':').map(Number);
+      const limiteMin = hh*60+mm;
+      const ahoraMin = ahora.getHours()*60+ahora.getMinutes();
+      if (ahoraMin !== limiteMin) continue;
+      const rutinaUsuario = rutinas[usuario.id];
+      if (!rutinaUsuario || !rutinaUsuario[diaActual]) continue;
+      const _d = rutinaUsuario[diaActual];
+      const _tieneEjs = Array.isArray(_d.ejercicios) && _d.ejercicios.some(e => e.nombre);
+      const _tieneCardio = Array.isArray(_d.cardio) && _d.cardio.some(c => c.ejercicio);
+      const _tieneRec = _d.recordatorio && _d.recordatorio.trim();
+      if (!_tieneEjs && !_tieneCardio && !_tieneRec) continue;
+              if (logs[hoy][usuario.id]) continue;
+              const d = rutinaUsuario[diaActual];
+              let lineas = [];
+              lineas.push('*Rutina de ' + usuario.nombre + '*');
+              lineas.push('');
+              lineas.push('🔥 ' + diaActual.toUpperCase());
+              lineas.push('');
+              if (d.recordatorio) { lineas.push('📝 ' + d.recordatorio); lineas.push(''); }
+              const ejs = d.ejercicios && d.ejercicios.filter(e=>e.nombre).length > 0 ? d.ejercicios : null;
+              if (ejs) {
+                ejs.forEach(e => {
+                  if (e.nombre) {
+                    lineas.push('┌───────────────────┐');
+                    lineas.push('│ ' + e.nombre.substring(0,17).padEnd(17) + '│');
+                    lineas.push('├───────────────────┤');
+                    lineas.push('│ Series: ' + (e.series||'-').toString().padEnd(11) + '│');
+                    lineas.push('│ Reps:   ' + (e.reps||'-').toString().padEnd(11) + '│');
+                    lineas.push('│ RIR:    ' + (e.rir||'-').toString().padEnd(11) + '│');
+                    lineas.push('│ DESC:   ' + (e.desc||'-').toString().padEnd(11) + '│');
+                    lineas.push('│ VAR:    ' + (e.var||'').toString().padEnd(11) + '│');
+                    lineas.push('└───────────────────┘');
+                    lineas.push('');
+                  }
+                });
+              }
+              if (d.rutina) { lineas.push('📌 ' + d.rutina); lineas.push(''); }
+              if (Array.isArray(d.cardio) && d.cardio.length > 0) {
+                lineas.push('🏃 CARDIO');
+                lineas.push('');
+                d.cardio.forEach(cx => {
+                  if (cx.ejercicio) {
+                    lineas.push('┌─────────────────────────┐');
+                    if (cx.momento) lineas.push('│ Momento: ' + cx.momento.trim());
+                    lineas.push('│ Ejercicio: ' + cx.ejercicio.trim());
+                    if (cx.tiempo) lineas.push('│ Tiempo: ' + cx.tiempo.toString().trim() + ' min');
+                    if (cx.notas) {
+                      cx.notas.trim().split('\n').forEach((nl,ni) => {
+                        if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
+                      });
+                    }
+                    lineas.push('└─────────────────────────┘');
+                    lineas.push('');
+                  }
+                });
+              }
+              const mensaje = lineas.join('\n');
+              if (!mensaje.trim()) continue;
+              const resultado = await enviarMensaje(usuario.telefono, mensaje, usuario.entrenador_id);
+              logs[hoy][usuario.id] = resultado ? 'enviado' : 'error';
+              guardarJSON('logs.json', logs);
+    }
+
+    // Recordatorio de pago
+    for (const usuario of usuarios) {
+      if (!usuario.activo) continue;
+      const [hh,mm] = usuario.hora_envio.split(':').map(Number);
+      const limiteMin = hh*60+mm;
+      const ahoraMin = ahora.getHours()*60+ahora.getMinutes();
+      if (ahoraMin !== limiteMin) continue;
+      const manana = new Date(ahora);
+      manana.setDate(manana.getDate() + 1);
+      const diaman = manana.getDate();
+      if (diaman === usuario.dia_pago) {
+        const msg = usuario.msg_pago || ('Hola ' + usuario.nombre + ', recuerda que mañana es tu fecha de pago.');
+        await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
+      } else if (usuario.tipo_pago === 'quincenal' && diaman === usuario.dia_pago2) {
+        const msg = usuario.msg_q2 || ('Hola ' + usuario.nombre + ', recuerda que mañana es tu segunda quincena.');
+        await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
+      }
+    }
+
+    guardarJSON('logs.json', logs);
+  } catch(e) {
+    console.error('Cron envios:', e);
+    try {
+      const logErr = path.join(__dirname, 'data', 'errores.log');
+      const linea = new Date().toISOString() + ' | CRON ERROR: ' + e.message + '\n';
+      fs.appendFileSync(logErr, linea);
+    } catch(e2) {}
+  }
+});
+
+app.get('/api/usuarios', (req, res) => {
+  const todos = cargarJSON('usuarios.json');
+  const entrenador_id = req.query.entrenador_id;
+  if (entrenador_id) {
+    return res.json(todos.filter(u => u.entrenador_id === entrenador_id));
+  }
+  res.json(todos);
+});
+app.get('/api/usuarios/:id', (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const u = usuarios.find(x => x.id === req.params.id);
+  if (!u) return res.status(404).json({ error: 'No encontrado' });
+  res.json(u);
+});
+app.post('/api/usuarios', (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const nuevo = { id: Date.now().toString(), activo: true, entrenador_id: req.body.entrenador_id || 'ent_001', ...req.body };
+  usuarios.push(nuevo);
+  const carpetaFotos = path.join(__dirname, 'data/fotos', nuevo.id);
+  fs.mkdirSync(path.join(carpetaFotos, 'antes'), { recursive: true });
+  fs.mkdirSync(path.join(carpetaFotos, 'despues'), { recursive: true });
+  guardarJSON('usuarios.json', usuarios);
+  res.json(nuevo);
+});
+// ---- CHAT INTERNO ----
+app.get('/api/chat/:id', (req, res) => {
+  const chats = cargarJSON('chats.json', {});
+  res.json(chats[req.params.id] || []);
+});
+
+app.post('/api/chat/:id', (req, res) => {
+  const { mensaje, tipo, autor, contenido } = req.body;
+  const chats = cargarJSON('chats.json', {});
+  if (!chats[req.params.id]) chats[req.params.id] = [];
+  const msg = {
+    id: Date.now().toString(),
+    autor, // 'cliente' o 'entrenador'
+    tipo: tipo || 'texto', // 'texto', 'imagen', 'voz'
+    contenido: contenido || mensaje,
+    fecha: new Date().toISOString(),
+    leido: false,
+    leidoCliente: autor === 'cliente',
+    leidoEntrenador: autor === 'entrenador'
+  };
+  chats[req.params.id].push(msg);
+  guardarJSON('chats.json', chats);
+
+  // Notificación push al entrenador cuando cliente escribe
+  if (autor === 'cliente') {
+    const usuarios = cargarJSON('usuarios.json', []);
+    const usuario = usuarios.find(u => u.id === req.params.id);
+    if (usuario && usuario.entrenador_id) {
+      const sub = pushSuscripciones[usuario.entrenador_id];
+      if (sub) {
+        const nombreCliente = usuario.nombre || 'Un cliente';
+        let titulo, mensajePush;
+        if (tipo === 'reporte') {
+          // Extraer datos limpios del reporte
+          const textoLimpio = (contenido || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+          const completado = textoLimpio.includes('completada');
+          titulo = completado ? '🏆 ' + nombreCliente + ' completó su rutina' : '⚠️ ' + nombreCliente + ' terminó rutina incompleta';
+          const matchEj = textoLimpio.match(/(\d+)\/(\d+)/);
+          mensajePush = matchEj ? matchEj[1] + '/' + matchEj[2] + ' ejercicios completados' : 'Ver reporte en el chat';
+        } else {
+          titulo = '💬 ' + nombreCliente;
+          mensajePush = (contenido || mensaje || '').toString().replace(/<[^>]*>/g, '').substring(0, 60) || 'Te envió un mensaje';
+        }
+        webpush.sendNotification(sub, JSON.stringify({
+          titulo,
+          mensaje: mensajePush
+        })).catch(() => {});
+      }
+    }
+  }
+
+  // Notificación push al cliente cuando entrenador escribe
+  if (autor === 'entrenador') {
+    const sub = pushSuscripciones[req.params.id];
+    if (sub) {
+      webpush.sendNotification(sub, JSON.stringify({
+        titulo: '💬 Tu entrenador',
+        mensaje: (contenido || mensaje || '').toString().substring(0, 60) || 'Te envió un mensaje'
+      })).catch(() => {});
+    }
+  }
+
+  res.json({ ok: true, msg });
+});
+
+app.post('/api/chat/:id/leer', (req, res) => {
+  const { autor } = req.body;
+  const chats = cargarJSON('chats.json', {});
+  if (chats[req.params.id]) {
+    chats[req.params.id] = chats[req.params.id].map(m => {
+      if (autor === 'cliente' && m.autor !== 'cliente') m.leidoCliente = true;
+      if (autor === 'entrenador' && m.autor !== 'entrenador') m.leidoEntrenador = true;
+      return m;
+    });
+    guardarJSON('chats.json', chats);
+  }
+  res.json({ ok: true });
+});
+
+app.get('/api/chat/no-leidos/entrenador', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const chats = cargarJSON('chats.json', {});
+  const usuarios = cargarJSON('usuarios.json', []);
+  const misClientes = usuarios.filter(u => u.entrenador_id === eid).map(u => u.id);
+  let total = 0;
+  const porCliente = {};
+  Object.keys(chats).forEach(id => {
+    if (!misClientes.includes(id)) return;
+    const noLeidos = chats[id].filter(m => m.autor === 'cliente' && !m.leidoEntrenador).length;
+    if (noLeidos > 0) { porCliente[id] = noLeidos; total += noLeidos; }
+  });
+  res.json({ total, porCliente });
+});
+// ---- FIN CHAT ----
+
+app.post('/api/usuarios/:id/limpiar-desbloqueo', (req, res) => {
+  const { dia } = req.body;
+  if (!dia) return res.status(400).json({ error: 'Falta dia' });
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  const fecha = new Date().toISOString().split('T')[0];
+  if (usuarios[idx].dias_desbloqueados && usuarios[idx].dias_desbloqueados[dia]) {
+    usuarios[idx].dias_desbloqueados[dia] = usuarios[idx].dias_desbloqueados[dia].filter(f => f !== fecha);
+  }
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+
+app.post('/api/usuarios/:id/desbloquear-dia', (req, res) => {
+  const { dia } = req.body;
+  if (!dia) return res.status(400).json({ error: 'Falta dia' });
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  if (!usuarios[idx].dias_desbloqueados) usuarios[idx].dias_desbloqueados = {};
+  const fecha = new Date().toISOString().split('T')[0];
+  if (!usuarios[idx].dias_desbloqueados[dia]) usuarios[idx].dias_desbloqueados[dia] = [];
+  if (!usuarios[idx].dias_desbloqueados[dia].includes(fecha)) {
+    usuarios[idx].dias_desbloqueados[dia].push(fecha);
+  }
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+
+app.post('/api/usuarios/:id/perfil-cliente', (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  const { nombre, fecha_nacimiento, altura, etiqueta } = req.body;
+  if (nombre) usuarios[idx].nombre = nombre;
+  if (!usuarios[idx].perfil) usuarios[idx].perfil = {};
+  if (fecha_nacimiento) usuarios[idx].perfil.fecha_nacimiento = fecha_nacimiento;
+  if (altura) usuarios[idx].perfil.altura = altura;
+  if (etiqueta) usuarios[idx].perfil.etiqueta = etiqueta;
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+
+app.put('/api/usuarios/:id', (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  usuarios[idx] = { ...usuarios[idx], ...req.body };
+  guardarJSON('usuarios.json', usuarios);
+  res.json(usuarios[idx]);
+});
+app.delete('/api/usuarios/:id', (req, res) => {
+  let usuarios = cargarJSON('usuarios.json');
+  usuarios = usuarios.filter(u => u.id !== req.params.id);
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+app.get('/api/rutinas/:id', (req, res) => {
+  const rutinas = cargarJSON('rutinas.json');
+  res.json(rutinas[req.params.id] || {});
+});
+app.post('/api/rutinas/:id', (req, res) => {
+  const rutinas = cargarJSON('rutinas.json');
+  rutinas[req.params.id] = req.body;
+  guardarJSON('rutinas.json', rutinas);
+  res.json({ ok: true });
+});
+app.get('/api/festivos', (req, res) => res.json(cargarJSON('festivos.json')));
+app.post('/api/festivos', (req, res) => {
+  const festivos = cargarJSON('festivos.json');
+  festivos.push(req.body);
+  guardarJSON('festivos.json', festivos);
+  res.json({ ok: true });
+});
+app.delete('/api/festivos/:fecha', (req, res) => {
+  let festivos = cargarJSON('festivos.json');
+  festivos = festivos.filter(f => f.fecha !== req.params.fecha);
+  guardarJSON('festivos.json', festivos);
+  res.json({ ok: true });
+});
+app.get('/api/hiit', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const data = cargarJSON('hiit.json');
+  res.json(data.filter(c => (c.entrenador_id || 'ent_001') === eid));
+});
+app.post('/api/hiit', (req, res) => {
+  const data = cargarJSON('hiit.json');
+  const circuito = req.body;
+  if(!circuito.id) circuito.id = Date.now();
+  if(!circuito.entrenador_id) circuito.entrenador_id = 'ent_001';
+  const idx = data.findIndex(c => c.id === circuito.id);
+  if(idx >= 0) data[idx] = circuito;
+  else data.push(circuito);
+  guardarJSON('hiit.json', data);
+  res.json({ok:true});
+});
+app.delete('/api/hiit/:id', (req, res) => {
+  let data = cargarJSON('hiit.json');
+  data = data.filter(c => String(c.id) !== req.params.id);
+  guardarJSON('hiit.json', data);
+  res.json({ok:true});
+});
+
+
+// SUBIR LOGO
+app.post('/api/config/logo', upload.single('logo'), (req, res) => {
+  if(!req.file) return res.status(400).json({error:'No file'});
+  const cfg = cargarJSON('config.json');
+  cfg.logo_entrenador = '/logo_trainer.png';
+  guardarJSON('config.json', cfg);
+  res.json({ok:true, path:'/logo_trainer.png'});
+});
+
+// ADMINISTRATIVO
+app.get('/api/admin', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
+  res.json(data);
+});
+app.get('/api/admin/:id', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
+  res.json(data.clientes[req.params.id] || {});
+});
+app.post('/api/admin/:id', (req, res) => {
+  const eid = req.body.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
+  if(!data.clientes[req.params.id]) data.clientes[req.params.id] = {precio:0,moneda:'COP',pagos:[]};
+  const {msg_pago, ...resto} = req.body;
+  Object.assign(data.clientes[req.params.id], resto);
+  guardarJSON(archivo, data);
+  if(msg_pago !== undefined){
+    const usuarios = cargarJSON('usuarios.json');
+    const idx = usuarios.findIndex(u => String(u.id) === String(req.params.id));
+    if(idx !== -1){ usuarios[idx].msg_pago = msg_pago; guardarJSON('usuarios.json', usuarios); }
+  }
+  res.json({ok:true});
+});
+app.post('/api/admin/:id/pago', (req, res) => {
+  const eid = req.body.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
+  if(!data.clientes[req.params.id]) data.clientes[req.params.id] = {precio:0,moneda:'COP',pagos:[]};
+  data.clientes[req.params.id].pagos.push({...req.body, fecha: new Date().toISOString().split('T')[0]});
+  guardarJSON(archivo, data);
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if(idx !== -1){ usuarios[idx].estado_pago = 'aldia'; guardarJSON('usuarios.json', usuarios); }
+  res.json({ok:true});
+});
+app.post('/api/admin/config/update', (req, res) => {
+  const eid = req.body.entrenador_id || 'ent_001';
+  const archivo = 'administrativo_' + eid + '.json';
+  const base = cargarJSON('administrativo.json');
+  const data = cargarJSON(archivo, {clientes:{}, config: base.config});
+  Object.assign(data.config, req.body);
+  guardarJSON(archivo, data);
+  res.json({ok:true});
+});
+// CONFIG
+app.get('/api/config', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const archivo = eid === 'ent_001' ? 'config.json' : 'config_' + eid + '.json';
+  const cfg = cargarJSON(archivo, cargarJSON('config.json'));
+  res.json(cfg);
+});
+app.post('/api/config', (req, res) => {
+  const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const archivo = eid === 'ent_001' ? 'config.json' : 'config_' + eid + '.json';
+  const cfg = cargarJSON(archivo, cargarJSON('config.json'));
+  Object.assign(cfg, req.body);
+  guardarJSON(archivo, cfg);
+  res.json({ok:true});
+});
+
+
+
+
+const storageFotoEjercicio = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const dir = require('path').join(__dirname, 'public/enciclopedia/imgs');
+    require('fs').mkdirSync(dir, {recursive: true});
+    cb(null, dir);
+  },
+  filename: function(req, file, cb) {
+    const ext = file.originalname.split('.').pop();
+    const tipo = req.params.tipo || 'inicio';
+    cb(null, req.params.id + '-' + tipo + '.' + ext);
+  }
+});
+const uploadFotoEjercicio = multer({storage: storageFotoEjercicio, limits: {fileSize: 5*1024*1024}});
+
+app.post('/api/enciclopedia/personalizados/:id/foto/:tipo', uploadFotoEjercicio.single('foto'), function(req, res) {
+  try {
+    var id = req.params.id;
+    var tipo = req.params.tipo;
+    var ext = req.file.originalname.split('.').pop();
+    var ruta = '/enciclopedia/imgs/' + id + '-' + tipo + '.' + ext;
+    var eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+    var customPath = './data/enciclopedia_personalizados_' + eid + '.json';
+    var data = fs.existsSync(customPath) ? JSON.parse(require('fs').readFileSync(customPath)) : {ejercicios:[]};
+    var idx = data.ejercicios.findIndex(function(e) { return e.id === id; });
+    if (idx === -1) return res.status(404).json({ok: false});
+    if (tipo === 'inicio') data.ejercicios[idx].imagen_inicio = ruta;
+    else data.ejercicios[idx].imagen_fin = ruta;
+    require('fs').writeFileSync(customPath, JSON.stringify(data, null, 2));
+    res.json({ok: true, imagen: ruta});
+  } catch(e) {
+    res.status(500).json({ok: false, error: e.message});
+  }
+});
+
+app.post('/api/foto-cliente/:id', uploadFoto.single('foto'), (req, res) => {
+  try {
+    const id = req.params.id;
+    const ext = req.file.originalname.split('.').pop();
+    const carpeta = path.join(__dirname, 'data/fotos', id);
+    if (!fs.existsSync(carpeta)) fs.mkdirSync(carpeta, { recursive: true });
+    const dest = path.join(carpeta, 'perfil.' + ext);
+    fs.renameSync(req.file.path, dest);
+    const usuarios = cargarJSON('usuarios.json');
+    const u = usuarios.find(x => x.id === id);
+    if(u) { u.foto = 'data/fotos/'+id+'/perfil.'+ext; guardarJSON('usuarios.json', usuarios); }
+    res.json({ok:true, foto: u.foto});
+  } catch(e) { res.status(500).json({ok:false}); }
+});
+
+app.get('/data/fotos/:file', (req, res) => {
+  const p = path.join(__dirname, 'data/fotos', req.params.file);
+  if(fs.existsSync(p)) res.sendFile(p);
+  else res.status(404).end();
+});
+
+
+// ===== ALIMENTACION =====
+app.get('/api/alimentacion/:id', (req, res) => {
+  const data = cargarJSON('alimentacion.json');
+  res.json(data[req.params.id] || {});
+});
+
+app.post('/api/alimentacion/:id', (req, res) => {
+  const data = cargarJSON('alimentacion.json');
+  data[req.params.id] = req.body;
+  guardarJSON('alimentacion.json', data);
+  res.json({ ok: true });
+});
+
+
+app.get('/api/alimentacion/:id/semana', (req, res) => {
+  try {
+    const { generarPlanSemanal } = require('./generar_plan.js');
+    const semana = generarPlanSemanal(req.params.id);
+    res.json(semana);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/alimentacion/:id/plan', (req, res) => {
+  try {
+    const { generarPlanAlimentario } = require('./generar_plan.js');
+    const plan = generarPlanAlimentario(req.params.id);
+    // Guardar plan generado en alimentacion.json
+    const data = cargarJSON('alimentacion.json');
+    if (!data[req.params.id]) data[req.params.id] = {};
+    data[req.params.id].plan_generado = plan;
+    data[req.params.id].plan_fecha = new Date().toISOString();
+    guardarJSON('alimentacion.json', data);
+    res.json(plan);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/horarios', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  res.json(cargarJSON('horarios_' + eid + '.json', []));
+});
+app.post('/api/horarios', (req, res) => {
+  const eid = req.body.entrenador_id || 'ent_001';
+  guardarJSON('horarios_' + eid + '.json', req.body);
+  res.json({ok:true});
+});
+
+app.post('/api/grupo-info', async (req, res) => {
+  const { link, entrenador_id } = req.body;
+  if(!link) return res.json({ok:false, error:'Sin link'});
+  try {
+    const entId = entrenador_id || 'ent_001';
+    const sess = waSessions[entId];
+    if(!sess || !sess.conectado || !sess.proceso) return res.json({ok:false, error:'WhatsApp no conectado'});
+    const codigo = link.split('/').pop();
+    const msgId = Date.now() + '_grp';
+    const resultado = await new Promise((resolve) => {
+      sess.pendientes[msgId] = resolve;
+      sess.proceso.send({ tipo: 'grupoInfo', id: msgId, codigo });
+      setTimeout(() => { if(sess.pendientes[msgId]) { delete sess.pendientes[msgId]; resolve(null); } }, 10000);
+    });
+    if(!resultado) return res.json({ok:false, error:'No se pudo obtener info del grupo'});
+    res.json({ok:true, jid:resultado.id, nombre:resultado.subject, participantes:resultado.size});
+  } catch(e) {
+    res.json({ok:false, error:e.message});
+  }
+});
+
+app.get('/api/status',(req,res)=>{
+  const eid = req.query.entrenador_id || 'ent_001';
+  const sess = waSessions[eid];
+  res.json({conectado: sess ? sess.conectado : false});
+});
+app.get('/api/logs', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const logs = cargarJSON('logs.json');
+  const usuarios = cargarJSON('usuarios.json', []);
+  const misClientes = usuarios.filter(u => u.entrenador_id === eid).map(u => u.id);
+  const logsFiltrados = {};
+  Object.keys(logs).forEach(fecha => {
+    const dia = {};
+    Object.keys(logs[fecha]).forEach(cid => {
+      if (misClientes.includes(cid)) dia[cid] = logs[fecha][cid];
+    });
+    if (Object.keys(dia).length > 0) logsFiltrados[fecha] = dia;
+  });
+  res.json(logsFiltrados);
+});
+app.post('/api/enviar', async (req, res) => {
+  const { telefono, mensaje, entrenador_id } = req.body;
+  const entId = entrenador_id || 'ent_001';
+  const resultado = await enviarMensaje(telefono, mensaje, entId);
+  res.json({ ok: resultado });
+});
+app.post('/api/enviar-rutina/:id', async (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const rutinas = cargarJSON('rutinas.json');
+  const usuario = usuarios.find(u => u.id === req.params.id);
+  if (!usuario) return res.status(404).json({ error: 'No encontrado' });
+  const rutina = rutinas[req.params.id];
+  if (!rutina) return res.status(404).json({ error: 'Sin rutina' });
+  const dias = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+  const emojis = {lunes:'🔥',martes:'⚡',miercoles:'💪',jueves:'🔥',viernes:'⚡',sabado:'💪',domingo:'🌟'};
+  let lineas = ['*Rutina de ' + usuario.nombre + '*', ''];
+  for (const dia of dias) {
+    const d = rutina[dia];
+    if (!d) continue;
+    const ejs = d.ejercicios && d.ejercicios.filter(e=>e.nombre).length > 0 ? d.ejercicios : null;
+    if (!ejs && !d.rutina) continue;
+    const tit = dia.charAt(0).toUpperCase()+dia.slice(1);
+    lineas.push('╔════════════════════╗');
+    lineas.push('║ ' + emojis[dia] + ' ' + tit.toUpperCase().padEnd(18) + '║');
+    lineas.push('╚════════════════════╝');
+    if (d.recordatorio) {
+      lineas.push('📝 ' + d.recordatorio);
+    }
+    if (ejs && ejs.length > 0) {
+      ejs.forEach((e) => {
+        if (e.nombre) {
+          lineas.push('┌───────────────────┐');
+          lineas.push('│ ' + e.nombre.substring(0,17).padEnd(17) + '│');
+          lineas.push('├───────────────────┤');
+          lineas.push('│ Serie: ' + (e.series || '').padEnd(14) + '│');
+          lineas.push('│ Rep: ' + (e.reps || '').padEnd(14) + '│');
+          lineas.push('│ Rir: ' + (e.rir || '').padEnd(12) + '│');
+          lineas.push('│ Desc: ' + (e.desc || '').padEnd(11) + '│');
+          lineas.push('│ Var: ' + (e.var || '').padEnd(13) + '│');
+          lineas.push('└───────────────────┘');
+        }
+      });
+    }
+    if (d.rutina) {
+      lineas.push('📌 ' + d.rutina);
+    }
+    if (Array.isArray(d.cardio) && d.cardio.length > 0) {
+      lineas.push('🏃 CARDIO');
+      lineas.push('');
+      d.cardio.forEach(c => {
+        if (c.ejercicio) {
+          lineas.push('┌─────────────────────────┐');
+          if (c.momento) lineas.push('│ Momento: ' + c.momento.trim());
+          lineas.push('│ Ejercicio: ' + c.ejercicio.trim());
+          if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo.toString().trim() + ' min');
+          if (c.notas) {
+            c.notas.trim().split('\n').forEach((nl,ni) => {
+              if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
+            });
+          }
+          lineas.push('└─────────────────────────┘');
+          lineas.push('');
+        }
+      });
+    }
+    lineas.push('');
+  }
+  let texto = lineas.join('\n');
+  const resultado = await enviarMensaje(usuario.telefono, texto, usuario.entrenador_id);
+  res.json({ ok: resultado });
+});
+app.post('/api/enviar-dia/:id/:dia', async (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const rutinas = cargarJSON('rutinas.json');
+
+  const usuario = usuarios.find(u => u.id === req.params.id);
+
+  if (!usuario) {
+    return res.status(404).json({ error: 'Usuario no encontrado' });
+  }
+
+  const rutina = rutinas[req.params.id];
+
+  if (!rutina) {
+    return res.status(404).json({ error: 'Rutina no encontrada' });
+  }
+
+  const dia = req.params.dia.toLowerCase();
+
+  if (!rutina[dia]) {
+    return res.status(404).json({ error: 'Día no encontrado' });
+  }
+
+  const d = rutina[dia];
+
+  let lineas = [];
+
+  lineas.push(`*Rutina de ${usuario.nombre}*`);
+  lineas.push('');
+  lineas.push(`🔥 ${dia.toUpperCase()}`);
+  lineas.push('');
+
+  if (d.recordatorio) {
+    lineas.push(`📝 ${d.recordatorio}`);
+    lineas.push('');
+  }
+
+  if (d.ejercicios && d.ejercicios.length > 0) {
+    d.ejercicios.forEach(e => {
+lineas.push('┌───────────────────┐');
+lineas.push(`│ ${e.nombre || ''}`.padEnd(20) + '│');
+lineas.push('├───────────────────┤');
+lineas.push(`│ Series: ${e.series || ''}`.padEnd(20) + '│');
+lineas.push(`│ Reps: ${e.reps || ''}`.padEnd(20) + '│');
+lineas.push(`│ RIR: ${e.rir || ''}`.padEnd(20) + '│');
+lineas.push(`│ DESC: ${e.desc || ''}`.padEnd(20) + '│');
+lineas.push(`│ VAR: ${e.var || ''}`.padEnd(20) + '│');
+lineas.push('└───────────────────┘');
+lineas.push('');    });
+  }
+
+  if (d.rutina) {
+    lineas.push(`📌 ${d.rutina}`);
+  }
+
+  if (Array.isArray(d.cardio) && d.cardio.length > 0) {
+    lineas.push('');
+    lineas.push('🏃 CARDIO');
+      lineas.push('');
+      d.cardio.forEach(c => {
+        if (c.ejercicio) {
+          lineas.push('┌─────────────────────────┐');
+          if (c.momento) lineas.push('│ Momento: ' + c.momento.trim());
+          lineas.push('│ Ejercicio: ' + c.ejercicio.trim());
+          if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo.toString().trim() + ' min');
+          if (c.notas) {
+            c.notas.trim().split('\n').forEach((nl,ni) => {
+              if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
+            });
+          }
+          lineas.push('└─────────────────────────┘');
+          lineas.push('');
+        }
+      });
+  }
+
+  const texto = lineas.join('\n');
+
+  const resultado = await enviarMensaje(usuario.telefono, texto, usuario.entrenador_id);
+
+  res.json({ ok: resultado });
+});
+// ── ENCICLOPEDIA ──
+app.get('/api/glosario', (req, res) => {
+  const data = cargarJSON('glosario.json', []);
+  res.json(data);
+});
+
+const encPath = path.join(__dirname, 'data', 'enciclopedia.json');
+const encCustomPath = path.join(__dirname, 'data', 'enciclopedia_personalizados.json');
+
+function cargarEnciclopedia() {
+  if (!fs.existsSync(encPath)) return [];
+  try { return JSON.parse(fs.readFileSync(encPath, 'utf8')); } catch(e) { return []; }
+}
+
+function cargarPersonalizados(entId) {
+  const eid = entId || 'ent_001';
+  const customPath = path.join(__dirname, 'data', 'enciclopedia_personalizados_' + eid + '.json');
+  if (!fs.existsSync(customPath)) return { limite_free: 10, ejercicios: [] };
+  try { return JSON.parse(fs.readFileSync(customPath, 'utf8')); } catch(e) { return { limite_free: 10, ejercicios: [] }; }
+}
+
+
+
+
+// ──────────────────────────────────────────────
+
+require("./sincronizar");
+require("./rutas_historial")(app, fs);
+// ── ENCICLOPEDIA ──
+app.get('/ejercicio/:id', (req, res) => {
+  const oficiales = cargarJSON('enciclopedia.json', []);
+  const custom = cargarPersonalizados(req.query.entrenador_id || 'ent_001');
+  const todos = [...oficiales, ...(custom.ejercicios || [])];
+  const ej = todos.find(e => e.id === req.params.id);
+  if (!ej) return res.status(404).send('<h2>Ejercicio no encontrado</h2>');
+  
+  res.send(`<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${ej.nombre} — DT-APP</title>
+<style>
+  body { background:#0a0a0a; color:#fff; font-family:sans-serif; max-width:500px; margin:0 auto; padding:16px; }
+  h1 { font-size:24px; text-transform:uppercase; margin:0 0 8px; }
+  .grupo { color:#e31e24; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+  .badge { display:inline-block; padding:3px 8px; border-radius:4px; font-size:11px; margin-right:4px; }
+  .badge-nivel { background:#1a3a1a; color:#4caf50; }
+  .badge-equip { background:#1e1e1e; color:#aaa; border:1px solid #333; }
+  .seccion { font-size:11px; color:#e31e24; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin:16px 0 8px; border-bottom:1px solid #2a2a2a; padding-bottom:4px; }
+  .paso { display:flex; gap:10px; margin-bottom:10px; }
+  .paso-num { width:24px; height:24px; background:#e31e24; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+  .paso-txt { font-size:13px; color:#ccc; line-height:1.5; }
+  .error { display:flex; gap:8px; margin-bottom:8px; font-size:13px; color:#ccc; }
+  img { max-width:100%; border-radius:10px; filter:invert(1); margin-bottom:12px; }
+  .musculo { display:inline-block; padding:4px 10px; border-radius:6px; font-size:12px; margin:3px; }
+  .principal { background:rgba(227,30,36,0.15); border:1px solid rgba(227,30,36,0.4); color:#ff6b6b; }
+  .secundario { background:#1a1a1a; border:1px solid #2a2a2a; color:#ccc; }
+</style>
+</head>
+<body>
+<div class="grupo">${ej.grupo}${ej.subgrupo ? ' · ' + ej.subgrupo : ''}</div>
+<h1>${ej.nombre}</h1>
+<div style="margin-bottom:12px">
+  <span class="badge badge-nivel">${ej.nivel || 'intermedio'}</span>
+  <span class="badge badge-equip">${ej.equipamiento || ''}</span>
+</div>
+${ej.imagen ? `<img src="${ej.imagen}" alt="${ej.nombre}">` : ''}
+${(ej.musculos_principales||[]).length > 0 ? `
+<div class="seccion">Músculos</div>
+<div>
+  ${(ej.musculos_principales||[]).map(m => `<span class="musculo principal">⭐ ${m}</span>`).join('')}
+  ${(ej.musculos_secundarios||[]).map(m => `<span class="musculo secundario">${m}</span>`).join('')}
+</div>` : ''}
+${(ej.ejecucion||[]).length > 0 ? `
+<div class="seccion">Ejecución</div>
+${ej.ejecucion.map((p,i) => `<div class="paso"><div class="paso-num">${i+1}</div><div class="paso-txt">${p}</div></div>`).join('')}` : ''}
+${(ej.errores_comunes||[]).length > 0 ? `
+<div class="seccion">Errores comunes</div>
+${ej.errores_comunes.map(e => `<div class="error"><span>⚠️</span><span>${e}</span></div>`).join('')}` : ''}
+<div style="text-align:center;margin-top:24px;font-size:11px;color:#333">DT-APP · Enciclopedia</div>
+</body>
+</html>`);
+});
+
+
+app.get('/api/enciclopedia/buscar-match/:nombre', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const oficiales = cargarJSON('enciclopedia.json', []);
+  const custom = cargarPersonalizados(eid);
+  const todos = [...oficiales, ...(custom.ejercicios || [])];
+  
+  const nombre = decodeURIComponent(req.params.nombre).toLowerCase().trim();
+  const grupofiltro = req.query.grupo || null;
+  const pool = grupofiltro ? todos.filter(e => e.grupo === grupofiltro) : todos;
+  const todosUsar = pool;
+  
+  let mejor = null;
+  let mejorScore = 0;
+  
+  todosUsar.forEach(e => {
+    const enombre = e.nombre.toLowerCase();
+    if (enombre === nombre) { mejor = e; mejorScore = 2; return; }
+    if (enombre.includes(nombre) || nombre.includes(enombre)) {
+      if (1.5 > mejorScore) { mejorScore = 1.5; mejor = e; }
+      return;
+    }
+    const palabrasBusq = nombre.split(' ').filter(p => p.length > 3);
+    const palabrasEj = enombre.split(' ').filter(p => p.length > 3);
+    if (palabrasBusq.length === 0 || palabrasEj.length === 0) return;
+    let coincidencias = 0;
+    palabrasBusq.forEach(p => {
+      if (palabrasEj.some(pe => pe === p)) coincidencias++;
+    });
+    const score = coincidencias / Math.max(palabrasBusq.length, palabrasEj.length);
+    if (score > mejorScore) { mejorScore = score; mejor = e; }
+  });
+  
+  if (mejor && mejorScore >= 0.8) {
+    res.json({ encontrado: true, ejercicio: mejor });
+  } else if (grupofiltro === 'cardio') {
+    const caminar = todos.find(e => e.nombre.toLowerCase().includes('caminadora') || e.nombre.toLowerCase().includes('caminar'));
+    if (caminar) res.json({ encontrado: true, ejercicio: caminar });
+    else res.json({ encontrado: false });
+  } else {
+    res.json({ encontrado: false });
+  }
+});
+
+
+app.put('/api/enciclopedia/editar/:id', (req, res) => {
+  const data = cargarJSON('enciclopedia.json', []);
+  const idx = data.findIndex(e => e.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  data[idx] = { ...data[idx], ...req.body };
+  guardarJSON('enciclopedia.json', data);
+  res.json({ ok: true });
+});
+
+
+app.get('/api/enciclopedia', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const oficiales = cargarJSON('enciclopedia.json', []);
+  const custom = cargarPersonalizados(eid);
+  let todos = [...oficiales, ...(custom.ejercicios || [])];
+  if (req.query.grupo) todos = todos.filter(e => e.grupo === req.query.grupo);
+  if (req.query.equipamiento) todos = todos.filter(e => e.equipamiento === req.query.equipamiento);
+  if (req.query.nivel) todos = todos.filter(e => e.nivel === req.query.nivel);
+  if (req.query.q) {
+    const q = req.query.q.toLowerCase();
+    todos = todos.filter(e =>
+      e.nombre.toLowerCase().includes(q) ||
+      (e.musculos_principales||[]).some(m => m.toLowerCase().includes(q)) ||
+      (e.tags||[]).some(t => t.toLowerCase().includes(q))
+    );
+  }
+  res.json(todos);
+});
+
+app.get('/api/enciclopedia/personalizados', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const data = cargarPersonalizados(eid);
+  res.json(data.ejercicios || []);
+});
+
+app.post('/api/enciclopedia/personalizados', (req, res) => {
+  const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const config = cargarJSON('config.json', {});
+  const plan = config.plan || 'free';
+  const data = cargarPersonalizados(eid);
+  if (!data.ejercicios) data.ejercicios = [];
+  if (plan === 'free' && data.ejercicios.length >= 10)
+    return res.status(403).json({ error: 'Límite del plan Free alcanzado (10 ejercicios)' });
+  const nuevo = { ...req.body, id: 'custom-' + Date.now(), es_personalizado: true };
+  data.ejercicios.push(nuevo);
+  const customPath1 = 'enciclopedia_personalizados_' + eid + '.json';
+  guardarJSON(customPath1, data);
+  res.json(nuevo);
+});
+
+app.put('/api/enciclopedia/personalizados/:id', (req, res) => {
+  const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const data = cargarPersonalizados(eid);
+  const idx = (data.ejercicios||[]).findIndex(e => e.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  data.ejercicios[idx] = { ...data.ejercicios[idx], ...req.body };
+  const customPath2 = 'enciclopedia_personalizados_' + eid + '.json';
+  guardarJSON(customPath2, data);
+  res.json(data.ejercicios[idx]);
+});
+
+app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
+  const eid = req.query.entrenador_id || 'ent_001';
+  const data = cargarPersonalizados(eid);
+  data.ejercicios = (data.ejercicios||[]).filter(e => e.id !== req.params.id);
+  const customPath3 = 'enciclopedia_personalizados_' + eid + '.json';
+  guardarJSON(customPath3, data);
+  res.json({ ok: true });
+});
+
+app.get('/api/enciclopedia/:id', (req, res) => {
+  const id = req.params.id;
+  const eid = req.query.entrenador_id || 'ent_001';
+  const oficiales = cargarJSON('enciclopedia.json', []);
+  const custom = cargarPersonalizados(eid);
+  const todos = [...oficiales, ...(custom.ejercicios || [])];
+  const ej = todos.find(e => e.id === id);
+  if (!ej) return res.status(404).json({ error: 'No encontrado' });
+  res.json(ej);
+});
+
+conectarWhatsApp('ent_001', '573006197897');
+
+// PREMIUM — validar código
+app.post('/api/premium/activar', (req, res) => {
+  const { codigo, userId } = req.body;
+  if (!codigo || !userId) return res.json({ ok: false, msg: 'Datos incompletos' });
+  const config = cargarJSON('config.json', {});
+  const codigos = config.codigos_premium || [];
+  const cod = codigos.find(c => c.codigo === codigo.trim().toUpperCase() && !c.usado);
+  if (!cod) return res.json({ ok: false, msg: 'Código inválido o ya usado' });
+  cod.usado = true;
+  cod.usadoPor = userId;
+  cod.fechaUso = new Date().toISOString();
+  config.codigos_premium = codigos;
+  guardarJSON('config.json', config);
+  const usuarios = cargarJSON('usuarios.json', []);
+  const u = usuarios.find(u => u.id === userId);
+  if (u) {
+    const dias = cod.dias || 30;
+    const hasta = new Date();
+    hasta.setDate(hasta.getDate() + dias);
+    u.premium = true;
+    u.premium_hasta = hasta.toISOString().split('T')[0];
+    guardarJSON('usuarios.json', usuarios);
+  }
+  res.json({ ok: true, hasta: u ? u.premium_hasta : null });
+});
+
+// PREMIUM — activar entrenador
+app.post('/api/premium/activar-entrenador', (req, res) => {
+  const { codigo } = req.body;
+  if (!codigo) return res.json({ ok: false, msg: 'Falta el código' });
+  const config = cargarJSON('config.json', {});
+  const codigos = config.codigos_premium || [];
+  const cod = codigos.find(c => c.codigo === codigo.trim().toUpperCase() && !c.usado);
+  if (!cod) return res.json({ ok: false, msg: 'Código inválido o ya usado' });
+  cod.usado = true;
+  cod.fechaUso = new Date().toISOString();
+  cod.usadoPor = 'entrenador';
+  config.codigos_premium = codigos;
+  const dias = cod.dias || 30;
+  const hasta = new Date();
+  hasta.setDate(hasta.getDate() + dias);
+  const hastaStr = hasta.toISOString().split('T')[0];
+  config.premium_entrenador = true;
+  config.premium_entrenador_hasta = hastaStr;
+  guardarJSON('config.json', config);
+  res.json({ ok: true, hasta: hastaStr });
+});
+
+// PREMIUM — webhook (esperando pasarela de pagos)
+app.post('/api/premium/webhook', (req, res) => {
+  // TODO: conectar con Wompi cuando esté lista la URL pública
+  // El flujo será: Wompi confirma pago → generar código → activar premium automático
+  res.json({ ok: true });
+});
+
+// PREMIUM — generar código (solo Danny)
+app.post('/api/premium/generar', (req, res) => {
+  const { dias, codigo_manual, permanente } = req.body || {};
+  const config = cargarJSON('config.json', {});
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let codigo = codigo_manual ? codigo_manual.toUpperCase().trim() : 'DTP-';
+  if (!codigo_manual) {
+    for (let i=0; i<8; i++) codigo += chars[Math.floor(Math.random()*chars.length)];
+  }
+  // Verificar que no exista ya
+  if (!config.codigos_premium) config.codigos_premium = [];
+  if (config.codigos_premium.find(c => c.codigo === codigo)) {
+    return res.json({ ok: false, error: 'Ese código ya existe' });
+  }
+  const diasFinal = permanente ? 99999 : (dias || 30);
+  config.codigos_premium.push({
+    codigo,
+    usado: false,
+    dias: diasFinal,
+    permanente: !!permanente,
+    es_convenio: !!(req.body.es_convenio),
+    es_unico: !!(req.body.es_unico),
+    tipo: req.body.tipo || 'cliente',
+    activo: req.body.activo !== false,
+    usados: [],
+    fechaCreacion: new Date().toISOString()
+  });
+  guardarJSON('config.json', config);
+  res.json({ ok: true, codigo, dias: diasFinal, permanente: !!permanente });
+});
+
+app.get('/api/premium/codigos', (req, res) => {
+  const config = cargarJSON('config.json', {});
+  res.json(config.codigos_premium || []);
+});
+
+app.delete('/api/premium/codigos/:codigo', (req, res) => {
+  const config = cargarJSON('config.json', {});
+  config.codigos_premium = (config.codigos_premium || []).filter(c => c.codigo !== req.params.codigo);
+  guardarJSON('config.json', config);
+  res.json({ ok: true });
+});
+
+
+// CONVENIO - activar premium con código reutilizable
+app.post('/api/convenio/activar', (req, res) => {
+  const { codigo, email, tipo } = req.body;
+  console.log('CONVENIO activar:', { codigo, email, tipo, userId: req.body.userId, deviceId: req.body.deviceId ? 'presente' : 'ausente' });
+  if (!codigo) return res.json({ ok: false, error: 'Falta el código' });
+  const config = cargarJSON('config.json', {});
+  const codigos = config.codigos_premium || [];
+  const cod = codigos.find(c => c.codigo === codigo.trim().toUpperCase() && (c.es_convenio || c.es_unico));
+  if (!cod) return res.json({ ok: false, error: 'Código inválido' });
+  if (!cod.activo) return res.json({ ok: false, error: 'Código ya utilizado' });
+  // Códigos únicos no requieren email
+  if (cod.es_unico && !email) email = 'anonimo_' + Date.now();
+  // Verificar si ya lo usó este email, ID o dispositivo
+  if (!cod.usados) cod.usados = [];
+  const uid_body = req.body.userId || null;
+  const deviceId = req.body.deviceId || null;
+  const yaUsoEmail = email && cod.usados.includes(email.toLowerCase());
+  const yaUsoId = uid_body && cod.usados.includes(uid_body);
+  const yaUsoDevice = deviceId && cod.usados.includes(deviceId);
+  if (yaUsoEmail || yaUsoId || yaUsoDevice) {
+    return res.json({ ok: false, error: 'Ya activaste este código con esta cuenta o dispositivo' });
+  }
+  // Activar premium
+  const dias = cod.dias || 30;
+  const hasta = new Date();
+  hasta.setDate(hasta.getDate() + dias);
+  const hastaStr = hasta.toISOString().split('T')[0];
+  // Si es código único, desactivar después del primer uso
+  if (cod.es_unico) {
+    cod.activo = false;
+    cod.usado = true;
+    cod.usadoPor = email;
+    cod.fechaUso = new Date().toISOString();
+  } else {
+    // Convenio: guardar email, ID y dispositivo para bloquear reusos
+    cod.usados.push(email.toLowerCase());
+    if (uid_body) cod.usados.push(uid_body);
+    if (deviceId) cod.usados.push(deviceId);
+  }
+  guardarJSON('config.json', config);
+  // Aplicar según tipo
+  if (cod.tipo === 'entrenador') {
+    const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+    const ent = cuentas.entrenadores.find(e => e.email.toLowerCase() === email.toLowerCase());
+    if (!ent) return res.json({ ok: false, error: 'Entrenador no encontrado' });
+    const archivo = ent.id === 'ent_001' ? 'config.json' : 'config_' + ent.id + '.json';
+    const cfg = cargarJSON(archivo, {});
+    cfg.premium_entrenador = true;
+    cfg.premium_entrenador_hasta = hastaStr;
+    guardarJSON(archivo, cfg);
+  } else {
+    const usuarios = cargarJSON('usuarios.json', []);
+    let u = usuarios.find(x => (x.email||'').toLowerCase() === email.toLowerCase()) || (uid_body ? usuarios.find(x => x.id === uid_body) : null);
+    // Si no existe, buscarlo en cuentas.json y crearlo
+    if (!u) {
+      const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+      const cli = cuentas.clientes.find(c => c.id === uid_body || (c.email||'').toLowerCase() === email.toLowerCase());
+      if (cli) {
+        u = { id: cli.usuario_id||cli.id, nombre: cli.nombre, email: cli.email||'', telefono: cli.telefono||'', activo: true, tipo: 'asesorado', hora_envio: '08:00', entrenador_id: cli.entrenador_id||'ent_001', premium: false, premium_hasta: null };
+        usuarios.push(u);
+      }
+    }
+    if (!u && cod.es_unico) { res.json({ ok: true, hasta: hastaStr, dias }); return; }
+    if (!u) return res.json({ ok: false, error: 'Cliente no encontrado' });
+    if (!u && cod.es_unico) { res.json({ ok: true, hasta: hastaStr, dias }); return; }
+    u.premium = true;
+    u.premium_hasta = hastaStr;
+    guardarJSON('usuarios.json', usuarios);
+  }
+  res.json({ ok: true, hasta: hastaStr, dias });
+});
+
+// SUPERADMIN - activar premium directo a entrenador
+app.post('/api/premium/activar-entrenador-directo', (req, res) => {
+  const { id, dias } = req.body;
+  if (!id) return res.json({ ok: false, error: 'Falta id' });
+  const d = dias || 30;
+  const hasta = new Date();
+  hasta.setDate(hasta.getDate() + d);
+  const hastaStr = hasta.toISOString().split('T')[0];
+  const archivo = id === 'ent_001' ? 'config.json' : 'config_' + id + '.json';
+  const cfg = cargarJSON(archivo, cargarJSON('config.json', {}));
+  cfg.premium_entrenador = true;
+  cfg.premium_entrenador_hasta = hastaStr;
+  guardarJSON(archivo, cfg);
+  res.json({ ok: true, hasta: hastaStr });
+});
+
+// SUPERADMIN - activar premium directo a cliente
+app.post('/api/premium/activar-cliente-directo', (req, res) => {
+  const { id, dias } = req.body;
+  if (!id) return res.json({ ok: false, error: 'Falta id' });
+  const d = dias || 30;
+  const hasta = new Date();
+  hasta.setDate(hasta.getDate() + d);
+  const hastaStr = hasta.toISOString().split('T')[0];
+  const usuarios = cargarJSON('usuarios.json', []);
+  const u = usuarios.find(x => x.id === id);
+  if (!u) return res.json({ ok: false, error: 'Cliente no encontrado' });
+  u.premium = true;
+  u.premium_hasta = hastaStr;
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true, hasta: hastaStr });
+});
+
+// SUPERADMIN - listar entrenadores
+app.get('/api/superadmin/entrenadores', (req, res) => {
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  const usuarios = cargarJSON('usuarios.json', []);
+  const resultado = cuentas.entrenadores.map(e => {
+    const misClientes = usuarios.filter(u => u.entrenador_id === e.id);
+    const cfg = cargarJSON(e.id === 'ent_001' ? 'config.json' : 'config_' + e.id + '.json', {});
+    return {
+      id: e.id,
+      nombre: e.nombre,
+      email: e.email,
+      activo: e.activo !== false,
+      fecha_registro: e.fecha_registro || null,
+      total_clientes: misClientes.length,
+      clientes_activos: misClientes.filter(u => u.activo).length,
+      premium: cfg.premium_entrenador || false,
+      premium_hasta: cfg.premium_entrenador_hasta || null,
+      codigo_vinculacion: e.codigo_vinculacion || null
+    };
+  });
+  res.json(resultado);
+});
+
+require('./rutas_informe')(app, fs);
+app.post('/api/informe/:id/enviar', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const usuarios = JSON.parse(fs.readFileSync('./data/usuarios.json', 'utf8'));
+    const usuario = usuarios.find(u => u.id == id || u.telefono == id);
+    if (!usuario) return res.status(404).json({ ok: false, error: 'Cliente no encontrado' });
+
+    const telefono = usuario.telefono.replace(/[^0-9]/g, '');
+    const jid = telefono + '@s.whatsapp.net';
+    const nombre = usuario.nombre || 'Cliente';
+
+    const http = require('http');
+    const htmlContent = await new Promise((resolve, reject) => {
+      const req2 = http.request({ hostname: 'localhost', port: 3000, path: '/api/informe/' + id + '/html', method: 'GET' }, (res2) => {
+        let data = '';
+        res2.on('data', chunk => data += chunk);
+        res2.on('end', () => resolve(data));
+      });
+      req2.on('error', reject);
+      req2.end();
+    });
+
+    const buffer = Buffer.from(htmlContent, 'utf-8');
+    const entId = usuario.entrenador_id || 'ent_001';
+    const sess = waSessions[entId];
+    if (!sess || !sess.conectado || !sess.proceso) {
+      return res.json({ ok: false, error: 'WhatsApp no conectado para este entrenador' });
+    }
+    const msgId = Date.now() + '_inf';
+    const resultado = await new Promise((resolve) => {
+      sess.pendientes[msgId] = resolve;
+      sess.proceso.send({
+        tipo: 'enviarDoc',
+        id: msgId,
+        telefono: usuario.telefono,
+        buffer: buffer.toString('base64'),
+        mimetype: 'text/html',
+        fileName: 'Informe-Premium-' + nombre.replace(/ /g, '-') + '.html'
+      });
+      setTimeout(() => { if (sess.pendientes[msgId]) { delete sess.pendientes[msgId]; resolve(false); } }, 15000);
+    });
+    res.json({ ok: resultado, mensaje: resultado ? 'Informe enviado a ' + nombre : 'Error al enviar' });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+
+// SUBIR FOTO COMPARATIVA (antes/después)
+const storageFotoComp = multer.diskStorage({
+  destination:(req,file,cb)=>{
+    const {id,tipo} = req.params;
+    const dir = path.join(__dirname,'data/fotos',id,tipo);
+    fs.mkdirSync(dir,{recursive:true});
+    cb(null,dir);
+  },
+  filename:(req,file,cb)=>{
+    const ext = file.originalname.split('.').pop();
+    cb(null,'foto.'+ext);
+  }
+});
+const uploadFotoComp = multer({storage:storageFotoComp,limits:{fileSize:5*1024*1024}});
+
+app.post('/api/foto-comparativa/:id/:tipo', uploadFotoComp.single('foto'), (req, res) => {
+  try {
+    const {id, tipo} = req.params;
+    if (!['antes','despues'].includes(tipo)) return res.status(400).json({ok:false,error:'Tipo inválido'});
+    res.json({ok:true, path:`data/fotos/${id}/${tipo}/foto.${req.file.originalname.split('.').pop()}`});
+  } catch(e) { res.status(500).json({ok:false,error:e.message}); }
+});
+
+// Vinculación cliente
+app.post('/api/vincular', (req, res) => {
+  const { id, codigo } = req.body;
+  const cfg = cargarJSON('config.json');
+  if (codigo !== cfg.codigo_vinculacion) return res.json({ ok: false, error: 'Código incorrecto' });
+  const usuarios = cargarJSON('usuarios.json');
+  const u = usuarios.find(u => u.id === id);
+  if (!u) return res.json({ ok: false, error: 'Usuario no encontrado' });
+  u.vinculado = true;
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+
+app.get('/api/codigo-entrenador', (req, res) => {
+  const cfg = cargarJSON('config.json');
+  res.json({ codigo: cfg.codigo_vinculacion });
+});
+
+// Habilitar dia en app para cliente
+
+
+app.post('/api/habilitar-dia/:id', (req, res) => {
+  const { dia } = req.body;
+  const usuarios = cargarJSON('usuarios.json');
+  const u = usuarios.find(u => u.id === req.params.id);
+  if (!u) return res.json({ ok: false });
+  if (!u.dias_habilitados) u.dias_habilitados = [];
+  if (!u.dias_habilitados.includes(dia)) u.dias_habilitados.push(dia);
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true });
+});
+
+
+
+// ═══════════════════════════════
+// 🔐 CAMBIAR CONTRASEÑA
+// ═══════════════════════════════
+app.post('/api/auth/cambiar-password', (req, res) => {
+  console.log('CAMBIAR-PASS recibido:', JSON.stringify(req.body));
+  const { email, password_actual, password_nuevo } = req.body;
+  if (!email || !password_actual || !password_nuevo) 
+    return res.json({ ok: false, msg: 'Datos incompletos' });
+  
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  
+  // Buscar en entrenadores
+  const ent = cuentas.entrenadores.find(e => e.email === email);
+  if (ent && bcrypt.compareSync(password_actual, ent.password)) {
+    ent.password = bcrypt.hashSync(password_nuevo, 10);
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, msg: 'Contraseña actualizada' });
+  }
+  
+  // Buscar en clientes
+  const cli = cuentas.clientes.find(c => c.email === email);
+  if (cli && bcrypt.compareSync(password_actual, cli.password)) {
+    cli.password = bcrypt.hashSync(password_nuevo, 10);
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, msg: 'Contraseña actualizada' });
+  }
+  
+  return res.json({ ok: false, msg: 'Contraseña actual incorrecta' });
+});
+
+// ═══════════════════════════════
+// 🔐 AUTENTICACIÓN
+// ═══════════════════════════════
+
+app.post('/api/auth/login', loginLimiter, (req, res) => {
+  const { email, password } = req.body;
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  
+  // Buscar en entrenadores
+  const ent = cuentas.entrenadores.find(e => e.email === email);
+  if (ent && bcrypt.compareSync(password, ent.password)) return res.json({ ok: true, rol: 'entrenador', id: ent.id, email: ent.email, nombre: ent.nombre, roles: [{rol:'entrenador', id: ent.id, nombre: ent.nombre}, {rol:'cliente', id: null, nombre: ent.nombre}] });
+  
+  // Buscar en clientes
+  const cli = cuentas.clientes.find(c => c.email === email);
+  if (cli && bcrypt.compareSync(password, cli.password)) return res.json({ ok: true, rol: 'cliente', id: cli.id, email: cli.email, nombre: cli.nombre, usuario_id: cli.usuario_id, entrenador_id: cli.entrenador_id, roles: [{rol:'entrenador', id: null, nombre: cli.nombre}, {rol:'cliente', id: cli.id, nombre: cli.nombre}] });
+  
+  return res.json({ ok: false, error: 'Email o contraseña incorrectos' });
+});
+
+app.post('/api/auth/registro', loginLimiter, (req, res) => {
+  const { email, password, nombre, rol, codigo_entrenador, telefono } = req.body;
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  
+  // Verificar si ya existe
+  const existe = [...cuentas.entrenadores, ...cuentas.clientes].find(c => c.email === email);
+  if (existe) return res.json({ ok: false, error: 'Este email ya está registrado' });
+  
+  if (rol === 'entrenador') {
+    const nuevo = {
+      id: 'ent_' + Date.now(),
+      email, password: bcrypt.hashSync(password, 10), nombre,
+      codigo_vinculacion: Array.from({length:3}, () => Math.random().toString(36).substring(2,6).toUpperCase()).join('-'),
+      roles: ['entrenador', 'cliente'],
+      activo: true,
+      fecha_registro: new Date().toISOString().split('T')[0]
+    };
+    cuentas.entrenadores.push(nuevo);
+    guardarJSON('cuentas.json', cuentas);
+    guardarJSON('config_' + nuevo.id + '.json', { nombre_entrenador: nuevo.nombre, email: nuevo.email, codigo_vinculacion: nuevo.codigo_vinculacion, msg_prellenado: false });
+    // Arrancar worker WA para nuevo entrenador
+    conectarWhatsApp(nuevo.id, null);
+    return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, email: nuevo.email, nombre: nuevo.nombre, roles: [{rol:'entrenador', id: nuevo.id, nombre: nuevo.nombre}, {rol:'cliente', id: null, nombre: nuevo.nombre}] });
+  }
+  
+  if (rol === 'cliente') {
+    let entrenador_id = null;
+    let usuario_id = null;
+    if (codigo_entrenador) {
+      const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion === codigo_entrenador.toUpperCase());
+      if (!ent) return res.json({ ok: false, error: 'Código de entrenador inválido' });
+      entrenador_id = ent.id;
+    }
+    const cliId = 'cli_' + Date.now();
+    usuario_id = cliId;
+    const nuevo = {
+      id: cliId,
+      email, password: bcrypt.hashSync(password, 10), nombre,
+      telefono: telefono ? telefono.replace(/\D/g,'') : '',
+      entrenador_id, usuario_id,
+      roles: ['entrenador', 'cliente'],
+      activo: true,
+      fecha_registro: new Date().toISOString().split('T')[0]
+    };
+    cuentas.clientes.push(nuevo);
+    guardarJSON('cuentas.json', cuentas);
+    // Agregar a usuarios.json
+    const usuarios = cargarJSON('usuarios.json', []);
+    const yaExiste = usuarios.find(u => u.id === cliId);
+    if (!yaExiste) {
+      usuarios.push({
+        id: cliId,
+        activo: true,
+        nombre: nuevo.nombre,
+        telefono: nuevo.telefono || nuevo.email,
+        tipo: 'asesorado',
+        hora_envio: '08:00',
+        dia_pago: 1,
+        estado_pago: 'aldia',
+        perfil: { fecha_inicio: new Date().toISOString().split('T')[0], sexo:'', edad:'', altura:'', objetivo:'', etiqueta:'general', notas:'', unidades:'kg', fecha_nacimiento:'' },
+        tipo_pago: 'mensual',
+        dia_pago2: null,
+        sesiones_total: 0,
+        sesiones_ciclo: 0,
+        ciclo_inicio: new Date().toISOString().split('T')[0],
+        msg_pago:'', msg_q1:'', msg_q2:'', foto:'',
+        vinculado: true,
+        entrenador_id: entrenador_id,
+        dias_desbloqueados: {}
+      });
+      guardarJSON('usuarios.json', usuarios);
+    }
+    return res.json({ ok: true, rol: 'cliente', id: nuevo.id, nombre: nuevo.nombre, entrenador_id, roles: [{rol:'entrenador', id: null, nombre: nuevo.nombre}, {rol:'cliente', id: nuevo.id, nombre: nuevo.nombre}] });
+  }
+  
+  return res.json({ ok: false, error: 'Rol inválido' });
+});
+
+app.post('/api/auth/crear-perfil', (req, res) => {
+  const { email, nombre, rol } = req.body;
+  if (!email) return res.json({ ok: false, error: 'Email requerido' });
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+  // Buscar si ya existe
+  const ent = cuentas.entrenadores.find(e => e.email === email);
+  if (ent && rol === 'entrenador') return res.json({ ok: true, rol: 'entrenador', id: ent.id, nombre: ent.nombre });
+  const cli = cuentas.clientes.find(c => c.email === email);
+  if (cli && rol === 'cliente') return res.json({ ok: true, rol: 'cliente', id: cli.id, usuario_id: cli.usuario_id, nombre: cli.nombre });
+  // Si no existe, crear
+  if (rol === 'entrenador') {
+    const nuevo = { id: 'ent_' + Date.now(), email, nombre: nombre||email, password: '', codigo_vinculacion: Array.from({length:3}, () => Math.random().toString(36).substring(2,6).toUpperCase()).join('-'), roles: ['entrenador','cliente'], activo: true, fecha_registro: new Date().toISOString().split('T')[0] };
+    cuentas.entrenadores.push(nuevo);
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, nombre: nuevo.nombre });
+  }
+  if (rol === 'cliente') {
+    const cliId = 'cli_' + Date.now();
+    const nuevo = { id: cliId, email, nombre: nombre||email, password: '', usuario_id: cliId, entrenador_id: null, roles: ['entrenador','cliente'], activo: true, fecha_registro: new Date().toISOString().split('T')[0] };
+    cuentas.clientes.push(nuevo);
+    guardarJSON('cuentas.json', cuentas);
+    return res.json({ ok: true, rol: 'cliente', id: cliId, usuario_id: cliId, nombre: nuevo.nombre });
+  }
+  return res.json({ ok: false, error: 'Rol inválido' });
+});
+
+// ═══════════════════════════════
+// 🔔 NOTIFICACIONES PUSH
+// ═══════════════════════════════
+
+app.post('/api/push/suscribir', (req, res) => {
+  const { userId, suscripcion } = req.body;
+  if (!userId || !suscripcion) return res.json({ ok: false });
+  pushSuscripciones[userId] = suscripcion;
+  guardarPush();
+  res.json({ ok: true });
+});
+
+app.post('/api/push/enviar', (req, res) => {
+  const { userId, titulo, mensaje } = req.body;
+  const sub = pushSuscripciones[userId];
+  if (!sub) return res.json({ ok: false, msg: 'Sin suscripción' });
+  webpush.sendNotification(sub, JSON.stringify({ titulo, mensaje }))
+    .then(() => res.json({ ok: true }))
+    .catch(err => res.json({ ok: false, msg: err.message }));
+});
+
+app.get('/api/push/vapidkey', (req, res) => {
+  res.json({ publicKey: 'BHrlCtod3sDE_5ZGf6hSqbdE5xhY9u7-5FCb2i-P10_FWBsh75lD9Wh7BdaCnXHewyTJ5c5bJ46aOP_acsCIeno' });
+});
+
+
+// ═══════════════════════════════
+// 💳 WOMPI PAGOS
+// ═══════════════════════════════
+const crypto = require('crypto');
+
+function getWompiConfig() {
+  return JSON.parse(require('fs').readFileSync('./data/wompi_config.json'));
+}
+
+// Generar firma de integridad
+function generarFirmaWompi(reference, amount_in_cents, currency) {
+  const cfg = getWompiConfig();
+  const cadena = reference + amount_in_cents + currency + cfg.integrity_secret;
+  return crypto.createHash('sha256').update(cadena).digest('hex');
+}
+
+// Endpoint para crear pago
+app.post('/api/wompi/crear-pago', (req, res) => {
+  const { tipo, entrenador_id, cliente_id, plan } = req.body;
+  const cfg = getWompiConfig();
+  
+  const precios = {
+    'entrenador_mensual': 5000000,
+    'entrenador_anual': 50000000,
+    'cliente_mensual': 2000000,
+    'cliente_anual': 20000000
+  };
+  
+  const amount = req.body.amount_override || precios[plan];
+  if (!amount) return res.json({ ok: false, msg: 'Plan inválido' });
+  
+  const reference = 'DTAPP_' + Date.now() + '_' + (entrenador_id || cliente_id);
+  const firma = generarFirmaWompi(reference, amount, 'COP');
+  
+  res.json({
+    ok: true,
+    pub_key: cfg.pub_key,
+    amount_in_cents: amount,
+    currency: 'COP',
+    reference,
+    firma,
+    redirect_url: 'https://dt-app.net/pago-exitoso'
+  });
+});
+
+// Webhook de eventos Wompi
+app.post('/api/wompi/eventos', express.raw({type: 'application/json'}), (req, res) => {
+  try {
+    const cfg = getWompiConfig();
+    const signature = req.headers['x-event-checksum'];
+    const body = req.body.toString();
+    const expected = crypto.createHmac('sha256', cfg.events_secret).update(body).digest('hex');
+    
+    if (signature !== expected) return res.status(401).json({ ok: false });
+    
+    const evento = JSON.parse(body);
+    if (evento.event === 'transaction.updated' && evento.data.transaction.status === 'APPROVED') {
+      const ref = evento.data.transaction.reference;
+      const partes = ref.split('_');
+      const userId = partes[2];
+      
+      const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+      const ent = cuentas.entrenadores.find(e => e.id === userId);
+      const cli = cuentas.clientes.find(c => c.id === userId);
+      
+      const esPlan = ref.includes('anual') ? 365 : 30;
+      const hasta = new Date(Date.now() + esPlan * 24 * 60 * 60 * 1000).toISOString();
+      
+      if (ent) { ent.premium = true; ent.premium_hasta = hasta; }
+      if (cli) { cli.premium = true; cli.premium_hasta = hasta; }
+      
+      guardarJSON('cuentas.json', cuentas);
+    }
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.listen(3000, () => console.log('DT-APP corriendo en puerto 3000'));

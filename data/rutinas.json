@@ -1,5 +1,5 @@
 {
-  "1778206334876": {
+  "cli_1778206334876": {
     "lunes": {
       "recordatorio": "",
       "rutina": ""
@@ -17,7 +17,7 @@
       "rutina": "\n\nY yo soy muy teso pq aunq todo lo haga el app  issss máquina yo sin saber nada acomodar todo "
     }
   },
-  "1778216541791": {
+  "cli_1778216541791": {
     "lunes": {
       "recordatorio": "Rutina pecho espalda ",
       "rutina": "Recuerda calentar los hombros \nVariaciones :\nV1= última serie en dropset de 3 \nV2= biserie",
@@ -515,7 +515,7 @@
       ]
     }
   },
-  "1778272241158": {
+  "cli_1778272241158": {
     "lunes": {
       "recordatorio": "",
       "rutina": "",
@@ -527,7 +527,7 @@
       "rutina": "Sentadilla gey en Chimbo de hielo "
     }
   },
-  "1778389775722": {
+  "cli_1778389775722": {
     "lunes": {
       "recordatorio": "Nando hoy toca pecho/espalda ",
       "rutina": "1. *Press inclinado mancuernas*\n    - Series: 5\n    - Reps: 15 / 12 / 8-10 / 8-10/ 8-10\n    - RIR: 1-2\n\n2. *Press plano*\n    - Series: 4\n    - Reps: 6-8 / 8-10\n    - RIR: 1-2\n\n3. *Remo pesado (neutro cerrado)*\n    - Series: 3+DS\n    - Reps: 8-10\n    - RIR: 1-2\n\n4. *Jalón (neutro amplitud)*\n    - Series: 4+DS\n    - Reps: 8-12\n    - RIR: 1-2\n\n5. *Pullover + vuelos*\n    - Series: 3\n    - Reps: 12-15\n    - RIR: 0-1",
@@ -562,7 +562,7 @@
       "rutina": ""
     }
   },
-  "1778379484797": {
+  "cli_1778379484797": {
     "lunes": {
       "recordatorio": "Confirmación de clase \nPierna ",
       "rutina": "",
@@ -613,7 +613,7 @@
       "presencial": false
     }
   },
-  "1778377380425": {
+  "cli_1778377380425": {
     "lunes": {
       "recordatorio": "Confirmación de clase \nDia de pierna ",
       "rutina": "",
@@ -650,7 +650,7 @@
       "presencial": true
     }
   },
-  "1778377049231": {
+  "cli_1778377049231": {
     "lunes": {
       "recordatorio": "",
       "rutina": "",
@@ -901,7 +901,7 @@
       "cardio": []
     }
   },
-  "1778377616786": {
+  "cli_1778377616786": {
     "lunes": {
       "recordatorio": "Día de cardio ",
       "rutina": "",
@@ -1189,7 +1189,7 @@
       ]
     }
   },
-  "1778687454932": {
+  "cli_1778687454932": {
     "lunes": {
       "recordatorio": "Confirmación de clase \nPierna ",
       "rutina": "",
@@ -1226,7 +1226,7 @@
       "cardio": []
     }
   },
-  "1779311725122": {
+  "cli_1779311725122": {
     "lunes": {
       "recordatorio": "Pierna ",
       "rutina": "",
@@ -1263,7 +1263,7 @@
       "cardio": []
     }
   },
-  "1778376855974": {
+  "cli_1778376855974": {
     "lunes": {
       "recordatorio": "",
       "rutina": "",
@@ -1304,7 +1304,7 @@
       "cardio": []
     }
   },
-  "1778377208321": {
+  "cli_1778377208321": {
     "lunes": {
       "recordatorio": "",
       "rutina": "",
@@ -1329,7 +1329,7 @@
       "cardio": []
     }
   },
-  "1780069487489": {
+  "cli_1780069487489": {
     "lunes": {
       "recordatorio": "Nati buenas días hoy empezamos con pierna ",
       "rutina": "V1 = primer circuito \nV2 = segundo circuito ",
@@ -1666,7 +1666,7 @@
       ]
     }
   },
-  "1778379130440": {
+  "cli_1778379130440": {
     "lunes": {
       "recordatorio": "Hola vale confirmamos clase ?",
       "rutina": "",
@@ -1756,6 +1756,23 @@
           "notas": "Hiit"
         }
       ]
+    }
+  },
+  "cli_1781016615732": {
+    "lunes": {
+      "recordatorio": "Gghj",
+      "rutina": "",
+      "ejercicios": [
+        {
+          "nombre": "Gh",
+          "series": "Y",
+          "reps": "J",
+          "rir": "J",
+          "desc": "J",
+          "var": "K"
+        }
+      ],
+      "cardio": []
     }
   }
 }

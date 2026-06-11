@@ -1,5 +1,44 @@
 // === SCRIPT 1 ===
 
+// ═══════════════════════════════
+// 🔔 NOTIFICACIONES PUSH
+// ═══════════════════════════════
+async function iniciarNotificacionesPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    const permiso = await Notification.requestPermission();
+    if (permiso !== 'granted') return;
+    const vapidResp = await fetch('/api/push/vapidkey');
+    const { publicKey } = await vapidResp.json();
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: publicKey
+    });
+    const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+    const userId = sesion.id || null;
+    if (userId) {
+      await fetch('/api/push/suscribir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, suscripcion: sub })
+      });
+      console.log('✅ Notificaciones push activadas');
+    }
+  } catch(e) {
+    console.log('Push error:', e);
+  }
+}
+
+window.addEventListener('load', () => {
+  setTimeout(iniciarNotificacionesPush, 5000);
+});
+
+// También llamar después del login
+window.activarPushTrasLogin = iniciarNotificacionesPush;
+
+// === SCRIPT 2 ===
+
 const DIAS=['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
 let rutinaActual={},diaSeleccionado='lunes';
 
@@ -1497,11 +1536,18 @@ function toggleTema(){
   fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:claro?'claro':'oscuro', entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
 }
 function cargarTema(){
-  const tema = localStorage.getItem('dt_tema') || localStorage.getItem('tema') || 'oscuro';
+  let tema = localStorage.getItem('dt_tema') || localStorage.getItem('tema');
+  if (!tema) {
+    tema = window.matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'oscuro';
+  }
   if(tema === 'claro'){
     document.body.classList.add('modo-claro');
     const btn = document.getElementById('btn-tema');
     if(btn) btn.textContent = '☀️';
+  } else {
+    document.body.classList.remove('modo-claro');
+    const btn = document.getElementById('btn-tema');
+    if(btn) btn.textContent = '🌙';
   }
   localStorage.setItem('dt_tema', tema);
   localStorage.setItem('tema', tema);
@@ -1820,7 +1866,16 @@ async function abrirTests(id,nombre){
   document.getElementById("modal-tests").classList.add("open");
 await renderTests(id);
 }
-function abrirModalCliente(){
+async function abrirModalCliente(){
+  if (!entEsPremium()) {
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const usuarios = await fetch('/api/usuarios?entrenador_id=' + eid).then(r=>r.json()).catch(()=>[]);
+    const activos = usuarios.filter(u => u.activo !== false).length;
+    if (activos >= 3) {
+      mostrarCandadoPremium('Has alcanzado el limite de 3 clientes del Plan Gratis. Activa Premium para clientes ilimitados.');
+      return;
+    }
+  }
 document.getElementById('cliente-id').value='';
 document.getElementById('cliente-nombre').value='';
 document.getElementById('cliente-telefono').value='';
@@ -7908,17 +7963,10 @@ const data=await res.json();
 toast(data.ok?'✅ Rutina enviada':'❌ Error',data.ok);
 }
 
-async function enviarInformePremium(){
-  const id=document.getElementById('enviar-cliente').value;
-  const res=await fetch('/api/informe/'+id+'/enviar',{method:'POST'});
-  const data=await res.json();
-  toast(data.ok?'Informe enviado':'Error: '+data.error,data.ok);
-}
-async function descargarInformePremium(){
-  const id=document.getElementById('enviar-cliente').value;
   window.open('/api/informe/'+id+'/html','_blank');
 }
 async function enviarInformePremium(){
+  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
   const id=document.getElementById("enviar-cliente").value;
   if(!id){toast("Selecciona un cliente",false);return;}
   if(!confirm("Enviar informe premium por WhatsApp?")){return;}
@@ -7927,6 +7975,7 @@ async function enviarInformePremium(){
   toast(data.ok?"Informe enviado":"Error: "+data.error,data.ok);
 }
 async function descargarInformePremium(){
+  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
   const id=document.getElementById("enviar-cliente").value;
   if(!id){toast("Selecciona un cliente",false);return;}
   window.open("/api/informe/"+id+"/html","_blank");
@@ -8044,9 +8093,9 @@ function filtrarRutinas(){
   });
 }
 
-// === SCRIPT 2 ===
-window.addEventListener("load",function(){cargarTema();showPage("inicio");cargarNombreEntrenador();});
 // === SCRIPT 3 ===
+window.addEventListener("load",function(){cargarTema();showPage("inicio");cargarNombreEntrenador();});
+// === SCRIPT 4 ===
 
 // ── ALIMENTACIÓN ──────────────────────────────────────────
 
@@ -8200,7 +8249,7 @@ async function guardarAlimentacion() {
   }
 }
 
-// === SCRIPT 4 ===
+// === SCRIPT 5 ===
 
 function renderDiaPlan(semana, diaIdx) {
   window._diaActual = diaIdx;
@@ -8302,7 +8351,7 @@ function compartirPlanWA() {
     });
 }
 
-// === SCRIPT 5 ===
+// === SCRIPT 6 ===
 
 // ── SISTEMA DE ROL ──────────────────────────────────────
 const ROL_KEY = 'dt_rol';
@@ -8355,6 +8404,7 @@ function loginEntrenador() {
       localStorage.setItem('dt_sesion', JSON.stringify(data));
       localStorage.setItem(ROL_KEY, data.rol || 'entrenador');
       mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
+      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
     } else {
       document.getElementById('error-pass').style.display = 'block';
     }
@@ -8412,7 +8462,35 @@ function loginCliente() {
   });
 }
 
+// ── PREMIUM ENTRENADOR ──
+let _entConfig = null;
+
+async function cargarConfigEntrenador() {
+  const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+  try {
+    const cfg = await fetch('/api/config?entrenador_id=' + eid).then(r=>r.json());
+    _entConfig = cfg;
+    const hoy = new Date().toISOString().split('T')[0];
+    _entConfig._esPremium = cfg.premium_entrenador && cfg.premium_entrenador_hasta && cfg.premium_entrenador_hasta >= hoy;
+  } catch(e) { _entConfig = { _esPremium: false }; }
+}
+
+function entEsPremium() {
+  if (!_entConfig) return false;
+  const hoy = new Date().toISOString().split('T')[0];
+  return _entConfig.premium_entrenador && _entConfig.premium_entrenador_hasta && _entConfig.premium_entrenador_hasta >= hoy;
+}
+
+function mostrarCandadoPremium(mensaje) {
+  const m = mensaje || 'Esta función requiere Plan Premium';
+  if (confirm('🔒 ' + m + '\n\n¿Ir a Configuración para activar Premium?')) {
+    showPage('admin');
+    setTimeout(() => { cargarAdmin(); setTimeout(() => showAdminTab('premium'), 500); }, 300);
+  }
+}
+
 function mostrarApp() {
+  cargarConfigEntrenador();
   actualizarNombreEntrenador();
   ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente'].forEach(p => {
     document.getElementById(p).style.display = 'none';
@@ -8518,9 +8596,21 @@ function loginUnificado() {
       localStorage.setItem('dt_sesion', JSON.stringify(data));
       localStorage.setItem(ROL_KEY, data.rol);
       if (data.usuario_id) localStorage.setItem('dt_cliente_id', data.usuario_id);
+      localStorage.removeItem('dt_login_intentos');
       mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
     } else {
-      error.textContent = data.error || 'Correo o contraseña incorrectos';
+      // Contador de intentos
+      const intentos = parseInt(localStorage.getItem('dt_login_intentos') || '0') + 1;
+      localStorage.setItem('dt_login_intentos', intentos);
+      const restantes = 10 - intentos;
+      if (data.error && data.error.includes('Demasiados')) {
+        error.textContent = '🔒 Cuenta bloqueada 15 minutos por demasiados intentos fallidos.';
+        localStorage.removeItem('dt_login_intentos');
+      } else if (restantes <= 3 && restantes > 0) {
+        error.textContent = '⚠️ Contraseña incorrecta. Te quedan ' + restantes + ' intentos antes de bloquearte 15 minutos.';
+      } else {
+        error.textContent = data.error || 'Correo o contraseña incorrectos';
+      }
       error.style.display = 'block';
     }
   }).catch(() => {
@@ -8577,7 +8667,7 @@ function cerrarSesion() {
 
 window.addEventListener('DOMContentLoaded', initRol);
 
-// === SCRIPT 6 ===
+// === SCRIPT 7 ===
 
 // ── TERMINAL CLIENTE ─────────────────────────────────────
 
@@ -9957,7 +10047,7 @@ function tcVerEnciclopedia(id) {
   }, 200);
 }
 
-// === SCRIPT 7 ===
+// === SCRIPT 8 ===
 
 function mostrarRecomendacionesMacros() {
   const sel = document.getElementById('ali-objetivo');
@@ -9990,7 +10080,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if(po) po.addEventListener('input', mostrarRecomendacionesMacros);
 });
 
-// === SCRIPT 8 ===
+// === SCRIPT 9 ===
 
 var COLORES_RULETA = ['#cc0000','#111111','#cc0000','#111111','#cc0000','#111111','#cc0000','#111111','#cc0000','#111111'];
 
@@ -10170,7 +10260,7 @@ function girarRuleta(id) {
 
 
 
-// === SCRIPT 9 ===
+// === SCRIPT 10 ===
 
 function renderEnciclopedia(c) {
   c.innerHTML = '<div style="padding:10px"><div style="position:relative;margin-bottom:10px"><input id="enc-buscar" type="text" placeholder="Buscar ejercicio..." style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:10px;color:#fff;font-size:14px;outline:none" oninput="encFiltrar()"></div><div id="enc-contenido"></div></div>';
@@ -10763,7 +10853,7 @@ function encAbrirFicha(id) {
   cont.innerHTML = html;
 }
 
-// === SCRIPT 10 ===
+// === SCRIPT 11 ===
 
 function entCerrarTerminos() {
   var p = document.getElementById("ent-terminos-panel");
@@ -10840,7 +10930,7 @@ function entVerTerminosCompletos() {
   document.body.appendChild(el);
 }
 
-// === SCRIPT 11 ===
+// === SCRIPT 12 ===
 
 function tcAbrirConfig() {
   if (document.getElementById('tc-config-panel')) { document.getElementById('tc-config-panel').remove(); return; }
@@ -11087,7 +11177,7 @@ function tcToggleSonidos(btn) {
   btn.style.background = sonidos ? '#e31e24' : '#1a1a1a';
 }
 
-// === SCRIPT 12 ===
+// === SCRIPT 13 ===
 
 // ═══════════════════════════════
 // 🔐 AUTH
@@ -11178,7 +11268,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// === SCRIPT 13 ===
+// === SCRIPT 14 ===
 
 // ── GOOGLE AUTH FLOW ─────────────────────────────────────────
 function checkGoogleLogin() {
@@ -11325,7 +11415,7 @@ function cambiarRol() {
   mostrarPantalla('pantalla-rol');
 }
 
-// === SCRIPT 14 ===
+// === SCRIPT 15 ===
 
 async function tcVincularEntrenador() {
   var codigo = document.getElementById('tc-vinc-codigo');
@@ -11363,7 +11453,7 @@ async function tcVincularEntrenador() {
   }
 }
 
-// === SCRIPT 15 ===
+// === SCRIPT 16 ===
 
 // ======== IMAGEN Y VOZ CHAT ========
 function comprimirImagen(file, callback) {
@@ -11495,7 +11585,7 @@ function chatEntDetenerVoz() {
   if (btn) { btn.textContent = '+'; btn.onclick = chatEntToggleMenu; btn.style.background = '#1a1a1a'; }
 }
 
-// === SCRIPT 16 ===
+// === SCRIPT 17 ===
 
 let _chatEntClienteId = null;
 
@@ -11591,7 +11681,7 @@ async function actualizarBadgeEntrenador() {
 
 setInterval(actualizarBadgeEntrenador, 30000);
 
-// === SCRIPT 17 ===
+// === SCRIPT 18 ===
 
 // ======== VOZ MEJORADA ========
 let _tcGrabando = false;
@@ -11700,7 +11790,7 @@ window.chatEntEnviar = async function() {
   if (_origChatEntEnviar) await _origChatEntEnviar();
 };
 
-// === SCRIPT 18 ===
+// === SCRIPT 19 ===
 
 // Video comprimido - reemplaza tcEnviarVideo
 async function tcEnviarVideo(input) {
@@ -11828,7 +11918,7 @@ function tcAportarDesarrollador() {
 
 
 
-// === SCRIPT 19 ===
+// === SCRIPT 20 ===
 
 // ── SUPERADMIN ──────────────────────────────────────────
 let _dtVersionTaps = 0;

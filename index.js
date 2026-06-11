@@ -206,6 +206,11 @@ app.get('/auth/google/callback',
 
 
 app.use(express.urlencoded({extended:true, limit:'50mb'}));
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  next();
+});
+
 app.use(express.static('public', {
   etag: false,
   lastModified: false,
@@ -286,12 +291,28 @@ app.get('/api/wa/estado', (req, res) => {
   res.json({ conectado: sess.conectado, codigo: sess.pairingCode });
 });
 
+app.post('/api/clientes/vincular-entrenador', (req, res) => {
+  const { cliente_id, codigo } = req.body;
+  const cuentas = cargarJSON('cuentas.json', { entrenadores: [], clientes: [] });
+  const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion === codigo.toUpperCase());
+  const cli = cuentas.clientes.find(c => c.id === cliente_id);
+  cli.entrenador_id = ent.id;
+  guardarJSON('cuentas.json', cuentas);
+  res.json({ ok: true, nombre_entrenador: ent.nombre });
+});
+
 app.post('/api/wa/conectar', async (req, res) => {
   const { entrenador_id, telefono } = req.body;
   if (!entrenador_id || !telefono) return res.json({ ok: false, error: 'Faltan datos' });
   const sess = waSessions[entrenador_id];
   if (sess && sess.conectado) return res.json({ ok: false, error: 'Ya conectado' });
   conectarWhatsApp(entrenador_id, telefono);
+  // Guardar teléfono en cuentas.json
+  try {
+    const cuentas = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
+    const ent = cuentas.entrenadores.find(e => e.id === entrenador_id);
+    if (ent) { ent.telefono = telefono; fs.writeFileSync(path.join(__dirname, 'data/cuentas.json'), JSON.stringify(cuentas, null, 2)); }
+  } catch(e) { console.log('Error guardando telefono:', e.message); }
   res.json({ ok: true });
 });
 
@@ -318,7 +339,13 @@ cron.schedule('0 2 * * *', () => {
       const dias = (new Date() - fechaCarpeta) / (1000 * 60 * 60 * 24);
       if (dias > 7) fs.rmSync(path.join(backupsDir, carpeta), { recursive: true });
     });
-    console.log('✅ Backup completado:', fecha);
+    console.log('✅ Backup local completado:', fecha);
+    // Subir a Google Drive
+    const { exec } = require('child_process');
+    exec('rclone sync /data/data/com.termux/files/home/Dt-app/data "danielgaviriabotero@gmail.com:Dt-app-backup/data" --quiet', (err) => {
+      if (err) console.error('❌ Error rclone:', err.message);
+      else console.log('✅ Backup Drive completado');
+    });
   } catch(e) {
     console.error('❌ Error en backup:', e.message);
   }
@@ -373,6 +400,13 @@ cron.schedule('* * * * *', async () => {
 
     for (const usuario of usuarios) {
       if (!usuario.activo) continue;
+      // Verificar premium del entrenador para envio automatico
+      const entId_cron = usuario.entrenador_id || 'ent_001';
+      const cfgEnt = cargarJSON('config_' + entId_cron + '.json', {});
+      const hoy_cron = new Date().toISOString().split('T')[0];
+      const entTienePremium = cfgEnt.premium_entrenador && cfgEnt.premium_entrenador_hasta && cfgEnt.premium_entrenador_hasta >= hoy_cron;
+      if (!entTienePremium) continue;
+      if (cfgEnt.cobro_auto_activo === false) continue;
       const [hh,mm] = usuario.hora_envio.split(':').map(Number);
       const limiteMin = hh*60+mm;
       const ahoraMin = ahora.getHours()*60+ahora.getMinutes();
@@ -512,6 +546,46 @@ app.post('/api/chat/:id', (req, res) => {
   };
   chats[req.params.id].push(msg);
   guardarJSON('chats.json', chats);
+
+  // Notificación push al entrenador cuando cliente escribe
+  if (autor === 'cliente') {
+    const usuarios = cargarJSON('usuarios.json', []);
+    const usuario = usuarios.find(u => u.id === req.params.id);
+    if (usuario && usuario.entrenador_id) {
+      const sub = pushSuscripciones[usuario.entrenador_id];
+      if (sub) {
+        const nombreCliente = usuario.nombre || 'Un cliente';
+        let titulo, mensajePush;
+        if (tipo === 'reporte') {
+          // Extraer datos limpios del reporte
+          const textoLimpio = (contenido || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+          const completado = textoLimpio.includes('completada');
+          titulo = completado ? '🏆 ' + nombreCliente + ' completó su rutina' : '⚠️ ' + nombreCliente + ' terminó rutina incompleta';
+          const matchEj = textoLimpio.match(/(\d+)\/(\d+)/);
+          mensajePush = matchEj ? matchEj[1] + '/' + matchEj[2] + ' ejercicios completados' : 'Ver reporte en el chat';
+        } else {
+          titulo = '💬 ' + nombreCliente;
+          mensajePush = (contenido || mensaje || '').toString().replace(/<[^>]*>/g, '').substring(0, 60) || 'Te envió un mensaje';
+        }
+        webpush.sendNotification(sub, JSON.stringify({
+          titulo,
+          mensaje: mensajePush
+        })).catch(() => {});
+      }
+    }
+  }
+
+  // Notificación push al cliente cuando entrenador escribe
+  if (autor === 'entrenador') {
+    const sub = pushSuscripciones[req.params.id];
+    if (sub) {
+      webpush.sendNotification(sub, JSON.stringify({
+        titulo: '💬 Tu entrenador',
+        mensaje: (contenido || mensaje || '').toString().substring(0, 60) || 'Te envió un mensaje'
+      })).catch(() => {});
+    }
+  }
+
   res.json({ ok: true, msg });
 });
 
@@ -715,13 +789,16 @@ app.post('/api/admin/config/update', (req, res) => {
 // CONFIG
 app.get('/api/config', (req, res) => {
   const eid = req.query.entrenador_id || 'ent_001';
-  const archivo = eid === 'ent_001' ? 'config.json' : 'config_' + eid + '.json';
-  const cfg = cargarJSON(archivo, cargarJSON('config.json'));
+  const archivo = 'config_' + eid + '.json';
+  const cfg = cargarJSON(archivo, {});
+  const cuentas = cargarJSON('cuentas.json', {entrenadores:[]});
+  const ent = cuentas.entrenadores.find(e => e.id === eid);
+  if (ent && ent.codigo_vinculacion) cfg.codigo_vinculacion = ent.codigo_vinculacion;
   res.json(cfg);
 });
 app.post('/api/config', (req, res) => {
   const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
-  const archivo = eid === 'ent_001' ? 'config.json' : 'config_' + eid + '.json';
+  const archivo = 'config_' + eid + '.json';
   const cfg = cargarJSON(archivo, cargarJSON('config.json'));
   Object.assign(cfg, req.body);
   guardarJSON(archivo, cfg);
@@ -790,12 +867,17 @@ app.get('/data/fotos/:file', (req, res) => {
 // ===== ALIMENTACION =====
 app.get('/api/alimentacion/:id', (req, res) => {
   const data = cargarJSON('alimentacion.json');
-  res.json(data[req.params.id] || {});
+  const id = req.params.id;
+  res.json(data[id] || data[id.replace('cli_','')] || {});
 });
 
 app.post('/api/alimentacion/:id', (req, res) => {
   const data = cargarJSON('alimentacion.json');
-  data[req.params.id] = req.body;
+  const id = req.params.id;
+  // Eliminar clave sin prefijo si existe
+  const idSin = id.replace('cli_','');
+  if(data[idSin] && id !== idSin) delete data[idSin];
+  data[id] = req.body;
   guardarJSON('alimentacion.json', data);
   res.json({ ok: true });
 });
@@ -1285,9 +1367,11 @@ app.post('/api/premium/activar-entrenador', (req, res) => {
   const hasta = new Date();
   hasta.setDate(hasta.getDate() + dias);
   const hastaStr = hasta.toISOString().split('T')[0];
-  config.premium_entrenador = true;
-  config.premium_entrenador_hasta = hastaStr;
   guardarJSON('config.json', config);
+  const cfgEnt = cargarJSON('config_' + entrenador_id + '.json', {});
+  cfgEnt.premium_entrenador = true;
+  cfgEnt.premium_entrenador_hasta = hastaStr;
+  guardarJSON('config_' + entrenador_id + '.json', cfgEnt);
   res.json({ ok: true, hasta: hastaStr });
 });
 
@@ -1387,7 +1471,7 @@ app.post('/api/convenio/activar', (req, res) => {
     const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
     const ent = cuentas.entrenadores.find(e => e.email.toLowerCase() === email.toLowerCase());
     if (!ent) return res.json({ ok: false, error: 'Entrenador no encontrado' });
-    const archivo = ent.id === 'ent_001' ? 'config.json' : 'config_' + ent.id + '.json';
+    const archivo = 'config_' + ent.id + '.json';
     const cfg = cargarJSON(archivo, {});
     cfg.premium_entrenador = true;
     cfg.premium_entrenador_hasta = hastaStr;
@@ -1422,7 +1506,7 @@ app.post('/api/premium/activar-entrenador-directo', (req, res) => {
   const hasta = new Date();
   hasta.setDate(hasta.getDate() + d);
   const hastaStr = hasta.toISOString().split('T')[0];
-  const archivo = id === 'ent_001' ? 'config.json' : 'config_' + id + '.json';
+  const archivo = 'config_' + id + '.json';
   const cfg = cargarJSON(archivo, cargarJSON('config.json', {}));
   cfg.premium_entrenador = true;
   cfg.premium_entrenador_hasta = hastaStr;
@@ -1453,7 +1537,7 @@ app.get('/api/superadmin/entrenadores', (req, res) => {
   const usuarios = cargarJSON('usuarios.json', []);
   const resultado = cuentas.entrenadores.map(e => {
     const misClientes = usuarios.filter(u => u.entrenador_id === e.id);
-    const cfg = cargarJSON(e.id === 'ent_001' ? 'config.json' : 'config_' + e.id + '.json', {});
+    const cfg = cargarJSON('config_' + e.id + '.json', {});
     return {
       id: e.id,
       nombre: e.nombre,
@@ -1644,7 +1728,7 @@ app.post('/api/auth/registro', loginLimiter, (req, res) => {
     };
     cuentas.entrenadores.push(nuevo);
     guardarJSON('cuentas.json', cuentas);
-    guardarJSON('config_' + nuevo.id + '.json', { nombre_entrenador: nuevo.nombre, email: nuevo.email, codigo_vinculacion: nuevo.codigo_vinculacion, msg_prellenado: false });
+    guardarJSON('config_' + nuevo.id + '.json', { nombre_entrenador: nuevo.nombre, email: nuevo.email, codigo_vinculacion: nuevo.codigo_vinculacion, msg_prellenado: false, cobro_auto_activo: false, premium_entrenador: false });
     // Arrancar worker WA para nuevo entrenador
     conectarWhatsApp(nuevo.id, null);
     return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, email: nuevo.email, nombre: nuevo.nombre, roles: [{rol:'entrenador', id: nuevo.id, nombre: nuevo.nombre}, {rol:'cliente', id: null, nombre: nuevo.nombre}] });
@@ -1752,6 +1836,135 @@ app.post('/api/push/enviar', (req, res) => {
 
 app.get('/api/push/vapidkey', (req, res) => {
   res.json({ publicKey: 'BHrlCtod3sDE_5ZGf6hSqbdE5xhY9u7-5FCb2i-P10_FWBsh75lD9Wh7BdaCnXHewyTJ5c5bJ46aOP_acsCIeno' });
+});
+
+
+// ═══════════════════════════════
+// 💳 WOMPI PAGOS
+// ═══════════════════════════════
+const crypto = require('crypto');
+
+function getWompiConfig() {
+  return JSON.parse(require('fs').readFileSync('./data/wompi_config.json'));
+}
+
+// Generar firma de integridad
+function generarFirmaWompi(reference, amount_in_cents, currency) {
+  const cfg = getWompiConfig();
+  const cadena = reference + amount_in_cents + currency + cfg.integrity_secret;
+  return crypto.createHash('sha256').update(cadena).digest('hex');
+}
+
+// Endpoint para crear pago
+app.post('/api/wompi/crear-pago', (req, res) => {
+  const { tipo, entrenador_id, cliente_id, plan } = req.body;
+  const cfg = getWompiConfig();
+  
+  const precios = {
+    'entrenador_mensual': 5000000,
+    'entrenador_anual': 50000000,
+    'cliente_mensual': 2000000,
+    'cliente_anual': 20000000
+  };
+  
+  const amount = req.body.amount_override || precios[plan];
+  if (!amount) return res.json({ ok: false, msg: 'Plan inválido' });
+  
+  const reference = 'DTAPP_' + Date.now() + '_' + (entrenador_id || cliente_id);
+  const firma = generarFirmaWompi(reference, amount, 'COP');
+  
+  res.json({
+    ok: true,
+    pub_key: cfg.pub_key,
+    amount_in_cents: amount,
+    currency: 'COP',
+    reference,
+    firma,
+    redirect_url: 'https://dt-app.net/pago-exitoso'
+  });
+});
+
+// Webhook de eventos Wompi
+app.post('/api/wompi/eventos', express.raw({type: 'application/json'}), (req, res) => {
+  try {
+    const cfg = getWompiConfig();
+    const signature = req.headers['x-event-checksum'];
+    const body = req.body.toString();
+    const expected = crypto.createHmac('sha256', cfg.events_secret).update(body).digest('hex');
+    
+    if (signature !== expected) return res.status(401).json({ ok: false });
+    
+    const evento = JSON.parse(body);
+    if (evento.event === 'transaction.updated' && evento.data.transaction.status === 'APPROVED') {
+      const ref = evento.data.transaction.reference;
+      const partes = ref.split('_');
+      const userId = partes[2];
+      
+      const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+      const ent = cuentas.entrenadores.find(e => e.id === userId);
+      const cli = cuentas.clientes.find(c => c.id === userId);
+      
+      const esPlan = ref.includes('anual') ? 365 : 30;
+      const hasta = new Date(Date.now() + esPlan * 24 * 60 * 60 * 1000).toISOString();
+      
+      if (ent) { ent.premium = true; ent.premium_hasta = hasta; }
+      if (cli) { cli.premium = true; cli.premium_hasta = hasta; }
+      
+      guardarJSON('cuentas.json', cuentas);
+    }
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ ok: false });
+  }
+});
+
+
+// ═══ TESTS ═══
+app.get('/api/tests/:id', (req, res) => {
+  const data = cargarJSON('tests.json', {});
+  const id = req.params.id.replace('cli_','');
+  res.json(data[id] || {registros:[]});
+});
+app.post('/api/tests/:id', (req, res) => {
+  const data = cargarJSON('tests.json', {});
+  const id = req.params.id.replace('cli_','');
+  data[id] = req.body;
+  guardarJSON('tests.json', data);
+  res.json({ok:true});
+});
+
+// ═══ HISTORIAL ═══
+app.get('/api/historial/:id', (req, res) => {
+  const data = cargarJSON('historial.json', {});
+  const id = req.params.id.replace('cli_','');
+  res.json(data[id] || []);
+});
+app.post('/api/historial/:id', (req, res) => {
+  const data = cargarJSON('historial.json', {});
+  const id = req.params.id.replace('cli_','');
+  data[id] = req.body;
+  guardarJSON('historial.json', data);
+  res.json({ok:true});
+});
+
+
+// ═══ LIMPIEZA DESBLOQUEOS A LAS 2 AM ═══
+cron.schedule('0 2 * * *', () => {
+  try {
+    const usuarios = cargarJSON('usuarios.json', []);
+    const hoy = new Date().toISOString().split('T')[0];
+    let cambio = false;
+    usuarios.forEach(u => {
+      if (!u.dias_desbloqueados) return;
+      Object.keys(u.dias_desbloqueados).forEach(dia => {
+        const antes = u.dias_desbloqueados[dia].length;
+        u.dias_desbloqueados[dia] = u.dias_desbloqueados[dia].filter(f => f >= hoy);
+        if (u.dias_desbloqueados[dia].length === 0) delete u.dias_desbloqueados[dia];
+        else if (u.dias_desbloqueados[dia].length !== antes) cambio = true;
+      });
+    });
+    if (cambio) guardarJSON('usuarios.json', usuarios);
+  } catch(e) { console.error('Cron limpieza desbloqueos:', e); }
 });
 
 app.listen(3000, () => console.log('DT-APP corriendo en puerto 3000'));

@@ -9418,23 +9418,25 @@
   },
   {
     "id": "empuje-banda",
-    "nombre": "Empuje con Banda",
-    "grupo": "pecho",
+    "nombre": "Empuje de cadera  con Banda",
+    "grupo": "gluteos",
     "musculos_principales": [
-      "Pectoral"
+      "Gluteo"
     ],
     "musculos_secundarios": [
-      "triceps",
-      "hombros"
+      "Cuádriceps",
+      "femorales"
     ],
     "equipamiento": "banda elástica",
     "nivel": "principiante",
     "ejecucion": [
-      "Ancla la banda detras de ti a la altura del pecho",
-      "Agarra los extremos de la banda con cada mano",
-      "Da un paso adelante para crear tension",
-      "Empuja hacia adelante extendiendo los brazos",
-      "Regresa controladamente"
+      "Sientate y colocate una banda cerrada en ambas piernas",
+      "Separa ligeramente las piernas",
+      "Coloca las rodillas en un ángulo de 90°",
+      "Empuja hacia arrsba con las cadera hasta llegar a una posición recta. Entre el tronco y las piernas",
+      "Empuja las rodillas hacia afuera y mantén la tensión unos segundos",
+      "Cierre las piernas para recuperar la poción y baje hasta tocar o casi tocar el suelo",
+      "Repetir"
     ],
     "errores_comunes": [
       "No mantener el core activo",

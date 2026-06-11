@@ -1,13 +1,13 @@
 [
   {
-    "id": "1778216541791",
+    "id": "cli_1778216541791",
     "activo": true,
     "nombre": "Yo",
     "telefono": "573006197897",
     "tipo": "asesorado",
     "hora_envio": "08:25",
     "dia_pago": 10,
-    "estado_pago": "proximo",
+    "estado_pago": "vencido",
     "perfil": {
       "fecha_inicio": "2026-05-09",
       "sexo": "M",
@@ -21,8 +21,8 @@
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
-    "sesiones_total": 50,
-    "sesiones_ciclo": 50,
+    "sesiones_total": 52,
+    "sesiones_ciclo": 52,
     "ciclo_inicio": "2026-05-08",
     "msg_pago": "Pague m",
     "msg_q1": "",
@@ -31,21 +31,7 @@
     "vinculado": true,
     "dias_desbloqueados": {
       "lunes": [
-        "2026-05-23",
-        "2026-05-24",
-        "2026-05-25",
-        "2026-05-26",
-        "2026-05-30",
-        "2026-05-31"
-      ],
-      "sabado": [
-        "2026-05-23"
-      ],
-      "martes": [
-        "2026-06-01"
-      ],
-      "viernes": [
-        "2026-06-06"
+        "2026-06-11"
       ]
     },
     "entrenador_id": "ent_001",
@@ -53,7 +39,7 @@
     "premium_hasta": "2026-07-04"
   },
   {
-    "id": "1778354312296",
+    "id": "cli_1778354312296",
     "activo": false,
     "nombre": "Manuela guarin",
     "telefono": "573212155809",
@@ -78,10 +64,12 @@
     "sesiones_total": 2,
     "sesiones_ciclo": 2,
     "foto": "data/fotos/1778354312296/perfil.jpg",
-    "entrenador_id": "ent_001"
+    "entrenador_id": "ent_001",
+    "email": "guarinmanuela11@gmail.com",
+    "google_id": "guarinmanuela11@gmail.com"
   },
   {
-    "id": "1778376855974",
+    "id": "cli_1778376855974",
     "activo": false,
     "nombre": "Ana guarin",
     "telefono": "573107223603",
@@ -104,10 +92,12 @@
     "sesiones_total": 3,
     "sesiones_ciclo": 3,
     "foto": "data/fotos/1778376855974/perfil.jpg",
-    "entrenador_id": "ent_001"
+    "entrenador_id": "ent_001",
+    "email": "ananueve16@hotmail.com",
+    "google_id": "ananueve16@hotmail.com"
   },
   {
-    "id": "1778377049231",
+    "id": "cli_1778377049231",
     "activo": true,
     "nombre": "Mafe",
     "telefono": "573113084297",
@@ -131,25 +121,12 @@
     "foto": "data/fotos/1778377049231/perfil.jpg",
     "sesiones_total": 5,
     "sesiones_ciclo": 5,
-    "dias_desbloqueados": {
-      "lunes": [
-        "2026-05-24",
-        "2026-06-01"
-      ],
-      "martes": [
-        "2026-05-24"
-      ],
-      "miercoles": [
-        "2026-06-02",
-        "2026-06-03"
-      ]
-    },
-    "premium": true,
-    "premium_hasta": "2026-06-03",
-    "entrenador_id": "ent_001"
+    "dias_desbloqueados": {},
+    "entrenador_id": "ent_001",
+    "email": "mafe2003101@gmail.com"
   },
   {
-    "id": "1778377208321",
+    "id": "cli_1778377208321",
     "activo": true,
     "nombre": "María sabel Almeida",
     "telefono": "573156634805",
@@ -169,20 +146,16 @@
     },
     "sesiones_total": 1,
     "sesiones_ciclo": 1,
-    "dias_desbloqueados": {
-      "lunes": [
-        "2026-05-25"
-      ]
-    },
+    "dias_desbloqueados": {},
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1778377380425",
+    "id": "cli_1778377380425",
     "activo": true,
     "nombre": "Arianna Chirino",
     "telefono": "573042059960",
     "tipo": "personalizado",
-    "hora_envio": "18:29",
+    "hora_envio": "15:30",
     "tipo_pago": "mensual",
     "dia_pago": 15,
     "dia_pago2": null,
@@ -199,15 +172,11 @@
     "sesiones_total": 1,
     "sesiones_ciclo": 1,
     "foto": "data/fotos/1778377380425/perfil.jpg",
-    "dias_desbloqueados": {
-      "lunes": [
-        "2026-05-24"
-      ]
-    },
+    "dias_desbloqueados": {},
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1778377616786",
+    "id": "cli_1778377616786",
     "activo": true,
     "nombre": "Manuela Gaviria",
     "telefono": "573002210635",
@@ -228,21 +197,15 @@
     "msg_pago": "Hola Manu por acá Daniel bot. Recordándote que mañana se vence tu mensualidad de asesoría",
     "foto": "data/fotos/1778377616786/perfil.jpg",
     "vinculado": true,
-    "dias_desbloqueados": {
-      "lunes": [
-        "2026-05-23",
-        "2026-05-30"
-      ],
-      "sabado": [
-        "2026-05-23"
-      ]
-    },
+    "dias_desbloqueados": {},
     "sesiones_total": 8,
     "sesiones_ciclo": 8,
-    "entrenador_id": "ent_001"
+    "entrenador_id": "ent_001",
+    "email": "manugavi_146@hotmail.es",
+    "google_id": "manugavi_146@hotmail.es"
   },
   {
-    "id": "1778378152347",
+    "id": "cli_1778378152347",
     "activo": false,
     "nombre": "Isabela guarin",
     "telefono": "573116780764",
@@ -264,7 +227,7 @@
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1778379130440",
+    "id": "cli_1778379130440",
     "activo": true,
     "nombre": "Valentina Ruiz",
     "telefono": "573013510474",
@@ -287,7 +250,7 @@
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1778379342983",
+    "id": "cli_1778379342983",
     "activo": false,
     "nombre": "Alejandro lagueigth",
     "telefono": "573045354969",
@@ -308,7 +271,7 @@
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1778379484797",
+    "id": "cli_1778379484797",
     "activo": true,
     "nombre": "David gomez",
     "telefono": "573189742665",
@@ -329,10 +292,11 @@
     },
     "foto": "data/fotos/1778379484797/perfil.jpg",
     "msg_pago": "David. BN o no por acá Daniel bot recordando que nuestra fecha de cobro son los 20",
-    "entrenador_id": "ent_001"
+    "entrenador_id": "ent_001",
+    "email": "davidgomezr20171@gmail.com"
   },
   {
-    "id": "1778379762356",
+    "id": "cli_1778379762356",
     "activo": true,
     "nombre": "Valentina Alvarez",
     "telefono": "573186662323",
@@ -345,7 +309,7 @@
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1778389775722",
+    "id": "cli_1778389775722",
     "activo": true,
     "nombre": "Nando",
     "telefono": "573136665467",
@@ -356,11 +320,7 @@
     "dia_pago2": null,
     "estado_pago": "aldia",
     "foto": "data/fotos/1778389775722/perfil.jpg",
-    "dias_desbloqueados": {
-      "lunes": [
-        "2026-05-24"
-      ]
-    },
+    "dias_desbloqueados": {},
     "perfil": {
       "fecha_inicio": "2026-05-26",
       "sexo": "M",
@@ -374,7 +334,7 @@
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1778687454932",
+    "id": "cli_1778687454932",
     "activo": true,
     "nombre": "Mariana",
     "telefono": "573046061176",
@@ -397,7 +357,7 @@
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1779311725122",
+    "id": "cli_1779311725122",
     "activo": false,
     "nombre": "Juanita",
     "telefono": "573136203154",
@@ -419,7 +379,7 @@
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1780069487489",
+    "id": "cli_1780069487489",
     "activo": true,
     "nombre": "Natalia Sepúlveda",
     "telefono": "573006039585",
@@ -440,12 +400,12 @@
     },
     "msg_pago": "Hola NATI pro acá Daniel bot recordando  que se cumple la fecha el dia 30🤖🤭",
     "foto": "data/fotos/1780069487489/perfil.jpg",
-    "premium": false,
-    "premium_hasta": null,
-    "entrenador_id": "ent_001"
+    "entrenador_id": "ent_001",
+    "email": "msepulveda244@gmail.com",
+    "google_id": "msepulveda244@gmail.com"
   },
   {
-    "id": "1780410974278",
+    "id": "cli_1780410974278",
     "activo": true,
     "nombre": "Ana Chen",
     "telefono": "573207020118",
@@ -459,7 +419,7 @@
     "entrenador_id": "ent_001"
   },
   {
-    "id": "1780494967362",
+    "id": "cli_1780494967362",
     "activo": true,
     "nombre": "Santiago Restrpo",
     "telefono": "573015192634",
@@ -471,21 +431,7 @@
     "estado_pago": "aldia"
   },
   {
-    "id": "1780513976565",
-    "activo": true,
-    "nombre": "Prueba",
-    "telefono": "573006197955",
-    "tipo": "asesorado",
-    "hora_envio": "07:00",
-    "tipo_pago": "mensual",
-    "dia_pago": null,
-    "dia_pago2": null,
-    "estado_pago": "aldia",
-    "entrenador_id": "ent_001",
-    "vinculado": true
-  },
-  {
-    "id": "1780518763692",
+    "id": "cli_1780518763692",
     "activo": true,
     "entrenador_id": "ent_1780471058170",
     "nombre": "Prueba",
@@ -498,73 +444,7 @@
     "estado_pago": "aldia"
   },
   {
-    "id": "cli_1780646292445",
-    "activo": true,
-    "nombre": "Carlos florez",
-    "telefono": "carlos.mario.ope@gmail.com",
-    "tipo": "asesorado",
-    "hora_envio": "08:00",
-    "dia_pago": 1,
-    "estado_pago": "aldia",
-    "perfil": {
-      "fecha_inicio": "2026-06-05",
-      "sexo": "",
-      "edad": "",
-      "altura": "",
-      "objetivo": "",
-      "etiqueta": "general",
-      "notas": "",
-      "unidades": "kg",
-      "fecha_nacimiento": ""
-    },
-    "tipo_pago": "mensual",
-    "dia_pago2": null,
-    "sesiones_total": 0,
-    "sesiones_ciclo": 0,
-    "ciclo_inicio": "2026-06-05",
-    "msg_pago": "",
-    "msg_q1": "",
-    "msg_q2": "",
-    "foto": "",
-    "vinculado": true,
-    "entrenador_id": "ent_001",
-    "dias_desbloqueados": {}
-  },
-  {
-    "id": "cli_1780692519000",
-    "activo": true,
-    "nombre": "Geystor",
-    "telefono": "573116008019",
-    "tipo": "asesorado",
-    "hora_envio": "08:00",
-    "dia_pago": 1,
-    "estado_pago": "aldia",
-    "perfil": {
-      "fecha_inicio": "2026-06-05",
-      "sexo": "",
-      "edad": "",
-      "altura": "",
-      "objetivo": "",
-      "etiqueta": "general",
-      "notas": "",
-      "unidades": "kg",
-      "fecha_nacimiento": ""
-    },
-    "tipo_pago": "mensual",
-    "dia_pago2": null,
-    "sesiones_total": 0,
-    "sesiones_ciclo": 0,
-    "ciclo_inicio": "2026-06-05",
-    "msg_pago": "",
-    "msg_q1": "",
-    "msg_q2": "",
-    "foto": "",
-    "vinculado": true,
-    "entrenador_id": "ent_001",
-    "dias_desbloqueados": {}
-  },
-  {
-    "id": "1780695688540",
+    "id": "cli_1780695688540",
     "activo": true,
     "entrenador_id": "ent_1780695649747",
     "nombre": "Daniel",
@@ -610,15 +490,16 @@
     "dias_desbloqueados": {}
   },
   {
-    "id": "cli_1780691493128",
-    "nombre": "Prueba",
-    "email": "prueba@gmail.com",
-    "telefono": "1234",
+    "id": "cli_1781016615732",
     "activo": true,
+    "entrenador_id": "ent_1781014912132",
+    "nombre": "Daniel",
+    "telefono": "573006197897",
     "tipo": "asesorado",
-    "hora_envio": "08:00",
-    "entrenador_id": "ent_001",
-    "premium": true,
-    "premium_hasta": "2026-06-15"
+    "hora_envio": "07:00",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia"
   }
 ]
