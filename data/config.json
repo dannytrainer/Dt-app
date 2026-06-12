@@ -21,128 +21,6 @@
   "codigo_vinculacion": "8DKS-NM5X-WHYW",
   "codigos_premium": [
     {
-      "codigo": "TEST2",
-      "usado": true,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": false,
-      "es_unico": true,
-      "tipo": "cliente",
-      "activo": false,
-      "usados": [],
-      "fechaCreacion": "2026-06-08T00:31:07.256Z",
-      "usadoPor": "prueba@gmail.com",
-      "fechaUso": "2026-06-08T00:31:59.629Z"
-    },
-    {
-      "codigo": "TEST10",
-      "usado": true,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": false,
-      "es_unico": true,
-      "tipo": "cliente",
-      "activo": false,
-      "usados": [],
-      "fechaCreacion": "2026-06-08T00:33:30.617Z",
-      "usadoPor": "prueba@gmail.com",
-      "fechaUso": "2026-06-08T00:34:48.703Z"
-    },
-    {
-      "codigo": "TEST9",
-      "usado": true,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": true,
-      "es_unico": false,
-      "tipo": "cliente",
-      "activo": true,
-      "usados": [
-        "prueba@gmail.com",
-        "cli_1780691493128",
-        "fp_43601270_mq4h4jzy"
-      ],
-      "fechaCreacion": "2026-06-08T00:33:37.301Z",
-      "usadoPor": "cli_1780691493128",
-      "fechaUso": "2026-06-08T00:34:53.287Z"
-    },
-    {
-      "codigo": "TEST3",
-      "usado": true,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": true,
-      "es_unico": false,
-      "tipo": "cliente",
-      "activo": true,
-      "usados": [
-        "prueba@gmail.com",
-        "cli_1780691493128",
-        "fp_43601270_mq4h4jzy"
-      ],
-      "fechaCreacion": "2026-06-08T01:00:42.808Z",
-      "usadoPor": "cli_1780691493128",
-      "fechaUso": "2026-06-08T01:02:28.280Z"
-    },
-    {
-      "codigo": "TEST4",
-      "usado": true,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": false,
-      "es_unico": true,
-      "tipo": "cliente",
-      "activo": false,
-      "usados": [],
-      "fechaCreacion": "2026-06-08T01:09:42.822Z",
-      "usadoPor": "prueba@gmail.com",
-      "fechaUso": "2026-06-08T01:10:37.091Z"
-    },
-    {
-      "codigo": "TEST5",
-      "usado": true,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": false,
-      "es_unico": true,
-      "tipo": "cliente",
-      "activo": false,
-      "usados": [],
-      "fechaCreacion": "2026-06-08T01:18:56.762Z",
-      "usadoPor": "prueba@gmail.com",
-      "fechaUso": "2026-06-08T01:19:18.143Z"
-    },
-    {
-      "codigo": "TEST6",
-      "usado": false,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": true,
-      "es_unico": false,
-      "tipo": "entrenador",
-      "activo": true,
-      "usados": [
-        "prueba@gmail.com",
-        "fp_43601270_mq4h4jzy"
-      ],
-      "fechaCreacion": "2026-06-08T01:21:55.231Z"
-    },
-    {
-      "codigo": "DAVID",
-      "usado": false,
-      "dias": 30,
-      "permanente": false,
-      "es_convenio": true,
-      "es_unico": false,
-      "tipo": "entrenador",
-      "activo": true,
-      "usados": [
-        "davidmgomez53@gmail.com",
-        "fp_371849820_mq6rjqqf"
-      ],
-      "fechaCreacion": "2026-06-09T14:56:46.335Z"
-    },
-    {
       "codigo": "DANIEL",
       "usado": true,
       "dias": 99999,
@@ -167,6 +45,44 @@
       "activo": true,
       "usados": [],
       "fechaCreacion": "2026-06-10T01:36:16.034Z"
+    },
+    {
+      "codigo": "NATI123",
+      "usado": true,
+      "dias": 30,
+      "permanente": false,
+      "es_convenio": false,
+      "es_unico": true,
+      "tipo": "cliente",
+      "activo": false,
+      "usados": [],
+      "fechaCreacion": "2026-06-11T23:34:23.244Z",
+      "usadoPor": "msepulveda244@gmail.com",
+      "fechaUso": "2026-06-11T23:36:08.968Z"
+    },
+    {
+      "codigo": "JOSUE",
+      "usado": false,
+      "dias": 7,
+      "permanente": false,
+      "es_convenio": false,
+      "es_unico": true,
+      "tipo": "entrenador",
+      "activo": true,
+      "usados": [],
+      "fechaCreacion": "2026-06-12T05:05:56.263Z"
+    },
+    {
+      "codigo": "TEST",
+      "usado": false,
+      "dias": 7,
+      "permanente": false,
+      "es_convenio": true,
+      "es_unico": false,
+      "tipo": "cliente",
+      "activo": true,
+      "usados": [],
+      "fechaCreacion": "2026-06-12T05:06:49.545Z"
     }
   ],
   "entrenador_id": "ent_001",

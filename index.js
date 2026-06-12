@@ -63,7 +63,8 @@ app.use(express.json({limit:'50mb'}));
 app.use(session({
   secret: 'dtapp_secret_2026',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
 }));
 
 app.use(passport.initialize());
@@ -398,93 +399,22 @@ cron.schedule('* * * * *', async () => {
       if (new Date(pausadoHasta) >= new Date(hoy)) return;
     }
 
-    for (const usuario of usuarios) {
-      if (!usuario.activo) continue;
-      // Verificar premium del entrenador para envio automatico
-      const entId_cron = usuario.entrenador_id || 'ent_001';
-      const cfgEnt = cargarJSON('config_' + entId_cron + '.json', {});
-      const hoy_cron = new Date().toISOString().split('T')[0];
-      const entTienePremium = cfgEnt.premium_entrenador && cfgEnt.premium_entrenador_hasta && cfgEnt.premium_entrenador_hasta >= hoy_cron;
-      if (!entTienePremium) continue;
-      if (cfgEnt.cobro_auto_activo === false) continue;
-      const [hh,mm] = usuario.hora_envio.split(':').map(Number);
-      const limiteMin = hh*60+mm;
-      const ahoraMin = ahora.getHours()*60+ahora.getMinutes();
-      if (ahoraMin !== limiteMin) continue;
-      const rutinaUsuario = rutinas[usuario.id];
-      if (!rutinaUsuario || !rutinaUsuario[diaActual]) continue;
-      const _d = rutinaUsuario[diaActual];
-      const _tieneEjs = Array.isArray(_d.ejercicios) && _d.ejercicios.some(e => e.nombre);
-      const _tieneCardio = Array.isArray(_d.cardio) && _d.cardio.some(c => c.ejercicio);
-      const _tieneRec = _d.recordatorio && _d.recordatorio.trim();
-      if (!_tieneEjs && !_tieneCardio && !_tieneRec) continue;
-              if (logs[hoy][usuario.id]) continue;
-              const d = rutinaUsuario[diaActual];
-              let lineas = [];
-              lineas.push('*Rutina de ' + usuario.nombre + '*');
-              lineas.push('');
-              lineas.push('🔥 ' + diaActual.toUpperCase());
-              lineas.push('');
-              if (d.recordatorio) { lineas.push('📝 ' + d.recordatorio); lineas.push(''); }
-              const ejs = d.ejercicios && d.ejercicios.filter(e=>e.nombre).length > 0 ? d.ejercicios : null;
-              if (ejs) {
-                ejs.forEach(e => {
-                  if (e.nombre) {
-                    lineas.push('┌───────────────────┐');
-                    lineas.push('│ ' + e.nombre.substring(0,17).padEnd(17) + '│');
-                    lineas.push('├───────────────────┤');
-                    lineas.push('│ Series: ' + (e.series||'-').toString().padEnd(11) + '│');
-                    lineas.push('│ Reps:   ' + (e.reps||'-').toString().padEnd(11) + '│');
-                    lineas.push('│ RIR:    ' + (e.rir||'-').toString().padEnd(11) + '│');
-                    lineas.push('│ DESC:   ' + (e.desc||'-').toString().padEnd(11) + '│');
-                    lineas.push('│ VAR:    ' + (e.var||'').toString().padEnd(11) + '│');
-                    lineas.push('└───────────────────┘');
-                    lineas.push('');
-                  }
-                });
-              }
-              if (d.rutina) { lineas.push('📌 ' + d.rutina); lineas.push(''); }
-              if (Array.isArray(d.cardio) && d.cardio.length > 0) {
-                lineas.push('🏃 CARDIO');
-                lineas.push('');
-                d.cardio.forEach(cx => {
-                  if (cx.ejercicio) {
-                    lineas.push('┌─────────────────────────┐');
-                    if (cx.momento) lineas.push('│ Momento: ' + cx.momento.trim());
-                    lineas.push('│ Ejercicio: ' + cx.ejercicio.trim());
-                    if (cx.tiempo) lineas.push('│ Tiempo: ' + cx.tiempo.toString().trim() + ' min');
-                    if (cx.notas) {
-                      cx.notas.trim().split('\n').forEach((nl,ni) => {
-                        if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
-                      });
-                    }
-                    lineas.push('└─────────────────────────┘');
-                    lineas.push('');
-                  }
-                });
-              }
-              const mensaje = lineas.join('\n');
-              if (!mensaje.trim()) continue;
-              const resultado = await enviarMensaje(usuario.telefono, mensaje, usuario.entrenador_id);
-              logs[hoy][usuario.id] = resultado ? 'enviado' : 'error';
-              guardarJSON('logs.json', logs);
-    }
+    // Cobros automaticos - hora fija 8:37 am
+    const HORA_COBRO = 8, MIN_COBRO = 37;
+    const ahoraMinCobro = ahora.getHours()*60 + ahora.getMinutes();
+    if (ahoraMinCobro === HORA_COBRO*60 + MIN_COBRO) {
+      for (const usuario of usuarios) {
+        if (!usuario.activo) continue;
+        if (usuario.estado_pago !== 'proximo' && usuario.estado_pago !== 'vencido') continue;
 
-    // Recordatorio de pago
-    for (const usuario of usuarios) {
-      if (!usuario.activo) continue;
-      const [hh,mm] = usuario.hora_envio.split(':').map(Number);
-      const limiteMin = hh*60+mm;
-      const ahoraMin = ahora.getHours()*60+ahora.getMinutes();
-      if (ahoraMin !== limiteMin) continue;
-      const manana = new Date(ahora);
-      manana.setDate(manana.getDate() + 1);
-      const diaman = manana.getDate();
-      if (diaman === usuario.dia_pago) {
-        const msg = usuario.msg_pago || ('Hola ' + usuario.nombre + ', recuerda que mañana es tu fecha de pago.');
-        await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
-      } else if (usuario.tipo_pago === 'quincenal' && diaman === usuario.dia_pago2) {
-        const msg = usuario.msg_q2 || ('Hola ' + usuario.nombre + ', recuerda que mañana es tu segunda quincena.');
+        const entId_cron = usuario.entrenador_id || 'ent_001';
+        const cfgEnt = cargarJSON('config_' + entId_cron + '.json', {});
+        const hoy_cron = new Date().toISOString().split('T')[0];
+        const entTienePremium = cfgEnt.premium_entrenador && cfgEnt.premium_entrenador_hasta && cfgEnt.premium_entrenador_hasta >= hoy_cron;
+        if (!entTienePremium) continue;
+        if (cfgEnt.cobro_auto_activo === false) continue;
+
+        const msg = usuario.msg_pago || ('Hola ' + usuario.nombre + ', recuerda que tienes un pago pendiente.');
         await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
       }
     }
@@ -773,7 +703,7 @@ app.post('/api/admin/:id/pago', (req, res) => {
   data.clientes[req.params.id].pagos.push({...req.body, fecha: new Date().toISOString().split('T')[0]});
   guardarJSON(archivo, data);
   const usuarios = cargarJSON('usuarios.json');
-  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  const idx = usuarios.findIndex(u => u.id === req.params.id || u.id === 'cli_'+req.params.id);
   if(idx !== -1){ usuarios[idx].estado_pago = 'aldia'; guardarJSON('usuarios.json', usuarios); }
   res.json({ok:true});
 });
@@ -1493,6 +1423,7 @@ app.post('/api/convenio/activar', (req, res) => {
     if (!u && cod.es_unico) { res.json({ ok: true, hasta: hastaStr, dias }); return; }
     u.premium = true;
     u.premium_hasta = hastaStr;
+    if (cod.es_convenio) u.codigo_convenio = cod.codigo;
     guardarJSON('usuarios.json', usuarios);
   }
   res.json({ ok: true, hasta: hastaStr, dias });

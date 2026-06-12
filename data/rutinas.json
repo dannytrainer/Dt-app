@@ -1474,21 +1474,15 @@
         },
         {
           "momento": "Mitad de rutina ",
-          "ejercicio": "Elíptica ",
+          "ejercicio": "Bici",
           "tiempo": "10",
           "notas": "Intervalos 20\"/20\""
         },
         {
           "momento": "Final ",
-          "ejercicio": "Escalador de ",
+          "ejercicio": "Escalador ",
           "tiempo": "15",
           "notas": "10 min al 75% luego 5 minutos decreciente hasta bajar velocidad "
-        },
-        {
-          "momento": "",
-          "ejercicio": "",
-          "tiempo": "",
-          "notas": ""
         }
       ]
     },
@@ -1579,7 +1573,7 @@
       "cardio": [
         {
           "momento": "Calentamiento ",
-          "ejercicio": "Elíptica ",
+          "ejercicio": "Banda",
           "tiempo": "10",
           "notas": "Iniciar al 60% aumento de intensidad "
         },

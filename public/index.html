@@ -120,7 +120,7 @@ input:checked+.slider{background:var(--rojo)}
 input:checked+.slider:before{transform:translateX(20px);background:#fff}
 .fab{position:fixed;bottom:24px;right:20px;width:54px;height:54px;border-radius:50%;background:var(--rojo);border:none;color:var(--texto);font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(227,30,36,.4);z-index:50;display:flex;align-items:center;justify-content:center}
 .st{font-size:11px;color:var(--texto-secundario);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--gris2);color:var(--texto);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;display:none;border-left:4px solid #4caf50;white-space:nowrap}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--card);color:var(--texto);padding:12px 20px;border-radius:14px;font-size:13px;font-weight:600;z-index:999;display:none;border-left:4px solid #4caf50;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.15);max-width:85vw}
 .toast.show{display:block}
 .es{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .eb{padding:7px 14px;border-radius:20px;border:2px solid transparent;font-size:12px;font-weight:700;cursor:pointer;background:var(--gris);color:var(--texto-medio)}
@@ -303,10 +303,10 @@ body::before {
 
 /* TOAST glass */
 .toast {
-  background: rgba(30,30,30,0.90) !important;
+  background: var(--card) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
 }
 
 /* TABS glass */
@@ -854,7 +854,15 @@ window.activarPushTrasLogin = iniciarNotificacionesPush;
 </div>
 </div>
 <div id="page-admin" class="page">
-<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:16px">💰 Módulo Administrativo</div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+  <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800">💰 Módulo Administrativo</div>
+  <div onclick="toggleCobroAuto()" id="cobro-auto-btn" style="display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid #333;border-radius:20px;padding:6px 12px;cursor:pointer">
+    <div style="font-size:11px;color:var(--texto-medio);font-weight:700">🤖 Auto</div>
+    <div id="cobro-auto-toggle" style="width:36px;height:20px;border-radius:10px;background:#333;position:relative;transition:background 0.2s">
+      <div id="cobro-auto-dot" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s"></div>
+    </div>
+  </div>
+</div>
 
 <!-- TABS -->
 <div style="display:flex;gap:6px;margin-bottom:16px">
@@ -1071,7 +1079,7 @@ window.activarPushTrasLogin = iniciarNotificacionesPush;
 <p class="st">Envío manual</p>
 <div class="card">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar1" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar1()" onfocus="mostrarDrop1()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar1" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente"></div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px"><button class="btn" style="background:rgba(255,255,255,0.10);color:var(--texto);border:1px solid rgba(255,255,255,0.20);font-size:11px;padding:10px 6px" onclick="enviarRutinaCompleta()">💪 Rutina</button><button class="btn" style="background:linear-gradient(135deg,#b8860b,#ffd700);color:#000;border:none;font-size:11px;padding:10px 6px;font-weight:800;box-shadow:0 4px 14px rgba(255,215,0,0.35)" onclick="enviarInformePremium()">👑 Informe Premium</button><button class="btn" style="background:rgba(255,255,255,0.10);color:var(--texto);border:1px solid rgba(255,255,255,0.20);font-size:11px;padding:10px 6px" onclick="descargarInformePremium()">⬇️ Descargar</button></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px"><button class="btn" style="background:rgba(255,255,255,0.10);color:var(--texto);border:1px solid rgba(255,255,255,0.20);font-size:11px;padding:10px 6px" onclick="enviarRutinaCompleta()">💪 Rutina</button><button class="btn" style="background:linear-gradient(135deg,#b8860b,#ffd700);color:#000;border:none;font-size:11px;padding:10px 6px;font-weight:800;box-shadow:0 4px 14px rgba(255,215,0,0.35)" onclick="enviarInformePremium()">👑 Informe Premium</button><button class="btn" style="background:rgba(255,255,255,0.10);color:var(--texto);border:1px solid rgba(255,255,255,0.20);font-size:11px;padding:10px 6px" onclick="descargarInformePremium()">👁️ Ver</button></div>
 </div>
 <div class="card" style="margin-top:8px">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar2" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar2()" onfocus="mostrarDrop2()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar2" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente-dia"></div>
@@ -1152,7 +1160,7 @@ window.activarPushTrasLogin = iniciarNotificacionesPush;
 <option value="asesorado">Asesorado (recibe rutina)</option>
 <option value="personalizado">Personalizado (recibe cita)</option>
 </select></div>
-<div class="ig"><label>Hora de envío diario</label><input type="time" id="cliente-hora" value="07:00"></div>
+
 <div class="ig"><label>Tipo de pago</label>
 <select id="cliente-tipo-pago" onchange="togglePago2()">
 <option value="mensual">Mensual (1 fecha)</option>
@@ -1398,7 +1406,7 @@ if(p==='rutinas')cargarRutinasClientes();
 if(p==='festivos')cargarFestivos();
 if(p==='logs')cargarLogs();
 if(p==='enviar'){cargarSelectEnviar();cargarDifusion();}
-if(p==='admin')cargarAdmin();
+if(p==='admin'){cargarAdmin();setTimeout(cargarCobroAutoEstado,500);}
 if(p==='horarios')initHorarios();
 }
 function toast(msg,ok=true){
@@ -1700,6 +1708,58 @@ function generarRecomendaciones(usuarios,adminData,dash){
   return rec;
 }
 // ═══════════════════════════════
+
+function cobroAutoActualizarUI(activo){
+  const toggle = document.getElementById('cobro-auto-toggle');
+  const dot = document.getElementById('cobro-auto-dot');
+  if(toggle) toggle.style.background = activo ? '#e31e24' : '#333';
+  if(dot) dot.style.left = activo ? '18px' : '2px';
+}
+async function cargarCobroAutoEstado(){
+  try{
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const cfg = await fetch('/api/config?entrenador_id='+eid).then(r=>r.json());
+    const activo = cfg.cobro_auto_activo !== false;
+    cobroAutoActualizarUI(activo);
+  }catch(e){}
+}
+async function toggleCobroAuto(){
+  const esPremium = typeof entEsPremium === 'function' ? entEsPremium() : false;
+  if(!esPremium){
+    toast('⭐ Función Premium — Activa tu plan para usarla.',false);
+    return;
+  }
+  try{
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const cfg = await fetch('/api/config?entrenador_id='+eid).then(r=>r.json());
+    const nuevoEstado = cfg.cobro_auto_activo === false ? true : false;
+    await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entrenador_id:eid, cobro_auto_activo:nuevoEstado})});
+    cobroAutoActualizarUI(nuevoEstado);
+  }catch(e){}
+}
+
+
+async function enviarCobroManual(id){
+  console.log('enviarCobroManual id:', id);
+  const u = (window._adminUsuarios||[]).find(x=>x.id==id || x.id=='cli_'+id || x.id.replace('cli_','')==String(id));
+  console.log('usuario encontrado:', u ? u.nombre : 'NO');
+  if(!u){ toast('❌ Cliente no encontrado',false); return; }
+  const msg = document.getElementById('ac-msg') ? document.getElementById('ac-msg').value : (u.msg_pago||'');
+  if(!msg){ toast('⚠️ Escribe un mensaje de cobro primero',false); return; }
+  if(!u.telefono){ toast('⚠️ Cliente sin teléfono registrado',false); return; }
+  try{
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const res = await fetch('/api/enviar',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({telefono:u.telefono, mensaje:msg, entrenador_id:eid})
+    });
+    const d = await res.json();
+    if(d.ok){ toast('✅ Mensaje enviado a '+u.nombre); }
+    else{ toast('❌ '+(d.error||'No se pudo enviar'),false); }
+  }catch(e){ toast('❌ Error de conexión',false); }
+}
+
 // MODULO ADMINISTRATIVO
 // ═══════════════════════════════
 const MONEDAS = ['COP','USD','EUR','GBP','MXN','ARS','BRL','PEN','CLP'];
@@ -1708,7 +1768,7 @@ async function cargarAdmin(){
   try{
     const [usuarios, adminData, configData] = await Promise.all([
       fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()),
-      fetch('/api/admin').then(r=>r.json()),
+      fetch('/api/admin?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()),
       fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json())
     ]);
     window._adminUsuarios = usuarios;
@@ -1911,7 +1971,7 @@ function renderAdminDashboard(){
   const metodosMesAnt={efectivo:0,transferencia:0,tarjeta:0,otro:0};
   const pagosMes=[],pagosMesAnt=[],proyeccionClientes=[];
   usuarios.forEach(u=>{
-    const d=data.clientes[u.id]||{};
+    const d=data.clientes[u.id]||data.clientes[(u.id||'').replace('cli_','')]||{};
     const precio=d.precio||0;
     const moneda=d.moneda||'COP';
     if(!monedas[moneda])monedas[moneda]=0;
@@ -2044,7 +2104,7 @@ function renderAdminClientes(){
   const data=window._adminData||{clientes:{}};
   let html='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:80px">';
   usuarios.forEach(u=>{
-    const d=data.clientes[u.id]||{precio:0,moneda:'COP',pagos:[]};
+    const d=data.clientes[u.id]||data.clientes[(u.id+'').replace('cli_','')]||{precio:0,moneda:'COP',pagos:[]};
     const ultimoPago=d.pagos&&d.pagos.length?d.pagos[d.pagos.length-1].fecha:'Sin pagos';
     html+='<div class="admin-cliente-row" data-uid='+JSON.stringify(u.id)+' style="background:var(--card);border:1px solid #1e1e1e;border-radius:14px;padding:14px;cursor:pointer">';
     html+='<div style="display:flex;justify-content:space-between;align-items:center">';
@@ -2145,9 +2205,23 @@ function renderAdminConfig(){
   }
 
   if(tab==='premium'){
-    html+='<div style="background:var(--gris);border-radius:14px;padding:16px;text-align:center">';
-    html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:8px">🔑 Plan Premium</div>';
-    html+='<div style="font-size:12px;color:var(--texto-secundario)">Administra tu plan desde el panel principal.</div>';
+    const esPremium = esEntrenadorPremium();
+    const hasta = (window._entConfig && window._entConfig.premium_entrenador_hasta) ? window._entConfig.premium_entrenador_hasta : '';
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:8px">🔑 Plan Premium Entrenador</div>';
+    if(esPremium){
+      html+='<div style="color:#4caf50;font-weight:700;margin-bottom:8px">✅ Premium activo</div>';
+      if(hasta) html+='<div style="font-size:11px;color:var(--texto-medio)">Activo hasta: '+hasta+'</div>';
+    } else {
+      html+='<div style="font-size:12px;color:var(--texto-secundario);margin-bottom:12px">Acceso completo a todas las funciones profesionales por $50.000/mes</div>';
+      html+='<button onclick="entPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Pagar Premium $50.000/mes</button>';
+      html+='<div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px;text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>';
+      html+='<div style="display:flex;gap:8px;align-items:center">';
+      html+='<input id="cfg-codigo-premium" type="text" placeholder="INGRESA TU CÓDIGO..." style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">';
+      html+='<button onclick="validarCodigoPremium()" style="background:#333;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Activar</button>';
+      html+='</div>';
+      html+='<div id="cfg-codigo-status" style="font-size:11px;margin-top:8px;text-align:center"></div>';
+    }
     html+='</div>';
   }
 
@@ -2311,7 +2385,7 @@ async function conectarMiWhatsApp() {
   });
   const data = await res.json();
   if (data.ok) {
-    setTimeout(cargarEstadoWA, 5000);
+    let _waPolling = setInterval(async () => { await cargarEstadoWA(); const s = waSessions && waSessions[entId]; if (document.getElementById("wa-estado-txt") && document.getElementById("wa-estado-txt").textContent.includes("✅")) clearInterval(_waPolling); }, 3000);
   } else {
     toast(data.error || 'Error al conectar');
     if (btn) { btn.textContent = '📲 Conectar WhatsApp'; btn.disabled = false; }
@@ -2354,7 +2428,8 @@ async function guardarAdminConfig(){
   const cfg={
     moneda_default:document.getElementById('admin-moneda-default').value,
     msg_default:document.getElementById('admin-msg-default').value.trim(),
-    msg_prellenado:document.getElementById('admin-prellenado').checked
+    msg_prellenado:document.getElementById('admin-prellenado').checked,
+    entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')
   };
   await fetch('/api/admin/config/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
   window._adminData.config=cfg;
@@ -2362,10 +2437,11 @@ async function guardarAdminConfig(){
 }
 
 async function abrirAdminCliente(id){
+  const rawId=(id+'').replace('cli_','');
   const u=(window._adminUsuarios||[]).find(x=>String(x.id)===String(id));
   if(!u)return;
   const data=window._adminData||{clientes:{}};
-  const d=data.clientes[id]||{precio:0,moneda:'COP',pagos:[]};
+  const d=data.clientes[id]||data.clientes[(id+'').replace('cli_','')]||{precio:0,moneda:'COP',pagos:[]};
   const cfg=data.config||{};
   const tipoPago=u.tipo_pago||'mensual';
   const diaPago=u.dia_pago||'';
@@ -2392,7 +2468,8 @@ async function abrirAdminCliente(id){
   html+='<div style="font-size:11px;color:#e31e24;font-weight:700">'+(tipoPago==='quincenal'?'📅 Quincenal — días '+diaPago+' y '+diaPago2:'📅 Mensual — día '+diaPago)+'</div></div>';
   html+='<textarea id="ac-msg" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:70px;box-sizing:border-box" placeholder="Mensaje de cobro...">'+(u.msg_pago||'')+'</textarea></div>';
 
-  html+='<button onclick="guardarAdminCliente('+id+')" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:var(--texto);font-size:14px;font-weight:700;padding:12px;cursor:pointer;margin-bottom:10px">💾 Guardar</button>';
+  html+='<button onclick="guardarAdminCliente('+rawId+')" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:var(--texto);font-size:14px;font-weight:700;padding:12px;cursor:pointer;margin-bottom:8px">💾 Guardar</button>';
+  html+='<button onclick="enviarCobroManual(&quot;'+id+'&quot;)" style="width:100%;background:var(--card);border:1px solid #25D366;border-radius:12px;color:#25D366;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:10px">📲 Enviar cobro por WhatsApp</button>';
 
   html+='<div style="font-size:12px;color:var(--texto-medio);text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">📋 Registrar pago</div>';
   html+='<div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:10px">';
@@ -2414,7 +2491,7 @@ async function abrirAdminCliente(id){
   html+='<input type="text" id="ac-desc-motivo" placeholder="Motivo (ej: primer mes, referido)" style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:8px;padding:7px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
   html+='<div id="ac-desc-info" style="font-size:12px;color:#4caf50;font-weight:700"></div>';
   html+='</div>';
-  html+='<button onclick="registrarPago('+id+')" style="width:100%;background:#0f1a0f;border:1px solid #1e3a1e;border-radius:10px;color:#4caf50;font-size:13px;font-weight:700;padding:10px;cursor:pointer">✅ Registrar pago</button></div>';
+  html+='<button onclick="registrarPago('+rawId+')" style="width:100%;background:#0f1a0f;border:1px solid #1e3a1e;border-radius:10px;color:#4caf50;font-size:13px;font-weight:700;padding:10px;cursor:pointer">✅ Registrar pago</button></div>';
 
   // Historial pagos
   if(d.pagos&&d.pagos.length){
@@ -2476,9 +2553,10 @@ async function guardarAdminCliente(id){
   const descValorRaw=parseFloat(document.getElementById('ac-desc-valor').value)||0;
   const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
   const descMotivo=document.getElementById('ac-desc-motivo').value.trim();
-  await fetch('/api/admin/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_pago:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo})});
-  if(!window._adminData.clientes[id])window._adminData.clientes[id]={pagos:[]};
-  Object.assign(window._adminData.clientes[id],{precio,moneda,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo});
+  const _rawid=(id+'').replace('cli_','');
+  await fetch('/api/admin/'+_rawid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_pago:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
+  if(!window._adminData.clientes[_rawid])window._adminData.clientes[_rawid]={pagos:[]};
+  Object.assign(window._adminData.clientes[_rawid],{precio,moneda,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo});
   const uIdx=(window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
   if(uIdx!==-1){window._adminUsuarios[uIdx].msg_pago=msg;window._adminUsuarios[uIdx].nombre=nombre;}
   toast('✅ Cliente guardado');
@@ -2487,7 +2565,8 @@ async function guardarAdminCliente(id){
 async function registrarPago(id){
   const monto=(parseFloat(document.getElementById('ac-monto').value)||0)*1000;
   const metodo=document.getElementById('ac-metodo').value;
-  const moneda=(window._adminData.clientes[id]||{}).moneda||'COP';
+  const _mid=(window._adminData.clientes[id])?id:(id+'').replace('cli_','');
+  const moneda=(window._adminData.clientes[_mid]||{}).moneda||'COP';
   const novedad=document.getElementById('ac-novedad')?document.getElementById('ac-novedad').value.trim():'';
   const descPanel=document.getElementById('ac-desc-panel');
   const tieneDesc=descPanel&&descPanel.style.display!=='none';
@@ -2496,11 +2575,12 @@ async function registrarPago(id){
   const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
   const descMotivo=tieneDesc&&document.getElementById('ac-desc-motivo')?document.getElementById('ac-desc-motivo').value.trim():'';
   if(!monto){toast('❌ Ingresa un monto',false);return;}
-  const pagoData={monto,metodo,moneda,novedad,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo};
-  await fetch('/api/admin/'+id+'/pago',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pagoData)});
-  if(!window._adminData.clientes[id])window._adminData.clientes[id]={precio:0,moneda,pagos:[]};
-  if(!window._adminData.clientes[id].pagos)window._adminData.clientes[id].pagos=[];
-  window._adminData.clientes[id].pagos.push({...pagoData,fecha:new Date().toISOString().split('T')[0]});
+  const pagoData={monto,metodo,moneda,novedad,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')};
+  await fetch('/api/admin/'+(id+'').replace('cli_','')+'/pago',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pagoData)});
+  const _cid=(window._adminData.clientes[id])?id:(id+'').replace('cli_','');
+  if(!window._adminData.clientes[_cid])window._adminData.clientes[_cid]={precio:0,moneda,pagos:[]};
+  if(!window._adminData.clientes[_cid].pagos)window._adminData.clientes[_cid].pagos=[];
+  window._adminData.clientes[_cid].pagos.push({...pagoData,fecha:new Date().toISOString().split('T')[0]});
   const uIdx = (window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
   if(uIdx !== -1) window._adminUsuarios[uIdx].estado_pago = 'aldia';
   toast('✅ Pago registrado');
@@ -3094,7 +3174,7 @@ return`<div class="${cc}">
 ${avatarHTML(u)}
 <div style="flex:1">
 <div style="font-size:16px;font-weight:700;color:var(--texto)">${u.nombre}</div>
-<div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;⏰ ${u.hora_envio} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
+<div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
 </div>
 <label class="toggle"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
 </div>
@@ -3172,7 +3252,7 @@ function _renderListaLocal(){
 ${avatarHTML(u)}
 <div style="flex:1">
 <div style="font-size:16px;font-weight:700;color:var(--texto)">${u.nombre}</div>
-<div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;⏰ ${u.hora_envio} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
+<div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
 </div>
 <label class="toggle"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
 </div>
@@ -3197,11 +3277,19 @@ async function abrirTests(id,nombre){
   document.getElementById("modal-tests").classList.add("open");
 await renderTests(id);
 }
-function abrirModalCliente(){
+async function abrirModalCliente(){
+  if (!entEsPremium()) {
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const usuarios = await fetch('/api/usuarios?entrenador_id=' + eid).then(r=>r.json()).catch(()=>[]);
+    const activos = usuarios.filter(u => u.activo !== false).length;
+    if (activos >= 3) {
+      mostrarCandadoPremium('Has alcanzado el limite de 3 clientes del Plan Gratis. Activa Premium para clientes ilimitados.');
+      return;
+    }
+  }
 document.getElementById('cliente-id').value='';
 document.getElementById('cliente-nombre').value='';
 document.getElementById('cliente-telefono').value='';
-document.getElementById('cliente-hora').value='07:00';
 document.getElementById('cliente-pago').value='';
 document.getElementById('cliente-pago2').value='';
 document.getElementById('cliente-tipo-pago').value='mensual';
@@ -3218,7 +3306,6 @@ document.getElementById('cliente-id').value=u.id;
 document.getElementById('cliente-nombre').value=u.nombre;
 document.getElementById('cliente-telefono').value=u.telefono;
 document.getElementById('cliente-tipo').value=u.tipo;
-document.getElementById('cliente-hora').value=u.hora_envio;
 document.getElementById('cliente-pago').value=u.dia_pago||'';
 document.getElementById('cliente-pago2').value=u.dia_pago2||'';
 document.getElementById('cliente-tipo-pago').value=u.tipo_pago||'mensual';
@@ -3249,7 +3336,6 @@ entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'
 nombre:document.getElementById('cliente-nombre').value.trim(),
 telefono:document.getElementById('cliente-telefono').value.replace(/\D/g,''),
 tipo:document.getElementById('cliente-tipo').value,
-hora_envio:document.getElementById('cliente-hora').value,
 tipo_pago:document.getElementById('cliente-tipo-pago').value,
 dia_pago:parseInt(document.getElementById('cliente-pago').value)||null,
 dia_pago2:parseInt(document.getElementById('cliente-pago2').value)||null,
@@ -6622,7 +6708,7 @@ function _compSelAll(sel) {
 async function _lanzarCompPersonalizada() {
   var metrica = document.getElementById('comp-metrica').value;
   var ids = Array.from(document.querySelectorAll('[id^="comp-u-"]:checked')).map(function(cb){return cb.value;});
-  if (ids.length < 2) { alert('Selecciona al menos 2 participantes'); return; }
+  if (ids.length < 2) { toast('⚠️ Selecciona al menos 2 participantes',false); return; }
   var backup = window._usuariosCargados;
   window._usuariosCargados = (backup || []).filter(function(u){return ids.includes(u.id);});
   await verRankingCategoria(metrica);
@@ -6718,6 +6804,7 @@ async function verCompetenciasExternas() {
 
 // ── CREAR COMPETENCIA ────────────────────────────────────────────────────────
 function _crearCompExt() {
+  if(!entEsPremium()){mostrarCandadoPremium('Crear competencias requiere Plan Premium.');return;}
   _compPruebasSeleccionadas = [];
   var c = document.getElementById('herramienta-contenido');
 
@@ -6857,7 +6944,7 @@ function _compAgregarCustom() {
   var nombre = (document.getElementById('cp-custom-nombre').value||'').trim();
   var unidad = (document.getElementById('cp-custom-unidad').value||'pts').trim();
   var modo   = document.getElementById('cp-custom-modo').value;
-  if (!nombre) { alert('Escribe el nombre de la prueba'); return; }
+  if (!nombre) { toast('⚠️ Escribe el nombre de la prueba',false); return; }
   var key = 'custom_' + Date.now();
   _compPruebasSeleccionadas.push({key:key, label:nombre, unidad:unidad, modo:modo, pct:null, custom:true});
   document.getElementById('cp-custom-nombre').value = '';
@@ -6897,8 +6984,8 @@ async function _guardarCompExt() {
   var nombre    = (document.getElementById('cp-nombre').value||'').trim();
   var categoria = document.getElementById('cp-categoria').value;
   var puntos    = document.getElementById('cp-puntos').value;
-  if (!nombre) { alert('Ponle un nombre a la competencia'); return; }
-  if (!_compPruebasSeleccionadas.length) { alert('Selecciona al menos una prueba'); return; }
+  if (!nombre) { toast('⚠️ Ponle un nombre a la competencia',false); return; }
+  if (!_compPruebasSeleccionadas.length) { toast('⚠️ Selecciona al menos una prueba',false); return; }
   var datos = {
     nombre: nombre,
     categoria: categoria,
@@ -6911,7 +6998,7 @@ async function _guardarCompExt() {
     var res = await fetch('/api/competencias', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(datos)});
     var r = await res.json();
     if (r.ok) { await verCompetenciasExternas(); _abrirCompExt(r.id); }
-  } catch(e) { alert('Error al guardar'); }
+  } catch(e) { toast('❌ Error al guardar',false); }
 }
 
 // ── DETALLE COMPETENCIA ──────────────────────────────────────────────────────
@@ -7152,7 +7239,7 @@ function _agregarParticipanteExt(editIdx) {
 async function _guardarParticipanteExt(editIdx) {
   var nombre = (document.getElementById('cp-p-nombre').value||'').trim();
   var peso   = parseFloat(document.getElementById('cp-p-peso').value) || null;
-  if (!nombre) { alert('Escribe el nombre del participante'); return; }
+  if (!nombre) { toast('⚠️ Escribe el nombre del participante',false); return; }
   var comp   = _compExtActual;
   var pruebas = comp.pruebas || [];
   var resultados = {};
@@ -7173,7 +7260,7 @@ async function _guardarParticipanteExt(editIdx) {
   try {
     await fetch('/api/competencias/' + comp.id, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({participantes:comp.participantes})});
     _renderCompExtDetalle();
-  } catch(e) { alert('Error al guardar'); }
+  } catch(e) { toast('❌ Error al guardar',false); }
 }
 
 async function _toggleEstadoCompExt() {
@@ -7593,7 +7680,7 @@ function calcTab(tab){
     var panel=document.getElementById("calc-tab-"+t);
     var btn=document.getElementById("calc-btn-"+t);
     if(panel)panel.style.display=t===tab?"block":"none";
-    if(btn){btn.style.background=t===tab?"#e31e24":"#1a1a1a";btn.style.borderColor=t===tab?"#e31e24":"#333";}
+    if(btn){btn.style.background=t===tab?"#e31e24":"var(--gris)";btn.style.borderColor=t===tab?"#e31e24":"#333";}
   });
 }
 
@@ -7611,7 +7698,7 @@ function calcCard(titulo,contenido){
   var ab=_calcAbierto[key];
   var h='<div style="background:var(--card);border:1px solid #1e1e1e;border-radius:12px;margin-bottom:10px;overflow:hidden">';
   h+='<div onclick="calcToggle(\'' +key+ '\')" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer">';
-  h+='<div style="font-size:13px;font-weight:700;color:#e31e24">'+titulo+'</div>';
+  h+='<div style="font-size:13px;font-weight:700;color:var(--acento)">'+titulo+'</div>';
   h+='<div id="ca-'+key+'" style="color:var(--texto-secundario)">'+(ab?'▲':'▼')+'</div></div>';
   h+='<div id="cb-'+key+'" style="max-height:'+(ab?'2000px':'0')+';overflow:hidden;transition:max-height 0.3s;padding:'+(ab?'0 14px 14px':'0')+'">'+contenido+'</div>';
   h+='</div>';
@@ -8328,9 +8415,10 @@ function _intervCampo(label, val, onchange) {
 
 async function intervGuardar() {
   var iv = _intervActual;
-  if (!iv.nombre.trim()) { alert('Ponle un nombre'); return; }
+  if (!iv.nombre.trim()) { toast('⚠️ Ponle un nombre',false); return; }
   iv.tipo = 'intervalo';
   if (!iv.id) iv.id = Date.now();
+  if(!entEsPremium()){mostrarCandadoPremium('Guardar intervalos requiere Plan Premium.');return;}
   await fetch('/api/hiit', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(iv)});
   var idx = _intervCircuitos.findIndex(function(x){return x.id===iv.id;});
   if (idx >= 0) _intervCircuitos[idx] = iv;
@@ -8623,6 +8711,7 @@ function hiitDragEnd(){
 }
 
 async function hiitGuardar(){
+  if(!entEsPremium()){mostrarCandadoPremium('Guardar circuitos requiere Plan Premium.');return;}
   await fetch('/api/hiit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_hiitActual)});
   await hiitCargar();
   toast('💾 Circuito guardado');
@@ -9286,16 +9375,7 @@ toast(data.ok?'✅ Rutina enviada':'❌ Error',data.ok);
 }
 
 async function enviarInformePremium(){
-  const id=document.getElementById('enviar-cliente').value;
-  const res=await fetch('/api/informe/'+id+'/enviar',{method:'POST'});
-  const data=await res.json();
-  toast(data.ok?'Informe enviado':'Error: '+data.error,data.ok);
-}
-async function descargarInformePremium(){
-  const id=document.getElementById('enviar-cliente').value;
-  window.open('/api/informe/'+id+'/html','_blank');
-}
-async function enviarInformePremium(){
+  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
   const id=document.getElementById("enviar-cliente").value;
   if(!id){toast("Selecciona un cliente",false);return;}
   if(!confirm("Enviar informe premium por WhatsApp?")){return;}
@@ -9304,6 +9384,7 @@ async function enviarInformePremium(){
   toast(data.ok?"Informe enviado":"Error: "+data.error,data.ok);
 }
 async function descargarInformePremium(){
+  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
   const id=document.getElementById("enviar-cliente").value;
   if(!id){toast("Selecciona un cliente",false);return;}
   window.open("/api/informe/"+id+"/html","_blank");
@@ -9455,7 +9536,7 @@ function filtrarRutinas(){
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
       <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Plan Premium Entrenador — $50.000/mes</div>
       <div id="cfg-premium-estado" style="font-size:11px;color:var(--texto-medio);margin-bottom:12px">Acceso completo a todas las funciones profesionales</div>
-      <button onclick="entPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Pagar $50.000 por WhatsApp</button>
+      <button onclick="var s=JSON.parse(localStorage.getItem('dt_sesion')||'{}');var uid=s.id;if(!uid){toast('⚠️ Inicia sesión primero',false);return;}window.open('/premium-entrenador.html?uid='+uid,'_blank');" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Ver planes Premium</button>
       <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px;text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>
       <div style="display:flex;gap:8px;align-items:center">
         <input id="cfg-codigo-premium" type="text" placeholder="INGRESA TU C&Oacute;DIGO..." style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">
@@ -9675,7 +9756,7 @@ function calcularMacros() {
 
 async function guardarAlimentacion() {
   const id = window.clienteMedidasId;
-  if (!id) { alert('⚠️ Selecciona un cliente primero.'); return; }
+  if (!id) { toast('⚠️ Selecciona un cliente primero',false); return; }
 
   const datos = {
     peso_actual:   parseFloat(document.getElementById('ali-peso-actual').value)   || 0,
@@ -9694,7 +9775,7 @@ async function guardarAlimentacion() {
   };
 
   if (!datos.peso_actual || !datos.proteina) {
-    alert('Completa al menos el peso actual y la proteína.');
+    toast('⚠️ Completa el peso actual y la proteína',false);
     return;
   }
 
@@ -9705,10 +9786,10 @@ async function guardarAlimentacion() {
       body: JSON.stringify(datos)
     });
     const res = await r.json();
-    if (res.ok) alert('✅ Plan guardado correctamente.');
+    if (res.ok) toast('✅ Plan guardado correctamente');
     else alert('❌ Error: ' + (res.error || 'desconocido'));
   } catch(e) {
-    alert('❌ No se pudo conectar con el servidor.');
+    toast('❌ No se pudo conectar con el servidor',false);
   }
 }
 </script>
@@ -9739,7 +9820,8 @@ function renderDiaPlan(semana, diaIdx) {
   var tabs = '<div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:none">';
   semana.forEach(function(d,i) {
     var activo = i===diaIdx;
-    tabs += '<button onclick="renderDiaPlan(window._planSemana,'+i+')" style="min-width:48px;padding:6px 8px;border-radius:8px;border:none;background:'+(activo?'#e31e24':'var(--gris)')+';color:'+(activo?'#fff':'var(--texto-secundario)')+';font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">Plan '+letrasPlanes[i]+'</button>';
+      var activo = i===diaIdx;
+      tabs += '<button onclick="renderDiaPlan(window._planSemana,'+i+')" style="min-width:48px;padding:6px 8px;border-radius:8px;border:none;background:'+(activo?'#e31e24':'var(--gris)')+';color:'+(activo?'#fff':'var(--texto-secundario)')+';font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">Plan '+letrasPlanes[i]+'</button>';
   });
   tabs += '</div>';
   var totales = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">';
@@ -9770,11 +9852,29 @@ function renderDiaPlan(semana, diaIdx) {
   });
   document.getElementById('ali-plan-totales').innerHTML = totales;
   document.getElementById('ali-plan-comidas').innerHTML = tabs + comidas;
+  // Blur para planes premium
+  var contenedor = document.getElementById('ali-plan-comidas');
+  var bloqueado = diaIdx >= 2 && !entEsPremium();
+  var blurExist = document.getElementById('ali-blur-premium');
+  if (blurExist) blurExist.remove();
+  if (bloqueado) {
+    contenedor.style.filter = 'blur(4px)';
+    contenedor.style.pointerEvents = 'none';
+    var overlay = document.createElement('div');
+    overlay.id = 'ali-blur-premium';
+    overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center';
+    overlay.innerHTML = '<div style="background:#111;border:2px solid #e31e24;border-radius:16px;padding:20px;max-width:280px"><div style="font-size:32px;margin-bottom:8px">🔒</div><div style="font-size:15px;font-weight:900;color:#fff;margin-bottom:8px">Plan Premium</div><div style="font-size:12px;color:#888;margin-bottom:16px">Los planes C-G requieren Plan Premium</div><button onclick="mostrarCandadoPremium(\'Los planes C-G requieren Plan Premium.\')" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 20px;cursor:pointer;width:100%;margin-bottom:10px">💳 Activar Premium</button><button onclick="document.getElementById(\'ali-blur-premium\').remove();document.getElementById(\'ali-plan-comidas\').style.filter=\'\';document.getElementById(\'ali-plan-comidas\').style.pointerEvents=\'\';renderDiaPlan(window._planSemana,0);" style="background:transparent;border:1px solid #333;border-radius:10px;color:#888;font-size:13px;padding:10px 20px;cursor:pointer;width:100%">← Volver al Plan A</button></div>';
+    contenedor.parentNode.style.position = 'relative';
+    contenedor.parentNode.appendChild(overlay);
+  } else {
+    contenedor.style.filter = '';
+    contenedor.style.pointerEvents = '';
+  }
 }
 
 function generarPlanAlimentario() {
   var id = window.clienteMedidasId || document.getElementById('rutina-cliente-id').value;
-  if (!id) { alert('Abre un cliente primero'); return; }
+  if (!id) { toast('⚠️ Abre un cliente primero',false); return; }
   var btn = document.querySelector('[onclick="generarPlanAlimentario()"]');
   if (btn) btn.textContent = '⏳ Generando...';
   window._diaActual = 0;
@@ -9798,7 +9898,7 @@ function generarPlanAlimentario() {
 function compartirPlanWA() {
   var diaIdx = window._diaActual || 0;
   var plan = (window._planSemana && window._planSemana[diaIdx]) ? window._planSemana[diaIdx] : window._planActual;
-  if (!plan) { alert('Genera el plan primero'); return; }
+  if (!plan) { toast('⚠️ Genera el plan primero',false); return; }
   var letras = ['A','B','C','D','E','F','G'];
   var letra = letras[diaIdx] || '';
   var id = window.clienteMedidasId;
@@ -9826,7 +9926,7 @@ function compartirPlanWA() {
       window.open(url, '_blank');
     })
     .catch(function() {
-      alert('No se pudo obtener el teléfono del cliente');
+      toast('❌ No se pudo obtener el teléfono del cliente',false);
     });
 }
 </script>
@@ -10021,7 +10121,68 @@ function loginCliente() {
   });
 }
 
+// ── PREMIUM ENTRENADOR ──
+let _entConfig = null;
+
+async function cargarConfigEntrenador() {
+  const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+  try {
+    const cfg = await fetch('/api/config?entrenador_id=' + eid).then(r=>r.json());
+    _entConfig = cfg;
+    const hoy = new Date().toISOString().split('T')[0];
+    _entConfig._esPremium = cfg.premium_entrenador && cfg.premium_entrenador_hasta && cfg.premium_entrenador_hasta >= hoy;
+  } catch(e) { _entConfig = { _esPremium: false }; }
+}
+
+function entEsPremium() {
+  if (!_entConfig) return false;
+  const hoy = new Date().toISOString().split('T')[0];
+  return _entConfig.premium_entrenador && _entConfig.premium_entrenador_hasta && _entConfig.premium_entrenador_hasta >= hoy;
+}
+
+function mostrarCandadoPremium(mensaje) {
+  const m = mensaje || 'Esta función requiere Plan Premium';
+  var existing = document.getElementById('modal-ent-premium');
+  if (existing) existing.remove();
+  var el = document.createElement('div');
+  el.id = 'modal-ent-premium';
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML = '<div style="background:#111;border:2px solid #e31e24;border-radius:20px;padding:28px 20px;text-align:center;max-width:320px">' +
+    '<div style="font-size:36px;margin-bottom:12px">🔒</div>' +
+    '<div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:8px">Plan Premium</div>' +
+    '<div style="font-size:13px;color:var(--texto-medio);line-height:1.6;margin-bottom:16px">' + m + '<br><br>Activa Premium por solo <span style="color:#e31e24;font-weight:700">$50.000/mes</span>.</div>' +
+    '<button onclick="document.getElementById(\'modal-ent-premium\').remove();entPagarPremiumModal();" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px">💳 Pagar $50.000/mes</button>' +
+    '<button onclick="this.parentNode.parentNode.remove()" style="width:100%;padding:10px;border-radius:10px;border:1px solid #333;background:transparent;color:#888;font-size:13px;cursor:pointer">Ahora no</button>' +
+    '</div>';
+  document.body.appendChild(el);
+}
+
+function entPagarPremiumModal() {
+  var s = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  var uid = s.id || null;
+  if (!uid) { toast('⚠️ Inicia sesión primero',false); return; }
+  fetch('/api/wompi/crear-pago', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ plan: 'entrenador_mensual', entrenador_id: uid })
+  }).then(r => r.json()).then(d => {
+    if (!d.ok) { toast('❌ Error al generar pago',false); return; }
+    var f = document.createElement('form');
+    f.method = 'GET';
+    f.action = 'https://checkout.wompi.co/p/';
+    f.target = '_blank';
+    Object.entries({'public-key': d.pub_key, 'currency': 'COP', 'amount-in-cents': d.amount_in_cents, 'reference': d.reference, 'signature:integrity': d.firma, 'redirect-url': d.redirect_url}).forEach(([k,v]) => {
+      var i = document.createElement('input');
+      i.type = 'hidden'; i.name = k; i.value = v;
+      f.appendChild(i);
+    });
+    document.body.appendChild(f);
+    f.submit();
+    document.body.removeChild(f);
+  }).catch(e => alert('Error: ' + e.message));
+}
 function mostrarApp() {
+  cargarConfigEntrenador();
   actualizarNombreEntrenador();
   ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente'].forEach(p => {
     document.getElementById(p).style.display = 'none';
@@ -10211,14 +10372,41 @@ function tcEsPremium() {
 
 function tcMostrarPremium() {
   var el = document.createElement('div');
+  el.id = 'modal-tc-premium';
   el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
   el.innerHTML = '<div style="background:#111;border:2px solid #e31e24;border-radius:20px;padding:28px 20px;text-align:center;max-width:320px">' +
     '<div style="font-size:36px;margin-bottom:12px">⭐</div>' +
     '<div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:8px">Función Premium</div>' +
-    '<div style="font-size:13px;color:var(--texto-medio);line-height:1.6;margin-bottom:16px">Desbloquea todo el potencial de DT-APP por solo <span style="color:#e31e24;font-weight:700">$20.000/mes</span>. Escríbenos a @dt_entrenamientos en Instagram para activarlo.</div>' +
-    '<button onclick="this.parentNode.parentNode.remove()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:14px;font-weight:700;cursor:pointer">Entendido</button>' +
+    '<div style="font-size:13px;color:var(--texto-medio);line-height:1.6;margin-bottom:16px">Desbloquea todo el potencial de DT-APP por solo <span style="color:#e31e24;font-weight:700">$20.000/mes</span>.</div>' +
+    '<button onclick="document.getElementById(\'modal-tc-premium\').remove();tcPagarPremiumModal();" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px">💳 Pagar $20.000/mes</button>' +
+    '<button onclick="this.parentNode.parentNode.remove()" style="width:100%;padding:10px;border-radius:10px;border:1px solid #333;background:transparent;color:#888;font-size:13px;cursor:pointer">Ahora no</button>' +
     '</div>';
   document.body.appendChild(el);
+}
+
+function tcPagarPremiumModal() {
+  var s = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  var uid = s.id || null;
+  if (!uid) { toast('⚠️ Inicia sesión primero',false); return; }
+  fetch('/api/wompi/crear-pago', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ plan: 'cliente_mensual', cliente_id: uid })
+  }).then(r => r.json()).then(d => {
+    if (!d.ok) { toast('❌ Error al generar pago',false); return; }
+    var f = document.createElement('form');
+    f.method = 'GET';
+    f.action = 'https://checkout.wompi.co/p/';
+    f.target = '_blank';
+    Object.entries({'public-key': d.pub_key, 'currency': 'COP', 'amount-in-cents': d.amount_in_cents, 'reference': d.reference, 'signature:integrity': d.firma, 'redirect-url': d.redirect_url}).forEach(([k,v]) => {
+      var i = document.createElement('input');
+      i.type = 'hidden'; i.name = k; i.value = v;
+      f.appendChild(i);
+    });
+    document.body.appendChild(f);
+    f.submit();
+    document.body.removeChild(f);
+  }).catch(e => alert('Error: ' + e.message));
 }
 let _tcRutina = null;
 let _tcAlim = null;
@@ -10338,6 +10526,14 @@ function tcRenderRutina(cont) {
       body: JSON.stringify({dia: _diaActualHoy2})
     }).catch(()=>{});
   }
+  // Limpiar también días desbloqueados manualmente
+  if (_tcUsuario && _tcUsuario.dias_desbloqueados) {
+    Object.keys(_tcUsuario.dias_desbloqueados).forEach(function(dia){
+      if (_tcUsuario.dias_desbloqueados[dia].includes(_fecha2)) {
+        localStorage.removeItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy() + '-' + dia);
+      }
+    });
+  }
   const _resumenHoy = localStorage.getItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy());
   if (_resumenHoy && !_desbloqueadoHoy) {
     _tcRutinaCompletadaHoy = true;
@@ -10392,14 +10588,16 @@ function tcToggleRec(el, rec) {
 function tcVerDia(dia) {
   // Si rutina ya completada hoy, no mostrar rutina
   const _uid3 = (_tcUsuario && _tcUsuario.id) || 'x';
-  const _resumenCheck = localStorage.getItem('tc-rutina-completa-' + _uid3 + '-' + tcFechaHoy());
   const _diaCheck = DIAS_ES[new Date().getDay()];
   const _fechaCheck = new Date().toISOString().split('T')[0];
   const _desbCheck = (_tcUsuario && _tcUsuario.dias_desbloqueados && _tcUsuario.dias_desbloqueados[_diaCheck] && _tcUsuario.dias_desbloqueados[_diaCheck].includes(_fechaCheck));
-  if (_desbCheck) {
+  const _desbDiaViendo = (_tcUsuario && _tcUsuario.dias_desbloqueados && _tcUsuario.dias_desbloqueados[dia] && _tcUsuario.dias_desbloqueados[dia].includes(_fechaCheck));
+  if (_desbCheck || _desbDiaViendo) {
     localStorage.removeItem('tc-rutina-completa-' + _uid3 + '-' + tcFechaHoy());
+    localStorage.removeItem('tc-rutina-completa-' + _uid3 + '-' + tcFechaHoy() + '-' + dia);
   }
-  if (_resumenCheck && !_desbCheck) return;
+  const _resumenCheck = localStorage.getItem('tc-rutina-completa-' + _uid3 + '-' + tcFechaHoy());
+  if (_resumenCheck && !_desbCheck && !_desbDiaViendo) return;
   const diaAnterior = _tcDia;
   _tcDia = dia;
   // Resetear solo si cambia de día
@@ -10407,11 +10605,11 @@ function tcVerDia(dia) {
     _tcSeriesCompletadas = {};
     _tcCardioCompletado = {};
     _tcLog = [];
-    localStorage.removeItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy());
-  } else {
-    var _logGuardado = localStorage.getItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy());
-    if (_logGuardado) try { _tcLog = JSON.parse(_logGuardado); } catch(e) { _tcLog = []; }
   }
+  // Siempre intentar recuperar log del localStorage
+  var _logKey = 'tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy() + '-' + dia;
+  var _logGuardado = localStorage.getItem(_logKey);
+  if (_logGuardado) try { _tcLog = JSON.parse(_logGuardado); } catch(e) { _tcLog = []; }
   tcCargarProgreso();
   try {
   const diaData = _tcRutina && _tcRutina[dia];
@@ -10529,7 +10727,7 @@ function tcVerDia(dia) {
     html += '</div>';
   html += '<button onclick="tcDetenerRutina()" style="width:100%;padding:12px;border-radius:10px;border:1px solid #e31e24;background:#1a0000;color:#e31e24;font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;margin-bottom:8px">⏹ Finalizar rutina</button>';
   cont.innerHTML = html;
-  } catch(eee) { alert('ERROR: ' + eee.message); }
+  } catch(eee) { toast('❌ Error: '+eee.message,false); }
   // Restaurar progreso visual con delay para asegurar DOM listo
   setTimeout(() => {
   Object.keys(_tcSeriesCompletadas).forEach(ejIdx => {
@@ -10576,7 +10774,7 @@ function tcFechaHoy() {
 
 function tcGuardarProgreso() {
   const uid = (_tcUsuario && _tcUsuario.id) || 'x';
-  const key = 'tc-progreso-' + uid + '-' + tcFechaHoy();
+  const key = 'tc-progreso-' + uid + '-' + tcFechaHoy() + '-' + (_tcDia||'');
   localStorage.setItem(key, JSON.stringify({
     series: _tcSeriesCompletadas,
     cardio: _tcCardioCompletado
@@ -10585,7 +10783,7 @@ function tcGuardarProgreso() {
 
 function tcCargarProgreso() {
   const uid = (_tcUsuario && _tcUsuario.id) || 'x';
-  const key = 'tc-progreso-' + uid + '-' + tcFechaHoy();
+  const key = 'tc-progreso-' + uid + '-' + tcFechaHoy() + '-' + (_tcDia||'');
   try {
     const d = JSON.parse(localStorage.getItem(key));
     if (d) {
@@ -10606,7 +10804,7 @@ function tcSerie(ejIdx, descanso, totalSeries) {
   // Log cronológico
   const _ejNombre = (_tcEjercicios && _tcEjercicios[ejIdx]) ? (_tcEjercicios[ejIdx].nombre || 'Ejercicio') : 'Ejercicio';
   _tcLog.push({tipo:'serie', ejIdx, serieNum: completadas + 1, nombre: _ejNombre, ts: Date.now()});
-  localStorage.setItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy(), JSON.stringify(_tcLog));
+  localStorage.setItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy() + '-' + (_tcDia||''), JSON.stringify(_tcLog));
   const nuevas = _tcSeriesCompletadas[ejIdx];
   const btn = document.getElementById('tc-btn-serie-' + ejIdx);
   if (nuevas >= totalSeries) {
@@ -10637,7 +10835,7 @@ function tcSerie(ejIdx, descanso, totalSeries) {
     if (seg <= 0) {
       clearInterval(_tcTimer);
       dtSonarEvento('timer','fin');
-      if (_tcToast) { _tcToast.style.borderColor='#4caf50'; _tcToast.innerHTML='✅ ¡A la siguiente serie!'; setTimeout(()=>{if(_tcToast){_tcToast.remove();_tcToast=null;}},2000); }
+      if (_tcToast) { _tcToast.style.borderColor='#4caf50'; _tcToast.innerHTML='<div style="font-size:20px;font-weight:900;color:#4caf50;text-align:center">✅ ¡A la siguiente serie!</div>'; setTimeout(()=>{if(_tcToast){_tcToast.remove();_tcToast=null;}},2000); }
     } else {
       if (txt) txt.textContent = seg;
     }
@@ -10660,7 +10858,7 @@ function tcCardioHecho(ci) {
     // Log cronológico
     const _cxNombre = (_tcRutina && _tcRutina[_tcDia] && _tcRutina[_tcDia].cardio && _tcRutina[_tcDia].cardio[ci]) ? (_tcRutina[_tcDia].cardio[ci].momento || 'Cardio') : 'Cardio';
     _tcLog.push({tipo:'cardio', ci, nombre: _cxNombre, ts: Date.now()});
-    localStorage.setItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy(), JSON.stringify(_tcLog));
+    localStorage.setItem('tc-log-' + ((_tcUsuario && _tcUsuario.id) || 'x') + '-' + tcFechaHoy() + '-' + (_tcDia||''), JSON.stringify(_tcLog));
     btn.style.background = '#0a1a0a';
     btn.style.color = '#4caf50';
     btn.style.border = '1px solid #4caf50';
@@ -10800,17 +10998,17 @@ function tcConfirmarFinalizar() {
       + '<div style="background:' + (completo?'#0a1a0a':'#1a0a00') + ';border:1px solid ' + (completo?'#4caf50':'#e31e24') + ';border-radius:12px;padding:12px 14px;margin-bottom:6px">'
       + '<div style="font-size:15px;font-weight:900;color:' + (completo?'#4caf50':'#ff9800') + ';margin-bottom:6px">' + (completo?'🏆 Rutina completada':'⚠️ Rutina incompleta') + '</div>'
       + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
-      + '<div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + completados + '/' + totalEjercicios + '</div><div style="font-size:9px;color:#888;text-transform:uppercase">Ejercicios</div></div>'
-      + '<div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + seriesHechas + '/' + totalSeries + '</div><div style="font-size:9px;color:#888;text-transform:uppercase">Series</div></div>'
-      + (cardiosHechos > 0 ? '<div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + cardiosHechos + '/' + cardioTotal + '</div><div style="font-size:9px;color:#888;text-transform:uppercase">Cardio</div></div>' : '')
-      + (tiempoSeg > 0 ? '<div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:14px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm+':'+ss + '</div><div style="font-size:9px;color:#888;text-transform:uppercase">Tiempo</div></div>' : '')
+      + '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + completados + '/' + totalEjercicios + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Ejercicios</div></div>'
+      + '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + seriesHechas + '/' + totalSeries + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series</div></div>'
+      + (cardiosHechos > 0 ? '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + cardiosHechos + '/' + cardioTotal + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Cardio</div></div>' : '')
+      + (tiempoSeg > 0 ? '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:14px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm+':'+ss + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Tiempo</div></div>' : '')
       + '</div></div>'
       // Botón desplegable
-      + '<div onclick="(function(){var d=document.getElementById(\'' + rid + '\');d.style.display=d.style.display===\'none\'?\'block\':\'none\';})()" style="cursor:pointer;background:#111;border:1px solid #222;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-      + '<span style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">📊 Ver detalle</span>'
+      + '<div onclick="(function(){var d=document.getElementById(\'' + rid + '\');d.style.display=d.style.display===\'none\'?\'block\':\'none\';})()" style="cursor:pointer;background:#f5f5f5;border:1px solid #ddd;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+      + '<span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px">📊 Ver detalle</span>'
       + '<span style="color:#555;font-size:14px">▾</span></div>'
       // Detalle desplegable
-      + '<div id="' + rid + '" style="display:none;background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:10px 14px;margin-bottom:4px">'
+      + '<div id="' + rid + '" style="display:none;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:10px;padding:10px 14px;margin-bottom:4px">'
       + detalleRows
       + (cardioRows ? '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px">🏃 Cardio</div>' + cardioRows : '')
       + (_tcLog.length > 0 ? (()=>{
@@ -10830,7 +11028,7 @@ function tcConfirmarFinalizar() {
           return crono;
         })() : '')
       + '</div>'
-      + '<div style="font-size:10px;color:#333;text-align:right;padding:2px 4px">📅 ' + tcFechaHoy() + '</div>'
+      + '<div style="font-size:10px;color:#999;text-align:right;padding:2px 4px">📅 ' + tcFechaHoy() + '</div>'
       + '</div>';
 
     fetch('/api/chat/' + uid2, {
@@ -11246,6 +11444,19 @@ function tcRenderProgreso(cont) {
   });
 }
 
+async function tcVincularEntrenador() {
+  const codigo = document.getElementById('tc-codigo-ent').value.trim().toUpperCase();
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  const res = await fetch('/api/clientes/vincular-entrenador', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ cliente_id: sesion.id, codigo })
+  });
+  const data = await res.json();
+  if (data.ok) { toast('✅ Vinculado con ' + data.nombre_entrenador); setTimeout(() => location.reload(), 1500); }
+  else toast('❌ ' + (data.error || 'Código inválido'));
+}
+
 function tcRenderPerfil(cont) {
   const u = _tcUsuario || {};
   const p = u.perfil || {};
@@ -11319,6 +11530,12 @@ function tcRenderPerfil(cont) {
     html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px"><div style="font-size:12px;color:#888;line-height:1.6">' + p.preferencias_alimentarias + '</div></div>';
   }
 
+  html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:16px">🔗 Vincular entrenador</div>';
+  html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
+  html += '<div style="font-size:12px;color:var(--texto-medio);margin-bottom:8px">Si tienes un código de entrenador, ingrésalo aquí</div>';
+  html += '<input id="tc-codigo-ent" placeholder="DT-XXXX-XXXX-XXXX" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px;text-transform:uppercase">';
+  html += '<button onclick="tcVincularEntrenador()" style="width:100%;padding:10px;border-radius:8px;border:none;background:#e31e24;color:#fff;font-size:13px;font-weight:700;cursor:pointer">🔗 Vincular</button>';
+  html += '</div>';
   html += '<button onclick="cerrarSesionGoogle()" style="width:100%;padding:14px;border-radius:12px;border:1px solid #2a2a2a;background:#111;color:#666;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">🚪 Cerrar sesión</button>';
   html += '</div>';
   cont.innerHTML = html;
@@ -11343,9 +11560,9 @@ function tcGuardarPerfilCliente() {
       _tcUsuario.perfil.altura = altura;
       _tcUsuario.perfil.etiqueta = objetivo;
       document.getElementById('tc-nombre-cliente').textContent = nombre;
-      alert('✅ Datos guardados');
+      toast('✅ Datos guardados');
     }
-  }).catch(()=>alert('❌ Error al guardar'));
+  }).catch(()=>toast('❌ Error al guardar',false));
 }
 
 function tcRenderTools(cont) {
@@ -12050,6 +12267,7 @@ function encGuardarEdicion(id, numPasos) {
 
 
 function encAgregarPersonalizado() {
+  if(!entEsPremium()){mostrarCandadoPremium('Los ejercicios personalizados requieren Plan Premium.');return;}
   encGestionPersonalizados();
 }
 
@@ -12188,7 +12406,7 @@ function encAgregarPaso() {
 
 function encGuardarPersonalizado(id) {
   var nombre = document.getElementById("enc-p-nombre").value.trim();
-  if (!nombre) { alert("El nombre es obligatorio"); return; }
+  if (!nombre) { toast('⚠️ El nombre es obligatorio',false); return; }
   var grupo = document.getElementById("enc-p-grupo").value;
   var equipo = document.getElementById("enc-p-equipo").value;
   var nivel = document.getElementById("enc-p-nivel").value;
@@ -12226,7 +12444,7 @@ function encGuardarPersonalizado(id) {
       setTimeout(encGestionPersonalizados, 600);
     });
   })
-  .catch(function(){ alert("Error al guardar"); });
+  .catch(function(){ toast('❌ Error al guardar',false); });
 }
 
 function encEliminarPersonalizado(id) {
@@ -12322,7 +12540,7 @@ function encAbrirFicha(id) {
   var html = "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px\">";
   var volverFn = window._encDesdeRutina ? "window._encDesdeRutina=false;tcTab('rutina')" : "encMostrarLista()";
   html += "<button onclick=\"" + volverFn + "\" style=\"background:#1a1a1a;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:14px\">&#8592;</button>";
-  html += "<span style=\"font-size:13px;color:#666;flex:1\">Ficha tecnica</span>";
+  html += "<span style=\"font-size:13px;color:#666;flex:1\">Ficha tecnica</span>"; var _sa=JSON.parse(localStorage.getItem("dt_sesion")||"{}"); if(_sa.email==="danielgaviriabotero@gmail.com"){html += "<button onclick='encEditarFicha(&quot;"+id+"&quot;)' style=\"background:#e31e24;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:12px\">✏️ Editar</button>";}
   
   html += "</div>";
   if (e.video_youtube) {
@@ -12595,7 +12813,7 @@ function tcAbrirConfig() {
     ((_tcUsuario && _tcUsuario.premium) ?
       '<div style="color:' + premColor + ';font-weight:700">✅ Premium activo</div>' +
       (_tcUsuario.premium_hasta ? '<div style="font-size:11px;color:var(--texto-medio);margin-top:4px">Activo hasta: ' + _tcUsuario.premium_hasta + '</div>' : '') :
-      '<div style="margin-bottom:12px"><button onclick="tcPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;padding:11px;box-sizing:border-box">💳 Pagar $20.000 por WhatsApp</button></div>' +
+      '<div style="margin-bottom:12px"><button onclick="var s=JSON.parse(localStorage.getItem(\'dt_sesion\')||\'{}\');var uid=s.id;if(!uid){alert(\'Error: inicia sesión\');return;}window.open(\'/premium-cliente.html?uid=\'+uid,\'_blank\')" style="width:100%;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;padding:11px;box-sizing:border-box">💳 Ver planes Premium</button></div>' +
       '<div style="display:flex;gap:8px"><input id="tc-cod-premium" placeholder="¿Ya tienes un código? Ingrésalo" style="flex:1;background:var(--card);border:1px solid var(--borde);border-radius:8px;padding:8px 10px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box"><button onclick="tcActivarPremiumConfig()" style="background:var(--gris);border:none;border-radius:8px;color:var(--texto);font-size:12px;font-weight:700;cursor:pointer;padding:8px 12px;flex-shrink:0">Activar</button></div>'
     );
   body.appendChild(premDiv);
@@ -12624,7 +12842,7 @@ function tcAbrirConfig() {
   document.body.appendChild(el);
 
   if (uid) {
-    fetch('/api/admin/' + uid).then(function(r){ return r.json(); }).then(function(d) {
+    fetch('/api/admin/' + uid + '?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(function(r){ return r.json(); }).then(function(d) {
       var box = document.getElementById('tc-config-pago-ent');
       var usr = window._tcUsuario || {};
       var estado = usr.estado_pago || 'aldia';
@@ -12779,11 +12997,6 @@ function mostrarErrorReg(msg) {
 
 
 
-function guardarSesion(data) {
-  data.expira = new Date(Date.now() + 30*24*60*60*1000).toISOString();
-  localStorage.setItem('dt_sesion', JSON.stringify(data));
-}
-
 function iniciarApp() {
   if (!_sesion) {
     document.getElementById('pantalla-login').style.display = 'flex';
@@ -12829,7 +13042,7 @@ function checkGoogleLogin() {
       return true;
     }
     // Sesión sin roles — buscarlos
-    alert('buscando roles para: ' + sesion.email);
+    
     fetch('/api/auth/roles?email=' + encodeURIComponent(sesion.email))
       .then(r=>r.json()).then(d => {
         d.nombre = d.nombre || sesion.nombre || sesion.email;
@@ -12968,7 +13181,7 @@ function cambiarRol() {
 async function tcVincularEntrenador() {
   var codigo = document.getElementById('tc-vinc-codigo');
   var st = document.getElementById('tc-vinc-status');
-  if (!codigo) { alert('No se encontró el campo de código'); return; }
+  if (!codigo) { toast('⚠️ No se encontró el campo de código',false); return; }
   var cod = codigo.value.trim().toUpperCase();
   if (!cod) { st.style.color='#e31e24'; st.textContent='Ingresá el código del entrenador'; return; }
   st.style.color='#aaa'; st.textContent='Verificando...';
@@ -13094,7 +13307,7 @@ async function tcIniciarVoz() {
     _tcMediaRec.start();
     const btn = document.getElementById('tc-chat-plus');
     if (btn) { btn.textContent = '⏹'; btn.onclick = tcDetenerVoz; btn.style.background = '#e31e24'; }
-  } catch(e) { alert('No se pudo acceder al micrófono'); }
+  } catch(e) { toast('❌ No se pudo acceder al micrófono',false); }
 }
 
 function tcDetenerVoz() {
@@ -13123,7 +13336,7 @@ async function chatEntIniciarVoz() {
     _entMediaRec.start();
     const btn = document.getElementById('chat-ent-plus');
     if (btn) { btn.textContent = '⏹'; btn.onclick = chatEntDetenerVoz; btn.style.background = '#e31e24'; }
-  } catch(e) { alert('No se pudo acceder al micrófono'); }
+  } catch(e) { toast('❌ No se pudo acceder al micrófono',false); }
 }
 
 function chatEntDetenerVoz() {
@@ -13267,7 +13480,7 @@ async function tcIniciarVoz() {
       if (input) input.placeholder = '🔴 Grabando... ' + _tcSegVoz + 's — toca ➤ para enviar';
     }, 1000);
 
-  } catch(e) { alert('No se pudo acceder al micrófono'); }
+  } catch(e) { toast('❌ No se pudo acceder al micrófono',false); }
 }
 
 async function tcEnviarAudio() {
@@ -13317,7 +13530,7 @@ async function chatEntIniciarVoz() {
       _entSegVoz++;
       if (input) input.placeholder = '🔴 Grabando... ' + _entSegVoz + 's — toca ➤ para enviar';
     }, 1000);
-  } catch(e) { alert('No se pudo acceder al micrófono'); }
+  } catch(e) { toast('❌ No se pudo acceder al micrófono',false); }
 }
 
 async function chatEntEnviarAudio() {
@@ -13341,7 +13554,7 @@ async function tcEnviarVideo(input) {
   const uid = _tcUsuario && _tcUsuario.id;
   if (!input.files[0] || !uid) return;
   const file = input.files[0];
-  if (file.size > 30 * 1024 * 1024) { alert('Video muy grande. Máximo 30MB o 1 minuto.'); input.value=''; return; }
+  if (file.size > 30 * 1024 * 1024) { toast('⚠️ Video muy grande. Máximo 30MB',false); input.value=''; return; }
   const reader = new FileReader();
   reader.onload = async function(e) {
     await fetch('/api/chat/' + uid, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'cliente',tipo:'video',contenido:e.target.result})});
@@ -13354,7 +13567,7 @@ async function tcEnviarVideo(input) {
 async function chatEntEnviarVideo(input) {
   if (!input.files[0] || !_chatEntClienteId) return;
   const file = input.files[0];
-  if (file.size > 30 * 1024 * 1024) { alert('Video muy grande. Máximo 30MB o 1 minuto.'); input.value=''; return; }
+  if (file.size > 30 * 1024 * 1024) { toast('⚠️ Video muy grande. Máximo 30MB',false); input.value=''; return; }
   const reader = new FileReader();
   reader.onload = async function(e) {
     await fetch('/api/chat/' + _chatEntClienteId, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'entrenador',tipo:'video',contenido:e.target.result})});
@@ -13393,9 +13606,9 @@ function getDeviceId() {
 
 async function tcActivarPremiumConfig() {
   var codigo = document.getElementById('tc-cod-premium').value.trim().toUpperCase();
-  if (!codigo) { alert('Ingresa el código'); return; }
+  if (!codigo) { toast('⚠️ Ingresa el código',false); return; }
   var uid = localStorage.getItem('dt_cliente_id');
-  if (!uid) { alert('Error: no hay usuario'); return; }
+  if (!uid) { toast('⚠️ Error: no hay usuario',false); return; }
   const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
   const email = sesion.email || '';
   try {
@@ -13413,7 +13626,7 @@ async function tcActivarPremiumConfig() {
       if (uid) await fetch('/api/usuarios/' + uid, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({premium:true, premium_hasta:dConv.hasta})}).catch(()=>{});
       var hasta = dConv.hasta ? '<div style="font-size:11px;color:var(--texto-medio);margin-top:4px">Activo hasta: ' + dConv.hasta + '</div>' : '';
       document.getElementById('tc-cod-premium').parentNode.innerHTML = '<div style="color:#4caf50;font-weight:700">✅ Premium activo</div>' + hasta;
-      alert('¡Premium activado! Activo hasta: ' + dConv.hasta);
+      toast('✅ ¡Premium activado! Hasta: '+dConv.hasta);
       return;
     }
     const res = await fetch('/api/premium/activar', {
@@ -13423,12 +13636,12 @@ async function tcActivarPremiumConfig() {
     });
     const d = await res.json();
     if (d.ok) {
-      alert('¡Premium activado! Recarga la app.');
+      toast('✅ ¡Premium activado! Recarga la app');
       _tcUsuario.premium = true;
       var hasta2 = d.hasta ? '<div style="font-size:11px;color:var(--texto-medio);margin-top:4px">Activo hasta: ' + d.hasta + '</div>' : '';
       document.getElementById('tc-cod-premium').parentNode.innerHTML = '<div style="color:#4caf50;font-weight:700">✅ Premium activo</div>' + hasta2;
     } else {
-      alert(dConv.error || d.msg || 'Código inválido');
+      toast(dConv.error || d.msg || '❌ Código inválido',false);
     }
   } catch(e) { alert('Error: ' + e.message); }
 }
@@ -13440,19 +13653,51 @@ function tcAbrirContactoAporte() {
 }
 
 function entPagarPremium() {
-  var nombre = (window._configApp && window._configApp.nombre_entrenador) ? window._configApp.nombre_entrenador : 'Entrenador';
-  var msg = 'Hola, quiero activar el Plan Premium Entrenador de DT-APP ($50.000/mes). Mi nombre es: ' + nombre;
-  var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
-  window.open(wa, '_blank');
+  var sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  var userId = sesion.id || null;
+  
+  if (!userId) toast('❌ Error: no userId',false); return;
+  fetch('/api/wompi/crear-pago', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ plan: 'entrenador_mensual', entrenador_id: userId })
+  }).then(r => r.json()).then(data => {
+    
+  }).catch(e => alert('ERROR: ' + e.message));
 }
-
 function tcPagarPremium() {
-  var nombre = (_tcUsuario && _tcUsuario.nombre) ? _tcUsuario.nombre : 'Cliente';
-  var msg = 'Hola, quiero activar el Plan Premium de DT-APP ($20.000/mes). Mi nombre es: ' + nombre;
-  var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
-  window.open(wa, '_blank');
+  var userId = (_tcUsuario && _tcUsuario.id) ? _tcUsuario.id : null;
+  if (!userId) toast('❌ Error: no se pudo identificar tu cuenta',false); return;
+  fetch('/api/wompi/crear-pago', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ plan: 'cliente_mensual', cliente_id: userId })
+  }).then(r => r.json()).then(data => {
+    if (!data.ok) toast('❌ Error al generar pago',false); return;
+    var form = document.createElement('form');
+    form.method = 'GET';
+    form.action = 'https://checkout.wompi.co/p/';
+    form.target = '_blank';
+    var campos = {
+      'public-key': data.pub_key,
+      'currency': 'COP',
+      'amount-in-cents': data.amount_in_cents,
+      'reference': data.reference,
+      'signature:integrity': data.firma,
+      'redirect-url': data.redirect_url
+    };
+    Object.entries(campos).forEach(([k,v]) => {
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = k;
+      input.value = v;
+      form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+  }).catch(() => alert('Error de conexión'));
 }
-
 function tcAportarDesarrollador() {
   var msg = 'Hola, quiero aportar al desarrollo de DT-APP ☕';
   var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
@@ -13492,12 +13737,11 @@ async function abrirSuperAdmin() {
 }
 
 async function cargarSuperAdmin() {
-  const [entrenadores, configRes, usuariosRes] = await Promise.all([
+  const [entrenadores, codigos, usuariosRes] = await Promise.all([
     fetch('/api/superadmin/entrenadores').then(r=>r.json()).catch(()=>[]),
-    fetch('/api/config?entrenador_id=ent_001').then(r=>r.json()).catch(()=>({})),
+    fetch('/api/premium/codigos').then(r=>r.json()).catch(()=>[]),
     fetch('/api/usuarios').then(r=>r.json()).catch(()=>[])
   ]);
-  const codigos = configRes.codigos_premium || [];
   const totalEnt = entrenadores.length;
   const entPremium = entrenadores.filter(e=>e.premium).length;
   const totalCli = usuariosRes.length;
@@ -13535,26 +13779,48 @@ async function cargarSuperAdmin() {
   html += '<div id="sa-codigo-resultado" style="margin-top:8px;text-align:center;font-size:13px;color:#4caf50"></div>';
   html += '</div>';
 
-  // Lista convenios
-  const convenios = codigos.filter(c => c.es_convenio || c.es_unico);
-  if (convenios.length > 0) {
+  // Códigos únicos pendientes
+  const unicosPendientes = codigos.filter(c => c.es_unico && c.activo && !c.usado);
+  if (unicosPendientes.length > 0) {
     html += '<div style="background:var(--card);border-radius:12px;padding:14px">';
-    html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:10px">🤝 Códigos de convenio</div>';
-    convenios.forEach(function(c) {
-      const usados = (c.usados||[]).length;
+    html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:10px">1️⃣ Códigos únicos pendientes</div>';
+    unicosPendientes.forEach(function(c) {
       const tipoColor = c.tipo === 'entrenador' ? '#f0a500' : '#4a9eff';
       const tipoLabel = c.tipo === 'entrenador' ? '🏋️ Entrenador' : '👤 Cliente';
-      const modalidadLabel = c.es_unico ? '1️⃣ Único' : '🔄 Convenio';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #222">';
+      html += '<div style="flex:1">';
+      html += '<div style="font-size:14px;font-weight:700;color:#f0a500;font-family:monospace">'+c.codigo+'</div>';
+      html += '<div style="font-size:11px;color:var(--texto-medio);margin-top:2px"><span style="color:'+tipoColor+'">'+tipoLabel+'</span> · '+(c.permanente||c.dias>=99999?'Permanente':c.dias+' días')+'</div>';
+      html += '</div>';
+      html += '<button onclick="saBorrarConvenio(this)" data-codigo="'+c.codigo+'" style="background:#3a1a1a;border:none;border-radius:6px;color:#e31e24;font-size:11px;padding:5px 8px;cursor:pointer;margin-left:8px">Borrar</button>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Convenios
+  const convenios = codigos.filter(c => c.es_convenio);
+  if (convenios.length > 0) {
+    html += '<div style="background:var(--card);border-radius:12px;padding:14px">';
+    html += '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:8px">🤝 Convenios activos</div>';
+    html += '<input oninput="saFiltrarConvenios(this.value)" placeholder="🔍 Buscar convenio..." style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:10px">';
+    html += '<div id="sa-lista-convenios">';
+    convenios.forEach(function(c) {
+      const hoy = new Date().toISOString().split('T')[0];
+      const usosCli = usuariosRes.filter(u => u.codigo_convenio === c.codigo && u.premium && u.premium_hasta >= hoy).length;
+      const tipoColor = c.tipo === 'entrenador' ? '#f0a500' : '#4a9eff';
+      const tipoLabel = c.tipo === 'entrenador' ? '🏋️ Entrenador' : '👤 Cliente';
+      html += '<div class="sa-convenio-row" style="padding:8px 0;border-bottom:1px solid #222">';
       html += '<div style="display:flex;justify-content:space-between;align-items:start">';
       html += '<div style="flex:1">';
       html += '<div style="font-size:14px;font-weight:700;color:#e31e24;font-family:monospace">'+c.codigo+'</div>';
-      html += '<div style="font-size:11px;color:var(--texto-medio);margin-top:2px"><span style="color:'+tipoColor+'">'+tipoLabel+'</span> · '+modalidadLabel+' · '+(c.permanente||c.dias>=99999?'Permanente':c.dias+' días')+(c.es_unico?'':' · <span style="color:#4caf50">'+usados+' usos</span>')+'</div>';
-      html += '<div style="margin-top:6px"><span style="background:'+(c.activo?'#1a3a1a':'#3a1a1a')+';color:'+(c.activo?'#4caf50':'#e31e24')+';font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">'+(c.activo?'✅ Activo':'🔴 Inactivo')+'</span></div>';
+      html += '<div style="font-size:11px;color:var(--texto-medio);margin-top:2px"><span style="color:'+tipoColor+'">'+tipoLabel+'</span> · '+(c.permanente||c.dias>=99999?'Permanente':c.dias+' días')+' · <span style="color:#4caf50">'+usosCli+' usuarios activos</span></div>';
+      html += '<div style="margin-top:4px"><span style="background:'+(c.activo?'#1a3a1a':'#3a1a1a')+';color:'+(c.activo?'#4caf50':'#e31e24')+';font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">'+(c.activo?'✅ Activo':'🔴 Inactivo')+'</span></div>';
       html += '</div>';
       html += '<button onclick="saBorrarConvenio(this)" data-codigo="'+c.codigo+'" style="background:#3a1a1a;border:none;border-radius:6px;color:#e31e24;font-size:11px;padding:5px 8px;cursor:pointer;margin-left:8px">Borrar</button>';
       html += '</div></div>';
     });
-    html += '</div>';
+    html += '</div></div>';
   }
 
   html += '</div>';
@@ -13627,7 +13893,7 @@ async function saActivarPremium(id, tipo, nombre) {
     body: JSON.stringify({id, dias})
   }).then(r=>r.json()).catch(()=>({ok:false}));
   if (res.ok) {
-    alert('✅ Premium activado hasta ' + res.hasta);
+    toast('✅ Premium activado hasta '+res.hasta);
     saBuscarUsuario();
   } else {
     alert('❌ Error: ' + (res.error||'desconocido'));
@@ -13678,33 +13944,13 @@ async function saBorrarCodigo(codigo) {
   await cargarSuperAdmin();
 }
 
-</script>
-<script>
-// Verificación de expiración de sesión
-(function() {
-  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
-  if (sesion.email && sesion.expira && new Date() > new Date(sesion.expira)) {
-    ['dt_rol','dt_cliente_tel','dt_cliente_id','dt_sesion','dt_ultimo_rol','dt_google_data'].forEach(k => localStorage.removeItem(k));
-    location.reload();
-  }
-})();
-</script>
-<script>
-// Interceptar dt_sesion — normalizar estructura y agregar expiración
-const _setItemOriginal = localStorage.setItem.bind(localStorage);
-localStorage.setItem = function(key, value) {
-  if (key === 'dt_sesion') {
-    try {
-      const data = JSON.parse(value);
-      if (!data.id && data.usuario_id) data.id = data.usuario_id;
-      if (!data.usuario_id && data.id) data.usuario_id = data.id;
-      if (!data.nombre && data.email) data.nombre = data.email.split('@')[0];
-      if (!data.rol) data.rol = 'cliente';
-      if (!data.roles) data.roles = [{rol: data.rol, id: data.id}];
-      if (!data.expira) data.expira = new Date(Date.now() + 30*24*60*60*1000).toISOString();
-      value = JSON.stringify(data);
-    } catch(e) {}
-  }
-  _setItemOriginal(key, value);
-};
+function saFiltrarConvenios(texto) {
+  const filas = document.querySelectorAll('.sa-convenio-row');
+  const q = texto.toLowerCase();
+  filas.forEach(function(f) {
+    const cod = f.querySelector('div[style*="monospace"]');
+    if (cod) f.style.display = cod.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
 </script>
