@@ -414,7 +414,7 @@ cron.schedule('* * * * *', async () => {
         if (!entTienePremium) continue;
         if (cfgEnt.cobro_auto_activo === false) continue;
 
-        const msg = usuario.msg_pago || ('Hola ' + usuario.nombre + ', recuerda que tienes un pago pendiente.');
+        const msg = usuario.estado_pago === 'proximo' ? (usuario.msg_proximo || '') : (usuario.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.');
         await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
       }
     }
@@ -684,9 +684,10 @@ app.post('/api/admin/:id', (req, res) => {
   const base = cargarJSON('administrativo.json');
   const data = cargarJSON(archivo, {clientes:{}, config: base.config});
   if(!data.clientes[req.params.id]) data.clientes[req.params.id] = {precio:0,moneda:'COP',pagos:[]};
-  const {msg_pago, ...resto} = req.body;
+  const {msg_pago, msg_proximo, ...resto} = req.body;
   Object.assign(data.clientes[req.params.id], resto);
   guardarJSON(archivo, data);
+  if(msg_proximo !== undefined){ const usuarios2 = cargarJSON('usuarios.json'); const idx2 = usuarios2.findIndex(u => String(u.id) === String(req.params.id)); if(idx2 !== -1){ usuarios2[idx2].msg_proximo = msg_proximo; guardarJSON('usuarios.json', usuarios2); } }
   if(msg_pago !== undefined){
     const usuarios = cargarJSON('usuarios.json');
     const idx = usuarios.findIndex(u => String(u.id) === String(req.params.id));

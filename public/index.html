@@ -2466,7 +2466,9 @@ async function abrirAdminCliente(id){
   html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
   html+='<div style="font-size:12px;color:var(--texto-medio);text-transform:uppercase;letter-spacing:1px">💬 Mensaje de cobro</div>';
   html+='<div style="font-size:11px;color:#e31e24;font-weight:700">'+(tipoPago==='quincenal'?'📅 Quincenal — días '+diaPago+' y '+diaPago2:'📅 Mensual — día '+diaPago)+'</div></div>';
-  html+='<textarea id="ac-msg" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:70px;box-sizing:border-box" placeholder="Mensaje de cobro...">'+(u.msg_pago||'')+'</textarea></div>';
+  html+='<textarea id="ac-msg" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:70px;box-sizing:border-box" placeholder="Mensaje 3 días antes (lo escribe el entrenador)...">'+(u.msg_pago||'')+'</textarea>';
+  html+='<div style="font-size:11px;color:var(--texto-medio);margin:8px 0 4px">💬 Mensaje de vencimiento (automático)</div>';
+  html+='<div style="font-size:12px;color:#555;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;margin-bottom:0">El día de hoy se venció tu plan de entrenamiento.</div></div>';
 
   html+='<button onclick="guardarAdminCliente('+rawId+')" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:var(--texto);font-size:14px;font-weight:700;padding:12px;cursor:pointer;margin-bottom:8px">💾 Guardar</button>';
   html+='<button onclick="enviarCobroManual(&quot;'+id+'&quot;)" style="width:100%;background:var(--card);border:1px solid #25D366;border-radius:12px;color:#25D366;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:10px">📲 Enviar cobro por WhatsApp</button>';
@@ -2549,16 +2551,17 @@ async function guardarAdminCliente(id){
   const precio=(parseFloat(document.getElementById('ac-precio').value)||0)*1000;
   const moneda=document.getElementById('ac-moneda').value;
   const msg=document.getElementById('ac-msg').value.trim();
+  const msgProximo=msg;
   const descTipo=document.getElementById('ac-desc-tipo').value;
   const descValorRaw=parseFloat(document.getElementById('ac-desc-valor').value)||0;
   const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
   const descMotivo=document.getElementById('ac-desc-motivo').value.trim();
   const _rawid=(id+'').replace('cli_','');
-  await fetch('/api/admin/'+_rawid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_pago:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
+  await fetch('/api/admin/'+_rawid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_proximo:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   if(!window._adminData.clientes[_rawid])window._adminData.clientes[_rawid]={pagos:[]};
   Object.assign(window._adminData.clientes[_rawid],{precio,moneda,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo});
   const uIdx=(window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
-  if(uIdx!==-1){window._adminUsuarios[uIdx].msg_pago=msg;window._adminUsuarios[uIdx].nombre=nombre;}
+  if(uIdx!==-1){window._adminUsuarios[uIdx].msg_proximo=msg;window._adminUsuarios[uIdx].nombre=u.nombre;}
   toast('✅ Cliente guardado');
 }
 
@@ -10494,6 +10497,15 @@ function tcTab(tab) {
 
 function tcRenderRutina(cont) {
   
+  // Verificar si cliente está pausado
+  if (_tcUsuario && _tcUsuario.activo === false) {
+    cont.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;text-align:center;padding:32px 24px">' +
+      '<div style="font-size:48px;margin-bottom:16px">⏸️</div>' +
+      '<div style="font-size:16px;font-weight:700;color:var(--texto);margin-bottom:10px">No tienes una rutina activa en este momento.</div>' +
+      '<div style="font-size:13px;color:var(--texto-medio);line-height:1.6">Contáctate con tu entrenador para empezar o reanudar tu plan de entrenamiento.</div>' +
+      '</div>';
+    return;
+  }
   // Solo dia actual visible
   const diaActual2 = DIAS_ES[new Date().getDay()];
   let diasHtml = '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;scrollbar-width:none">';
