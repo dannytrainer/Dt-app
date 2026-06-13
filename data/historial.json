@@ -93,6 +93,10 @@
       {
         "fecha": "2026-05-15",
         "valor": 47
+      },
+      {
+        "fecha": "2026-06-13",
+        "valor": 46.5
       }
     ],
     "medidas": [
@@ -128,6 +132,25 @@
           "pctGrasa": 23.1,
           "kgGrasa": 10.9,
           "kgMusculo": 36.1
+        }
+      },
+      {
+        "fecha": "2026-06-13",
+        "cintura": 62,
+        "cadera": 89.5,
+        "pecho": 72,
+        "brazo": 24.5,
+        "pierna": 48.5,
+        "hombros": 94,
+        "pantorrilla": 31,
+        "triceps": 10,
+        "subescapular": 11,
+        "abdominal": 11,
+        "suprailiaco": 6,
+        "analisis": {
+          "pctGrasa": 22.9,
+          "kgGrasa": 10.8,
+          "kgMusculo": 36.2
         }
       }
     ]

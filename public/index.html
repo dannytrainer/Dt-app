@@ -849,7 +849,7 @@ window.activarPushTrasLogin = iniciarNotificacionesPush;
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--rojo),#ff6b6b)"></div>
     <div style="margin-bottom:8px"><img src="/images/icon-horarios.png" style="width:100px;height:100px;object-fit:contain;border-radius:12px"></div>
     <div style="font-size:15px;font-weight:700;color:var(--texto)">Horarios</div>
-    <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Finanzas del negocio</div>
+    <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Gestiona tu tiempo</div>
   </div>
 </div>
 </div>
@@ -879,7 +879,7 @@ window.activarPushTrasLogin = iniciarNotificacionesPush;
 <div id="barra-pausa" style="margin-bottom:12px">
 <button onclick="abrirModalPausa()" id="btn-pausa-global" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-medio);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><span id="icono-pausa-global">⏸️</span><span id="lbl-pausa-global">Pausar envíos globalmente</span></button>
 </div>
-<div id="modal-pausa" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center">
+<div id="modal-pausa" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:80px">
 <div style="background:var(--gris);border:1px solid #333;border-radius:16px;padding:24px;width:88%;max-width:340px">
 <p style="font-size:16px;font-weight:700;margin-bottom:6px;text-align:center">⏸️ Pausar todos los envíos</p>
 <p style="font-size:12px;color:var(--texto-medio);text-align:center;margin-bottom:20px">Ningún cliente recibirá mensajes por WhatsApp. Sus estados no cambian.</p>
@@ -1155,6 +1155,7 @@ window.activarPushTrasLogin = iniciarNotificacionesPush;
 <input type="hidden" id="cliente-id">
 <div class="ig"><label>Nombre</label><input type="text" id="cliente-nombre" placeholder="Nombre del cliente"></div>
 <div class="ig"><label>Teléfono (código país + número)</label><input type="tel" id="cliente-telefono" placeholder="+57 315 6634805"></div>
+<div class="ig"><label>Correo (Gmail) - opcional</label><input type="email" id="cliente-email" placeholder="cliente@gmail.com"></div>
 <div class="ig"><label>Tipo de cliente</label>
 <select id="cliente-tipo">
 <option value="asesorado">Asesorado (recibe rutina)</option>
@@ -2200,6 +2201,7 @@ function renderAdminConfig(){
     html+='</div>';
     html+='<div id="wa-codigo-box" style="display:none;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
     html+='<div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Ingresa este código en WhatsApp → Dispositivos vinculados → Vincular con número</div>';
+    html+='<div style="font-size:10px;color:#ff9800;margin-top:6px">⏳ Ingresa el código rápido (antes de 30 seg). Si WhatsApp muestra un error al inicio, espera unos segundos: normalmente conecta igual.</div>';
     html+='<div id="wa-codigo-txt" style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>';
     html+='</div></div>';
   }
@@ -2226,7 +2228,17 @@ function renderAdminConfig(){
   }
 
   html+='</div>';
+  html+='<div style="margin-top:16px;padding:14px;background:#0a1a2a;border:1px solid #2196f3;border-radius:12px">';
+  html+='<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">💡 Sugerencias para DT-APP</div>';
+  html+='<button onclick="entSugerencias()" style="width:100%;background:#0a1a2a;border:1px solid #2196f3;border-radius:8px;color:#2196f3;font-size:13px;font-weight:700;cursor:pointer;padding:10px;box-sizing:border-box">💡 Enviar sugerencia</button>';
+  html+='</div>';
   return html;
+}
+
+function entSugerencias(){
+  var msg = 'Hola, tengo una sugerencia para DT-APP 💡: ';
+  var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
+  window.open(wa, '_blank');
 }
 
 function togglePromoPanel(){
@@ -2374,7 +2386,8 @@ async function cargarEstadoWA() {
 async function conectarMiWhatsApp() {
   const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
   const entId = sesion.id || 'ent_001';
-  const tel = prompt('Ingresa tu número de WhatsApp con código de país (ej: 573006197897):');
+  alert('PASOS PARA CONECTAR:\n\n1. Abre WhatsApp y entra a Dispositivos vinculados\n2. Toca en Anadir dispositivo\n3. Toca "Vincular con numero de telefono" (debajo del escaner)\n4. Vuelve aqui y presiona OK, luego escribe tu numero con 57 adelante\n5. Te llegara una notificacion de WhatsApp de intento de vinculacion: aceptala\n6. Copia el codigo que aparece aqui y pegalo en WhatsApp\n\nPuede salir "vinculacion fallida" pero conecta en menos de 1 minuto. Espera sin cerrar.');
+  const tel = prompt('Ingresa tu número de WhatsApp con código de país (ej: 573012345678):');
   if (!tel) return;
   const btn = document.getElementById('wa-btn-conectar');
   if (btn) { btn.textContent = '⏳ Conectando...'; btn.disabled = true; }
@@ -2561,7 +2574,7 @@ async function guardarAdminCliente(id){
   if(!window._adminData.clientes[_rawid])window._adminData.clientes[_rawid]={pagos:[]};
   Object.assign(window._adminData.clientes[_rawid],{precio,moneda,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo});
   const uIdx=(window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
-  if(uIdx!==-1){window._adminUsuarios[uIdx].msg_proximo=msg;window._adminUsuarios[uIdx].nombre=u.nombre;}
+  if(uIdx!==-1){window._adminUsuarios[uIdx].msg_proximo=msg;}
   toast('✅ Cliente guardado');
 }
 
@@ -3308,6 +3321,7 @@ const u=await res.json();
 document.getElementById('cliente-id').value=u.id;
 document.getElementById('cliente-nombre').value=u.nombre;
 document.getElementById('cliente-telefono').value=u.telefono;
+document.getElementById('cliente-email').value=u.email||'';
 document.getElementById('cliente-tipo').value=u.tipo;
 document.getElementById('cliente-pago').value=u.dia_pago||'';
 document.getElementById('cliente-pago2').value=u.dia_pago2||'';
@@ -3338,6 +3352,7 @@ const datos={
 entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'),
 nombre:document.getElementById('cliente-nombre').value.trim(),
 telefono:document.getElementById('cliente-telefono').value.replace(/\D/g,''),
+email:document.getElementById('cliente-email').value.trim(),
 tipo:document.getElementById('cliente-tipo').value,
 tipo_pago:document.getElementById('cliente-tipo-pago').value,
 dia_pago:parseInt(document.getElementById('cliente-pago').value)||null,
@@ -3388,7 +3403,7 @@ toast(activo?'✅ Activado':'⏸️ Pausado');cargarClientes();
 
 
 function avatarHTML(u){
-  const iniciales = u.nombre.split(' ').slice(0,2).map(n=>n[0].toUpperCase()).join('');
+  const iniciales = (u.nombre||'?').split(' ').slice(0,2).map(n=>n[0]?n[0].toUpperCase():'').join('') || '?';
   if(u.foto){
     return `<div class="avatar" onclick="cambiarFoto('${u.id}')"><img src="${u.foto}" onerror="this.parentElement.innerHTML='${iniciales}'"></div>`;
   }
@@ -3402,6 +3417,7 @@ async function cambiarFoto(id){
   input.onchange = async (e) => {
     const file = e.target.files[0];
     if(!file) return;
+          if(file.size > 5 * 1024 * 1024){ toast('⚠️ Imagen muy grande. Máximo 5MB', false); return; }
     const fd = new FormData();
     fd.append('foto', file);
     const res = await fetch('/api/foto-cliente/'+id, {method:'POST', body:fd});
@@ -6324,91 +6340,6 @@ function memGanar() {
 }
 
 
-var _ref = { puntos:0, mejor:0, vidas:3, activo:false, timer:null, velocidad:1800 };
-
-function reflejosInit() {
-  _ref = { puntos:0, mejor:parseInt(localStorage.getItem('ref_mejor')||0), vidas:3, activo:false, timer:null, velocidad:1800 };
-  var m = document.getElementById('ref-mejor');
-  if(m) m.textContent = _ref.mejor;
-}
-
-function reflejosStart() {
-  var btn = document.getElementById('ref-btn');
-  if(btn) btn.style.display='none';
-  var msg = document.getElementById('ref-msg');
-  if(msg) msg.style.display='none';
-  _ref.activo = true;
-  _ref.puntos = 0;
-  _ref.vidas = 3;
-  _ref.velocidad = 1800;
-  reflejosActualizar();
-  reflejosSiguiente();
-}
-
-function reflejosSiguiente() {
-  if(!_ref.activo) return;
-  var area = document.getElementById('ref-area');
-  if(!area) return;
-  var viejo = document.getElementById('ref-objetivo');
-  if(viejo) viejo.remove();
-  var size = 56;
-  var maxX = area.offsetWidth - size - 10;
-  var maxY = area.offsetHeight - size - 10;
-  var x = Math.floor(Math.random() * maxX) + 5;
-  var y = Math.floor(Math.random() * maxY) + 5;
-  var obj = document.createElement('div');
-  obj.id = 'ref-objetivo';
-  obj.textContent = '🎯';
-  obj.style.cssText = 'position:absolute;font-size:'+size+'px;cursor:pointer;transition:transform .1s;left:'+x+'px;top:'+y+'px;';
-  obj.onclick = function() { reflejosAcierto(); };
-  area.appendChild(obj);
-  _ref.timer = setTimeout(function() {
-    if(!_ref.activo) return;
-    var o = document.getElementById('ref-objetivo');
-    if(o) { o.remove(); reflejosFallo(); }
-  }, _ref.velocidad);
-}
-
-function reflejosAcierto() {
-  clearTimeout(_ref.timer);
-  _ref.puntos++;
-  _ref.velocidad = Math.max(600, _ref.velocidad - 40);
-  reflejosActualizar();
-  reflejosSiguiente();
-}
-
-function reflejosFallo() {
-  _ref.vidas--;
-  reflejosActualizar();
-  if(_ref.vidas <= 0) {
-    reflejosGameOver();
-  } else {
-    reflejosSiguiente();
-  }
-}
-
-function reflejosGameOver() {
-  _ref.activo = false;
-  clearTimeout(_ref.timer);
-  if(_ref.puntos > _ref.mejor) {
-    _ref.mejor = _ref.puntos;
-    localStorage.setItem('ref_mejor', _ref.mejor);
-    var m = document.getElementById('ref-mejor');
-    if(m) m.textContent = _ref.mejor;
-  }
-  var area = document.getElementById('ref-area');
-  if(area) area.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px"><div style="font-size:40px">💀</div><div style="font-size:16px;font-weight:700;color:#e31e24">Game Over</div><div style="font-size:13px;color:var(--texto-secundario)">Puntos: '+_ref.puntos+'</div></div>';
-  var btn = document.getElementById('ref-btn');
-  if(btn) { btn.textContent='🔄 Intentar de nuevo'; btn.style.display='block'; }
-}
-
-function reflejosActualizar() {
-  var p = document.getElementById('ref-puntos');
-  var v = document.getElementById('ref-vidas');
-  if(p) p.textContent = _ref.puntos;
-  if(v) v.textContent = '❤️'.repeat(_ref.vidas) || '🖤🖤🖤';
-}
-
 function renderTriqui(c) {
   bloquearSwipe();
   c.innerHTML = `
@@ -8715,6 +8646,8 @@ function hiitDragEnd(){
 
 async function hiitGuardar(){
   if(!entEsPremium()){mostrarCandadoPremium('Guardar circuitos requiere Plan Premium.');return;}
+  const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+  _hiitActual.entrenador_id = _eid;
   await fetch('/api/hiit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_hiitActual)});
   await hiitCargar();
   toast('💾 Circuito guardado');
@@ -9568,6 +9501,7 @@ function filtrarRutinas(){
       </div>
       <div id="wa-codigo-box" style="display:none;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
         <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Ingresa este c&oacute;digo en WhatsApp &rarr; Dispositivos vinculados &rarr; Vincular con n&uacute;mero</div>
+      <div style="font-size:10px;color:#ff9800;margin-top:6px">⏳ Ingresa el código rápido (antes de 30 seg). Si WhatsApp muestra un error al inicio, espera unos segundos: normalmente conecta igual.</div>
         <div id="wa-codigo-txt" style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>
       </div>
       <button id="wa-btn-conectar" onclick="conectarMiWhatsApp()" style="display:none;width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer">&#128242; Conectar WhatsApp</button>
@@ -9633,7 +9567,14 @@ function filtrarRutinas(){
       </div>
       <span style="color:#555;font-size:18px">&#8250;</span>
     </div>
-    <div id="btn-superadmin" style="display:none"></div>
+    <div onclick="entSugerencias()" style="background:#0a1a2a;border:1px solid #2196f3;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-top:4px">
+  <div>
+    <div style="font-size:13px;font-weight:700;color:#2196f3">&#128161; Sugerencias</div>
+    <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Env&iacute;a tus ideas para mejorar DT-APP</div>
+  </div>
+  <span style="color:#2196f3;font-size:18px">&#8250;</span>
+</div>
+<div id="btn-superadmin" style="display:none"></div>
     <div id="dt-version-tap" onclick="dtVersionTap()" style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;text-align:center;cursor:pointer;user-select:none;margin-top:8px">
       <div style="font-size:11px;color:var(--texto-medio)">DT-APP · Versión 1.0.0</div>
       <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">© 2026 Danny Trainer</div>
@@ -10730,7 +10671,7 @@ function tcVerDia(dia) {
     if (ej.var) html += '<div onclick="tcScrollNotas()" style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px;cursor:pointer"><div style="font-size:16px;font-weight:900;color:#e31e24">' + ej.var + '</div><div style="font-size:9px;color:#e31e24;text-transform:uppercase">VAR</div></div>';
     html += '</div>';
     html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">' + bombillas + '</div>';
-    html += '<button onclick="tcSerie(' + i + ',' + (parseInt(ej.desc)||60) + ',' + series + ')" id="tc-btn-serie-' + i + '" style="width:100%;padding:7px 10px;border-radius:8px;border:none;background:#e31e24;color:#fff;font-size:12px;font-weight:700;cursor:pointer">✅ Serie 1 de ' + series + '</button>';
+    html += '<button onclick="tcSerie(' + i + ',' + (parseInt(ej.desc)||0) + ',' + series + ')" id="tc-btn-serie-' + i + '" style="width:100%;padding:7px 10px;border-radius:8px;border:none;background:#e31e24;color:#fff;font-size:12px;font-weight:700;cursor:pointer">✅ Serie 1 de ' + series + '</button>';
     html += '</div>';
   });
   if (notas) {
@@ -10837,6 +10778,7 @@ function tcSerie(ejIdx, descanso, totalSeries) {
   if (_tcTimer) clearInterval(_tcTimer);
   if (_tcToast) _tcToast.remove();
   let seg = descanso;
+  if (!seg || seg <= 0) return;
   _tcToast = document.createElement('div');
   _tcToast.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px';
   _tcToast.innerHTML = '<div style="font-size:13px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:2px">⏱ Descanso</div><div id="tc-timer-txt" style="font-size:80px;font-weight:900;color:#e31e24;font-family:monospace;line-height:1">' + seg + '</div><div style="font-size:13px;color:var(--texto-medio)">segundos</div><button onclick="tcPararTimer()" style="margin-top:12px;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:var(--texto-medio);font-size:13px;font-weight:700;padding:10px 30px;cursor:pointer">■ Saltar descanso</button>';
@@ -11230,7 +11172,11 @@ async function tcEnviarMensaje() {
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({autor: 'cliente', tipo: 'texto', contenido: texto})
   });
-  tcIniciarPollingBadge(); // resetear timer para evitar badge falso
+  // Esperar 3 segundos antes de verificar badge para evitar falso positivo
+  setTimeout(() => {
+    tcIniciarPollingBadge();
+    tcVerificarMensajesNuevos();
+  }, 3000);
   tcCargarMensajes();
 }
 
@@ -11456,19 +11402,6 @@ function tcRenderProgreso(cont) {
   });
 }
 
-async function tcVincularEntrenador() {
-  const codigo = document.getElementById('tc-codigo-ent').value.trim().toUpperCase();
-  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
-  const res = await fetch('/api/clientes/vincular-entrenador', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ cliente_id: sesion.id, codigo })
-  });
-  const data = await res.json();
-  if (data.ok) { toast('✅ Vinculado con ' + data.nombre_entrenador); setTimeout(() => location.reload(), 1500); }
-  else toast('❌ ' + (data.error || 'Código inválido'));
-}
-
 function tcRenderPerfil(cont) {
   const u = _tcUsuario || {};
   const p = u.perfil || {};
@@ -11542,13 +11475,7 @@ function tcRenderPerfil(cont) {
     html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px"><div style="font-size:12px;color:#888;line-height:1.6">' + p.preferencias_alimentarias + '</div></div>';
   }
 
-  html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:16px">🔗 Vincular entrenador</div>';
-  html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
-  html += '<div style="font-size:12px;color:var(--texto-medio);margin-bottom:8px">Si tienes un código de entrenador, ingrésalo aquí</div>';
-  html += '<input id="tc-codigo-ent" placeholder="DT-XXXX-XXXX-XXXX" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px;text-transform:uppercase">';
-  html += '<button onclick="tcVincularEntrenador()" style="width:100%;padding:10px;border-radius:8px;border:none;background:#e31e24;color:#fff;font-size:13px;font-weight:700;cursor:pointer">🔗 Vincular</button>';
-  html += '</div>';
-  html += '<button onclick="cerrarSesionGoogle()" style="width:100%;padding:14px;border-radius:12px;border:1px solid #2a2a2a;background:#111;color:#666;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">🚪 Cerrar sesión</button>';
+    html += '<button onclick="cerrarSesionGoogle()" style="width:100%;padding:14px;border-radius:12px;border:1px solid #2a2a2a;background:#111;color:#666;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">🚪 Cerrar sesión</button>';
   html += '</div>';
   cont.innerHTML = html;
 }
@@ -12164,6 +12091,7 @@ function encEditarFicha(id) {
   if (!e) return;
   var cont = document.getElementById("enc-contenido");
   if (!cont) return;
+  function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   var html = "<div style=\"padding:10px\">";
   html += "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:16px\">";
@@ -12173,7 +12101,7 @@ function encEditarFicha(id) {
 
   html += "<div style=\"margin-bottom:12px\">";
   html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Nombre</div>";
-  html += "<input id=\"enc-edit-nombre\" value=\"" + e.nombre + "\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none\">";
+  html += "<input id=\"enc-edit-nombre\" value=\"" + escHtml(e.nombre) + "\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none\">";
   html += "</div>";
 
   var grupos = ["pecho","espalda","hombros","brazos","piernas","gluteos","core","cardio"];
@@ -12185,12 +12113,12 @@ function encEditarFicha(id) {
 
   html += "<div style=\"margin-bottom:12px\">";
   html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">M&uacute;sculos principales (separados por coma)</div>";
-  html += "<input id=\"enc-edit-musculos-p\" value=\"" + (e.musculos_principales||[]).join(', ') + "\" placeholder=\"Ej: cuádriceps, glúteos\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box\">";
+  html += "<input id=\"enc-edit-musculos-p\" value=\"" + escHtml((e.musculos_principales||[]).join(', ')) + "\" placeholder=\"Ej: cuádriceps, glúteos\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box\">";
   html += "</div>";
 
   html += "<div style=\"margin-bottom:12px\">";
   html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">M&uacute;sculos secundarios (separados por coma)</div>";
-  html += "<input id=\"enc-edit-musculos-s\" value=\"" + (e.musculos_secundarios||[]).join(', ') + "\" placeholder=\"Ej: core, lumbares\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box\">";
+  html += "<input id=\"enc-edit-musculos-s\" value=\"" + escHtml((e.musculos_secundarios||[]).join(', ')) + "\" placeholder=\"Ej: core, lumbares\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box\">";
   html += "</div>";
 
   html += "<div style=\"margin-bottom:12px\">";
@@ -12676,7 +12604,7 @@ function entVerTerminosCompletos() {
   h += "<b style='color:#fff'>Cl. 1.6.</b> Prohibido usar la plataforma para fines ilegales o ajenos al acondicionamiento f&iacute;sico.</div></div>";
   h += "<div><div style='font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px'>2. Privacidad y Datos Personales</div><div style='color:#aaa'>";
   h += "<b style='color:#fff'>Cl. 2.1.</b> Cumple Ley 1581/2012 y Decreto 1074/2015.<br><br>";
-  h += "<b style='color:#fff'>Cl. 2.2.</b> Toda informaci&oacute;n se almacena localmente en el dispositivo del Entrenador. DT-APP no posee servidores centrales.<br><br>";
+  h += "<b style='color:#fff'>Cl. 2.2.</b> La informaci&oacute;n se almacena en infraestructura controlada por el Entrenador. DT-APP no comparte datos con terceros ni los utiliza con fines distintos a la prestaci&oacute;n del servicio.<br><br>";
   h += "<b style='color:#fff'>Cl. 2.3.</b> El Entrenador es Responsable del Tratamiento. DT-APP es proveedor tecnol&oacute;gico sin acceso a los datos.<br><br>";
   h += "<b style='color:#fff'>Cl. 2.4.</b> El Cliente autoriza al Entrenador a visualizar sus datos con fines deportivos. El Entrenador no podr&aacute; transferirlos a terceros.<br><br>";
   h += "<b style='color:#fff'>Cl. 2.5.</b> Solicitudes de supresi&oacute;n de datos deben dirigirse al Entrenador.<br><br>";
@@ -12841,9 +12769,9 @@ function tcAbrirConfig() {
   // APORTE AL DESARROLLADOR
   var devDiv = document.createElement('div');
   devDiv.style.cssText = 'background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:16px';
-  devDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:8px">☕ Invita un café al desarrollador</div>' +
+  devDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:8px">💡 Sugerencias para DT-APP</div>' +
     '<div style="font-size:12px;color:var(--texto-medio);line-height:1.6;margin-bottom:12px">¿Te gusta la app? Puedes apoyar su desarrollo con lo que quieras. Cada aporte ayuda a seguir mejorando.</div>' +
-    '<button onclick="tcAportarDesarrollador()" style="width:100%;background:#0a1a2a;border:1px solid #2196f3;border-radius:8px;color:#2196f3;font-size:13px;font-weight:700;cursor:pointer;padding:10px;box-sizing:border-box">☕ Aportar al desarrollador</button>';
+    '<button onclick="tcAportarDesarrollador()" style="width:100%;background:#0a1a2a;border:1px solid #2196f3;border-radius:8px;color:#2196f3;font-size:13px;font-weight:700;cursor:pointer;padding:10px;box-sizing:border-box">☕ 💡 Sugerencias</button>';
   body.appendChild(devDiv);
 
   seccion('&#128221; Información');
@@ -12918,7 +12846,7 @@ function tcVerCompletosTerminos() {
   el.appendChild(header);
   var cont = document.createElement('div');
   cont.style.cssText = 'padding:20px;color:var(--texto-suave);font-size:12px;line-height:1.8;display:flex;flex-direction:column;gap:20px';
-  cont.innerHTML = '<div style="font-size:10px;color:var(--texto-medio);text-align:center">DT-APP &middot; @dt_entrenamientos &middot; Colombia &middot; Mayo 2026<br>Marco: Cód. Comercio &middot; Ley 1480/2011 &middot; Ley 1581/2012 &middot; Decreto 1074/2015 &middot; Ley 527/1999</div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">1. Términos y Condiciones</div><div style="color:var(--texto-medio)"><b style="color:#fff">Cl. 1.1.</b> Contrato de adhesión electrónico válido conforme Ley 527/1999 y Cód. Comercio. El uso implica aceptación incondicional.<br><br><b style="color:#fff">Cl. 1.2.</b> DT-APP es exclusivamente herramienta SaaS de gestión deportiva. No es IPS, no provee servicios médicos ni nutricionales clínicos.<br><br><b style="color:#fff">Cl. 1.3.</b> Acceso restringido a mayores de 18 años. Menores requieren autorización de representante legal.<br><br><b style="color:#fff">Cl. 1.4.</b> Pagos entre entrenador y cliente son directos y externos. DT-APP no intermedia. Aportes al Plan Premium son voluntarios y no reembolsables.<br><br><b style="color:#fff">Cl. 1.5.</b> Código fuente, diseños y marcas protegidos por Ley 23/1982, Ley 1915/2018 y Decisión Andina 486/2000. Licencia personal, revocable y no transferible.<br><br><b style="color:#fff">Cl. 1.6.</b> Prohibido usar la plataforma para difundir material ilegal, alterar su funcionamiento o fines ajenos al acondicionamiento físico.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">2. Privacidad y Datos Personales</div><div style="color:var(--texto-medio)"><b style="color:#fff">Cl. 2.1.</b> Cumple Ley 1581/2012 y Decreto 1074/2015.<br><br><b style="color:#fff">Cl. 2.2.</b> Toda información se almacena únicamente de forma local en el dispositivo del Entrenador. DT-APP no posee servidores centrales.<br><br><b style="color:#fff">Cl. 2.3.</b> El Entrenador es Responsable del Tratamiento. DT-APP es proveedor tecnológico sin acceso a los datos.<br><br><b style="color:#fff">Cl. 2.4.</b> Al vincularse, el Cliente autoriza al Entrenador a visualizar sus datos con fines deportivos. El Entrenador no podrá transferirlos a terceros.<br><br><b style="color:#fff">Cl. 2.5.</b> Solicitudes de supresión de datos deben dirigirse directamente al Entrenador.<br><br><b style="color:#fff">Cl. 2.6.</b> Cada usuario es responsable de la seguridad de su dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">3. Almacenamiento Local</div><div style="color:var(--texto-medio)">DT-APP no implementa cookies de rastreo. Usa LocalStorage funcional para sesión, plantillas e historial deportivo. El usuario puede eliminar estos datos desde configuración del dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">4. Descargo de Responsabilidad</div><div style="color:var(--texto-medio)"><b style="color:#fff">Cl. 4.1.</b> DT-APP no provee asesoramiento médico. No reemplaza consulta profesional.<br><br><b style="color:#fff">Cl. 4.2.</b> El Cliente asume voluntariamente los riesgos de la práctica física. DT-APP no responde por lesiones derivadas de ejecución incorrecta, preexistencias médicas o condiciones de instalaciones.<br><br><b style="color:#fff">Cl. 4.3.</b> Los planes alimentarios son orientativos. No reemplazan al nutricionista certificado.<br><br><b style="color:#fff">Cl. 4.4.</b> Es responsabilidad del Cliente verificar certificaciones del Entrenador. DT-APP desaprueba planes genéricos sin fundamento técnico.<br><br><b style="color:#fff">Cl. 4.5.</b> Toda controversia se rige por leyes de Colombia. Jurisdicción: tribunales de Medellín.</div></div><div style="font-size:10px;color:#333;text-align:center;padding:8px 0">Al usar DT-APP aceptas la totalidad de este Corpus Legal.<br>DT-APP &middot; @dt_entrenamientos &middot; Colombia, 2026</div>';
+  cont.innerHTML = '<div style="font-size:10px;color:var(--texto-medio);text-align:center">DT-APP &middot; @dt_entrenamientos &middot; Colombia &middot; Mayo 2026<br>Marco: Cód. Comercio &middot; Ley 1480/2011 &middot; Ley 1581/2012 &middot; Decreto 1074/2015 &middot; Ley 527/1999</div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">1. Términos y Condiciones</div><div style="color:var(--texto-medio)"><b style="color:#fff">Cl. 1.1.</b> Contrato de adhesión electrónico válido conforme Ley 527/1999 y Cód. Comercio. El uso implica aceptación incondicional.<br><br><b style="color:#fff">Cl. 1.2.</b> DT-APP es exclusivamente herramienta SaaS de gestión deportiva. No es IPS, no provee servicios médicos ni nutricionales clínicos.<br><br><b style="color:#fff">Cl. 1.3.</b> Acceso restringido a mayores de 18 años. Menores requieren autorización de representante legal.<br><br><b style="color:#fff">Cl. 1.4.</b> Pagos entre entrenador y cliente son directos y externos. DT-APP no intermedia. Aportes al Plan Premium son voluntarios y no reembolsables.<br><br><b style="color:#fff">Cl. 1.5.</b> Código fuente, diseños y marcas protegidos por Ley 23/1982, Ley 1915/2018 y Decisión Andina 486/2000. Licencia personal, revocable y no transferible.<br><br><b style="color:#fff">Cl. 1.6.</b> Prohibido usar la plataforma para difundir material ilegal, alterar su funcionamiento o fines ajenos al acondicionamiento físico.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">2. Privacidad y Datos Personales</div><div style="color:var(--texto-medio)"><b style="color:#fff">Cl. 2.1.</b> Cumple Ley 1581/2012 y Decreto 1074/2015.<br><br><b style="color:#fff">Cl. 2.2.</b> La información se almacena en infraestructura controlada por el Entrenador. DT-APP no comparte datos con terceros ni los utiliza con fines distintos a la prestación del servicio.<br><br><b style="color:#fff">Cl. 2.3.</b> El Entrenador es Responsable del Tratamiento. DT-APP es proveedor tecnológico sin acceso a los datos.<br><br><b style="color:#fff">Cl. 2.4.</b> Al vincularse, el Cliente autoriza al Entrenador a visualizar sus datos con fines deportivos. El Entrenador no podrá transferirlos a terceros.<br><br><b style="color:#fff">Cl. 2.5.</b> Solicitudes de supresión de datos deben dirigirse directamente al Entrenador.<br><br><b style="color:#fff">Cl. 2.6.</b> Cada usuario es responsable de la seguridad de su dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">3. Almacenamiento Local</div><div style="color:var(--texto-medio)">DT-APP no implementa cookies de rastreo. Usa LocalStorage funcional para sesión, plantillas e historial deportivo. El usuario puede eliminar estos datos desde configuración del dispositivo.</div></div><div><div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:8px">4. Descargo de Responsabilidad</div><div style="color:var(--texto-medio)"><b style="color:#fff">Cl. 4.1.</b> DT-APP no provee asesoramiento médico. No reemplaza consulta profesional.<br><br><b style="color:#fff">Cl. 4.2.</b> El Cliente asume voluntariamente los riesgos de la práctica física. DT-APP no responde por lesiones derivadas de ejecución incorrecta, preexistencias médicas o condiciones de instalaciones.<br><br><b style="color:#fff">Cl. 4.3.</b> Los planes alimentarios son orientativos. No reemplazan al nutricionista certificado.<br><br><b style="color:#fff">Cl. 4.4.</b> Es responsabilidad del Cliente verificar certificaciones del Entrenador. DT-APP desaprueba planes genéricos sin fundamento técnico.<br><br><b style="color:#fff">Cl. 4.5.</b> Toda controversia se rige por leyes de Colombia. Jurisdicción: tribunales de Medellín.</div></div><div style="font-size:10px;color:#333;text-align:center;padding:8px 0">Al usar DT-APP aceptas la totalidad de este Corpus Legal.<br>DT-APP &middot; @dt_entrenamientos &middot; Colombia, 2026</div>';
   el.appendChild(cont);
   document.body.appendChild(el);
 }
@@ -13711,7 +13639,7 @@ function tcPagarPremium() {
   }).catch(() => alert('Error de conexión'));
 }
 function tcAportarDesarrollador() {
-  var msg = 'Hola, quiero aportar al desarrollo de DT-APP ☕';
+  var msg = 'Hola, tengo una sugerencia para DT-APP 💡: ';
   var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
   window.open(wa, '_blank');
 }

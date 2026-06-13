@@ -5,7 +5,7 @@
     "nombre": "Yo",
     "telefono": "573006197897",
     "tipo": "asesorado",
-    "dia_pago": 10,
+    "dia_pago": 1,
     "estado_pago": "aldia",
     "perfil": {
       "fecha_inicio": "2026-05-09",
@@ -16,7 +16,9 @@
       "etiqueta": "hipertrofia",
       "notas": "Todo",
       "unidades": "kg",
-      "fecha_nacimiento": "2026-05-22"
+      "fecha_nacimiento": "2026-05-22",
+      "condiciones_medicas": "",
+      "preferencias_alimentarias": ""
     },
     "tipo_pago": "mensual",
     "dia_pago2": null,
@@ -35,7 +37,8 @@
     },
     "entrenador_id": "ent_001",
     "premium": true,
-    "premium_hasta": "2026-07-04"
+    "premium_hasta": "2026-07-04",
+    "email": "danielgaviriabotero@gmail.com"
   },
   {
     "id": "cli_1778354312296",
@@ -102,7 +105,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 16,
     "dia_pago2": null,
-    "estado_pago": "aldia",
+    "estado_pago": "proximo",
     "perfil": {
       "fecha_inicio": "2026-05-11",
       "sexo": "F",
@@ -178,7 +181,7 @@
     "tipo_pago": "mensual",
     "dia_pago": 16,
     "dia_pago2": null,
-    "estado_pago": "aldia",
+    "estado_pago": "proximo",
     "perfil": {
       "fecha_inicio": "2026-05-09",
       "sexo": "F",
@@ -494,6 +497,52 @@
     "entrenador_id": "ent_1781139558635",
     "nombre": "1",
     "telefono": "1",
+    "tipo": "asesorado",
+    "tipo_pago": "mensual",
+    "dia_pago": null,
+    "dia_pago2": null,
+    "estado_pago": "aldia"
+  },
+  {
+    "id": "cli_1781299204478",
+    "activo": true,
+    "nombre": "Juanita Gaviria",
+    "telefono": "gaviriajuanita208@gmail.com",
+    "tipo": "asesorado",
+    "hora_envio": "08:00",
+    "dia_pago": 1,
+    "estado_pago": "aldia",
+    "perfil": {
+      "fecha_inicio": "2026-06-12",
+      "sexo": "",
+      "edad": "",
+      "altura": "",
+      "objetivo": "",
+      "etiqueta": "general",
+      "notas": "",
+      "unidades": "kg",
+      "fecha_nacimiento": ""
+    },
+    "tipo_pago": "mensual",
+    "dia_pago2": null,
+    "sesiones_total": 0,
+    "sesiones_ciclo": 0,
+    "ciclo_inicio": "2026-06-12",
+    "msg_pago": "",
+    "msg_q1": "",
+    "msg_q2": "",
+    "foto": "",
+    "vinculado": true,
+    "entrenador_id": "ent_1781295811390",
+    "dias_desbloqueados": {}
+  },
+  {
+    "id": "1781311302756",
+    "activo": false,
+    "entrenador_id": "ent_1781310988441",
+    "nombre": "1",
+    "telefono": "1",
+    "email": "",
     "tipo": "asesorado",
     "tipo_pago": "mensual",
     "dia_pago": null,

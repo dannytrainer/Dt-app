@@ -1,90 +1,9 @@
 {
-  "nombre_entrenador": "Danny-trainer",
-  "logo_entrenador": "/logo_trainer.png",
-  "color_acento": "#e31e24",
-  "colores": {
-    "--rojo": "#ff0000",
-    "--fondo": "#000000",
-    "--card": "#000000",
-    "--gris": "#1a1a1a",
-    "--chip-activos": "#00ff00",
-    "--chip-person": "#ffffff",
-    "--chip-asesor": "#ffffff",
-    "--chip-pausados": "#666",
-    "--test-fuerza": "#ff0000",
-    "--test-resist": "#4a9eff",
-    "--test-especif": "#9c27b0"
-  },
-  "envios_pausados_hasta": null,
-  "instagram_entrenador": "@Dt-entrenamientos",
-  "tema": "oscuro",
+  "premium_entrenador": true,
+  "premium_entrenador_hasta": "2300-03-25",
   "codigo_vinculacion": "8DKS-NM5X-WHYW",
-  "codigos_premium": [
-    {
-      "codigo": "DANIEL",
-      "usado": true,
-      "dias": 99999,
-      "permanente": true,
-      "es_convenio": false,
-      "es_unico": true,
-      "tipo": "entrenador",
-      "activo": false,
-      "usados": [],
-      "fechaCreacion": "2026-06-10T01:35:51.598Z",
-      "usadoPor": "danielgaviriabotero@gmail.com",
-      "fechaUso": "2026-06-10T01:36:39.470Z"
-    },
-    {
-      "codigo": "DANIELYO",
-      "usado": false,
-      "dias": 99999,
-      "permanente": true,
-      "es_convenio": false,
-      "es_unico": true,
-      "tipo": "entrenador",
-      "activo": true,
-      "usados": [],
-      "fechaCreacion": "2026-06-10T01:36:16.034Z"
-    },
-    {
-      "codigo": "NATI123",
-      "usado": true,
-      "dias": 30,
-      "permanente": false,
-      "es_convenio": false,
-      "es_unico": true,
-      "tipo": "cliente",
-      "activo": false,
-      "usados": [],
-      "fechaCreacion": "2026-06-11T23:34:23.244Z",
-      "usadoPor": "msepulveda244@gmail.com",
-      "fechaUso": "2026-06-11T23:36:08.968Z"
-    },
-    {
-      "codigo": "JOSUE",
-      "usado": false,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": false,
-      "es_unico": true,
-      "tipo": "entrenador",
-      "activo": true,
-      "usados": [],
-      "fechaCreacion": "2026-06-12T05:05:56.263Z"
-    },
-    {
-      "codigo": "TEST",
-      "usado": false,
-      "dias": 7,
-      "permanente": false,
-      "es_convenio": true,
-      "es_unico": false,
-      "tipo": "cliente",
-      "activo": true,
-      "usados": [],
-      "fechaCreacion": "2026-06-12T05:06:49.545Z"
-    }
-  ],
+  "instagram_entrenador": "@Dt-entrenamientos",
   "entrenador_id": "ent_001",
-  "cobro_auto_activo": true
+  "cobro_auto_activo": true,
+  "logo_entrenador": "/logo_trainer.png"
 }

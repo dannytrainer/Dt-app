@@ -70,9 +70,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+const _secrets = JSON.parse(require('fs').readFileSync('./data/secrets.json', 'utf8'));
 passport.use(new GoogleStrategy({
   clientID: '822565773866-vpneg50rh8k0dm69mfd7biahmstns5pr.apps.googleusercontent.com',
-  clientSecret: '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',
+  clientSecret: _secrets.google_client_secret,
   callbackURL: 'https://dt-app.net/auth/google/callback'
 }, (accessToken, refreshToken, profile, done) => {
   const email = profile.emails[0].value;
@@ -294,9 +295,12 @@ app.get('/api/wa/estado', (req, res) => {
 
 app.post('/api/clientes/vincular-entrenador', (req, res) => {
   const { cliente_id, codigo } = req.body;
+  if (!cliente_id || !codigo) return res.json({ ok: false, error: 'Faltan datos' });
   const cuentas = cargarJSON('cuentas.json', { entrenadores: [], clientes: [] });
   const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion === codigo.toUpperCase());
+  if (!ent) return res.json({ ok: false, error: 'Código incorrecto' });
   const cli = cuentas.clientes.find(c => c.id === cliente_id);
+  if (!cli) return res.json({ ok: false, error: 'Cliente no encontrado' });
   cli.entrenador_id = ent.id;
   guardarJSON('cuentas.json', cuentas);
   res.json({ ok: true, nombre_entrenador: ent.nombre });
@@ -391,13 +395,6 @@ cron.schedule('* * * * *', async () => {
       return;
     }
 
-    // Respetar pausa global
-    const cfg = cargarJSON('config.json');
-    const pausadoHasta = cfg.envios_pausados_hasta || null;
-    if (pausadoHasta) {
-      if (pausadoHasta === 'indefinido') return;
-      if (new Date(pausadoHasta) >= new Date(hoy)) return;
-    }
 
     // Cobros automaticos - hora fija 8:37 am
     const HORA_COBRO = 8, MIN_COBRO = 37;
@@ -409,6 +406,12 @@ cron.schedule('* * * * *', async () => {
 
         const entId_cron = usuario.entrenador_id || 'ent_001';
         const cfgEnt = cargarJSON('config_' + entId_cron + '.json', {});
+        // Respetar pausa por entrenador
+        const pausaEnt = cfgEnt.envios_pausados_hasta || null;
+        if (pausaEnt) {
+          if (pausaEnt === 'indefinido') continue;
+          if (new Date(pausaEnt) >= new Date(hoy)) continue;
+        }
         const hoy_cron = new Date().toISOString().split('T')[0];
         const entTienePremium = cfgEnt.premium_entrenador && cfgEnt.premium_entrenador_hasta && cfgEnt.premium_entrenador_hasta >= hoy_cron;
         if (!entTienePremium) continue;
@@ -446,13 +449,22 @@ app.get('/api/usuarios/:id', (req, res) => {
 });
 app.post('/api/usuarios', (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
-  const nuevo = { id: Date.now().toString(), activo: true, entrenador_id: req.body.entrenador_id || 'ent_001', ...req.body };
+  const nuevo = { id: 'cli_' + Date.now().toString(), activo: true, entrenador_id: req.body.entrenador_id || 'ent_001', ...req.body };
   usuarios.push(nuevo);
   const carpetaFotos = path.join(__dirname, 'data/fotos', nuevo.id);
   fs.mkdirSync(path.join(carpetaFotos, 'antes'), { recursive: true });
   fs.mkdirSync(path.join(carpetaFotos, 'despues'), { recursive: true });
   guardarJSON('usuarios.json', usuarios);
   res.json(nuevo);
+});
+
+app.post('/api/usuarios/:id/perfil-admin', (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const idx = usuarios.findIndex(u => u.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
+  usuarios[idx].perfil = { ...(usuarios[idx].perfil || {}), ...req.body };
+  guardarJSON('usuarios.json', usuarios);
+  res.json({ ok: true, perfil: usuarios[idx].perfil });
 });
 // ---- CHAT INTERNO ----
 app.get('/api/chat/:id', (req, res) => {
@@ -599,6 +611,19 @@ app.put('/api/usuarios/:id', (req, res) => {
   if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
   usuarios[idx] = { ...usuarios[idx], ...req.body };
   guardarJSON('usuarios.json', usuarios);
+
+  if (req.body.email) {
+    const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
+    if (!cuentas.clientes) cuentas.clientes = [];
+    const cIdx = cuentas.clientes.findIndex(c => c.usuario_id === usuarios[idx].id);
+    if (cIdx !== -1) {
+      cuentas.clientes[cIdx].email = req.body.email;
+    } else {
+      cuentas.clientes.push({ email: req.body.email, usuario_id: usuarios[idx].id, nombre: usuarios[idx].nombre });
+    }
+    guardarJSON('cuentas.json', cuentas);
+  }
+
   res.json(usuarios[idx]);
 });
 app.delete('/api/usuarios/:id', (req, res) => {
@@ -639,7 +664,7 @@ app.post('/api/hiit', (req, res) => {
   const data = cargarJSON('hiit.json');
   const circuito = req.body;
   if(!circuito.id) circuito.id = Date.now();
-  if(!circuito.entrenador_id) circuito.entrenador_id = 'ent_001';
+  if(!circuito.entrenador_id) return res.json({ok:false, error:'Falta entrenador_id'});
   const idx = data.findIndex(c => c.id === circuito.id);
   if(idx >= 0) data[idx] = circuito;
   else data.push(circuito);
@@ -657,7 +682,9 @@ app.delete('/api/hiit/:id', (req, res) => {
 // SUBIR LOGO
 app.post('/api/config/logo', upload.single('logo'), (req, res) => {
   if(!req.file) return res.status(400).json({error:'No file'});
-  const cfg = cargarJSON('config.json');
+  const eid_logo = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const archivoLogo = 'config_' + eid_logo + '.json';
+  const cfg = cargarJSON(archivoLogo, {});
   cfg.logo_entrenador = '/logo_trainer.png';
   guardarJSON('config.json', cfg);
   res.json({ok:true, path:'/logo_trainer.png'});
@@ -690,7 +717,7 @@ app.post('/api/admin/:id', (req, res) => {
   if(msg_proximo !== undefined){ const usuarios2 = cargarJSON('usuarios.json'); const idx2 = usuarios2.findIndex(u => String(u.id) === String(req.params.id)); if(idx2 !== -1){ usuarios2[idx2].msg_proximo = msg_proximo; guardarJSON('usuarios.json', usuarios2); } }
   if(msg_pago !== undefined){
     const usuarios = cargarJSON('usuarios.json');
-    const idx = usuarios.findIndex(u => String(u.id) === String(req.params.id));
+    const idx = usuarios.findIndex(u => String(u.id) === String(req.params.id) || String(u.id) === 'cli_' + String(req.params.id));
     if(idx !== -1){ usuarios[idx].msg_pago = msg_pago; guardarJSON('usuarios.json', usuarios); }
   }
   res.json({ok:true});
@@ -730,7 +757,7 @@ app.get('/api/config', (req, res) => {
 app.post('/api/config', (req, res) => {
   const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
   const archivo = 'config_' + eid + '.json';
-  const cfg = cargarJSON(archivo, cargarJSON('config.json'));
+  const cfg = cargarJSON(archivo, {});
   Object.assign(cfg, req.body);
   guardarJSON(archivo, cfg);
   res.json({ok:true});
@@ -1284,7 +1311,8 @@ app.post('/api/premium/activar', (req, res) => {
 
 // PREMIUM — activar entrenador
 app.post('/api/premium/activar-entrenador', (req, res) => {
-  const { codigo } = req.body;
+  const { codigo, entrenador_id } = req.body;
+  if (!entrenador_id) return res.json({ ok: false, msg: 'Falta entrenador_id' });
   if (!codigo) return res.json({ ok: false, msg: 'Falta el código' });
   const config = cargarJSON('config.json', {});
   const codigos = config.codigos_premium || [];
@@ -1421,7 +1449,6 @@ app.post('/api/convenio/activar', (req, res) => {
     }
     if (!u && cod.es_unico) { res.json({ ok: true, hasta: hastaStr, dias }); return; }
     if (!u) return res.json({ ok: false, error: 'Cliente no encontrado' });
-    if (!u && cod.es_unico) { res.json({ ok: true, hasta: hastaStr, dias }); return; }
     u.premium = true;
     u.premium_hasta = hastaStr;
     if (cod.es_convenio) u.codigo_convenio = cod.codigo;
@@ -1439,7 +1466,7 @@ app.post('/api/premium/activar-entrenador-directo', (req, res) => {
   hasta.setDate(hasta.getDate() + d);
   const hastaStr = hasta.toISOString().split('T')[0];
   const archivo = 'config_' + id + '.json';
-  const cfg = cargarJSON(archivo, cargarJSON('config.json', {}));
+  const cfg = cargarJSON(archivo, {});
   cfg.premium_entrenador = true;
   cfg.premium_entrenador_hasta = hastaStr;
   guardarJSON(archivo, cfg);
@@ -1561,8 +1588,8 @@ app.post('/api/foto-comparativa/:id/:tipo', uploadFotoComp.single('foto'), (req,
 // Vinculación cliente
 app.post('/api/vincular', (req, res) => {
   const { id, codigo } = req.body;
-  const cfg = cargarJSON('config.json');
-  if (codigo !== cfg.codigo_vinculacion) return res.json({ ok: false, error: 'Código incorrecto' });
+  const eid_vinc = req.body.entrenador_id || 'ent_001';
+  const cfg = cargarJSON('config_' + eid_vinc + '.json', cargarJSON('config.json', {}));
   const usuarios = cargarJSON('usuarios.json');
   const u = usuarios.find(u => u.id === id);
   if (!u) return res.json({ ok: false, error: 'Usuario no encontrado' });
@@ -1572,7 +1599,8 @@ app.post('/api/vincular', (req, res) => {
 });
 
 app.get('/api/codigo-entrenador', (req, res) => {
-  const cfg = cargarJSON('config.json');
+  const eid_cod = req.query.entrenador_id || 'ent_001';
+  const cfg = cargarJSON('config_' + eid_cod + '.json', cargarJSON('config.json', {}));
   res.json({ codigo: cfg.codigo_vinculacion });
 });
 
@@ -1839,8 +1867,22 @@ app.post('/api/wompi/eventos', express.raw({type: 'application/json'}), (req, re
       const esPlan = ref.includes('anual') ? 365 : 30;
       const hasta = new Date(Date.now() + esPlan * 24 * 60 * 60 * 1000).toISOString();
       
-      if (ent) { ent.premium = true; ent.premium_hasta = hasta; }
-      if (cli) { cli.premium = true; cli.premium_hasta = hasta; }
+      if (ent) {
+        const archivoEnt = 'config_' + ent.id + '.json';
+        const cfgEnt = cargarJSON(archivoEnt, {});
+        cfgEnt.premium_entrenador = true;
+        cfgEnt.premium_entrenador_hasta = hasta.split('T')[0];
+        guardarJSON(archivoEnt, cfgEnt);
+      }
+      if (cli) {
+        const usuarios = cargarJSON('usuarios.json', []);
+        const u = usuarios.find(x => x.id === cli.usuario_id || x.id === cli.id);
+        if (u) {
+          u.premium = true;
+          u.premium_hasta = hasta.split('T')[0];
+          guardarJSON('usuarios.json', usuarios);
+        }
+      }
       
       guardarJSON('cuentas.json', cuentas);
     }
