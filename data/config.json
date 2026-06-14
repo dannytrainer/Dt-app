@@ -2,8 +2,24 @@
   "premium_entrenador": true,
   "premium_entrenador_hasta": "2300-03-25",
   "codigo_vinculacion": "8DKS-NM5X-WHYW",
-  "instagram_entrenador": "@Dt-entrenamientos",
+  "instagram_entrenador": "@Dt-entrenamien",
   "entrenador_id": "ent_001",
   "cobro_auto_activo": true,
-  "logo_entrenador": "/logo_trainer.png"
+  "envios_pausados_hasta": null,
+  "nombre_entrenador": "Danny",
+  "logo_entrenador": "/logo_trainer.png",
+  "codigos_premium": [
+    {
+      "codigo": "TEST",
+      "usado": false,
+      "dias": 7,
+      "permanente": false,
+      "es_convenio": true,
+      "es_unico": false,
+      "tipo": "cliente",
+      "activo": true,
+      "usados": [],
+      "fechaCreacion": "2026-06-13T22:16:03.021Z"
+    }
+  ]
 }

@@ -2952,7 +2952,14 @@ async function guardarNombreEntrenador(){
   const nombre=document.getElementById('cfg-nombre').value.trim();
   if(!nombre)return;
   await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre_entrenador:nombre, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
-  document.getElementById('nombre-entrenador').textContent=nombre;
+  // Actualizar todos los elementos que muestran el nombre
+  ['nombre-entrenador','span-nombre-cfg','informe-nombre-ent'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent=nombre;
+  });
+  // Actualizar sesión local
+  const sesion=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  sesion.nombre=nombre;
+  localStorage.setItem('dt_sesion', JSON.stringify(sesion));
   toast('✅ Nombre actualizado');
 }
 function toggleTema(){
@@ -2983,6 +2990,14 @@ async function guardarInstagram(){
   const ig=document.getElementById('cfg-instagram').value.trim();
   if(!ig)return;
   await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({instagram_entrenador:ig, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
+  // Actualizar todos los elementos que muestran el IG
+  ['span-ig-entrenador','informe-ig-ent','cfg-ig-display'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='@'+ig.replace('@','');
+  });
+  // Guardar en sesión local
+  const sesion=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  sesion.instagram=ig;
+  localStorage.setItem('dt_sesion', JSON.stringify(sesion));
   toast('✅ Instagram guardado');
 }
 async function cargarNombreEntrenador(){
@@ -10332,25 +10347,7 @@ function tcPagarPremiumModal() {
   var s = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   var uid = s.id || null;
   if (!uid) { toast('⚠️ Inicia sesión primero',false); return; }
-  fetch('/api/wompi/crear-pago', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ plan: 'cliente_mensual', cliente_id: uid })
-  }).then(r => r.json()).then(d => {
-    if (!d.ok) { toast('❌ Error al generar pago',false); return; }
-    var f = document.createElement('form');
-    f.method = 'GET';
-    f.action = 'https://checkout.wompi.co/p/';
-    f.target = '_blank';
-    Object.entries({'public-key': d.pub_key, 'currency': 'COP', 'amount-in-cents': d.amount_in_cents, 'reference': d.reference, 'signature:integrity': d.firma, 'redirect-url': d.redirect_url}).forEach(([k,v]) => {
-      var i = document.createElement('input');
-      i.type = 'hidden'; i.name = k; i.value = v;
-      f.appendChild(i);
-    });
-    document.body.appendChild(f);
-    f.submit();
-    document.body.removeChild(f);
-  }).catch(e => alert('Error: ' + e.message));
+  window.open('/premium-cliente.html?uid=' + encodeURIComponent(uid), '_blank');
 }
 let _tcRutina = null;
 let _tcAlim = null;
@@ -10952,17 +10949,17 @@ function tcConfirmarFinalizar() {
       + '<div style="background:' + (completo?'#0a1a0a':'#1a0a00') + ';border:1px solid ' + (completo?'#4caf50':'#e31e24') + ';border-radius:12px;padding:12px 14px;margin-bottom:6px">'
       + '<div style="font-size:15px;font-weight:900;color:' + (completo?'#4caf50':'#ff9800') + ';margin-bottom:6px">' + (completo?'🏆 Rutina completada':'⚠️ Rutina incompleta') + '</div>'
       + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
-      + '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + completados + '/' + totalEjercicios + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Ejercicios</div></div>'
-      + '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + seriesHechas + '/' + totalSeries + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Series</div></div>'
-      + (cardiosHechos > 0 ? '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + cardiosHechos + '/' + cardioTotal + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Cardio</div></div>' : '')
-      + (tiempoSeg > 0 ? '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:14px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm+':'+ss + '</div><div style="font-size:9px;color:#555;text-transform:uppercase">Tiempo</div></div>' : '')
+      + '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + completados + '/' + totalEjercicios + '</div><div style="font-size:9px;color:#aaaaaa;text-transform:uppercase">Ejercicios</div></div>'
+      + '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + seriesHechas + '/' + totalSeries + '</div><div style="font-size:9px;color:#aaaaaa;text-transform:uppercase">Series</div></div>'
+      + (cardiosHechos > 0 ? '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + cardiosHechos + '/' + cardioTotal + '</div><div style="font-size:9px;color:#aaaaaa;text-transform:uppercase">Cardio</div></div>' : '')
+      + (tiempoSeg > 0 ? '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:14px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm+':'+ss + '</div><div style="font-size:9px;color:#aaaaaa;text-transform:uppercase">Tiempo</div></div>' : '')
       + '</div></div>'
       // Botón desplegable
-      + '<div onclick="(function(){var d=document.getElementById(\'' + rid + '\');d.style.display=d.style.display===\'none\'?\'block\':\'none\';})()" style="cursor:pointer;background:#f5f5f5;border:1px solid #ddd;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-      + '<span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px">📊 Ver detalle</span>'
-      + '<span style="color:#555;font-size:14px">▾</span></div>'
+      + '<div onclick="(function(){var d=document.getElementById(\'' + rid + '\');d.style.display=d.style.display===\'none\'?\'block\':\'none\';})()" style="cursor:pointer;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+      + '<span style="font-size:11px;font-weight:700;color:#aaaaaa;text-transform:uppercase;letter-spacing:1px">📊 Ver detalle</span>'
+      + '<span style="color:#aaaaaa;font-size:14px">▾</span></div>'
       // Detalle desplegable
-      + '<div id="' + rid + '" style="display:none;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:10px;padding:10px 14px;margin-bottom:4px">'
+      + '<div id="' + rid + '" style="display:none;background:#111111;border:1px solid #2a2a2a;border-radius:10px;padding:10px 14px;margin-bottom:4px">'
       + detalleRows
       + (cardioRows ? '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px">🏃 Cardio</div>' + cardioRows : '')
       + (_tcLog.length > 0 ? (()=>{
@@ -11431,8 +11428,8 @@ function tcRenderPerfil(cont) {
   html += '<input id="tc-perfil-nombre" value="' + (u.nombre||'') + '" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div>';
 
   // Fecha nacimiento
-  html += '<div style="margin-bottom:12px"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:4px">Fecha de nacimiento</div>';
-  html += '<input id="tc-perfil-fnac" type="date" value="' + (p.fecha_nacimiento||'') + '" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box"></div>';
+  html += '<div style="margin-bottom:12px;max-width:100%;overflow:hidden"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:4px">Fecha de nacimiento</div>';
+  html += '<input id="tc-perfil-fnac" type="date" value="' + (p.fecha_nacimiento||'') + '" style="width:100%;max-width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box;transform:translateZ(0);-webkit-transform:translateZ(0)"></div>';
 
   // Estatura
   html += '<div style="margin-bottom:12px"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:4px">Estatura (cm)</div>';
@@ -11590,19 +11587,7 @@ function tcRenderConversores(c) {
       edad = parseInt(window._tcUsuario.perfil.edad) || 0;
     }
   }
-  if(!fnac && !edad) {
-    var _idCv = localStorage.getItem('dt_cliente_id');
-    if(_idCv) {
-      fetch('/api/usuarios/' + _idCv).then(function(r){return r.json();}).then(function(u){
-        if(u && u.perfil && u.perfil.fecha_nacimiento) {
-          window._tcUsuario = window._tcUsuario || u;
-          tcRenderConversores(c);
-        }
-      });
-      c.innerHTML = '<div style="padding:20px;text-align:center;color:var(--texto-medio)">Cargando...</div>';
-      return;
-    }
-  }
+  // Sin fecha: frecuencia cardíaca mostrará mensaje de aviso
   if(fnac) {
     var hoy = new Date();
     var nac = new Date(fnac);

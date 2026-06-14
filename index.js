@@ -374,6 +374,18 @@ cron.schedule('* * * * *', async () => {
       else if (esProximo && u.estado_pago === 'aldia') { u.estado_pago = 'proximo'; cambio = true; }
       return u;
     });
+    // Pausar clientes vencidos hace mas de 3 dias
+    usuarios2 = usuarios2.map(u => {
+      if (!u.activo) return u;
+      if (u.estado_pago === 'vencido' && u.dia_pago) {
+        const diasVencido = diaHoy - u.dia_pago;
+        if (diasVencido >= 3) { u.activo = false; cambio = true; }
+      }
+      if (u.estado_pago === 'aldia' && u.msg_cobro_enviado) {
+        u.msg_cobro_enviado = false; cambio = true;
+      }
+      return u;
+    });
     if (cambio) fs.writeFileSync(path.join(__dirname,'data','usuarios.json'), JSON.stringify(usuarios2, null, 2));
   } catch(e) {}
 
@@ -417,8 +429,20 @@ cron.schedule('* * * * *', async () => {
         if (!entTienePremium) continue;
         if (cfgEnt.cobro_auto_activo === false) continue;
 
-        const msg = usuario.estado_pago === 'proximo' ? (usuario.msg_proximo || '') : (usuario.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.');
+        // No enviar si ya se envio mensaje de cobro
+        if (usuario.msg_cobro_enviado) continue;
+        // Leer mensaje desde administrativo del entrenador
+        const adminEnt = cargarJSON('administrativo_' + entId_cron + '.json', {clientes:{}});
+        const dataCli = adminEnt.clientes[usuario.id] || {};
+        let msg = '';
+        if (usuario.estado_pago === 'proximo') {
+          msg = dataCli.msg_proximo || usuario.msg_proximo || '';
+        } else {
+          msg = dataCli.msg_recordatorio || usuario.msg_pago || 'El dia de hoy se vencio tu plan de entrenamiento.';
+        }
+        if (!msg || !msg.trim()) continue;
         await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
+        usuario.msg_cobro_enviado = true;
       }
     }
 
@@ -686,7 +710,7 @@ app.post('/api/config/logo', upload.single('logo'), (req, res) => {
   const archivoLogo = 'config_' + eid_logo + '.json';
   const cfg = cargarJSON(archivoLogo, {});
   cfg.logo_entrenador = '/logo_trainer.png';
-  guardarJSON('config.json', cfg);
+  guardarJSON(archivoLogo, cfg);
   res.json({ok:true, path:'/logo_trainer.png'});
 });
 
@@ -1689,6 +1713,22 @@ app.post('/api/auth/registro', loginLimiter, (req, res) => {
     cuentas.entrenadores.push(nuevo);
     guardarJSON('cuentas.json', cuentas);
     guardarJSON('config_' + nuevo.id + '.json', { nombre_entrenador: nuevo.nombre, email: nuevo.email, codigo_vinculacion: nuevo.codigo_vinculacion, msg_prellenado: false, cobro_auto_activo: false, premium_entrenador: false });
+    // Crear automáticamente como su propio primer cliente
+    const usuariosEnt = cargarJSON('usuarios.json', []);
+    const yaExisteEnt = usuariosEnt.find(u => u.id === nuevo.id);
+    if (!yaExisteEnt) {
+      usuariosEnt.push({
+        id: nuevo.id, activo: true, nombre: nuevo.nombre,
+        telefono: nuevo.telefono || nuevo.email, tipo: 'personalizado',
+        hora_envio: '08:00', dia_pago: 1, estado_pago: 'aldia',
+        perfil: { fecha_inicio: new Date().toISOString().split('T')[0], sexo:'', edad:'', altura:'', objetivo:'', etiqueta:'general', notas:'', unidades:'kg', fecha_nacimiento:'' },
+        tipo_pago: 'mensual', dia_pago2: null, sesiones_total: 0, sesiones_ciclo: 0,
+        ciclo_inicio: new Date().toISOString().split('T')[0],
+        msg_pago:'', msg_q1:'', msg_q2:'', foto:'', vinculado: true,
+        entrenador_id: nuevo.id, dias_desbloqueados: {}, email: nuevo.email
+      });
+      guardarJSON('usuarios.json', usuariosEnt);
+    }
     // Arrancar worker WA para nuevo entrenador
     conectarWhatsApp(nuevo.id, null);
     return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, email: nuevo.email, nombre: nuevo.nombre, roles: [{rol:'entrenador', id: nuevo.id, nombre: nuevo.nombre}, {rol:'cliente', id: null, nombre: nuevo.nombre}] });
