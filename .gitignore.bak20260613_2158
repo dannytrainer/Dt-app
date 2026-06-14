@@ -17,4 +17,3 @@ dt-app/
 !public/images/
 .env
 .env
-auth_ent_*/
