@@ -11954,13 +11954,10 @@ function renderEnciclopedia(c) {
 
 function encCargarEjercicios() {
   Promise.all([
-    fetch("/api/enciclopedia").then(function(r){return r.json();}).catch(function(){return [];}),
-    fetch("/api/glosario").then(function(r){return r.json();}).catch(function(){return [];})
+    fetch("/api/enciclopedia").then(function(r){return r.json();}).catch(function(){return [];})
   ]).then(function(res) {
     var oficiales = Array.isArray(res[0]) ? res[0] : [];
     window._encEjercicios = oficiales;
-    var glosario = Array.isArray(res[1]) ? res[1] : [];
-    window._encGlosarioCount = glosario.length;
     window._encGrupos.forEach(function(g) {
       g.count = window._encEjercicios.filter(function(e){return e.grupo===g.id;}).length;
     });
@@ -11988,28 +11985,28 @@ function encMostrarGrupos() {
   });
   html += "</div>";
     html += "</div>";
-  // Fila: Estiramientos y Tus ejercicios
+  // Segunda fila: Glosario y Mis ejercicios
   html += "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px\">";
-  html += "<div onclick=\"encSeleccionarGrupo(&quot;estiramientos&quot;)\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
-  html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Enciclopediaestiramiento.png\" style=\"width:64px;height:56px;object-fit:cover;object-position:center 20%;border-radius:10px\"></div>";
-  html += "<div style=\"font-size:14px;font-weight:700;color:#fff\">Estiramientos</div>";
-  html += "<div style=\"font-size:11px;color:#666;margin-top:3px\">" + (window._encEjercicios||[]).filter(function(e){return e.grupo==="estiramientos";}).length + " ejercicios</div>";
+  html += "<div onclick=\"encAbrirGlosario()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
+  html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Glosariodt.png\" style=\"width:56px;height:56px;object-fit:contain;border-radius:8px\"></div>";
+  html += "<div style=\"font-size:14px;font-weight:700;color:#64b5f6\">Glosario</div>";
+  html += "<div style=\"font-size:11px;color:#666;margin-top:3px\">Métodos y términos</div>";
   html += "</div>";
   if (localStorage.getItem("dt_rol") !== "cliente") {
   html += "<div onclick=\"encAgregarPersonalizado()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
   html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Creardt.png\" style=\"width:56px;height:56px;object-fit:contain;border-radius:8px\"></div>";
-  html += "<div style=\"font-size:14px;font-weight:700;color:#fff\">Mis ejercicios</div>";
+  html += "<div style=\"font-size:14px;font-weight:700;color:#aed581\">Mis ejercicios</div>";
   html += "<div style=\"font-size:11px;color:#666;margin-top:3px\" id=\"enc-custom-count\">0 / 10</div>";
   html += "</div>";
   }
   html += "</div>";
 
-  // Fila: Glosario y Anatomia
+  // Tercera fila: Estiramientos y Anatomia
   html += "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px\">";
-  html += "<div onclick=\"encAbrirGlosario()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
-  html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Glosariodt.png\" style=\"width:56px;height:56px;object-fit:contain;border-radius:8px\"></div>";
-  html += "<div style=\"font-size:14px;font-weight:700;color:#fff\">Glosario</div>";
-  html += "<div style=\"font-size:11px;color:#666;margin-top:3px\">" + (window._encGlosarioCount||0) + " términos</div>";
+  html += "<div onclick=\"encSeleccionarGrupo(&quot;estiramientos&quot;)\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
+  html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Enciclopediaestiramiento.png\" style=\"width:64px;height:56px;object-fit:cover;object-position:center 20%;border-radius:10px\"></div>";
+  html += "<div style=\"font-size:14px;font-weight:700;color:#fff\">Estiramientos</div>";
+  html += "<div style=\"font-size:11px;color:#666;margin-top:3px\">" + (window._encEjercicios||[]).filter(function(e){return e.grupo==="estiramientos";}).length + " ejercicios</div>";
   html += "</div>";
   html += "<div onclick=\"encAbrirAnatomia()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
   html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Enciclopediaanatomia.png\" style=\"width:64px;height:56px;object-fit:cover;object-position:center 20%;border-radius:10px\"></div>";
@@ -12058,7 +12055,7 @@ function encMostrarLista() {
       var nb = e.nivel==="principiante"?"#1a2a3a":e.nivel==="avanzado"?"#3a1a1a":"#1a3a1a";
       var gr = window._encGrupos.find(function(g){return g.id===e.grupo;});
       html += "<div onclick=\"encAbrirFicha(&quot;" + e.id + "&quot;)\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer\">";
-      html += e.imagen ? "<div style=\"width:48px;height:48px;background:#1a1a1a;border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid #2a2a2a\"><img src=\"" + e.imagen + "\" style=\"width:100%;height:100%;object-fit:cover\"></div>" : "<div style=\"width:48px;height:48px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid #2a2a2a\">" + (gr?gr.icon:"&#128170;") + "</div>";
+      html += "<div style=\"width:48px;height:48px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid #2a2a2a\">" + (gr?gr.icon:"&#128170;") + "</div>";
       html += "<div style=\"flex:1;min-width:0\">";
       html += "<div style=\"font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis\">" + e.nombre + "</div>";
       html += "<div style=\"display:flex;gap:6px;flex-wrap:wrap;margin-top:4px\">";
@@ -12494,7 +12491,7 @@ function encAbrirFicha(id) {
   } else if (e.imagen_inicio || e.imagen_fin || e.imagen) {
     var img1 = e.imagen_inicio || e.imagen || "";
     var img2 = e.imagen_fin || e.imagen2 || e.imagen_inicio || e.imagen || "";
-    var filtro = (e.invertir === false || e.grupo === "estiramientos") ? "none" : "invert(1)";
+    var filtro = e.invertir === false ? "none" : "invert(1)";
     html += "<div style=\"background:#1a1a1a;border-radius:10px;overflow:hidden;margin-bottom:12px;text-align:center;padding:16px;position:relative\">";
     html += "<img id=\"enc-anim-img\" src=\"" + img1 + "\" style=\"max-width:100%;height:350px;width:auto;object-fit:contain;object-position:center bottom;filter:" + filtro + "\" data-img1=\"" + img1 + "\" data-img2=\"" + img2 + "\">";
     html += "<div style=\"position:absolute;bottom:6px;right:8px;font-size:10px;color:#e31e24;font-weight:700;opacity:0.7\">DT-APP</div></div>";

@@ -11954,13 +11954,10 @@ function renderEnciclopedia(c) {
 
 function encCargarEjercicios() {
   Promise.all([
-    fetch("/api/enciclopedia").then(function(r){return r.json();}).catch(function(){return [];}),
-    fetch("/api/glosario").then(function(r){return r.json();}).catch(function(){return [];})
+    fetch("/api/enciclopedia").then(function(r){return r.json();}).catch(function(){return [];})
   ]).then(function(res) {
     var oficiales = Array.isArray(res[0]) ? res[0] : [];
     window._encEjercicios = oficiales;
-    var glosario = Array.isArray(res[1]) ? res[1] : [];
-    window._encGlosarioCount = glosario.length;
     window._encGrupos.forEach(function(g) {
       g.count = window._encEjercicios.filter(function(e){return e.grupo===g.id;}).length;
     });
@@ -11998,7 +11995,7 @@ function encMostrarGrupos() {
   if (localStorage.getItem("dt_rol") !== "cliente") {
   html += "<div onclick=\"encAgregarPersonalizado()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
   html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Creardt.png\" style=\"width:56px;height:56px;object-fit:contain;border-radius:8px\"></div>";
-  html += "<div style=\"font-size:14px;font-weight:700;color:#fff\">Mis ejercicios</div>";
+  html += "<div style=\"font-size:14px;font-weight:700;color:#aed581\">Mis ejercicios</div>";
   html += "<div style=\"font-size:11px;color:#666;margin-top:3px\" id=\"enc-custom-count\">0 / 10</div>";
   html += "</div>";
   }
@@ -12008,8 +12005,8 @@ function encMostrarGrupos() {
   html += "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px\">";
   html += "<div onclick=\"encAbrirGlosario()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
   html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Glosariodt.png\" style=\"width:56px;height:56px;object-fit:contain;border-radius:8px\"></div>";
-  html += "<div style=\"font-size:14px;font-weight:700;color:#fff\">Glosario</div>";
-  html += "<div style=\"font-size:11px;color:#666;margin-top:3px\">" + (window._encGlosarioCount||0) + " términos</div>";
+  html += "<div style=\"font-size:14px;font-weight:700;color:#64b5f6\">Glosario</div>";
+  html += "<div style=\"font-size:11px;color:#666;margin-top:3px\">Métodos y términos</div>";
   html += "</div>";
   html += "<div onclick=\"encAbrirAnatomia()\" style=\"background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center\">";
   html += "<div style=\"margin-bottom:6px\"><img src=\"/images/Enciclopediaanatomia.png\" style=\"width:64px;height:56px;object-fit:cover;object-position:center 20%;border-radius:10px\"></div>";

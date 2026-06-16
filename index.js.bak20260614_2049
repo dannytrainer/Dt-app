@@ -1108,19 +1108,6 @@ function cargarEnciclopedia() {
   try { return JSON.parse(fs.readFileSync(encPath, 'utf8')); } catch(e) { return []; }
 }
 
-// Cache en memoria para evitar leer el disco en cada request
-let _enciclopediaCache = null;
-function getEnciclopedia() {
-  if (!_enciclopediaCache) {
-    _enciclopediaCache = cargarEnciclopedia();
-    console.log('✅ Enciclopedia cargada en memoria:', _enciclopediaCache.length, 'ejercicios');
-  }
-  return _enciclopediaCache;
-}
-function invalidarCacheEnciclopedia() {
-  _enciclopediaCache = null;
-}
-
 function cargarPersonalizados(entId) {
   const eid = entId || 'ent_001';
   const customPath = path.join(__dirname, 'data', 'enciclopedia_personalizados_' + eid + '.json');
@@ -1137,7 +1124,7 @@ require("./sincronizar");
 require("./rutas_historial")(app, fs);
 // ── ENCICLOPEDIA ──
 app.get('/ejercicio/:id', (req, res) => {
-  const oficiales = getEnciclopedia();
+  const oficiales = cargarJSON('enciclopedia.json', []);
   const custom = cargarPersonalizados(req.query.entrenador_id || 'ent_001');
   const todos = [...oficiales, ...(custom.ejercicios || [])];
   const ej = todos.find(e => e.id === req.params.id);
@@ -1195,7 +1182,7 @@ ${ej.errores_comunes.map(e => `<div class="error"><span>⚠️</span><span>${e}<
 
 app.get('/api/enciclopedia/buscar-match/:nombre', (req, res) => {
   const eid = req.query.entrenador_id || 'ent_001';
-  const oficiales = getEnciclopedia();
+  const oficiales = cargarJSON('enciclopedia.json', []);
   const custom = cargarPersonalizados(eid);
   const todos = [...oficiales, ...(custom.ejercicios || [])];
   
@@ -1238,19 +1225,18 @@ app.get('/api/enciclopedia/buscar-match/:nombre', (req, res) => {
 
 
 app.put('/api/enciclopedia/editar/:id', (req, res) => {
-  const data = getEnciclopedia();
+  const data = cargarJSON('enciclopedia.json', []);
   const idx = data.findIndex(e => e.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
   data[idx] = { ...data[idx], ...req.body };
   guardarJSON('enciclopedia.json', data);
-  invalidarCacheEnciclopedia();
   res.json({ ok: true });
 });
 
 
 app.get('/api/enciclopedia', (req, res) => {
   const eid = req.query.entrenador_id || 'ent_001';
-  const oficiales = getEnciclopedia();
+  const oficiales = cargarJSON('enciclopedia.json', []);
   const custom = cargarPersonalizados(eid);
   let todos = [...oficiales, ...(custom.ejercicios || [])];
   if (req.query.grupo) todos = todos.filter(e => e.grupo === req.query.grupo);
@@ -1311,7 +1297,7 @@ app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
 app.get('/api/enciclopedia/:id', (req, res) => {
   const id = req.params.id;
   const eid = req.query.entrenador_id || 'ent_001';
-  const oficiales = getEnciclopedia();
+  const oficiales = cargarJSON('enciclopedia.json', []);
   const custom = cargarPersonalizados(eid);
   const todos = [...oficiales, ...(custom.ejercicios || [])];
   const ej = todos.find(e => e.id === id);
