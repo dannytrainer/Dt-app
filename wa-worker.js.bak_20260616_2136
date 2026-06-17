@@ -1,6 +1,5 @@
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 const path = require('path');
-const fs = require('fs');
 
 const entId = process.env.ENT_ID;
 const telefono = process.env.ENT_TELEFONO || null;
@@ -44,19 +43,8 @@ async function iniciar() {
     }
     if (connection === 'close') {
       conectado = false;
-      pairingCode = null;
       enviar({ tipo: 'estado', conectado: false });
       const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-      const registrado = sock?.authState?.creds?.registered;
-      if (!registrado) {
-        try {
-          fs.rmSync(authFolder, { recursive: true, force: true });
-          console.log('🧹 Sesion incompleta borrada [' + entId + '], se reintentara desde cero');
-          enviar({ tipo: 'sesion_borrada' });
-        } catch (e) {
-          console.log('No se pudo borrar sesion incompleta [' + entId + ']:', e.message);
-        }
-      }
       if (shouldReconnect) {
         console.log('🔄 Reconectando ['+entId+']...');
         setTimeout(iniciar, 3000);

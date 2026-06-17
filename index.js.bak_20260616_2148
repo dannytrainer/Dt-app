@@ -258,19 +258,6 @@ function conectarWhatsApp(entId, telefono) {
     if (msg.tipo === 'codigo') { sess.pairingCode = msg.codigo; }
     if (msg.tipo === 'qr') { sess.qrCode = msg.qr; }
     if (msg.tipo === 'resultado') { const cb = sess.pendientes[msg.id]; if (cb) { cb(msg.ok); delete sess.pendientes[msg.id]; } }
-    if (msg.tipo === 'sesion_borrada') {
-      try {
-        const cuentas = cargarJSON('cuentas.json', { entrenadores: [], clientes: [] });
-        const ent = cuentas.entrenadores.find(e => e.id === entId);
-        if (ent && ent.telefono) {
-          console.log('🧹 Limpiando telefono de cuentas.json para [' + entId + '] (sesion incompleta)');
-          delete ent.telefono;
-          guardarJSON('cuentas.json', cuentas);
-        }
-      } catch (e) {
-        console.log('No se pudo limpiar telefono en cuentas.json:', e.message);
-      }
-    }
   });
   worker.on('exit', (code) => {
     console.log('⚠️ Worker ['+entId+'] terminó con código '+code);
@@ -290,7 +277,7 @@ function conectarWhatsApp(entId, telefono) {
 }
 
 async function enviarMensaje(telefono, mensaje, entId) {
-  if (!entId) { console.log('enviarMensaje sin entId, abortado'); return false; }
+  if (!entId) entId = 'ent_001';
   const sess = waSessions[entId];
   if (!sess || !sess.conectado || !sess.proceso) return false;
   return new Promise((resolve) => {
@@ -984,10 +971,8 @@ app.get('/api/logs', (req, res) => {
 });
 app.post('/api/enviar', async (req, res) => {
   const { telefono, mensaje, entrenador_id } = req.body;
-  if (!entrenador_id) {
-    return res.json({ ok: false, error: 'Falta entrenador_id, no se envia para evitar mezclar numeros' });
-  }
-  const resultado = await enviarMensaje(telefono, mensaje, entrenador_id);
+  const entId = entrenador_id || 'ent_001';
+  const resultado = await enviarMensaje(telefono, mensaje, entId);
   res.json({ ok: resultado });
 });
 app.post('/api/enviar-rutina/:id', async (req, res) => {
@@ -1617,10 +1602,7 @@ app.post('/api/informe/:id/enviar', async (req, res) => {
     });
 
     const buffer = Buffer.from(htmlContent, 'utf-8');
-    const entId = usuario.entrenador_id;
-    if (!entId) {
-      return res.json({ ok: false, error: 'Cliente sin entrenador asignado, no se puede enviar' });
-    }
+    const entId = usuario.entrenador_id || 'ent_001';
     const sess = waSessions[entId];
     if (!sess || !sess.conectado || !sess.proceso) {
       return res.json({ ok: false, error: 'WhatsApp no conectado para este entrenador' });

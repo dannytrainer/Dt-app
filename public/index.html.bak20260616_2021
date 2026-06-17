@@ -656,7 +656,6 @@ body.modo-claro [style*="color:var(--texto-suave)"] {
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
 // ═══════════════════════════════
@@ -2357,9 +2356,6 @@ function copiarCodigoVinc() {
 }
 
 // Cargar código guardado al abrir config
-let _waQRInstance = null;
-let _waQRTexto = null;
-
 async function cargarEstadoWA() {
   const entId = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
   try {
@@ -2370,17 +2366,13 @@ async function cargarEstadoWA() {
     const cod = document.getElementById('wa-codigo-txt');
     const btnCon = document.getElementById('wa-btn-conectar');
     const numTxt = document.getElementById('wa-numero-txt');
-    const qrBox = document.getElementById('wa-qr-box');
-    const qrCanvas = document.getElementById('wa-qr-canvas');
-    if (numTxt) numTxt.textContent = (data.conectado && data.telefono) ? ('Número registrado: ' + data.telefono) : 'Sin número registrado';
+    if (numTxt) numTxt.textContent = data.telefono ? ('Número registrado: ' + data.telefono) : 'Sin número registrado';
     if (!txt) return;
     if (data.conectado) {
       txt.textContent = '✅ WhatsApp conectado';
       txt.style.color = '#4caf50';
       if (box) box.style.display = 'none';
       if (btnCon) btnCon.style.display = 'none';
-      if (qrBox) qrBox.style.display = 'none';
-      _waQRTexto = null;
     } else {
       txt.textContent = '🔴 No conectado';
       txt.style.color = '#e31e24';
@@ -2388,21 +2380,8 @@ async function cargarEstadoWA() {
         box.style.display = 'block';
         cod.textContent = data.codigo;
         if (btnCon) btnCon.style.display = 'none';
-        if (qrBox) qrBox.style.display = 'none';
-        _waQRTexto = null;
-      } else if (data.qrCode && qrBox && qrCanvas) {
-        if (box) box.style.display = 'none';
-        if (btnCon) btnCon.style.display = 'none';
-        qrBox.style.display = 'block';
-        if (data.qrCode !== _waQRTexto && window.QRCode) {
-          qrCanvas.innerHTML = '';
-          _waQRInstance = new QRCode(qrCanvas, { text: data.qrCode, width: 200, height: 200 });
-          _waQRTexto = data.qrCode;
-        }
       } else {
         if (btnCon) btnCon.style.display = 'block';
-        if (qrBox) qrBox.style.display = 'none';
-        _waQRTexto = null;
       }
     }
   } catch(e) {
@@ -2485,7 +2464,7 @@ async function guardarAdminConfig(){
     moneda_default:document.getElementById('admin-moneda-default').value,
     msg_default:document.getElementById('admin-msg-default').value.trim(),
     msg_prellenado:document.getElementById('admin-prellenado').checked,
-    entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)
+    entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')
   };
   await fetch('/api/admin/config/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
   window._adminData.config=cfg;
@@ -2613,7 +2592,7 @@ async function guardarAdminCliente(id){
   const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
   const descMotivo=document.getElementById('ac-desc-motivo').value.trim();
   const _rawid=(id+'').replace('cli_','');
-  await fetch('/api/admin/'+_rawid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_proximo:msg,msg_pago:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  await fetch('/api/admin/'+_rawid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_proximo:msg,msg_pago:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   if(!window._adminData.clientes[_rawid])window._adminData.clientes[_rawid]={pagos:[]};
   Object.assign(window._adminData.clientes[_rawid],{precio,moneda,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo});
   const uIdx=(window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
@@ -2635,7 +2614,7 @@ async function registrarPago(id){
   const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
   const descMotivo=tieneDesc&&document.getElementById('ac-desc-motivo')?document.getElementById('ac-desc-motivo').value.trim():'';
   if(!monto){toast('❌ Ingresa un monto',false);return;}
-  const pagoData={monto,metodo,moneda,novedad,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)};
+  const pagoData={monto,metodo,moneda,novedad,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')};
   await fetch('/api/admin/'+(id+'').replace('cli_','')+'/pago',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pagoData)});
   const _cid=(window._adminData.clientes[id])?id:(id+'').replace('cli_','');
   if(!window._adminData.clientes[_cid])window._adminData.clientes[_cid]={precio:0,moneda,pagos:[]};
@@ -2963,7 +2942,7 @@ async function guardarColores(){
       colores[item.var] = document.documentElement.style.getPropertyValue(item.var) || root.getPropertyValue(item.var).trim() || item.def;
     });
   });
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colores, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colores, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   toast('✅ Colores guardados');
 }
 
@@ -2995,7 +2974,7 @@ async function subirLogo(input){
 async function guardarNombreEntrenador(){
   const nombre=document.getElementById('cfg-nombre').value.trim();
   if(!nombre)return;
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre_entrenador:nombre, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre_entrenador:nombre, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   // Actualizar todos los elementos que muestran el nombre
   ['nombre-entrenador','span-nombre-cfg','informe-nombre-ent'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.textContent=nombre;
@@ -3011,7 +2990,7 @@ function toggleTema(){
   document.getElementById('btn-tema').textContent = claro ? '☀️' : '🌙';
   localStorage.setItem('tema', claro ? 'claro' : 'oscuro');
   localStorage.setItem('dt_tema', claro ? 'claro' : 'oscuro');
-  fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:claro?'claro':'oscuro', entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:claro?'claro':'oscuro', entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
 }
 function cargarTema(){
   let tema = localStorage.getItem('dt_tema') || localStorage.getItem('tema');
@@ -3033,7 +3012,7 @@ function cargarTema(){
 async function guardarInstagram(){
   const ig=document.getElementById('cfg-instagram').value.trim();
   if(!ig)return;
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({instagram_entrenador:ig, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({instagram_entrenador:ig, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   // Actualizar todos los elementos que muestran el IG
   ['span-ig-entrenador','informe-ig-ent','cfg-ig-display'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.textContent='@'+ig.replace('@','');
@@ -3415,7 +3394,7 @@ function cerrarModal(){document.getElementById('modal-cliente').classList.remove
 async function guardarCliente(){
 const id=document.getElementById('cliente-id').value;
 const datos={
-entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null),
+entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'),
 nombre:document.getElementById('cliente-nombre').value.trim(),
 telefono:document.getElementById('cliente-telefono').value.replace(/\D/g,''),
 email:document.getElementById('cliente-email').value.trim(),
@@ -9430,7 +9409,7 @@ async function enviarDifusion(){
     const telefono = ch.getAttribute('data-tel');
     const nombre = ch.getAttribute('data-nombre');
     try{
-      const res = await fetch('/api/enviar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telefono,mensaje,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+      const res = await fetch('/api/enviar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telefono,mensaje})});
       const data = await res.json();
       if(data.ok) ok++; else fail++;
     }catch(e){ fail++; }
@@ -9457,12 +9436,12 @@ function cerrarModalPausa(){
 }
 async function ejecutarPausaGlobal(dias){
   let hasta = dias === -1 ? 'indefinido' : new Date(Date.now() + dias*86400000).toISOString().split('T')[0];
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: hasta, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: hasta, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   cerrarModalPausa();
   actualizarBtnPausaGlobal(hasta);
 }
 async function reactivarEnviosGlobal(){
-  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: null, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: null, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')})});
   actualizarBtnPausaGlobal(null);
 }
 function actualizarBtnPausaGlobal(hasta){
@@ -9569,10 +9548,6 @@ function filtrarRutinas(){
         <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Ingresa este c&oacute;digo en WhatsApp &rarr; Dispositivos vinculados &rarr; Vincular con n&uacute;mero</div>
       <div style="font-size:10px;color:#ff9800;margin-top:6px">⏳ Ingresa el código rápido (antes de 30 seg). Si WhatsApp muestra un error al inicio, espera unos segundos: normalmente conecta igual.</div>
         <div id="wa-codigo-txt" style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>
-      </div>
-      <div id="wa-qr-box" style="display:none;background:#0a0a0a;border:2px solid #25d366;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
-        <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Escanea este codigo QR desde WhatsApp -> Dispositivos vinculados -> Vincular dispositivo</div>
-        <div id="wa-qr-canvas" style="display:inline-block;background:#fff;padding:8px;border-radius:8px"></div>
       </div>
       <div id="wa-numero-txt" style="font-size:11px;color:var(--texto-medio);margin-bottom:8px;text-align:center"></div>
       <button id="wa-btn-conectar" onclick="conectarMiWhatsApp()" style="display:none;width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:8px">&#128242; Conectar WhatsApp</button>
