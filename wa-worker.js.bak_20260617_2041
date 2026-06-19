@@ -22,7 +22,7 @@ async function iniciar() {
   } catch (e) {
     console.log('No se pudo obtener version WA, uso la de la libreria:', e.message);
   }
-  sock = makeWASocket({ auth: state, printQRInTerminal: false, browser: ['DT-APP', 'Chrome', '1.0'], qrTimeout: 300000, ...(waVersion ? { version: waVersion } : {}) });
+  sock = makeWASocket({ auth: state, printQRInTerminal: false, ...(waVersion ? { version: waVersion } : {}) });
   sock.ev.on('creds.update', saveCreds);
 
   if (!sock.authState.creds.registered && telefono && !pairingCode) {
@@ -48,7 +48,7 @@ async function iniciar() {
       enviar({ tipo: 'estado', conectado: false });
       const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
       const registrado = sock?.authState?.creds?.registered;
-      if (!registrado && !pairingCode) {
+      if (!registrado) {
         try {
           fs.rmSync(authFolder, { recursive: true, force: true });
           console.log('🧹 Sesion incompleta borrada [' + entId + '], se reintentara desde cero');

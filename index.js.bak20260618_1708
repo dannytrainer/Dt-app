@@ -23,7 +23,6 @@ const cron = require('node-cron');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { fork } = require('child_process');
 
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
@@ -237,71 +236,185 @@ const guardarJSON = (archivo, datos) => {
 };
 
 // Mapa de sesiones WA por entrenador
-// ── MÓDULO WHATSAPP ──────────────────────────────────────────────
-const waSessions = {};
+const { fork } = require('child_process');
+
+// Mapa de procesos hijo por entrenador
+const waSessions = {}; // { ent_id: { proceso, conectado, pairingCode, pendientes } }
 
 function conectarWhatsApp(entId, telefono) {
-  if (!entId) return;
+  if (!entId) { console.log('conectarWhatsApp llamado sin entId, abortado'); return; }
   if (waSessions[entId] && waSessions[entId].proceso) {
+    console.log('🔄 Proceso anterior encontrado para ['+entId+'], reiniciando sin borrar credenciales...');
     waSessions[entId].detenido = true;
-    try { waSessions[entId].proceso.kill(); } catch(e) {}
+    try { waSessions[entId].proceso.kill(); } catch (e) {}
   }
   waSessions[entId] = { proceso: null, conectado: false, pairingCode: null, qrCode: null, pendientes: {} };
   const sess = waSessions[entId];
   const env = { ...process.env, ENT_ID: entId };
-  if (telefono) env.ENT_TELEFONO = telefono;
+
+  let telefonoFinal = telefono;
+
+  if (!telefonoFinal) {
+    try {
+      const cuentas = JSON.parse(
+        fs.readFileSync(
+          path.join(__dirname, 'data/cuentas.json'),
+          'utf8'
+        )
+      );
+
+      const ent = cuentas.entrenadores.find(
+        e => e.id === entId
+      );
+
+      if (ent && ent.telefono)
+        telefonoFinal = ent.telefono;
+    } catch(e) {
+      console.log('Error leyendo telefono:', e.message);
+    }
+  }
+
+  if (telefonoFinal)
+    env.ENT_TELEFONO = telefonoFinal;
   const worker = fork(path.join(__dirname, 'wa-worker.js'), [], { env, silent: false });
   sess.proceso = worker;
   worker.on('message', (msg) => {
+    if (msg.tipo === 'estado') { sess.conectado = msg.conectado; if (msg.pairingCode) sess.pairingCode = msg.pairingCode; if (msg.conectado) { sess.qrCode = null; } }
     if (msg.tipo === 'codigo') { sess.pairingCode = msg.codigo; }
     if (msg.tipo === 'qr') { sess.qrCode = msg.qr; }
-    if (msg.tipo === 'estado') { sess.conectado = msg.conectado; if (msg.conectado) sess.qrCode = null; }
     if (msg.tipo === 'resultado') { const cb = sess.pendientes[msg.id]; if (cb) { cb(msg.ok); delete sess.pendientes[msg.id]; } }
+    if (msg.tipo === 'sesion_borrada') {
+      try {
+        const cuentas = cargarJSON('cuentas.json', { entrenadores: [], clientes: [] });
+        const ent = cuentas.entrenadores.find(e => e.id === entId);
+        if (ent && ent.telefono) {
+          console.log('🧹 Limpiando telefono de cuentas.json para [' + entId + '] (sesion incompleta)');
+          delete ent.telefono;
+          guardarJSON('cuentas.json', cuentas);
+        }
+      } catch (e) {
+        console.log('No se pudo limpiar telefono en cuentas.json:', e.message);
+      }
+    }
   });
   worker.on('exit', (code) => {
+    console.log('⚠️ Worker ['+entId+'] terminó con código '+code);
     sess.proceso = null;
     sess.conectado = false;
+    // Reconectar automáticamente si no fue salida limpia (a menos que se haya detenido manualmente)
     if (code !== 0 && !sess.detenido) {
-      setTimeout(() => { if (!waSessions[entId] || !waSessions[entId].proceso) conectarWhatsApp(entId, null); }, 5000);
+      console.log('🔄 Reconectando worker ['+entId+'] en 5 segundos...');
+      setTimeout(() => {
+        if (!waSessions[entId] || !waSessions[entId].proceso) {
+          conectarWhatsApp(entId, null);
+        }
+      }, 5000);
     }
   });
   console.log('🚀 Worker iniciado para ['+entId+']');
 }
 
-async function enviarMensaje(telefono, mensaje, entId) {
-  return false; // TODO: reimplementar
+function desconectarWhatsApp(entId) {
+  if (!entId) return;
+  const sess = waSessions[entId];
+  if (sess) {
+    sess.detenido = true;
+    if (sess.proceso) {
+      try { sess.proceso.kill(); } catch (e) {}
+    }
+  }
+  delete waSessions[entId];
+  const authDir = path.join(__dirname, 'auth_' + entId);
+  if (fs.existsSync(authDir)) {
+    try {
+      fs.rmSync(authDir, { recursive: true, force: true });
+      console.log('🧹 Carpeta de auth borrada manualmente para [' + entId + ']');
+    } catch (e) {
+      console.log('No se pudo borrar auth para ' + entId + ':', e.message);
+    }
+  }
 }
 
-async function enviarDocumento(telefono, buffer, mimetype, fileName, entId) {
-  return false; // TODO: reimplementar
+async function enviarMensaje(telefono, mensaje, entId) {
+  if (!entId) { console.log('enviarMensaje sin entId, abortado'); return false; }
+  let sess = waSessions[entId];
+  if (!sess || !sess.proceso) {
+    console.log('🔌 Auto-conectando ['+entId+'] para enviar mensaje pendiente...');
+    conectarWhatsApp(entId, null);
+  }
+  const esperaMax = 15000;
+  const inicio = Date.now();
+  sess = waSessions[entId];
+  while (sess && !sess.conectado && (Date.now() - inicio) < esperaMax) {
+    await new Promise(r => setTimeout(r, 500));
+    sess = waSessions[entId];
+  }
+  if (!sess || !sess.conectado || !sess.proceso) return false;
+  return new Promise((resolve) => {
+    const id = Date.now() + '_' + Math.random();
+    sess.pendientes[id] = resolve;
+    sess.proceso.send({ tipo: 'enviar', id, telefono, mensaje });
+    setTimeout(() => { if (sess.pendientes[id]) { delete sess.pendientes[id]; resolve(false); } }, 15000);
+  });
 }
 
 app.get('/api/wa/estado', (req, res) => {
   const entId = req.query.entrenador_id || 'ent_001';
-  const sess = waSessions[entId] || {};
+  const sess = waSessions[entId] || { conectado: false, pairingCode: null };
   let telefono = null;
   try {
-    const c = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
-    const e = c.entrenadores.find(e => e.id === entId);
-    if (e) telefono = e.telefono || null;
+    const cuentas = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
+    const ent = cuentas.entrenadores.find(e => e.id === entId);
+    if (ent) telefono = ent.telefono || null;
   } catch(e) {}
   let tieneCredenciales = false;
-  try { tieneCredenciales = fs.existsSync(path.join(__dirname, 'auth_' + entId, 'creds.json')); } catch(e) {}
-  res.json({ conectado: sess.conectado||false, codigo: sess.pairingCode||null, qrCode: sess.qrCode||null, telefono, tieneCredenciales });
+  try {
+    tieneCredenciales = fs.existsSync(path.join(__dirname, 'auth_' + entId, 'creds.json'));
+  } catch(e) {}
+  res.json({ conectado: sess.conectado, codigo: sess.pairingCode, qrCode: sess.qrCode || null, telefono, tieneCredenciales });
+});
+
+app.post('/api/clientes/vincular-entrenador', (req, res) => {
+  const { cliente_id, codigo } = req.body;
+  if (!cliente_id || !codigo) return res.json({ ok: false, error: 'Faltan datos' });
+  const cuentas = cargarJSON('cuentas.json', { entrenadores: [], clientes: [] });
+  const ent = cuentas.entrenadores.find(e => e.codigo_vinculacion === codigo.toUpperCase());
+  if (!ent) return res.json({ ok: false, error: 'Código incorrecto' });
+  const cli = cuentas.clientes.find(c => c.id === cliente_id);
+  if (!cli) return res.json({ ok: false, error: 'Cliente no encontrado' });
+  cli.entrenador_id = ent.id;
+  guardarJSON('cuentas.json', cuentas);
+  res.json({ ok: true, nombre_entrenador: ent.nombre });
+});
+
+app.post('/api/wa/corregir-numero', (req, res) => {
+  const { entrenador_id, telefono } = req.body;
+  if (!entrenador_id || !telefono) return res.json({ ok: false, error: 'Faltan datos' });
+  try {
+    const cuentas = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
+    const ent = cuentas.entrenadores.find(e => e.id === entrenador_id);
+    if (!ent) return res.json({ ok: false, error: 'Entrenador no encontrado' });
+    ent.telefono = telefono.replace(/\D/g,'');
+    fs.writeFileSync(path.join(__dirname, 'data/cuentas.json'), JSON.stringify(cuentas, null, 2));
+    res.json({ ok: true });
+  } catch(e) {
+    res.json({ ok: false, error: e.message });
+  }
 });
 
 app.post('/api/wa/conectar', async (req, res) => {
   const { entrenador_id, telefono } = req.body;
-  if (!entrenador_id) return res.json({ ok: false, error: 'Falta entrenador_id' });
+  if (!entrenador_id) return res.json({ ok: false, error: 'Faltan datos' });
   const sess = waSessions[entrenador_id];
   if (sess && sess.conectado) return res.json({ ok: false, error: 'Ya conectado' });
   conectarWhatsApp(entrenador_id, telefono || null);
+  // Guardar teléfono en cuentas.json (solo si se envió)
   if (telefono) {
     try {
-      const c = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
-      const e = c.entrenadores.find(e => e.id === entrenador_id);
-      if (e) { e.telefono = telefono; fs.writeFileSync(path.join(__dirname, 'data/cuentas.json'), JSON.stringify(c, null, 2)); }
-    } catch(e) {}
+      const cuentas = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
+      const ent = cuentas.entrenadores.find(e => e.id === entrenador_id);
+      if (ent) { ent.telefono = telefono; fs.writeFileSync(path.join(__dirname, 'data/cuentas.json'), JSON.stringify(cuentas, null, 2)); }
+    } catch(e) { console.log('Error guardando telefono:', e.message); }
   }
   res.json({ ok: true });
 });
@@ -309,28 +422,9 @@ app.post('/api/wa/conectar', async (req, res) => {
 app.post('/api/wa/desconectar', async (req, res) => {
   const { entrenador_id } = req.body;
   if (!entrenador_id) return res.json({ ok: false, error: 'Falta entrenador_id' });
-  const sess = waSessions[entrenador_id];
-  if (sess) { sess.detenido = true; try { sess.proceso && sess.proceso.kill(); } catch(e) {} }
-  delete waSessions[entrenador_id];
-  try { fs.rmSync(path.join(__dirname, 'auth_' + entrenador_id), { recursive: true, force: true }); } catch(e) {}
+  desconectarWhatsApp(entrenador_id);
   res.json({ ok: true });
 });
-
-app.post('/api/wa/corregir-numero', (req, res) => {
-  const { entrenador_id, telefono } = req.body;
-  if (!entrenador_id || !telefono) return res.json({ ok: false, error: 'Faltan datos' });
-  try {
-    const c = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
-    const e = c.entrenadores.find(e => e.id === entrenador_id);
-    if (!e) return res.json({ ok: false, error: 'No encontrado' });
-    e.telefono = telefono.replace(/\D/g,'');
-    fs.writeFileSync(path.join(__dirname, 'data/cuentas.json'), JSON.stringify(c, null, 2));
-    res.json({ ok: true });
-  } catch(e) { res.json({ ok: false, error: e.message }); }
-});
-
-
-
 
 
 

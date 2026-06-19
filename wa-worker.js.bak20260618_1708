@@ -50,9 +50,9 @@ async function iniciar() {
       const registrado = sock?.authState?.creds?.registered;
       if (!registrado && !pairingCode) {
         try {
-          fs.rmSync(authFolder, { recursive: true, force: true });
+          // fs.rmSync(authFolder, { recursive: true, force: true });
           console.log('🧹 Sesion incompleta borrada [' + entId + '], se reintentara desde cero');
-          enviar({ tipo: 'sesion_borrada' });
+          // enviar({ tipo: 'sesion_borrada' });
         } catch (e) {
           console.log('No se pudo borrar sesion incompleta [' + entId + ']:', e.message);
         }

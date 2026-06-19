@@ -350,9 +350,7 @@ async function compartirProgreso(id, nombre) {
     if (analisis.kgMusculo) msg += 'Kg músculo estimado: ' + analisis.kgMusculo + ' kg\n';
   }
 
-  const entId = JSON.parse(localStorage.getItem('dt_sesion')||'{}').id || null;
-  if (!entId) { alert('No se pudo confirmar tu sesion. Espera un momento e intenta de nuevo.'); return; }
-  const res = await fetch('/api/enviar', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telefono:usuario.telefono,mensaje:msg,entrenador_id:entId})});
+  const res = await fetch('/api/enviar', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telefono:usuario.telefono,mensaje:msg})});
   const data = await res.json();
   toast(data.ok ? '✅ Progreso enviado' : '❌ Error', data.ok);
 }

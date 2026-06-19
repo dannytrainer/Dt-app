@@ -2390,9 +2390,9 @@ async function cargarEstadoWA() {
     } else {
       txt.textContent = '🔴 No conectado';
       txt.style.color = '#e31e24';
-      if (data.pairingCode && box && cod) {
+      if (data.codigo && box && cod) {
         box.style.display = 'block';
-        cod.textContent = data.pairingCode;
+        cod.textContent = data.codigo;
         if (btnCon) btnCon.style.display = 'none';
         if (btnQR) btnQR.style.display = 'none';
         if (btnReconectar) btnReconectar.style.display = 'none';
@@ -2456,6 +2456,7 @@ async function conectarMiWhatsApp() {
   if (!tel) return;
   const btn = document.getElementById('wa-btn-conectar');
   if (btn) { btn.textContent = '⏳ Conectando...'; btn.disabled = true; }
+  await fetch('/api/wa/desconectar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ entrenador_id: entId }) });
   const res = await fetch('/api/wa/conectar', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
@@ -2494,6 +2495,7 @@ async function generarQRMiWhatsApp() {
   const entId = sesion.id || 'ent_001';
   const btn = document.getElementById('wa-btn-qr');
   if (btn) { btn.textContent = '⏳ Generando...'; btn.disabled = true; }
+  await fetch('/api/wa/desconectar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ entrenador_id: entId }) });
   const res = await fetch('/api/wa/conectar', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
@@ -9653,9 +9655,9 @@ function filtrarRutinas(){
         <div id="wa-qr-canvas" style="display:inline-block;background:#fff;padding:8px;border-radius:8px"></div>
       </div>
       <div id="wa-numero-txt" style="font-size:11px;color:var(--texto-medio);margin-bottom:8px;text-align:center"></div>
-      <button id="wa-btn-conectar" onclick="conectarMiWhatsApp()" style="display:none;width:100%;background:#25d366;border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:8px">&#128242; Conectar WhatsApp</button>
+      <button id="wa-btn-conectar" onclick="conectarMiWhatsApp()" style="display:none;width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:8px">&#128242; Conectar WhatsApp</button>
 <button id="wa-btn-qr" onclick="generarQRMiWhatsApp()" style="display:none;width:100%;background:#25d366;border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:8px">&#128247; Generar código QR</button>
-<button id="wa-btn-reconectar" onclick="reconectarMiWhatsApp()" style="display:none;width:100%;background:#25d366;border:none;border-radius:10px;color:#000;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:8px">&#128260; Reconectar</button>
+<button id="wa-btn-reconectar" onclick="reconectarMiWhatsApp()" style="display:none;width:100%;background:#0a84ff;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:8px">&#128260; Reconectar</button>
 <button id="wa-btn-desconectar" onclick="desconectarMiWhatsApp()" style="display:none;width:100%;background:#222;border:1px solid #e31e24;border-radius:10px;color:#e31e24;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:8px">&#9939; Desconectar</button>
       <button id="wa-btn-corregir" onclick="corregirNumeroWA()" style="width:100%;background:#222;border:1px solid #444;border-radius:10px;color:#ccc;font-size:12px;font-weight:700;padding:10px;cursor:pointer">&#9999;&#65039; Corregir número</button>
     </div>
