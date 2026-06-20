@@ -89,20 +89,6 @@ module.exports = function(app, fs) {
       const nombreEntrenador = (cfg.nombre_entrenador || 'Entrenador').toUpperCase();
       if (!usuario) return res.status(404).send('<h2>Cliente no encontrado</h2>');
 
-      const hoyCandado = new Date().toISOString().slice(0,10);
-      const esPremiumActivo = cfg.premium_entrenador && cfg.premium_entrenador_hasta && cfg.premium_entrenador_hasta >= hoyCandado;
-      if (!esPremiumActivo) {
-        return res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informe no disponible</title></head>
-        <body style="margin:0;background:#0a0a0a;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;padding:24px;box-sizing:border-box">
-          <div style="max-width:400px;text-align:center;background:#111;border:1px solid #222;border-radius:20px;padding:36px 28px">
-            <div style="font-size:48px;margin-bottom:16px">🔒</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#e31e24;margin-bottom:12px">INFORME NO DISPONIBLE</div>
-            <div style="font-size:14px;color:#999;line-height:1.6">Tu entrenador no tiene un plan activo en este momento. Pídele que actualice su suscripción para volver a ver este informe.</div>
-            <div style="margin-top:24px;font-size:11px;color:#444;text-transform:uppercase;letter-spacing:1px">DT-APP</div>
-          </div>
-        </body></html>`);
-      }
-
       const rutina       = rutinas[id] || rutinas[usuario.telefono] || {};
       const testCliente  = tests[id] || tests[usuario.telefono] || {};
       // Transformar registros al formato del informe
@@ -927,13 +913,6 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
       <span style="font-size:9px;color:#444;">Informe confidencial · Uso exclusivo del cliente</span>
       <span style="font-size:9px;color:#444;">© 2026 DT-App · Todos los derechos reservados</span>
     </div>
-  </div>
-
-  <div style="text-align:center;padding:20px 24px 30px">
-    <button onclick="window.location.href=window.location.pathname.replace('/html','/descargar')" style="background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:800;padding:12px 28px;cursor:pointer;box-shadow:0 4px 14px rgba(255,215,0,0.3)">
-      📥 Descargar copia de este informe
-    </button>
-    <div style="font-size:10px;color:#555;margin-top:10px">Esta copia descargada no se actualizará automáticamente</div>
   </div>
 
 </div>

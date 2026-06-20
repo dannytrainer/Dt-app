@@ -139,12 +139,6 @@ app.post('/api/cuentas/vincular', (req, res) => {
   if (!cli) return res.json({ ok:false, error:'Cliente no encontrado' });
   cli.entrenador_id = ent.id;
   guardarJSON('cuentas.json', cuentas);
-  // Push al cliente
-  const subCliV = pushSuscripciones[cli.usuario_id || cli.id];
-  if (subCliV) webpush.sendNotification(subCliV, JSON.stringify({ titulo: '✅ Entrenador vinculado', mensaje: 'Tu entrenador es ' + (ent.nombre || 'tu entrenador') + '. ¡Bienvenido!' })).catch(()=>{});
-  // Push al entrenador
-  const subEntV = pushSuscripciones[ent.id];
-  if (subEntV) webpush.sendNotification(subEntV, JSON.stringify({ titulo: '🏋️ Nuevo cliente', mensaje: (cli.nombre || 'Un cliente') + ' se unió a tu equipo.' })).catch(()=>{});
 
   // Crear en usuarios.json si no existe
   const usuarios = cargarJSON('usuarios.json', []);
@@ -405,15 +399,9 @@ cron.schedule('* * * * *', async () => {
       const esDiaPago = u.dia_pago === diaHoy;
       const esVencido = u.dia_pago < diaHoy && u.estado_pago !== 'aldia';
       const esProximo = u.dia_pago === diaHoy + diasAntes || (u.tipo_pago === 'quincenal' && u.dia_pago2 === diaHoy + diasAntes);
-      if (esVencido && u.estado_pago !== 'vencido') {
-        u.estado_pago = 'vencido'; cambio = true;
-        // Push se envia a las 8:37am, no aqui
-      }
+      if (esVencido && u.estado_pago !== 'vencido') { u.estado_pago = 'vencido'; cambio = true; }
       else if (esDiaPago && u.estado_pago === 'vencido') { u.estado_pago = 'vencido'; }
-      else if (esProximo && u.estado_pago === 'aldia') {
-        u.estado_pago = 'proximo'; cambio = true;
-        // Push se envia a las 8:37am, no aqui
-      }
+      else if (esProximo && u.estado_pago === 'aldia') { u.estado_pago = 'proximo'; cambio = true; }
       return u;
     });
     // Pausar clientes vencidos hace mas de 3 dias
@@ -434,26 +422,6 @@ cron.schedule('* * * * *', async () => {
       return u;
     });
     if (cambio) fs.writeFileSync(path.join(__dirname,'data','usuarios.json'), JSON.stringify(usuarios2, null, 2));
-
-  // Verificar premium de entrenadores
-  try {
-    const cuentasCron = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
-    const hoyStr = new Date().toISOString().split('T')[0];
-    const hoyMs = new Date().getTime();
-    cuentasCron.entrenadores.forEach(ent => {
-      const cfg = cargarJSON('config_' + ent.id + '.json', {});
-      if (!cfg.premium_entrenador_hasta) return;
-      const venceMs = new Date(cfg.premium_entrenador_hasta).getTime();
-      const diasRestantes = Math.ceil((venceMs - hoyMs) / (1000*60*60*24));
-      const sub = pushSuscripciones[ent.id];
-      if (!sub) return;
-      if (diasRestantes === 3) {
-        webpush.sendNotification(sub, JSON.stringify({ titulo: '⚠️ Premium por vencer', mensaje: 'Tu premium vence en 3 días. Renuévalo para seguir usando DT-APP.' })).catch(()=>{});
-      } else if (diasRestantes === 0) {
-        webpush.sendNotification(sub, JSON.stringify({ titulo: '🔴 Premium vencido', mensaje: 'Tu premium ha vencido. Renuévalo para continuar.' })).catch(()=>{});
-      }
-    });
-  } catch(e) {}
   } catch(e) {}
 
   // Envío automático de rutinas y recordatorio de pago
@@ -510,58 +478,6 @@ cron.schedule('* * * * *', async () => {
         if (!msg || !msg.trim()) continue;
         const enviado_cron = await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
         if (enviado_cron) usuario.msg_cobro_enviado = true;
-        // Push al cliente
-        const subCliCobro = pushSuscripciones[usuario.id];
-        if (subCliCobro) {
-          const tituloCli = usuario.estado_pago === 'proximo' ? 'Pago próximo' : 'Plan vencido';
-          const mensajeCli = usuario.estado_pago === 'proximo' ? (usuario.msg_proximo || 'Tu plan vence en 3 días.') : (usuario.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.');
-          webpush.sendNotification(subCliCobro, JSON.stringify({ titulo: tituloCli, mensaje: mensajeCli })).catch(()=>{});
-        }
-        // Push al entrenador
-        const subEntCobro = pushSuscripciones[usuario.entrenador_id];
-        if (subEntCobro) {
-          const tituloEnt = usuario.estado_pago === 'proximo' ? '⚠️ Pago próximo' : '🔴 Pago vencido';
-          const mensajeEnt = usuario.estado_pago === 'proximo' ? (usuario.nombre || 'Un cliente') + ' vence en 3 días.' : (usuario.nombre || 'Un cliente') + ' tiene pago vencido.';
-          webpush.sendNotification(subEntCobro, JSON.stringify({ titulo: tituloEnt, mensaje: mensajeEnt })).catch(()=>{});
-        }
-      }
-    }
-
-    // Push vencidos a las 7:00am
-    if (ahora.getHours() === 7 && ahora.getMinutes() === 0) {
-      for (const u of usuarios) {
-        if (!u.activo) continue;
-        if (u.estado_pago !== 'vencido') continue;
-        const subCli = pushSuscripciones[u.id];
-        if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '🔴 Plan vencido', mensaje: u.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.' })).catch(()=>{});
-        const subEnt = pushSuscripciones[u.entrenador_id];
-        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '🔴 Pago vencido', mensaje: (u.nombre || 'Un cliente') + ' tiene pago vencido.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(()=>{});
-      }
-    }
-
-    // Push cobros a las 8:37am (junto con WhatsApp)
-    if (ahoraMinCobro === HORA_COBRO*60 + MIN_COBRO) {
-      for (const u of usuarios) {
-        if (!u.activo) continue;
-        if (u.estado_pago !== 'proximo' && u.estado_pago !== 'vencido') continue;
-        const subCli = pushSuscripciones[u.id];
-        if (subCli) {
-          const tituloCli = u.estado_pago === 'proximo' ? 'Pago próximo' : 'Plan vencido';
-          const mensajeCli = u.estado_pago === 'proximo' ? (u.msg_proximo || 'Tu plan vence en 3 días.') : (u.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.');
-          webpush.sendNotification(subCli, JSON.stringify({ titulo: tituloCli, mensaje: mensajeCli })).catch(()=>{});
-        }
-      }
-    }
-
-    // Push proximos a las 9:00am
-    if (ahora.getHours() === 9 && ahora.getMinutes() === 0) {
-      for (const u of usuarios) {
-        if (!u.activo) continue;
-        if (u.estado_pago !== 'proximo') continue;
-        const subCli = pushSuscripciones[u.id];
-        if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: u.msg_proximo || 'Tu plan vence en 3 días.' })).catch(()=>{});
-        const subEnt = pushSuscripciones[u.entrenador_id];
-        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: (u.nombre || 'Un cliente') + ' vence en 3 días.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(()=>{});
       }
     }
 
@@ -1132,118 +1048,6 @@ app.post('/api/enviar-rutina/:id', async (req, res) => {
   const resultado = await enviarMensaje(usuario.telefono, texto, usuario.entrenador_id);
   res.json({ ok: resultado });
 });
-
-app.get('/api/enviar-dia/:id/:dia/texto', async (req, res) => {
-  const usuarios = cargarJSON('usuarios.json');
-  const rutinas = cargarJSON('rutinas.json');
-  const usuario = usuarios.find(u => u.id === req.params.id);
-  if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
-  const rutina = rutinas[req.params.id];
-  if (!rutina) return res.status(404).json({ error: 'Rutina no encontrada' });
-  const dia = req.params.dia.toLowerCase();
-  if (!rutina[dia]) return res.status(404).json({ error: 'Dia no encontrado' });
-  const d = rutina[dia];
-  let lineas = [];
-  lineas.push("*Rutina de " + usuario.nombre + "*");
-  lineas.push('');
-  lineas.push("🔥 " + dia.toUpperCase());
-  lineas.push('');
-  if (d.recordatorio) { lineas.push("📝 " + d.recordatorio); lineas.push(''); }
-  if (d.ejercicios && d.ejercicios.length > 0) {
-    d.ejercicios.forEach(e => {
-      lineas.push('┌───────────────────┐');
-      lineas.push(("│ " + (e.nombre||'')).padEnd(20) + '│');
-      lineas.push('├───────────────────┤');
-      lineas.push(("│ Series: " + (e.series||'')).padEnd(20) + '│');
-      lineas.push(("│ Reps: " + (e.reps||'')).padEnd(20) + '│');
-      lineas.push(("│ RIR: " + (e.rir||'')).padEnd(20) + '│');
-      lineas.push(("│ DESC: " + (e.desc||'')).padEnd(20) + '│');
-      lineas.push(("│ VAR: " + (e.var||'')).padEnd(20) + '│');
-      lineas.push('└───────────────────┘');
-      lineas.push('');
-    });
-  }
-  if (d.rutina) { lineas.push("📌 " + d.rutina); }
-  if (Array.isArray(d.cardio) && d.cardio.length > 0) {
-    lineas.push('');
-    lineas.push('🏃 CARDIO');
-    lineas.push('');
-    d.cardio.forEach(c => {
-      if (c.ejercicio) {
-        lineas.push('┌─────────────────────────┐');
-        if (c.momento) lineas.push('│ Momento: ' + c.momento.trim());
-        lineas.push('│ Ejercicio: ' + c.ejercicio.trim());
-        if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo.toString().trim() + ' min');
-        if (c.notas) {
-          c.notas.trim().split('\n').forEach((nl,ni) => {
-            if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
-          });
-        }
-        lineas.push('└─────────────────────────┘');
-        lineas.push('');
-      }
-    });
-  }
-  const texto = lineas.join('\n');
-  res.json({ texto });
-});
-
-
-app.get('/api/enviar-dia/:id/:dia/texto', async (req, res) => {
-  const usuarios = cargarJSON('usuarios.json');
-  const rutinas = cargarJSON('rutinas.json');
-  const usuario = usuarios.find(u => u.id === req.params.id);
-  if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
-  const rutina = rutinas[req.params.id];
-  if (!rutina) return res.status(404).json({ error: 'Rutina no encontrada' });
-  const dia = req.params.dia.toLowerCase();
-  if (!rutina[dia]) return res.status(404).json({ error: 'Dia no encontrado' });
-  const d = rutina[dia];
-  let lineas = [];
-  lineas.push("*Rutina de " + usuario.nombre + "*");
-  lineas.push('');
-  lineas.push("🔥 " + dia.toUpperCase());
-  lineas.push('');
-  if (d.recordatorio) { lineas.push("📝 " + d.recordatorio); lineas.push(''); }
-  if (d.ejercicios && d.ejercicios.length > 0) {
-    d.ejercicios.forEach(e => {
-      lineas.push('┌───────────────────┐');
-      lineas.push(("│ " + (e.nombre||'')).padEnd(20) + '│');
-      lineas.push('├───────────────────┤');
-      lineas.push(("│ Series: " + (e.series||'')).padEnd(20) + '│');
-      lineas.push(("│ Reps: " + (e.reps||'')).padEnd(20) + '│');
-      lineas.push(("│ RIR: " + (e.rir||'')).padEnd(20) + '│');
-      lineas.push(("│ DESC: " + (e.desc||'')).padEnd(20) + '│');
-      lineas.push(("│ VAR: " + (e.var||'')).padEnd(20) + '│');
-      lineas.push('└───────────────────┘');
-      lineas.push('');
-    });
-  }
-  if (d.rutina) { lineas.push("📌 " + d.rutina); }
-  if (Array.isArray(d.cardio) && d.cardio.length > 0) {
-    lineas.push('');
-    lineas.push('🏃 CARDIO');
-    lineas.push('');
-    d.cardio.forEach(c => {
-      if (c.ejercicio) {
-        lineas.push('┌─────────────────────────┐');
-        if (c.momento) lineas.push('│ Momento: ' + c.momento.trim());
-        lineas.push('│ Ejercicio: ' + c.ejercicio.trim());
-        if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo.toString().trim() + ' min');
-        if (c.notas) {
-          c.notas.trim().split('\n').forEach((nl,ni) => {
-            if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
-          });
-        }
-        lineas.push('└─────────────────────────┘');
-        lineas.push('');
-      }
-    });
-  }
-  const texto = lineas.join('\n');
-  res.json({ texto });
-});
-
 app.post('/api/enviar-dia/:id/:dia', async (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
   const rutinas = cargarJSON('rutinas.json');
@@ -1703,7 +1507,6 @@ app.post('/api/convenio/activar', (req, res) => {
     const cfg = cargarJSON(archivo, {});
     cfg.premium_entrenador = true;
     cfg.premium_entrenador_hasta = hastaStr;
-    if (cod.es_convenio) cfg.codigo_convenio = cod.codigo;
     guardarJSON(archivo, cfg);
   } else {
     const usuarios = cargarJSON('usuarios.json', []);
@@ -1777,8 +1580,7 @@ app.get('/api/superadmin/entrenadores', (req, res) => {
       clientes_activos: misClientes.filter(u => u.activo).length,
       premium: cfg.premium_entrenador || false,
       premium_hasta: cfg.premium_entrenador_hasta || null,
-      codigo_vinculacion: e.codigo_vinculacion || null,
-      codigo_convenio: cfg.codigo_convenio || null
+      codigo_vinculacion: e.codigo_vinculacion || null
     };
   });
   res.json(resultado);
@@ -2187,9 +1989,6 @@ app.post('/api/wompi/eventos', express.raw({type: 'application/json'}), (req, re
         cfgEnt.premium_entrenador = true;
         cfgEnt.premium_entrenador_hasta = hasta.split('T')[0];
         guardarJSON(archivoEnt, cfgEnt);
-        // Push al entrenador
-        const subEntW = pushSuscripciones[ent.id];
-        if (subEntW) webpush.sendNotification(subEntW, JSON.stringify({ titulo: '🎉 ¡Premium activado!', mensaje: 'Tu premium está activo hasta ' + hasta.split('T')[0] + '.' })).catch(()=>{});
       }
       if (cli) {
         const usuarios = cargarJSON('usuarios.json', []);
@@ -2198,9 +1997,6 @@ app.post('/api/wompi/eventos', express.raw({type: 'application/json'}), (req, re
           u.premium = true;
           u.premium_hasta = hasta.split('T')[0];
           guardarJSON('usuarios.json', usuarios);
-          // Push al cliente
-          const subCliW = pushSuscripciones[u.id];
-          if (subCliW) webpush.sendNotification(subCliW, JSON.stringify({ titulo: '🎉 ¡Premium activado!', mensaje: 'Tu premium está activo hasta ' + hasta.split('T')[0] + '.' })).catch(()=>{});
         }
       }
       
@@ -2289,21 +2085,4 @@ app.get('/api/superadmin/logs', (req, res) => {
   }
 });
 
-
-app.post('/api/log/frontend', (req, res) => {
-  const { mensaje, origen, detalle } = req.body;
-  registrarError(origen || 'frontend', { message: mensaje, stack: detalle || '' }, 'ERROR');
-  res.json({ ok: true });
-});
-
-
-app.post('/api/log/frontend', (req, res) => {
-  const { mensaje, origen, detalle } = req.body;
-  registrarError(origen || 'frontend', { message: mensaje, stack: detalle || '' }, 'ERROR');
-  res.json({ ok: true });
-});
-
 app.listen(3000, () => console.log('DT-APP corriendo en puerto 3000'));
-
-
-

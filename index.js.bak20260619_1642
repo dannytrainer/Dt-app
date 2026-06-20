@@ -535,7 +535,7 @@ cron.schedule('* * * * *', async () => {
         const subCli = pushSuscripciones[u.id];
         if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '🔴 Plan vencido', mensaje: u.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.' })).catch(()=>{});
         const subEnt = pushSuscripciones[u.entrenador_id];
-        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '🔴 Pago vencido', mensaje: (u.nombre || 'Un cliente') + ' tiene pago vencido.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(()=>{});
+        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '🔴 Pago vencido', mensaje: (u.nombre || 'Un cliente') + ' tiene pago vencido.' })).catch(()=>{});
       }
     }
 
@@ -561,7 +561,7 @@ cron.schedule('* * * * *', async () => {
         const subCli = pushSuscripciones[u.id];
         if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: u.msg_proximo || 'Tu plan vence en 3 días.' })).catch(()=>{});
         const subEnt = pushSuscripciones[u.entrenador_id];
-        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: (u.nombre || 'Un cliente') + ' vence en 3 días.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(()=>{});
+        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: (u.nombre || 'Un cliente') + ' vence en 3 días.' })).catch(()=>{});
       }
     }
 
@@ -2304,6 +2304,4 @@ app.post('/api/log/frontend', (req, res) => {
 });
 
 app.listen(3000, () => console.log('DT-APP corriendo en puerto 3000'));
-
-
 

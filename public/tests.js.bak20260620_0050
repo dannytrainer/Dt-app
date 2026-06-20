@@ -251,19 +251,7 @@ function renderFuerza() {
       <canvas id="radarFuerza" role="img" aria-label="Radar fuerza">Radar fuerza</canvas>
     </div>
     <button class="btn br" style="width:100%;margin-top:10px" onclick="guardarTest('fuerza')">💾 Guardar test de fuerza</button>
-    <div style="position:relative;margin-top:8px">
-  <button onclick="toggleMenu('menu-test-fuerza')" style="width:100%;background:rgba(227,30,36,0.08);color:#e31e24;border:1px solid rgba(227,30,36,0.4);border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-    📤 Compartir test <span id="menu-test-fuerza-arrow" style="font-size:10px;transition:transform 0.2s">▼</span>
-  </button>
-  <div id="menu-test-fuerza" style="display:none;margin-top:6px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:var(--card);overflow:hidden">
-    <button onclick="enviarTest('fuerza');toggleMenu('menu-test-fuerza')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📲 Enviar por WhatsApp
-    </button>
-    <button onclick="copiarTest('fuerza');toggleMenu('menu-test-fuerza')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📋 Copiar texto
-    </button>
-  </div>
-</div>
+    <button style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px" onclick="enviarTest('fuerza')">📤 Enviar por WhatsApp</button>
   `;
   setTimeout(() => initRadar('radarFuerza', '_radarFuerzaChart', ['Pecho','Espalda','Bíceps','Tríceps','Femoral','Cuád','Glúteo'], getScoresFuerza(), getComputedStyle(document.documentElement).getPropertyValue('--test-fuerza').trim()||'#e31e24'), 100);
 }
@@ -318,19 +306,7 @@ function renderResist() {
       <canvas id="radarResist" role="img" aria-label="Radar resistencia">Radar resistencia</canvas>
     </div>
     <button class="btn br" style="width:100%;margin-top:10px" onclick="guardarTest('resist')">💾 Guardar test de resistencia</button>
-    <div style="position:relative;margin-top:8px">
-  <button onclick="toggleMenu('menu-test-resist')" style="width:100%;background:rgba(227,30,36,0.08);color:#e31e24;border:1px solid rgba(227,30,36,0.4);border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-    📤 Compartir test <span id="menu-test-resist-arrow" style="font-size:10px;transition:transform 0.2s">▼</span>
-  </button>
-  <div id="menu-test-resist" style="display:none;margin-top:6px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:var(--card);overflow:hidden">
-    <button onclick="enviarTest('resist');toggleMenu('menu-test-resist')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📲 Enviar por WhatsApp
-    </button>
-    <button onclick="copiarTest('resist');toggleMenu('menu-test-resist')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📋 Copiar texto
-    </button>
-  </div>
-</div>
+    <button style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px" onclick="enviarTest('resist')">📤 Enviar por WhatsApp</button>
   `;
   setTimeout(() => initRadar('radarResist', '_radarResistChart', ['Push ups','Dominadas','Fondos','Sentadilla','Plancha','Burpees'], getScoresResist(), getComputedStyle(document.documentElement).getPropertyValue('--test-resist').trim()||'#4a9eff'), 100);
 }
@@ -388,19 +364,7 @@ function renderEspecif() {
       <canvas id="radarEspecif" role="img" aria-label="Radar específico">Radar específico</canvas>
     </div>
     <button class="btn br" style="width:100%;margin-top:10px" onclick="guardarTest('especif')">💾 Guardar test específico</button>
-    <div style="position:relative;margin-top:8px">
-  <button onclick="toggleMenu('menu-test-especif')" style="width:100%;background:rgba(227,30,36,0.08);color:#e31e24;border:1px solid rgba(227,30,36,0.4);border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-    📤 Compartir test <span id="menu-test-especif-arrow" style="font-size:10px;transition:transform 0.2s">▼</span>
-  </button>
-  <div id="menu-test-especif" style="display:none;margin-top:6px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:var(--card);overflow:hidden">
-    <button onclick="enviarTest('especif');toggleMenu('menu-test-especif')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📲 Enviar por WhatsApp
-    </button>
-    <button onclick="copiarTest('especif');toggleMenu('menu-test-especif')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📋 Copiar texto
-    </button>
-  </div>
-</div>
+    <button style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px" onclick="enviarTest('especif')">📤 Enviar por WhatsApp</button>
   `;
   setTimeout(() => initRadar('radarEspecif', '_radarEspecifChart', ['Cooper','Léger','Sit&Reach','Hombro','S.Largo','S.Vertical','30m'], getScoresEspecif(), getComputedStyle(document.documentElement).getPropertyValue('--test-especif').trim()||'#9c27b0'), 100);
 }
@@ -454,7 +418,7 @@ async function guardarTest(tipo) {
   toast('✅ Test guardado');
 }
 
-async function generarTextoTest(tipo) {
+async function enviarTest(tipo) {
   const id = window._testsId;
   const peso = window._testsPeso;
   const sexo = window._testsSexo;
@@ -509,26 +473,11 @@ async function generarTextoTest(tipo) {
   const ult = window._testsHistorial.filter(r => r.tipo === tipo).slice(-1)[0];
   if (ult?.scoreTotal) msg += '\n📊 Score total: ' + ult.scoreTotal + '/100';
 
-  return {texto: msg, telefono: usuario.telefono};
-}
-
-async function enviarTest(tipo) {
-  const r = await generarTextoTest(tipo);
   const entId = JSON.parse(localStorage.getItem('dt_sesion')||'{}').id || null;
   if (!entId) { alert('No se pudo confirmar tu sesion. Espera un momento e intenta de nuevo.'); return; }
-  const res = await fetch('/api/enviar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telefono: r.telefono, mensaje: r.texto, entrenador_id: entId }) });
+  const res = await fetch('/api/enviar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telefono: usuario.telefono, mensaje: msg, entrenador_id: entId }) });
   const data = await res.json();
   toast(data.ok ? '✅ Enviado' : '❌ Error', data.ok);
-}
-
-async function copiarTest(tipo) {
-  try {
-    const r = await generarTextoTest(tipo);
-    await navigator.clipboard.writeText(r.texto);
-    toast('📋 Test copiado al portapapeles');
-  } catch(e) {
-    toast('Error al copiar', false);
-  }
 }
 
 async function renderHistorialTests() {

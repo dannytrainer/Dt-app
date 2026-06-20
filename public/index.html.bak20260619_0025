@@ -8,12 +8,6 @@
 <meta name="theme-color" content="#e31e24">
 <link rel="icon" type="image/png" href="/icon.png">
 <link rel="apple-touch-icon" href="/icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="DT App">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icon.png">
-  <link rel="apple-touch-startup-image" href="/icon.png">
-
 <meta name="robots" content="noindex, nofollow, nosnippet, noarchive">
 <meta name="googlebot" content="noindex, nofollow, nosnippet, noarchive">
 <meta name="description" content="Gestiona tus clientes, rutinas, pagos y seguimiento deportivo desde un solo lugar. La herramienta digital que todo entrenador profesional necesita. Disponible en Colombia. 🏋️">
@@ -696,114 +690,11 @@ async function iniciarNotificacionesPush() {
 }
 
 window.addEventListener('load', () => {
-  function intentarPush(intentos) {
-    const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
-    if (sesion.id) {
-      iniciarNotificacionesPush();
-    } else if (intentos > 0) {
-      setTimeout(() => intentarPush(intentos - 1), 5000);
-    }
-  }
-  setTimeout(() => intentarPush(6), 3000);
+  setTimeout(iniciarNotificacionesPush, 5000);
 });
 
 // También llamar después del login
 window.activarPushTrasLogin = iniciarNotificacionesPush;
-
-// Detectar acción desde notificación push
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const accion = params.get('accion');
-  const clienteId = params.get('clienteId');
-  if (!accion) return;
-
-  let intentos = 0;
-  const intervalo = setInterval(() => {
-    intentos++;
-    if (intentos > 30) { clearInterval(intervalo); return; }
-
-    // Caso 1: entrenador quiere ver modal de cobro de un cliente
-    if (accion === 'cobro' && clienteId) {
-      const appEnt = document.getElementById('app-entrenador');
-      if (appEnt && appEnt.style.display === 'block' && typeof abrirAdminCliente === 'function') {
-        clearInterval(intervalo);
-        setTimeout(() => abrirAdminCliente(clienteId), 300);
-        return;
-      }
-    }
-
-    // Caso 2: cliente ve su propio plan
-    if (accion === 'mi-plan') {
-      const appCli = document.getElementById('terminal-cliente-app');
-      if (appCli && appCli.style.display !== 'none' && typeof tcTab === 'function') {
-        clearInterval(intervalo);
-        setTimeout(() => tcTab('rutina'), 300);
-        return;
-      }
-    }
-  }, 500);
-})();
-
-function actualizarEstadoPushUI() {
-  const card = document.getElementById('push-estado-card');
-  const txt = document.getElementById('push-estado-txt');
-  const sub = document.getElementById('push-estado-sub');
-  const btn = document.getElementById('push-estado-btn');
-  if (!card || !txt) return;
-  const perm = typeof Notification !== 'undefined' ? Notification.permission : 'denied';
-  if (perm === 'granted') {
-    card.style.background = '#1a3a1a';
-    card.style.border = '1px solid #4caf50';
-    txt.textContent = '🔔 Notificaciones activadas';
-    sub.textContent = 'Toca para desactivar';
-    btn.style.display = 'block';
-    btn.style.background = '#4caf50';
-    btn.textContent = 'Desactivar';
-  } else if (perm === 'denied') {
-    card.style.background = '#1a1a1a';
-    card.style.border = '1px solid #e31e24';
-    txt.textContent = '🔕 Notificaciones bloqueadas';
-    sub.textContent = 'Ve a Configuración del navegador → Notificaciones → Permitir dt-app.net';
-    btn.style.display = 'none';
-  } else {
-    card.style.background = '#1a1a1a';
-    card.style.border = '1px solid #333';
-    txt.textContent = '🔕 Notificaciones desactivadas';
-    sub.textContent = 'Toca para recibir alertas de cobros y clientes';
-    btn.style.display = 'block';
-    btn.style.background = '#e31e24';
-    btn.textContent = 'Activar';
-  }
-}
-
-async function gestionarPushAdmin() {
-  const permiso = Notification.permission;
-  if (permiso === 'granted') {
-    // Desactivar
-    try {
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.getSubscription();
-      if (sub) {
-        await sub.unsubscribe();
-        const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
-        await fetch('/api/push/suscribir', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: sesion.id, suscripcion: null })
-        });
-      }
-      toast('🔕 Notificaciones desactivadas');
-    } catch(e) { toast('Error al desactivar'); }
-  } else {
-    // Activar
-    await iniciarNotificacionesPush();
-    toast('🔔 Notificaciones activadas');
-  }
-  // Refrescar la vista
-  if(window._adminData) {
-    document.getElementById('admin-tab-content').innerHTML = renderAdminConfig();
-  }
-}
 </script>
 </head>
 <body>
@@ -1194,22 +1085,7 @@ async function gestionarPushAdmin() {
 <p class="st">Envío manual</p>
 <div class="card">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar1" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar1()" onfocus="mostrarDrop1()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar1" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente"></div>
-<div style="position:relative;margin-top:4px">
-  <button onclick="toggleMenu('menu-informe')" style="width:100%;padding:11px;border-radius:10px;border:1px solid rgba(227,30,36,0.4);background:rgba(227,30,36,0.08);color:#e31e24;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-    📤 Acciones <span id="menu-informe-arrow" style="font-size:10px;transition:transform 0.2s">▼</span>
-  </button>
-  <div id="menu-informe" style="display:none;margin-top:6px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:var(--card);overflow:hidden">
-    <button onclick="descargarInformeArchivo();toggleMenu('menu-informe')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📥 Descargar informe
-    </button>
-    <button onclick="mostrarTarjetaPremium();toggleMenu('menu-informe')" style="width:100%;padding:12px 16px;background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);border:none;border-top:1px solid #ffd700;border-bottom:1px solid #ffd700;color:#000;font-size:13px;font-weight:800;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(255,215,0,0.3)">
-      👑 Informe Premium
-    </button>
-    <button onclick="descargarInformePremium();toggleMenu('menu-informe')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      👁️ Ver informe
-    </button>
-  </div>
-</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px"><button class="btn" style="background:rgba(255,255,255,0.10);color:var(--texto);border:1px solid rgba(255,255,255,0.20);font-size:11px;padding:10px 6px" onclick="enviarRutinaCompleta()">💪 Rutina</button><button class="btn" style="background:linear-gradient(135deg,#b8860b,#ffd700);color:#000;border:none;font-size:11px;padding:10px 6px;font-weight:800;box-shadow:0 4px 14px rgba(255,215,0,0.35)" onclick="enviarInformePremium()">👑 Informe Premium</button><button class="btn" style="background:rgba(255,255,255,0.10);color:var(--texto);border:1px solid rgba(255,255,255,0.20);font-size:11px;padding:10px 6px" onclick="descargarInformePremium()">👁️ Ver</button></div>
 </div>
 <div class="card" style="margin-top:8px">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar2" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar2()" onfocus="mostrarDrop2()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar2" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente-dia"></div>
@@ -1223,22 +1099,7 @@ async function gestionarPushAdmin() {
 <option value="sabado">Sábado</option>
 <option value="domingo">Domingo</option>
 </select></div>
-<div style="display:flex;gap:8px">
-  <button onclick="desbloquearDiaEntrenamiento()" style="flex:1;padding:11px;border-radius:8px;border:1px solid #4caf50;background:#0a1a0a;color:#4caf50;font-size:12px;font-weight:700;cursor:pointer">🔓 Desbloquear</button>
-  <div style="position:relative;flex:1">
-    <button onclick="toggleMenu('menu-dia')" style="width:100%;padding:11px;border-radius:8px;border:1px solid rgba(227,30,36,0.4);background:rgba(227,30,36,0.08);color:#e31e24;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-      📤 Enviar día <span id="menu-dia-arrow" style="font-size:10px;transition:transform 0.2s">▼</span>
-    </button>
-    <div id="menu-dia" style="display:none;position:absolute;bottom:48px;left:0;right:0;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:var(--card);overflow:hidden;z-index:99">
-      <button onclick="enviarDiaRutina();toggleMenu('menu-dia')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-        📤 Enviar por WhatsApp
-      </button>
-      <button onclick="copiarDiaRutina();toggleMenu('menu-dia')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-        📋 Copiar texto
-      </button>
-    </div>
-  </div>
-</div>
+<div style="display:flex;gap:8px"><button onclick="desbloquearDiaEntrenamiento()" style="flex:1;padding:11px;border-radius:8px;border:1px solid #4caf50;background:#0a1a0a;color:#4caf50;font-size:12px;font-weight:700;cursor:pointer">🔓 Desbloquear</button><button class="btn br" style="flex:1" onclick="enviarDiaRutina()">📤 Enviar día</button></div>
 </div>
 <div class="card" style="margin-top:8px">
   <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px">📢 Difusión</div>
@@ -2294,16 +2155,6 @@ function renderAdminConfig(){
     html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">Abrir chat con mensaje o vacío</div></div>';
     html+='<label class="switch"><input type="checkbox" id="admin-prellenado"'+(cfg.msg_prellenado?' checked':'')+' onchange="guardarAdminConfig()"><span class="slider"></span></label></div>';
     html+='<button onclick="guardarAdminConfig()" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:var(--texto);font-size:14px;font-weight:700;padding:12px;cursor:pointer">💾 Guardar</button>';
-
-  // Botón notificaciones push
-  html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
-  html+='<div style="font-size:13px;color:var(--texto);font-weight:600;margin-bottom:10px">🔔 Notificaciones push</div>';
-  html+='<div id="push-estado-card" style="background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">';
-  html+='<div><div id="push-estado-txt" style="font-size:13px;color:var(--texto);font-weight:600">Verificando...</div>';
-  html+='<div id="push-estado-sub" style="font-size:11px;color:var(--texto-secundario);margin-top:3px"></div></div>';
-  html+='<button id="push-estado-btn" onclick="gestionarPushAdmin()" style="background:#333;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;display:none">...</button>';
-  html+='</div></div>';
-  setTimeout(()=>actualizarEstadoPushUI(), 100);
   }
 
   if(tab==='vinculacion'){
@@ -2839,11 +2690,11 @@ async function guardarAdminCliente(id){
   const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
   const descMotivo=document.getElementById('ac-desc-motivo').value.trim();
   const _rawid=(id+'').replace('cli_','');
-  await fetch('/api/admin/'+_rawid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_proximo:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  await fetch('/api/admin/'+_rawid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_proximo:msg,msg_pago:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
   if(!window._adminData.clientes[_rawid])window._adminData.clientes[_rawid]={pagos:[]};
   Object.assign(window._adminData.clientes[_rawid],{precio,moneda,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo});
   const uIdx=(window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
-  if(uIdx!==-1){window._adminUsuarios[uIdx].msg_proximo=msg;window._adminUsuarios[uIdx].precio=precio;window._adminUsuarios[uIdx].moneda=moneda;}
+  if(uIdx!==-1){window._adminUsuarios[uIdx].msg_proximo=msg;window._adminUsuarios[uIdx].msg_pago=msg;window._adminUsuarios[uIdx].precio=precio;window._adminUsuarios[uIdx].moneda=moneda;}
   toast('✅ Cliente guardado');
   const acMsg=document.getElementById('ac-msg'); if(acMsg) acMsg.value=msg;
 }
@@ -3230,7 +3081,6 @@ async function guardarNombreEntrenador(){
   const sesion=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
   sesion.nombre=nombre;
   localStorage.setItem('dt_sesion', JSON.stringify(sesion));
-  setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
   toast('✅ Nombre actualizado');
 }
 function toggleTema(){
@@ -3269,7 +3119,6 @@ async function guardarInstagram(){
   const sesion=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
   sesion.instagram=ig;
   localStorage.setItem('dt_sesion', JSON.stringify(sesion));
-  setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
   toast('✅ Instagram guardado');
 }
 async function cargarNombreEntrenador(){
@@ -3398,8 +3247,7 @@ let _vencidos=[];
 function enviarPagoWA(idx){
   const u=_vencidos[idx];
   if(!u)return;
-  const msgTexto = (u.msg_pago && u.msg_pago.trim()) ? u.msg_pago : 'El día de hoy se venció tu plan de entrenamiento.';
-  const msg=encodeURIComponent(msgTexto);
+  const msg=encodeURIComponent('Hola '+u.nombre+' 👋, te recuerdo que tienes un pago pendiente. Comunicate conmigo para ponernos al dia. Gracias! 💪');
   window.open('https://wa.me/'+u.telefono.replace(/\D/g,'')+'?text='+msg,'_blank');
 }
 async function cargarInicio(){
@@ -3444,18 +3292,10 @@ async function cargarInicio(){
     vencidos.forEach((u,_vi)=>{
       cobrosHtml+='<div style="background:rgba(227,30,36,0.08);border:1px solid rgba(227,30,36,0.25);border-radius:16px;padding:16px;min-width:190px;flex-shrink:0;backdrop-filter:blur(10px)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🔴</span><span style="font-size:11px;font-weight:800;color:#e31e24;text-transform:uppercase;letter-spacing:.5px">Cobro vencido</span></div><div style="font-size:14px;color:var(--texto);font-weight:700;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:var(--texto-medio);margin-bottom:10px">'+(u.msg_pago||'Pago pendiente')+'</div><div style="background:rgba(227,30,36,0.15);border:1px solid rgba(227,30,36,0.3);border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#e31e24;font-weight:700;cursor:pointer" id=\"wa-btn-'+ _vi +'\">📲 WhatsApp</div></div>';
     });
-    proximos.forEach((u,_pi)=>{
-      cobrosHtml+='<div style="background:rgba(255,152,0,0.08);border:1px solid rgba(255,152,0,0.30);border-radius:16px;padding:16px;min-width:190px;flex-shrink:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">⚠️</span><span style="font-size:11px;font-weight:800;color:#ff9800;text-transform:uppercase;letter-spacing:.5px">Próximo cobro</span></div><div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:var(--texto-medio);margin-bottom:10px">Vence día '+u.dia_pago+'</div><div style="background:rgba(255,152,0,0.15);border:1px solid rgba(255,152,0,0.30);border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#ff9800;font-weight:700;cursor:pointer" id="prox-btn-'+_pi+'">📲 Recordar</div></div>';
+    proximos.forEach(u=>{
+      cobrosHtml+='<div style="background:rgba(255,152,0,0.08);border:1px solid rgba(255,152,0,0.30);border-radius:16px;padding:16px;min-width:190px;flex-shrink:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">⚠️</span><span style="font-size:11px;font-weight:800;color:#ff9800;text-transform:uppercase;letter-spacing:.5px">Próximo cobro</span></div><div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:var(--texto-medio);margin-bottom:10px">Vence día '+u.dia_pago+'</div><div style="background:rgba(255,152,0,0.15);border:1px solid rgba(255,152,0,0.30);border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#ff9800;font-weight:700;cursor:pointer" onclick="showPage(\'clientes\')">🔔 Recordar</div></div>';
     });
     document.getElementById('hi-cobros').innerHTML=cobrosHtml;
-    proximos.forEach((_u,_pi)=>{
-      const bp=document.getElementById('prox-btn-'+_pi);
-      if(bp)bp.onclick=()=>{
-        const msgTexto = (_u.msg_proximo && _u.msg_proximo.trim()) ? _u.msg_proximo : ('Hola '+_u.nombre+' 👋, te recuerdo que tu plan vence pronto. Comunícate conmigo para renovarlo. ¡Gracias! 💪');
-        const msg=encodeURIComponent(msgTexto);
-        window.open('https://wa.me/'+_u.telefono.replace(/\D/g,'')+'?text='+msg,'_blank');
-      };
-    });
     vencidos.forEach((_u,_i)=>{
       const b=document.getElementById('wa-btn-'+_i);
       if(b)b.onclick=()=>enviarPagoWA(_i);
@@ -9531,14 +9371,6 @@ function volverHerramientas(){
     tcTab('rutina');
     return;
   }
-  if (window._sonidosDesdeConfig) {
-    window._sonidosDesdeConfig = false;
-    document.getElementById('herramienta-panel').style.display='none';
-    const paginaAntes = window._paginaAntesSonidos || 'inicio';
-    showPage(paginaAntes);
-    setTimeout(()=>abrirConfig(), 100);
-    return;
-  }
   document.getElementById('herramienta-panel').style.display='none';
   document.querySelector('#page-logs .st').style.display='block';
   document.querySelector('#page-logs .st').nextElementSibling.style.display='grid';
@@ -9558,71 +9390,6 @@ ${Object.entries(logs[f]).map(([n,e])=>`
 }
 
 let _usuariosEnviar=[];
-function toggleMenu(id){
-  const menu = document.getElementById(id);
-  const arrow = document.getElementById(id+'-arrow');
-  const abierto = menu.style.display === 'block';
-  // Cerrar todos los menús abiertos
-  document.querySelectorAll('[id^="menu-"]').forEach(m => {
-    if(m.tagName === 'DIV') m.style.display = 'none';
-  });
-  document.querySelectorAll('[id$="-arrow"]').forEach(a => a.style.transform = '');
-  // Abrir o cerrar el actual
-  if(!abierto){
-    menu.style.display = 'block';
-    if(arrow) arrow.style.transform = 'rotate(180deg)';
-  }
-  // Cerrar al tocar fuera
-  setTimeout(()=>{
-    document.addEventListener('click', function cerrar(e){
-      if(!menu.contains(e.target) && !e.target.closest('[onclick*="toggleMenu"]')){
-        menu.style.display = 'none';
-        if(arrow) arrow.style.transform = '';
-        document.removeEventListener('click', cerrar);
-      }
-    });
-  }, 100);
-}
-
-async function descargarHTMLRutina(){
-  const id = document.getElementById('enviar-cliente').value;
-  if(!id){ toast('Selecciona un cliente primero'); return; }
-  try{
-    const r = await fetch('/api/rutinas/'+id);
-    const rutina = await r.json();
-    const usuario = _usuariosEnviar.find(u=>u.id===id||u.id==='cli_'+id);
-    const nombre = usuario ? usuario.nombre : 'Cliente';
-    const dias = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
-    const nombDias = {'lunes':'Lunes','martes':'Martes','miercoles':'Miércoles','jueves':'Jueves','viernes':'Viernes','sabado':'Sábado','domingo':'Domingo'};
-    let bloques = '';
-    dias.forEach(d=>{
-      const ejs = rutina[d];
-      if(!ejs||!ejs.length) return;
-      bloques += '<div style="margin-bottom:20px"><h3 style="color:#e31e24;border-bottom:2px solid #e31e24;padding-bottom:6px">'+nombDias[d]+'</h3>';
-      ejs.forEach(e=>{
-        bloques += '<div style="background:#1a1a1a;border-radius:8px;padding:12px;margin-bottom:8px">';
-        bloques += '<div style="font-weight:700;color:#fff;font-size:15px">'+e.nombre+'</div>';
-        if(e.series||e.reps) bloques += '<div style="color:#aaa;font-size:13px;margin-top:4px">'+[e.series?e.series+' series':'',e.reps?e.reps+' reps':''].filter(Boolean).join(' × ')+'</div>';
-        if(e.peso) bloques += '<div style="color:#ffd700;font-size:13px">Peso: '+e.peso+'</div>';
-        if(e.notas) bloques += '<div style="color:#888;font-size:12px;margin-top:4px;font-style:italic">'+e.notas+'</div>';
-        bloques += '</div>';
-      });
-      bloques += '</div>';
-    });
-    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rutina '+nombre+'</title></head><body style="background:#111;color:#fff;font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px"><h2 style="color:#e31e24">💪 Rutina de '+nombre+'</h2>'+bloques+'<p style="color:#555;font-size:11px;text-align:center;margin-top:30px">Generado por DT-APP</p></body></html>';
-    const blob = new Blob([html], {type:'text/html'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'rutina_'+nombre.replace(/\s+/g,'_')+'.html';
-    a.click();
-    URL.revokeObjectURL(url);
-    toast('✅ HTML descargado');
-  } catch(e){
-    toast('Error al generar HTML');
-  }
-}
-
 function cargarSelectEnviar(){
   fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(u=>{
     _usuariosEnviar=u.filter(x=>x.activo);
@@ -9669,22 +9436,6 @@ async function desbloquearDiaEntrenamiento() {
   }
 }
 
-async function copiarDiaRutina(){
-  const id = document.getElementById('enviar-cliente-dia').value;
-  const dia = document.getElementById('enviar-dia-select').value;
-  if(!id){ toast('Selecciona un cliente', false); return; }
-  try {
-    const res = await fetch('/api/enviar-dia/'+id+'/'+dia+'/texto');
-    const data = await res.json();
-    if(!data.texto){ toast('No hay rutina para ese día', false); return; }
-    await navigator.clipboard.writeText(data.texto);
-    toast('📋 Rutina copiada al portapapeles');
-  } catch(e){
-    toast('Error al copiar', false);
-    logFrontend('copiarDiaRutina', e.message || 'Error al copiar rutina', e.stack || '');
-  }
-}
-
 async function enviarDiaRutina(){
 const id=document.getElementById('enviar-cliente-dia').value;
 const dia=document.getElementById('enviar-dia-select').value;
@@ -9702,47 +9453,6 @@ const data=await res.json();
 toast(data.ok?'✅ Rutina enviada':'❌ Error',data.ok);
 }
 
-async function mostrarTarjetaPremium(){
-  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
-  const id = document.getElementById("enviar-cliente").value;
-  if(!id){toast("Selecciona un cliente",false);return;}
-  const u = await fetch('/api/usuarios/'+id).then(r=>r.json()).catch(()=>null);
-  const nombre = u && u.nombre ? u.nombre : 'Cliente';
-  const link = 'https://dt-app.net/api/informe/'+id+'/html';
-
-  const modal = document.createElement('div');
-  modal.id = 'modal-tarjeta-premium';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;animation:fadeInModal 0.3s ease';
-  modal.innerHTML = `
-    <style>
-      @keyframes fadeInModal { from{opacity:0} to{opacity:1} }
-      @keyframes cardPop { from{opacity:0;transform:scale(0.92) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
-      @keyframes shine { 0%{transform:translateX(-100%) rotate(25deg)} 100%{transform:translateX(250%) rotate(25deg)} }
-    </style>
-    <div style="max-width:420px;width:100%;animation:cardPop 0.4s ease">
-      <div style="position:relative;width:100%;aspect-ratio:1.6;border-radius:18px;overflow:hidden;background:url('/img/tarjeta-premium.png') center/cover no-repeat;box-shadow:0 12px 40px rgba(255,215,0,0.25)">
-        <div style="position:absolute;top:0;left:-30%;width:35%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);animation:shine 1.8s ease-in-out 0.3s 1"></div>
-        <div style="position:absolute;left:8%;top:42%;width:62%;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,5vw,26px);letter-spacing:1px;color:#3d2e0a;text-shadow:1px 1px 1px rgba(255,255,255,0.35),-1px -1px 1px rgba(0,0,0,0.5)">${nombre.toUpperCase()}</div>
-        </div>
-        <div style="position:absolute;left:8%;bottom:11%;width:84%;">
-          <div style="font-family:'DM Mono',monospace,monospace;font-size:clamp(9px,2.6vw,12px);letter-spacing:1px;color:#3d2e0a;text-shadow:1px 1px 1px rgba(255,255,255,0.3),-1px -1px 1px rgba(0,0,0,0.5);word-break:break-all">${link}</div>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:14px;font-size:12px;color:#ccc;line-height:1.5">
-        Cada vez que actualices su rutina o medidas, ${nombre.split(' ')[0]} podrá verlo desde este mismo link, en cualquier momento.
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button onclick="navigator.clipboard.writeText('${link}');toast('📋 Link copiado')" style="flex:1;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);color:#000;font-size:13px;font-weight:800;cursor:pointer">📋 Copiar link</button>
-        <button onclick="window.open('${link}','_blank')" style="flex:1;padding:13px;border-radius:10px;border:1px solid rgba(255,215,0,0.4);background:rgba(255,215,0,0.08);color:#ffd700;font-size:13px;font-weight:700;cursor:pointer">👁️ Ver</button>
-      </div>
-      <button onclick="document.getElementById('modal-tarjeta-premium').remove()" style="display:block;margin:16px auto 0;background:transparent;border:none;color:#888;font-size:12px;cursor:pointer">Cerrar</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.remove(); });
-}
-
 async function enviarInformePremium(){
   if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
   const id=document.getElementById("enviar-cliente").value;
@@ -9752,13 +9462,6 @@ async function enviarInformePremium(){
   const data=await res.json();
   toast(data.ok?"Informe enviado":"Error: "+data.error,data.ok);
 }
-async function descargarInformeArchivo(){
-  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
-  const id=document.getElementById("enviar-cliente").value;
-  if(!id){toast("Selecciona un cliente",false);return;}
-  window.location.href="/api/informe/"+id+"/descargar";
-}
-
 async function descargarInformePremium(){
   if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
   const id=document.getElementById("enviar-cliente").value;
@@ -9993,7 +9696,7 @@ function filtrarRutinas(){
 
     <!-- SISTEMA -->
     <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128266; Sistema</div>
-    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="window._paginaAntesSonidos=document.querySelector('.page.active')?.id?.replace('page-','')||'inicio';window._sonidosDesdeConfig=true;cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100)">
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="cerrarConfig();showPage('logs');setTimeout(()=>showHerramienta('sonidos'),100)">
       <div>
         <div style="font-size:13px;font-weight:700;color:#fff">Configurar sonidos</div>
         <div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Cronos &middot; Timers &middot; HIIT</div>
@@ -10420,7 +10123,6 @@ function initRol() {
     const id = localStorage.getItem('dt_cliente_id');
     if (tel && id) {
       if (!JSON.parse(localStorage.getItem('dt_sesion')||'{}').email) { localStorage.setItem('dt_sesion', JSON.stringify({email: tel.replace(/\D/g,'')+'@dtapp.com', rol:'cliente', id: id})); }
-      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
       mostrarTerminalCliente(tel);
     } else {
       mostrarPantalla('pantalla-rol');
@@ -10456,7 +10158,6 @@ function loginEntrenador() {
       data.email = data.email || emailUsado;
       data.roles = data.roles || [{rol:'entrenador',id:data.id},{rol:'cliente',id:null}];
       localStorage.setItem('dt_sesion', JSON.stringify(data));
-      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
       localStorage.setItem(ROL_KEY, data.rol || 'entrenador');
       mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
       setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
@@ -10467,7 +10168,6 @@ function loginEntrenador() {
     if (pass === PASS_ENTRENADOR) {
       localStorage.setItem(ROL_KEY, 'entrenador');
       localStorage.setItem('dt_sesion', JSON.stringify({email:'danielgaviriabotero@gmail.com', rol:'entrenador'}));
-      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
       mostrarSeleccionRol({nombre:'Danny Trainer', email:'danielgaviriabotero@gmail.com', roles:[{rol:'entrenador',id:'ent_001'},{rol:'cliente',id:null}]});
     } else {
       document.getElementById('error-pass').style.display = 'block';
@@ -10491,7 +10191,6 @@ function loginCliente() {
       localStorage.setItem('dt_cliente_tel', tel);
       const emailCli = tel.replace(/\D/g,'')+'@dtapp.com';
       localStorage.setItem('dt_sesion', JSON.stringify({email: emailCli, rol:'cliente', id: u.id}));
-      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
       mostrarSeleccionRol({nombre: u.nombre||tel, email: emailCli, roles:[{rol:'entrenador',id:null},{rol:'cliente',id:u.id,usuario_id:u.id}]});
     } else {
       if(codeBox && codeBox.style.display === 'none') {
@@ -10510,7 +10209,6 @@ function loginCliente() {
           localStorage.setItem('dt_cliente_tel', tel);
           const emailCli2 = tel.replace(/\D/g,'')+'@dtapp.com';
           localStorage.setItem('dt_sesion', JSON.stringify({email: emailCli2, rol:'cliente', id: data.id}));
-          setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
           mostrarSeleccionRol({nombre: tel, email: emailCli2, roles:[{rol:'entrenador',id:null},{rol:'cliente',id:data.id,usuario_id:data.id}]});
         } else {
           if(errorVinc){ errorVinc.style.display='block'; errorVinc.textContent = data.error || 'Código inválido'; }
@@ -10646,7 +10344,6 @@ async function hacerRegistro() {
     if (data.ok) {
       data.roles = data.roles || [{rol:'entrenador',id:data.id},{rol:'cliente',id:data.usuario_id||null}];
       localStorage.setItem('dt_sesion', JSON.stringify(data));
-      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
       localStorage.setItem(ROL_KEY, data.rol);
       document.getElementById('pantalla-registro').style.display = 'none';
       mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
@@ -10686,7 +10383,6 @@ function loginUnificado() {
     if (data.ok) {
       data.roles = data.roles || [{rol:'entrenador',id:data.id},{rol:'cliente',id:data.usuario_id||null}];
       localStorage.setItem('dt_sesion', JSON.stringify(data));
-      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
       localStorage.setItem(ROL_KEY, data.rol);
       if (data.usuario_id) localStorage.setItem('dt_cliente_id', data.usuario_id);
       localStorage.removeItem('dt_login_intentos');
@@ -13358,7 +13054,6 @@ async function hacerLogin() {
     const data = await res.json();
     if (data.ok) {
       localStorage.setItem('dt_sesion', JSON.stringify(data));
-      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
       _sesion = data;
       document.getElementById('pantalla-login').style.display = 'none';
       if (data.roles && data.roles.length > 1) {
@@ -13441,7 +13136,6 @@ function checkGoogleLogin() {
         const s = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
         s.roles = d.roles;
         localStorage.setItem('dt_sesion', JSON.stringify(s));
-        setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
         mostrarSeleccionRol(d);
       }).catch(() => {
         if (rol === 'entrenador') mostrarApp();
@@ -13476,15 +13170,8 @@ function mostrarSeleccionRol(d) {
   document.getElementById('sel-bienvenida').textContent = '¡Hola, ' + (d.nombre || 'Usuario') + '!';
   const cont = document.getElementById('sel-botones');
   cont.innerHTML = '';
-  // Último rol usado — entrar directo si ya existe
+  // Último rol usado
   const ultimoRol = localStorage.getItem('dt_ultimo_rol');
-  if (ultimoRol) {
-    const rolAuto = d.roles.find(r => r.rol === ultimoRol);
-    if (rolAuto) {
-      seleccionarRolGoogle(Object.assign({}, rolAuto, {email: d.email, nombre: d.nombre}));
-      return;
-    }
-  }
   d.roles.forEach(r => {
     const btn = document.createElement('button');
     const esUltimo = ultimoRol === r.rol;
@@ -13515,7 +13202,6 @@ async function seleccionarRolGoogle(r) {
     } catch(e) { console.error('Error creando perfil:', e); }
   }
   localStorage.setItem('dt_sesion', JSON.stringify({ok:true, rol:rolData.rol, id:rolData.id, email:data.email||r.email||'', nombre:rolData.nombre||data.nombre, usuario_id:rolData.usuario_id||rolData.id, roles:data.roles||[]}));
-  setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
   localStorage.setItem('dt_rol', rolData.rol);
   localStorage.setItem('dt_ultimo_rol', rolData.rol);
   if (rolData.rol === 'cliente') localStorage.setItem('dt_cliente_id', rolData.usuario_id || rolData.id);
@@ -14135,7 +13821,7 @@ async function abrirSuperAdmin() {
     document.body.appendChild(panel);
   }
   panel.style.display = 'block';
-  panel.innerHTML = '<div style="padding:16px"><div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><button onclick="document.getElementById(&quot;superadmin-panel&quot;).style.display=&quot;none&quot;" style="background:var(--gris);border:none;border-radius:8px;color:var(--texto);padding:8px 12px;font-size:13px;cursor:pointer">← Volver</button><div style="font-size:16px;font-weight:900;color:#e31e24">⚙️ SUPERADMIN</div></div><div style="display:flex;gap:8px;margin-bottom:16px"><button id="sa-tab-convenios" onclick="saTabConvenios()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#e31e24;color:#fff">⚙️ Convenios</button><button id="sa-tab-logs" onclick="saTabLogs()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:var(--gris);color:var(--texto)">🔴 Logs</button></div><div id="sa-contenido">Cargando...</div></div>';
+  panel.innerHTML = '<div style="padding:16px"><div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><button onclick="document.getElementById(&quot;superadmin-panel&quot;).style.display=&quot;none&quot;" style="background:var(--gris);border:none;border-radius:8px;color:var(--texto);padding:8px 12px;font-size:13px;cursor:pointer">← Volver</button><div style="font-size:16px;font-weight:900;color:#e31e24">⚙️ SUPERADMIN</div></div><div id="sa-contenido">Cargando...</div></div>';
   await cargarSuperAdmin();
 }
 
@@ -14210,17 +13896,14 @@ async function cargarSuperAdmin() {
     html += '<div id="sa-lista-convenios">';
     convenios.forEach(function(c) {
       const hoy = new Date().toISOString().split('T')[0];
-      const hoyStr = hoy;
-      const usosCli = usuariosRes.filter(u => u.codigo_convenio === c.codigo && u.premium_hasta && u.premium_hasta >= hoyStr).length;
-      const usosEnt = entrenadores.filter(e => e.codigo_convenio === c.codigo && e.premium_hasta && e.premium_hasta >= hoyStr).length;
-      const usosTotal = usosCli + usosEnt;
+      const usosCli = usuariosRes.filter(u => u.codigo_convenio === c.codigo && u.premium && u.premium_hasta >= hoy).length;
       const tipoColor = c.tipo === 'entrenador' ? '#f0a500' : '#4a9eff';
       const tipoLabel = c.tipo === 'entrenador' ? '🏋️ Entrenador' : '👤 Cliente';
       html += '<div class="sa-convenio-row" style="padding:8px 0;border-bottom:1px solid #222">';
       html += '<div style="display:flex;justify-content:space-between;align-items:start">';
       html += '<div style="flex:1">';
       html += '<div style="font-size:14px;font-weight:700;color:#e31e24;font-family:monospace">'+c.codigo+'</div>';
-      html += '<div style="font-size:11px;color:var(--texto-medio);margin-top:2px"><span style="color:'+tipoColor+'">'+tipoLabel+'</span> · '+(c.permanente||c.dias>=99999?'Permanente':c.dias+' días')+' · <span style="color:#4caf50">'+usosTotal+' usuarios activos</span></div>';
+      html += '<div style="font-size:11px;color:var(--texto-medio);margin-top:2px"><span style="color:'+tipoColor+'">'+tipoLabel+'</span> · '+(c.permanente||c.dias>=99999?'Permanente':c.dias+' días')+' · <span style="color:#4caf50">'+usosCli+' usuarios activos</span></div>';
       html += '<div style="margin-top:4px"><span style="background:'+(c.activo?'#1a3a1a':'#3a1a1a')+';color:'+(c.activo?'#4caf50':'#e31e24')+';font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">'+(c.activo?'✅ Activo':'🔴 Inactivo')+'</span></div>';
       html += '</div>';
       html += '<button onclick="saBorrarConvenio(this)" data-codigo="'+c.codigo+'" style="background:#3a1a1a;border:none;border-radius:6px;color:#e31e24;font-size:11px;padding:5px 8px;cursor:pointer;margin-left:8px">Borrar</button>';
@@ -14231,121 +13914,6 @@ async function cargarSuperAdmin() {
 
   html += '</div>';
   document.getElementById('sa-contenido').innerHTML = html;
-}
-
-
-function saTabConvenios() {
-  document.getElementById('sa-tab-convenios').style.background = '#e31e24';
-  document.getElementById('sa-tab-convenios').style.color = '#fff';
-  document.getElementById('sa-tab-logs').style.background = 'var(--gris)';
-  document.getElementById('sa-tab-logs').style.color = 'var(--texto)';
-  cargarSuperAdmin();
-}
-
-function saTabLogs() {
-  document.getElementById('sa-tab-logs').style.background = '#e31e24';
-  document.getElementById('sa-tab-logs').style.color = '#fff';
-  document.getElementById('sa-tab-convenios').style.background = 'var(--gris)';
-  document.getElementById('sa-tab-convenios').style.color = 'var(--texto)';
-  cargarLogsPanel('todos');
-}
-
-
-async function cargarLogsPanel(filtro) {
-  filtro = filtro || "todos";
-  const cont = document.getElementById("sa-contenido");
-  cont.innerHTML = "<div style=\"text-align:center;padding:40px;color:var(--texto-medio)\">Cargando logs...</div>";
-  const data = await fetch("/api/superadmin/logs").then(function(r){return r.json();}).catch(function(){return {logs:[]};});
-  const logs = data.logs || [];
-
-  const traducciones = [
-    { patron: "getaddrinfo ENOTFOUND web.whatsapp", nombre: "WhatsApp sin conexion", desc: "WhatsApp intento conectarse pero no habia internet." },
-    { patron: "getaddrinfo ENOTFOUND", nombre: "Sin conexion a internet", desc: "El servidor intento conectarse a un servicio externo sin exito." },
-    { patron: "printQRInTerminal", nombre: "Aviso de WhatsApp desactualizado", desc: "Una opcion de configuracion de WhatsApp quedo obsoleta. No afecta el funcionamiento." },
-    { patron: "Cannot read prop", nombre: "Dato faltante en el servidor", desc: "El servidor intento leer un dato que no existia." },
-    { patron: "ENOENT", nombre: "Archivo no encontrado", desc: "El servidor busco un archivo que no existe." },
-    { patron: "SyntaxError", nombre: "Error de codigo", desc: "Hay un error de sintaxis en el codigo o en un archivo JSON." },
-    { patron: "ECONNREFUSED", nombre: "Conexion rechazada", desc: "Un servicio externo rechazo la conexion." },
-    { patron: "connection errored", nombre: "Error de conexion", desc: "Fallo una conexion con un servicio externo." },
-    { patron: "Unexpected token", nombre: "Datos corruptos recibidos", desc: "Se recibio una respuesta que no se pudo interpretar." },
-    { patron: "timeout", nombre: "Tiempo de espera agotado", desc: "Una operacion tardo demasiado y fue cancelada." }
-  ];
-
-  function traducir(log) {
-    var texto = (log.mensaje || "") + " " + (log.detalle || "");
-    for (var j = 0; j < traducciones.length; j++) {
-      if (texto.indexOf(traducciones[j].patron) !== -1) {
-        return { nombre: traducciones[j].nombre, desc: traducciones[j].desc };
-      }
-    }
-    if (log.nivel === "ERROR") return { nombre: "Error del servidor", desc: log.mensaje };
-    if (log.nivel === "AVISO") return { nombre: "Aviso del sistema", desc: log.mensaje };
-    return { nombre: "Evento del sistema", desc: log.mensaje };
-  }
-
-  function formatFecha(iso) {
-    if (!iso) return "";
-    var d = new Date(iso);
-    return d.toLocaleDateString("es-CO", {day:"numeric", month:"short"}) + " · " + d.toLocaleTimeString("es-CO", {hour:"2-digit", minute:"2-digit"});
-  }
-
-  var errores = logs.filter(function(l){return l.nivel==="ERROR";}).length;
-  var avisos = logs.filter(function(l){return l.nivel==="AVISO";}).length;
-  var filtrados = filtro==="errores" ? logs.filter(function(l){return l.nivel==="ERROR";}) : filtro==="avisos" ? logs.filter(function(l){return l.nivel==="AVISO";}) : logs;
-
-  var fBg = function(f){ return filtro===f ? "#e31e24" : "var(--gris)"; };
-  var fCo = function(f){ return filtro===f ? "#fff" : "var(--texto)"; };
-
-  var html = "<div style=\"display:flex;flex-direction:column;gap:10px\">";
-  html += "<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px\">";
-  html += "<div style=\"background:var(--card);border-radius:10px;padding:12px;text-align:center\"><div style=\"font-size:22px;font-weight:900;color:#e31e24\">" + errores + "</div><div style=\"font-size:10px;color:var(--texto-medio)\">Errores</div></div>";
-  html += "<div style=\"background:var(--card);border-radius:10px;padding:12px;text-align:center\"><div style=\"font-size:22px;font-weight:900;color:#f0a500\">" + avisos + "</div><div style=\"font-size:10px;color:var(--texto-medio)\">Avisos</div></div>";
-  html += "<div style=\"background:var(--card);border-radius:10px;padding:12px;text-align:center\"><div style=\"font-size:22px;font-weight:900;color:#4a9eff\">" + logs.length + "</div><div style=\"font-size:10px;color:var(--texto-medio)\">Total</div></div>";
-  html += "</div>";
-  html += "<div style=\"display:flex;gap:6px\">";
-  html += "<button onclick=\"cargarLogsPanel(\'todos\')\" style=\"flex:1;padding:8px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:" + fBg("todos") + ";color:" + fCo("todos") + "\">Todos</button>";
-  html += "<button onclick=\"cargarLogsPanel(\'errores\')\" style=\"flex:1;padding:8px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:" + fBg("errores") + ";color:" + fCo("errores") + "\">Errores</button>";
-  html += "<button onclick=\"cargarLogsPanel(\'avisos\')\" style=\"flex:1;padding:8px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:" + fBg("avisos") + ";color:" + fCo("avisos") + "\">Avisos</button>";
-  html += "</div>";
-
-  if (filtrados.length === 0) {
-    html += "<div style=\"text-align:center;padding:40px;color:var(--texto-medio)\">Sin registros en esta categoria</div>";
-  } else {
-    for (var i = 0; i < filtrados.length; i++) {
-      var log = filtrados[i];
-      var t = traducir(log);
-      var color = log.nivel==="ERROR" ? "#e31e24" : log.nivel==="AVISO" ? "#f0a500" : "#4a9eff";
-      var emoji = log.nivel==="ERROR" ? "ERROR" : log.nivel==="AVISO" ? "AVISO" : "INFO";
-      var idLog = "logdet" + i;
-      html += "<div style=\"background:var(--card);border-radius:12px;padding:14px\">";
-      html += "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:6px\">";
-      html += "<span style=\"background:" + color + "22;color:" + color + ";font-size:10px;font-weight:900;padding:3px 8px;border-radius:6px\">" + emoji + "</span>";
-      html += "<span style=\"font-size:11px;color:var(--texto-medio)\">" + formatFecha(log.fecha) + "</span>";
-      html += "</div>";
-      html += "<div style=\"font-size:14px;font-weight:700;color:var(--texto);margin-bottom:4px\">" + t.nombre + "</div>";
-      html += "<div style=\"font-size:12px;color:var(--texto-medio);margin-bottom:8px\">" + t.desc + "</div>";
-      if (log.detalle) {
-        html += "<button onclick=\"var x=document.getElementById('" + idLog + "');x.style.display=x.style.display==='none'?'block':'none';\" style=\"background:var(--gris);border:none;border-radius:6px;color:var(--texto-medio);font-size:11px;padding:5px 10px;cursor:pointer\">Ver detalle tecnico</button>";
-        html += "<pre id=\"" + idLog + "\" style=\"display:none;margin-top:8px;font-size:10px;color:#aaa;white-space:pre-wrap;word-break:break-all;background:#111;padding:8px;border-radius:6px\">" + (log.detalle||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") + "</pre>";
-      }
-      html += "</div>";
-    }
-  }
-  html += "</div>";
-  cont.innerHTML = html;
-}
-
-
-async function logFrontend(origen, mensaje, detalle) {
-  try {
-    await fetch('/api/log/frontend', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ origen: origen, mensaje: mensaje, detalle: detalle || '' })
-    });
-  } catch(e) {
-    console.warn('logFrontend fallo:', e);
-  }
 }
 
 async function saBuscarUsuario() {

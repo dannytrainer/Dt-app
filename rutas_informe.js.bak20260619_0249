@@ -89,20 +89,6 @@ module.exports = function(app, fs) {
       const nombreEntrenador = (cfg.nombre_entrenador || 'Entrenador').toUpperCase();
       if (!usuario) return res.status(404).send('<h2>Cliente no encontrado</h2>');
 
-      const hoyCandado = new Date().toISOString().slice(0,10);
-      const esPremiumActivo = cfg.premium_entrenador && cfg.premium_entrenador_hasta && cfg.premium_entrenador_hasta >= hoyCandado;
-      if (!esPremiumActivo) {
-        return res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informe no disponible</title></head>
-        <body style="margin:0;background:#0a0a0a;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;padding:24px;box-sizing:border-box">
-          <div style="max-width:400px;text-align:center;background:#111;border:1px solid #222;border-radius:20px;padding:36px 28px">
-            <div style="font-size:48px;margin-bottom:16px">🔒</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#e31e24;margin-bottom:12px">INFORME NO DISPONIBLE</div>
-            <div style="font-size:14px;color:#999;line-height:1.6">Tu entrenador no tiene un plan activo en este momento. Pídele que actualice su suscripción para volver a ver este informe.</div>
-            <div style="margin-top:24px;font-size:11px;color:#444;text-transform:uppercase;letter-spacing:1px">DT-APP</div>
-          </div>
-        </body></html>`);
-      }
-
       const rutina       = rutinas[id] || rutinas[usuario.telefono] || {};
       const testCliente  = tests[id] || tests[usuario.telefono] || {};
       // Transformar registros al formato del informe
@@ -849,116 +835,29 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
       let hR='', rR=[];
       if(resist) Object.entries(resistEjs).forEach(([k,n])=>{ if(resist[k]){ const v=resist[k],vp=resistP&&resistP[k]; hR+=fila(n,v.valor+' reps',vp?flecha(v.valor,vp.valor):'<span style="color:#555;font-size:10px;">—</span>'); rR.push({label:n.substring(0,5),score:v.score||0}); }});
 
-      const especifEjs={cooper:'Cooper (m)',leger:'Léger (niv)',sitreach:'Sit&Reach cm',hombro:'Flex hombro',saltoL:'Salto largo cm',saltoV:'Salto vertical cm',vel30:'Vel. 30m (s)'};
-      let hE='', rE=[];
-      if(especif) Object.entries(especifEjs).forEach(([k,n])=>{ if(especif[k]){ const v=especif[k],vp=especifP&&especifP[k]; hE+=fila(n,v.valor,vp?flecha(v.valor,vp.valor,k==='vel30'):'<span style="color:#555;font-size:10px;">—</span>'); rE.push({label:n.substring(0,4),score:v.score||0}); }});
+      const especifEjs={cooper:'Cooper (m)',leger:'Léger (niv)',sitreach:'Sit&Reach cm',hombro:'Flex hombro',saltoL:'Salto largo cm',saltoV:'Salto vertical cm',vel30:'Vel. 30m (s)'
+  app.get('/api/informe/:id/descargar', async (req, res) => {
+    try {
+      const id = req.params.id;
+      const http = require('http');
+      const htmlContent = await new Promise((resolve, reject) => {
+        const req2 = http.request({ hostname: 'localhost', port: 3000, path: '/api/informe/' + id + '/html', method: 'GET' }, (res2) => {
+          let data = '';
+          res2.on('data', chunk => data += chunk);
+          res2.on('end', () => resolve(data));
+        });
+        req2.on('error', reject);
+        req2.end();
+      });
+      const usuarios = JSON.parse(require('fs').readFileSync('./data/usuarios.json', 'utf8'));
+      const usuario = usuarios.find(u => u.id == id || u.telefono == id);
+      const nombre = usuario ? (usuario.nombre || 'Cliente') : 'Cliente';
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="Informe-' + nombre + '.html"');
+      res.send(htmlContent);
+    } catch(e) {
+      res.status(500).send('Error al generar descarga');
+    }
+  });
 
-      const sin='<div style="color:#555;font-size:11px;font-style:italic;padding:6px 0;">Sin datos</div>';
-      return `
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;">
-          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;border-bottom:1px solid var(--gris-borde);padding-bottom:4px;">🏆 PRs · FUERZA</div>${hF||sin}</div>
-          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;border-bottom:1px solid var(--gris-borde);padding-bottom:4px;">💪 RESISTENCIA</div>${hR||sin}</div>
-          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;border-bottom:1px solid var(--gris-borde);padding-bottom:4px;">⚡ ESPECÍFICOS</div>${hE||sin}</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;border-top:1px solid var(--gris-borde);padding-top:14px;">
-          <div style="display:flex;flex-direction:column;align-items:center;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Radar Fuerza</div><div style="height:160px;display:flex;align-items:center;justify-content:center;">${radar(rF,'#e31e24')}</div></div>
-          <div style="display:flex;flex-direction:column;align-items:center;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Radar Resistencia</div><div style="height:160px;display:flex;align-items:center;justify-content:center;">${radar(rR,'#2196f3')}</div></div>
-          <div style="display:flex;flex-direction:column;align-items:center;"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Radar Específicos</div><div style="height:160px;display:flex;align-items:center;justify-content:center;">${radar(rE,'#4caf50')}</div></div>
-        </div>`;
-    })()}
-    </div>
-  </div>
-
-  <!-- 4 — ALIMENTACIÓN -->
-  <div class="seccion">
-    <div class="seccion-header">
-      <div class="seccion-num">4</div>
-      <div class="seccion-titulo">PLAN DE ALIMENTACIÓN</div>
-    </div>
-    <div class="seccion-body">${alimHtml}</div>
-  </div>
-
-  <!-- 5 — RUTINA -->
-  <div class="seccion">
-    <div class="seccion-header">
-      <div class="seccion-num">5</div>
-      <div class="seccion-titulo">RUTINA DE ENTRENAMIENTO SEMANAL</div>
-    </div>
-    <div class="seccion-body">
-      <div style="display:flex;align-items:center;gap:20px;margin-bottom:14px;padding:8px 12px;background:var(--gris-oscuro);border:1px solid var(--gris-borde);border-radius:4px;font-size:10px;color:var(--texto-secundario);">
-        <span>📋 <strong style="color:#fff">S</strong> = Series</span>
-        <span>🔄 <strong style="color:#fff">Reps</strong> = Repeticiones</span>
-        <span>🎯 <strong style="color:#fff">RIR</strong> = Reps en Reserva</span>
-        <span>⏱️ <strong style="color:#fff">DESC</strong> = Descanso</span>
-        <span>▶ <strong style="color:#fff">VIDEO</strong> = Ver ejercicio</span>
-      </div>
-      ${diasHtmlFinal}
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <div style="background:var(--gris-oscuro);border-top:2px solid var(--gris-borde);padding:0;position:relative;z-index:1;">
-    <div style="background:#111;border-bottom:1px solid var(--gris-borde);padding:8px 24px;display:flex;align-items:center;justify-content:center;gap:8px;">
-      <span style="font-size:10px;color:#555;letter-spacing:1px;text-transform:uppercase;">Informe generado en colaboración</span>
-    </div>
-    <div style="padding:14px 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        ${iconB64 ? `<img src="data:image/png;base64,${iconB64}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;"/>` : ''}
-        <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1;">DT-APP</div>
-          <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">ASISTENTE PARA ENTRENADORES</div>
-          <a href="https://www.instagram.com/dt_entrenamientos" style="font-size:10px;color:var(--rojo);font-weight:600;text-decoration:none;margin-top:2px;display:inline-block;">@dt_entrenamientos</a>
-        </div>
-      </div>
-      <div style="text-align:center;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#333;line-height:1;">×</div>
-        <div style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:2px;margin-top:2px;">Colaboración</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;justify-content:flex-end;">
-        <div style="text-align:right;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1;">${nombreEntrenador}</div>
-          <div style="font-size:10px;color:var(--texto-secundario);margin-top:1px;">Entrenador Personal</div>
-          ${cfg.instagram_entrenador ? '<a href="https://www.instagram.com/' + cfg.instagram_entrenador.replace('@','') + '" style="font-size:10px;color:var(--rojo);font-weight:600;text-decoration:none;margin-top:2px;display:inline-block;">📸 ' + cfg.instagram_entrenador + '</a>' : '<span style="font-size:10px;color:#444;margin-top:2px;display:inline-block;">📸 Próximamente</span>'}
-        </div>
-        ${logoTrainerB64 ? `<img src="data:image/png;base64,${logoTrainerB64}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--rojo);flex-shrink:0;"/>` : ''}
-      </div>
-    </div>
-    <div style="background:#0a0a0a;border-top:1px solid #222;padding:6px 24px;display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:9px;color:#444;">Informe confidencial · Uso exclusivo del cliente</span>
-      <span style="font-size:9px;color:#444;">© 2026 DT-App · Todos los derechos reservados</span>
-    </div>
-  </div>
-
-  <div style="text-align:center;padding:20px 24px 30px">
-    <button onclick="window.location.href=window.location.pathname.replace('/html','/descargar')" style="background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:800;padding:12px 28px;cursor:pointer;box-shadow:0 4px 14px rgba(255,215,0,0.3)">
-      📥 Descargar copia de este informe
-    </button>
-    <div style="font-size:10px;color:#555;margin-top:10px">Esta copia descargada no se actualizará automáticamente</div>
-  </div>
-
-</div>
-<script>
-function rutTab(i){
-  for(var j=0;j<7;j++){
-    var p=document.getElementById('rdia'+j);
-    var t=document.getElementById('rtab'+j);
-    if(p)p.style.display=j===i?'block':'none';
-    if(t){t.style.background=j===i?'var(--rojo)':'var(--gris-medio)';t.style.color=j===i?'#fff':'#aaa';}
-  }
-}
-function infTab(i){
-  for(var j=0;j<7;j++){
-    var p=document.getElementById('iplan'+j);
-    var t=document.getElementById('itab'+j);
-    if(p)p.style.display=j===i?'block':'none';
-    if(t){t.style.background=j===i?'var(--rojo)':'var(--gris-medio)';t.style.color=j===i?'#fff':'#888';}
-  }
-}
-// onclick directo en botones
-</script>
-</body>
-</html>`;
-
-  }
-}
-}
+};
