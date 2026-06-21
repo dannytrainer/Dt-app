@@ -141,10 +141,10 @@ app.post('/api/cuentas/vincular', (req, res) => {
   guardarJSON('cuentas.json', cuentas);
   // Push al cliente
   const subCliV = pushSuscripciones[cli.usuario_id || cli.id];
-  if (subCliV) webpush.sendNotification(subCliV, JSON.stringify({ titulo: '✅ Entrenador vinculado', mensaje: 'Tu entrenador es ' + (ent.nombre || 'tu entrenador') + '. ¡Bienvenido!' })).catch(e => registrarError('webpush', e));
+  if (subCliV) webpush.sendNotification(subCliV, JSON.stringify({ titulo: '✅ Entrenador vinculado', mensaje: 'Tu entrenador es ' + (ent.nombre || 'tu entrenador') + '. ¡Bienvenido!' })).catch(()=>{});
   // Push al entrenador
   const subEntV = pushSuscripciones[ent.id];
-  if (subEntV) webpush.sendNotification(subEntV, JSON.stringify({ titulo: '🏋️ Nuevo cliente', mensaje: (cli.nombre || 'Un cliente') + ' se unió a tu equipo.' })).catch(e => registrarError('webpush', e));
+  if (subEntV) webpush.sendNotification(subEntV, JSON.stringify({ titulo: '🏋️ Nuevo cliente', mensaje: (cli.nombre || 'Un cliente') + ' se unió a tu equipo.' })).catch(()=>{});
 
   // Crear en usuarios.json si no existe
   const usuarios = cargarJSON('usuarios.json', []);
@@ -428,10 +428,8 @@ cron.schedule('* * * * *', async () => {
         const diasVencido = Math.floor((hoyDate - fechaPago) / (1000*60*60*24));
         if (diasVencido >= 3) { u.activo = false; cambio = true; }
       }
-      if (u.estado_pago === 'aldia') {
-        if (u.msg_cobro_enviado) { u.msg_cobro_enviado = false; cambio = true; }
-        if (u.push_vencido_enviado) { u.push_vencido_enviado = false; cambio = true; }
-        if (u.push_proximo_enviado) { u.push_proximo_enviado = false; cambio = true; }
+      if (u.estado_pago === 'aldia' && u.msg_cobro_enviado) {
+        u.msg_cobro_enviado = false; cambio = true;
       }
       return u;
     });
@@ -449,20 +447,10 @@ cron.schedule('* * * * *', async () => {
       const diasRestantes = Math.ceil((venceMs - hoyMs) / (1000*60*60*24));
       const sub = pushSuscripciones[ent.id];
       if (!sub) return;
-      if (diasRestantes === 3 && !cfg.push_premium_3dias_enviado) {
-        webpush.sendNotification(sub, JSON.stringify({ titulo: '⚠️ Premium por vencer', mensaje: 'Tu premium vence en 3 días. Renuévalo para seguir usando DT-APP.' })).catch(e => registrarError('webpush', e));
-        cfg.push_premium_3dias_enviado = true;
-        guardarJSON('config_' + ent.id + '.json', cfg);
-      } else if (diasRestantes === 0 && !cfg.push_premium_vencido_enviado) {
-        webpush.sendNotification(sub, JSON.stringify({ titulo: '🔴 Premium vencido', mensaje: 'Tu premium ha vencido. Renuévalo para continuar.' })).catch(e => registrarError('webpush', e));
-        cfg.push_premium_vencido_enviado = true;
-        guardarJSON('config_' + ent.id + '.json', cfg);
-      } else if (diasRestantes > 3) {
-        if (cfg.push_premium_3dias_enviado || cfg.push_premium_vencido_enviado) {
-          cfg.push_premium_3dias_enviado = false;
-          cfg.push_premium_vencido_enviado = false;
-          guardarJSON('config_' + ent.id + '.json', cfg);
-        }
+      if (diasRestantes === 3) {
+        webpush.sendNotification(sub, JSON.stringify({ titulo: '⚠️ Premium por vencer', mensaje: 'Tu premium vence en 3 días. Renuévalo para seguir usando DT-APP.' })).catch(()=>{});
+      } else if (diasRestantes === 0) {
+        webpush.sendNotification(sub, JSON.stringify({ titulo: '🔴 Premium vencido', mensaje: 'Tu premium ha vencido. Renuévalo para continuar.' })).catch(()=>{});
       }
     });
   } catch(e) {}
@@ -482,8 +470,7 @@ cron.schedule('* * * * *', async () => {
     if (!logs[hoy]) logs[hoy] = {};
 
     if (festivos.find(f => f.fecha === hoy)) {
-      guardarJSON('usuarios.json', usuarios);
-    guardarJSON('logs.json', logs);
+      guardarJSON('logs.json', logs);
       return;
     }
 
@@ -528,45 +515,53 @@ cron.schedule('* * * * *', async () => {
         if (subCliCobro) {
           const tituloCli = usuario.estado_pago === 'proximo' ? 'Pago próximo' : 'Plan vencido';
           const mensajeCli = usuario.estado_pago === 'proximo' ? (usuario.msg_proximo || 'Tu plan vence en 3 días.') : (usuario.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.');
-          webpush.sendNotification(subCliCobro, JSON.stringify({ titulo: tituloCli, mensaje: mensajeCli })).catch(e => registrarError('webpush', e));
+          webpush.sendNotification(subCliCobro, JSON.stringify({ titulo: tituloCli, mensaje: mensajeCli })).catch(()=>{});
         }
         // Push al entrenador
         const subEntCobro = pushSuscripciones[usuario.entrenador_id];
         if (subEntCobro) {
           const tituloEnt = usuario.estado_pago === 'proximo' ? '⚠️ Pago próximo' : '🔴 Pago vencido';
           const mensajeEnt = usuario.estado_pago === 'proximo' ? (usuario.nombre || 'Un cliente') + ' vence en 3 días.' : (usuario.nombre || 'Un cliente') + ' tiene pago vencido.';
-          webpush.sendNotification(subEntCobro, JSON.stringify({ titulo: tituloEnt, mensaje: mensajeEnt })).catch(e => registrarError('webpush', e));
+          webpush.sendNotification(subEntCobro, JSON.stringify({ titulo: tituloEnt, mensaje: mensajeEnt })).catch(()=>{});
         }
       }
     }
 
-    // Push vencidos 7:00am — solo una vez
+    // Push vencidos a las 7:00am
     if (ahora.getHours() === 7 && ahora.getMinutes() === 0) {
       for (const u of usuarios) {
         if (!u.activo) continue;
         if (u.estado_pago !== 'vencido') continue;
-        if (u.push_vencido_enviado) continue;
         const subCli = pushSuscripciones[u.id];
-        if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '🔴 Plan vencido', mensaje: u.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.' })).catch(e => registrarError('webpush', e));
+        if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '🔴 Plan vencido', mensaje: u.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.' })).catch(()=>{});
         const subEnt = pushSuscripciones[u.entrenador_id];
-        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '🔴 Pago vencido', mensaje: (u.nombre || 'Un cliente') + ' tiene pago vencido.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(e => registrarError('webpush', e));
-        u.push_vencido_enviado = true;
+        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '🔴 Pago vencido', mensaje: (u.nombre || 'Un cliente') + ' tiene pago vencido.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(()=>{});
       }
     }
 
-    // 8:37am — solo WhatsApp (push eliminado para evitar duplicados)
+    // Push cobros a las 8:37am (junto con WhatsApp)
+    if (ahoraMinCobro === HORA_COBRO*60 + MIN_COBRO) {
+      for (const u of usuarios) {
+        if (!u.activo) continue;
+        if (u.estado_pago !== 'proximo' && u.estado_pago !== 'vencido') continue;
+        const subCli = pushSuscripciones[u.id];
+        if (subCli) {
+          const tituloCli = u.estado_pago === 'proximo' ? 'Pago próximo' : 'Plan vencido';
+          const mensajeCli = u.estado_pago === 'proximo' ? (u.msg_proximo || 'Tu plan vence en 3 días.') : (u.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.');
+          webpush.sendNotification(subCli, JSON.stringify({ titulo: tituloCli, mensaje: mensajeCli })).catch(()=>{});
+        }
+      }
+    }
 
-    // Push próximos 9:00am — solo una vez
+    // Push proximos a las 9:00am
     if (ahora.getHours() === 9 && ahora.getMinutes() === 0) {
       for (const u of usuarios) {
         if (!u.activo) continue;
         if (u.estado_pago !== 'proximo') continue;
-        if (u.push_proximo_enviado) continue;
         const subCli = pushSuscripciones[u.id];
-        if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: u.msg_proximo || 'Tu plan vence en 3 días.' })).catch(e => registrarError('webpush', e));
+        if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: u.msg_proximo || 'Tu plan vence en 3 días.' })).catch(()=>{});
         const subEnt = pushSuscripciones[u.entrenador_id];
-        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: (u.nombre || 'Un cliente') + ' vence en 3 días.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(e => registrarError('webpush', e));
-        u.push_proximo_enviado = true;
+        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: (u.nombre || 'Un cliente') + ' vence en 3 días.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(()=>{});
       }
     }
 
@@ -587,8 +582,8 @@ cron.schedule('* * * * *', async () => {
       // Calcular hora objetivo (30 min adelante)
       const objetivo = new Date(ahoraH.getTime() + 30*60000);
       const horaObjetivoStr = objetivo.getHours().toString().padStart(2,'0') + ':' + objetivo.getMinutes().toString().padStart(2,'0');
-      const diaSemanaHoy = objetivo.getDay()===0 ? 6 : objetivo.getDay()-1; // 0=Lun, 6=Dom (igual que la app)
-      const fechaObjetivoStr = objetivo.getFullYear()+'-'+(String(objetivo.getMonth()+1).padStart(2,'0'))+'-'+(String(objetivo.getDate()).padStart(2,'0'));
+      const diaSemanaHoy = objetivo.getDay(); // 0=domingo
+      const fechaObjetivoStr = objetivo.toISOString().split('T')[0];
 
       const cuentasH = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
       cuentasH.entrenadores.forEach(ent => {
@@ -608,12 +603,11 @@ cron.schedule('* * * * *', async () => {
         const subEntH = pushSuscripciones[ent.id];
         if (subEntH) {
           clasesProximas.forEach(c => {
-            if (!c.clienteId || (c.nombreCliente||'').includes('Clase libre')) return;
             const nombreCli = c.nombreCliente || 'Clase';
             webpush.sendNotification(subEntH, JSON.stringify({
               titulo: '⏰ Clase en 30 minutos',
               mensaje: nombreCli + ' a las ' + c.inicio + (c.desc ? ' — ' + c.desc : '')
-            })).catch(e => registrarError('webpush', e));
+            })).catch(()=>{});
           });
         }
 
@@ -622,12 +616,11 @@ cron.schedule('* * * * *', async () => {
           if (!c.clienteId) return;
           const clienteIdFull = String(c.clienteId).startsWith('cli_') ? c.clienteId : 'cli_' + c.clienteId;
           const subCliH = pushSuscripciones[clienteIdFull] || pushSuscripciones[c.clienteId];
-          console.log('[PUSH-CLI] clienteId:', c.clienteId, '| full:', clienteIdFull, '| sub:', !!subCliH);
           if (subCliH) {
             webpush.sendNotification(subCliH, JSON.stringify({
               titulo: '⏰ Tienes una clase en 30 minutos',
               mensaje: 'Tu clase empieza a las ' + c.inicio + (c.desc ? ' — ' + c.desc : '')
-            })).catch(e => registrarError('webpush', e));
+            })).catch(()=>{});
           }
         });
       });
@@ -659,15 +652,6 @@ app.post('/api/usuarios', (req, res) => {
   fs.mkdirSync(path.join(carpetaFotos, 'antes'), { recursive: true });
   fs.mkdirSync(path.join(carpetaFotos, 'despues'), { recursive: true });
   guardarJSON('usuarios.json', usuarios);
-  // Sync email -> cuentas.json
-  if (nuevo.email) {
-    const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
-    const yaExiste = (cuentas.clientes||[]).find(c => c.email === nuevo.email);
-    if (!yaExiste) {
-      (cuentas.clientes = cuentas.clientes||[]).push({ id: nuevo.id, email: nuevo.email, password: '', rol: 'cliente' });
-      guardarJSON('cuentas.json', cuentas);
-    }
-  }
   res.json(nuevo);
 });
 
@@ -824,17 +808,6 @@ app.put('/api/usuarios/:id', (req, res) => {
   if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
   usuarios[idx] = { ...usuarios[idx], ...req.body };
   guardarJSON('usuarios.json', usuarios);
-  // Sync email -> cuentas.json
-  if (req.body.email) {
-    const cuentas2 = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
-    const idxC = (cuentas2.clientes||[]).findIndex(c => c.id === req.params.id);
-    if (idxC !== -1) {
-      cuentas2.clientes[idxC].email = req.body.email;
-    } else {
-      (cuentas2.clientes = cuentas2.clientes||[]).push({ id: req.params.id, email: req.body.email, password: '', rol: 'cliente' });
-    }
-    guardarJSON('cuentas.json', cuentas2);
-  }
 
   if (req.body.email) {
     const cuentas = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
@@ -2272,7 +2245,7 @@ app.post('/api/wompi/eventos', express.raw({type: 'application/json'}), (req, re
         guardarJSON(archivoEnt, cfgEnt);
         // Push al entrenador
         const subEntW = pushSuscripciones[ent.id];
-        if (subEntW) webpush.sendNotification(subEntW, JSON.stringify({ titulo: '🎉 ¡Premium activado!', mensaje: 'Tu premium está activo hasta ' + hasta.split('T')[0] + '.' })).catch(e => registrarError('webpush', e));
+        if (subEntW) webpush.sendNotification(subEntW, JSON.stringify({ titulo: '🎉 ¡Premium activado!', mensaje: 'Tu premium está activo hasta ' + hasta.split('T')[0] + '.' })).catch(()=>{});
       }
       if (cli) {
         const usuarios = cargarJSON('usuarios.json', []);
@@ -2283,7 +2256,7 @@ app.post('/api/wompi/eventos', express.raw({type: 'application/json'}), (req, re
           guardarJSON('usuarios.json', usuarios);
           // Push al cliente
           const subCliW = pushSuscripciones[u.id];
-          if (subCliW) webpush.sendNotification(subCliW, JSON.stringify({ titulo: '🎉 ¡Premium activado!', mensaje: 'Tu premium está activo hasta ' + hasta.split('T')[0] + '.' })).catch(e => registrarError('webpush', e));
+          if (subCliW) webpush.sendNotification(subCliW, JSON.stringify({ titulo: '🎉 ¡Premium activado!', mensaje: 'Tu premium está activo hasta ' + hasta.split('T')[0] + '.' })).catch(()=>{});
         }
       }
       

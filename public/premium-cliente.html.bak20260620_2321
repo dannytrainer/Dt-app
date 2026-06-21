@@ -66,43 +66,37 @@ h1 { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 6px; }
 <div class="planes">
   <h2>💳 Elige tu plan</h2>
 
-  <div class="plan activo" id="plan-mensual" onclick="seleccionarPlan('mensual', 999900)">
+  <div class="plan activo" id="plan-mensual" onclick="seleccionarPlan('mensual', 1999900)">
     <div class="plan-header">
       <span class="plan-nombre">Mensual</span>
-      <span class="plan-precio">$9.999</span>
+      <span class="plan-precio">$19.999</span>
     </div>
-    <div class="plan-dia">$333/día</div>
+    <div class="plan-dia">$666/día</div>
     <div class="plan-lanzamiento">🚀 Precio de lanzamiento</div>
   </div>
 
-  <div class="plan" id="plan-trimestral" onclick="seleccionarPlan('trimestral', 2499900)">
+  <div class="plan" id="plan-trimestral" onclick="seleccionarPlan('trimestral', 4999900)">
     <div class="plan-header">
       <span class="plan-nombre">Trimestral</span>
-      <span class="plan-precio">$24.999</span>
-    </div>
-    <div class="plan-dia">$278/día</div>
-    <div class="plan-lanzamiento">🚀 Precio de lanzamiento</div>
-  </div>
-
-  <div class="plan" id="plan-semestral" onclick="seleccionarPlan('semestral', 4999900)">
-    <div class="plan-header">
-      <span class="plan-nombre">Semestral</span>
       <span class="plan-precio">$49.999</span>
     </div>
-    <div class="plan-dia">$278/día</div>
-    <div class="plan-lanzamiento">🚀 Precio de lanzamiento</div>
+    <div class="plan-dia">$555/día</div>
+    <div class="plan-ahorro">✅ Ahorras 15 días</div>
   </div>
 
-  <div class="plan" id="plan-anual" onclick="seleccionarPlan('anual', 9999900)">
+  <div class="plan" id="plan-anual" onclick="seleccionarPlan('anual', 19999900)">
     <div class="plan-header">
       <span class="plan-nombre">Anual</span>
-      <span class="plan-precio">$99.999</span>
+      <span class="plan-precio">$199.999</span>
     </div>
-    <div class="plan-dia">$274/día</div>
+    <div class="plan-dia">$547/día</div>
     <div class="plan-ahorro">✅ Ahorras 2 meses</div>
   </div>
 
-
+  <div class="proximo">
+    <div class="proximo-badge">🔜 Próximamente</div>
+    <div style="font-size:13px;color:#555">Planes semestrales y más opciones</div>
+  </div>
 </div>
 
 <div class="seccion">
@@ -114,7 +108,7 @@ h1 { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 6px; }
 
 <script>
 let planSeleccionado = 'mensual';
-let montoSeleccionado = 999900;
+let montoSeleccionado = 1999900;
 
 function seleccionarPlan(plan, monto) {
   planSeleccionado = plan;

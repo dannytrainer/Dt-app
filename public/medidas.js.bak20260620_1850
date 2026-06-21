@@ -90,9 +90,6 @@ async function renderPeso(id) {
     <button onclick="copiarProgreso(window.clienteMedidasId,window.clienteMedidasNombre);toggleMenu(\'menu-progreso\')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
       📋 Copiar texto
     </button>
-    <button onclick="compartirProgresoNativo(window.clienteMedidasId,window.clienteMedidasNombre);toggleMenu(\'menu-progreso\')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📤 Compartir
-    </button>
     <button onclick="verHistorialPeso('${id}');toggleMenu(\'menu-progreso\')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
       👁️ Ver historial de peso
     </button>
@@ -386,17 +383,6 @@ async function copiarProgreso(id, nombre) {
     toast('📋 Progreso copiado al portapapeles');
   } catch(e) {
     toast('Error al copiar', false);
-  }
-}
-
-async function compartirProgresoNativo(id, nombre) {
-  try {
-    const r = await generarTextoProgreso(id, nombre);
-    if (typeof compartirTextoNativo === 'function') {
-      await compartirTextoNativo(r.texto, 'Progreso');
-    }
-  } catch(e) {
-    toast('Error al compartir', false);
   }
 }
 async function renderPerfil(id) {

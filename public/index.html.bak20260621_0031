@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DT-APP — Software para Entrenadores Personales</title>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#e31e24">
@@ -1257,7 +1257,7 @@ async function gestionarPushAdmin() {
 </div>
 <button class="fab" onclick="abrirModalCliente()" id="fab-btn">+</button>
 <button onclick="abrirChatEntrenador()" id="chat-ent-fab" style="position:fixed;top:10px;right:62px;width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.75);border:none;color:#fff;font-size:16px;cursor:pointer;z-index:9000;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center">💬</button>
-<div id="chat-ent-badge" style="display:none;position:fixed;top:4px;right:56px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div>
+<div id="chat-ent-badge" style="display:none;position:fixed;bottom:128px;left:14px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div>
 <div id="chat-ent-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:999999;flex-direction:column">
   <div style="background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:2px solid var(--rojo);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
     <button onclick="cerrarChatEntrenador()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">←</button>
@@ -3867,54 +3867,32 @@ function renderHorariosSemana(){
   });
   html += `</div>`;
 
-  // Grid fijo de fondo + clases absolutas encima
-  const PX_POR_MIN = 1.2; // pixels por minuto
-  const HORA_INICIO = 5;  // 5am
-  const HORA_FIN = 22;    // 10pm
-  const totalMin = (HORA_FIN - HORA_INICIO) * 60;
-  const totalAlto = totalMin * PX_POR_MIN;
-
-  // Contenedor principal
-  html += `<div style="position:relative;display:grid;grid-template-columns:44px repeat(7,1fr);gap:2px">`;
-
-  // Columna de horas (fondo)
-  html += `<div style="position:relative;height:${totalAlto}px">`;
-  for(let h=HORA_INICIO; h<=HORA_FIN; h++){
-    const topPx = (h - HORA_INICIO) * 60 * PX_POR_MIN;
-    const ampm = h < 12 ? 'AM' : 'PM';
-    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
-    html += `<div style="position:absolute;top:${topPx}px;left:0;right:0;font-size:9px;color:var(--texto-tenue);text-align:right;padding-right:4px;border-top:1px solid #1a1a1a">${h12}:00 ${ampm}</div>`;
-  }
-  html += `</div>`;
-
-  // Columnas de días
-  fechas.forEach(f=>{
-    const eventos = getEventosDia(f);
-    html += `<div style="position:relative;height:${totalAlto}px;border-left:1px solid #1a1a1a">`;
-
-    // Líneas de hora de fondo
-    for(let h=HORA_INICIO; h<=HORA_FIN; h++){
-      const topPx = (h - HORA_INICIO) * 60 * PX_POR_MIN;
-      html += `<div onclick="abrirModalHorario('${f}','${h}:00')" style="position:absolute;top:${topPx}px;left:0;right:0;height:${60*PX_POR_MIN}px;border-top:1px solid #1a1a1a;cursor:pointer" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='transparent'"></div>`;
-    }
-
-    // Clases encima
-    eventos.forEach(e=>{
-      const inicioMin = tiempoAMin(e.inicio) - HORA_INICIO*60;
-      const durMin = tiempoAMin(e.fin) - tiempoAMin(e.inicio);
-      if(inicioMin < 0 || inicioMin > totalMin) return;
-      const topPx = inicioMin * PX_POR_MIN;
-      const altoPx = Math.max(20, durMin * PX_POR_MIN);
-      html += `<div onclick="editarHorario('${e.id||''}','${e.tipo}')" style="position:absolute;top:${topPx}px;left:1px;right:1px;height:${altoPx}px;background:${e.color||'#e31e24'};border-radius:6px;padding:2px 4px;cursor:pointer;overflow:hidden;z-index:2">
-        <div style="font-size:9px;color:#fff;font-weight:700;line-height:1.2">${e.nombreCliente||e.desc||'Clase'}</div>
-        <div style="font-size:8px;color:rgba(255,255,255,.7)">${e.inicio}-${e.fin}</div>
-      </div>`;
+  // Franjas de hora
+  horas.forEach(hora=>{
+    html += `<div style="display:grid;grid-template-columns:44px repeat(7,1fr);gap:2px;min-height:28px;border-top:1px solid #1a1a1a">
+      <div style="font-size:9px;color:var(--texto-tenue);padding-top:2px;text-align:right;padding-right:4px">${hora.endsWith(':00')?hora:''}</div>`;
+    fechas.forEach(f=>{
+      const eventos = getEventosDia(f).filter(e=>{
+        const eMin = tiempoAMin(e.inicio);
+        const hMin = tiempoAMin(hora);
+        return eMin>=hMin && eMin<hMin+30;
+      });
+      if(eventos.length>0){
+        const e = eventos[0];
+        const durMin = tiempoAMin(e.fin)-tiempoAMin(e.inicio);
+        const alto = Math.max(26, durMin*0.9);
+        html += `<div onclick="editarHorario('${e.id||''}','${e.tipo}')" style="background:${e.color||'#e31e24'};border-radius:6px;padding:2px 4px;cursor:pointer;min-height:${alto}px;overflow:hidden">
+          <div style="font-size:9px;color:var(--texto);font-weight:700;line-height:1.2">${e.nombreCliente||e.desc||'Clase'}</div>
+          <div style="font-size:8px;color:rgba(255,255,255,.7)">${e.inicio}-${e.fin}</div>
+        </div>`;
+      } else {
+        html += `<div onclick="abrirModalHorario('${f}','${hora}')" style="min-height:26px;border-radius:4px;cursor:pointer" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='transparent'"></div>`;
+      }
     });
-
     html += `</div>`;
   });
 
-  html += `</div></div></div>`;
+  html += `</div></div>`;
   document.getElementById('horarios-contenido').innerHTML = html;
 }
 
@@ -10465,10 +10443,8 @@ async function compartirPlanNativo() {
   <div id="tc-contenido" style="flex:1;overflow-y:auto;padding:16px"></div>
 
   <!-- CHAT FLOTANTE -->
-  <div style="position:fixed;top:14px;right:128px;z-index:9000;width:36px;height:36px">
-  <button id="tc-chat-fab" onclick="tcToggleChat()" style="width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.55);border:none;color:rgba(255,255,255,0.85);font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center">💬</button>
-  <div id="tc-chat-badge" style="display:none;position:absolute;top:-6px;right:-6px;background:rgba(255,152,0,0.9);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
-  </div>
+  <button id="tc-chat-fab" onclick="tcToggleChat()" style="position:fixed;top:14px;right:128px;width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.55);border:none;color:rgba(255,255,255,0.85);font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:9000;display:flex;align-items:center;justify-content:center">💬</button>
+  <div id="tc-chat-badge" style="display:none;position:fixed;bottom:128px;left:16px;background:rgba(255,152,0,0.25);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
 
   <!-- PANEL CHAT -->
   <div id="tc-chat-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:9999;flex-direction:column">
@@ -10969,34 +10945,6 @@ function tcTab(tab) {
   else if (tab === 'perfil') tcRenderPerfil(cont);
 }
 
-function tcMostrarAyudaRutina(){
-  const modal = document.createElement('div');
-  modal.id = 'modal-ayuda-rutina';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
-  modal.innerHTML = `
-    <div style="max-width:380px;width:100%;background:#161616;border-radius:18px;padding:22px;max-height:80vh;overflow-y:auto">
-      <div style="font-size:18px;font-weight:900;color:#e31e24;margin-bottom:14px;text-align:center">Como funciona tu rutina?</div>
-      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
-        <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Toca <b>Iniciar rutina</b> para activar el cronometro del dia.</span></div>
-        <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Toca el boton <b>Serie X de Y</b> cada vez que termines una serie.</span></div>
-        <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Registra el <b>peso usado</b> en cada serie. Elige <b>kg o lb</b> por ejercicio. Se guarda automaticamente y aparece la proxima vez que hagas esa rutina.</span></div>
-              <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Al completar todo, se envia un reporte a tu entrenador.</span></div>
-      </div>
-      <div style="background:#0d0d0d;border-radius:12px;padding:14px;margin-bottom:18px">
-        <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">Significado de los circulos</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">🟢</span><span style="font-size:12px;color:#ccc">Serie completada con exito</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">🟠</span><span style="font-size:12px;color:#ccc">Toca el verde otra vez si la serie fue fallida</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">⭕</span><span style="font-size:12px;color:#ccc">Serie aun no realizada</span></div>
-        </div>
-      </div>
-      <button onclick="document.getElementById('modal-ayuda-rutina').remove()" style="width:100%;padding:13px;border:none;border-radius:10px;background:#e31e24;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Entendido</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.remove(); });
-}
-
 function tcRenderRutina(cont) {
   
   // Verificar si cliente está pausado
@@ -11031,17 +10979,14 @@ function tcRenderRutina(cont) {
   const _uid2 = (_tcUsuario && _tcUsuario.id) || 'x';
   const _diaActualHoy2 = DIAS_ES[new Date().getDay()];
   const _fecha2 = new Date().toISOString().split('T')[0];
-  // Verificar desbloqueo por cualquier día desbloqueado hoy
-  const _diasDesbHoy = (_tcUsuario && _tcUsuario.dias_desbloqueados) ? 
-    Object.keys(_tcUsuario.dias_desbloqueados).filter(d => _tcUsuario.dias_desbloqueados[d].includes(_fecha2)) : [];
-  const _desbloqueadoHoy = _diasDesbHoy.length > 0;
+  const _desbloqueadoHoy = (_tcUsuario && _tcUsuario.dias_desbloqueados && _tcUsuario.dias_desbloqueados[_diaActualHoy2] && _tcUsuario.dias_desbloqueados[_diaActualHoy2].includes(_fecha2));
   if (_desbloqueadoHoy) {
-    // Limpiar localStorage de cada día desbloqueado
-    _diasDesbHoy.forEach(function(d) {
-      localStorage.removeItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy() + '-' + d);
-    });
     localStorage.removeItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy());
-    localStorage.removeItem('tc-estado-' + _uid2);
+    fetch('/api/usuarios/' + _uid2 + '/limpiar-desbloqueo', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({dia: _diaActualHoy2})
+    }).catch(()=>{});
   }
   // Limpiar también días desbloqueados manualmente
   if (_tcUsuario && _tcUsuario.dias_desbloqueados) {
@@ -11084,7 +11029,6 @@ function tcRenderRutina(cont) {
 }
 
 let _tcSeriesCompletadas = {};
-let _tcSeriesFallidas = {};
 let _tcRutinaCompletadaHoy = false;
 let _tcCardioCompletado = {};
 let _tcEjercicios = [];
@@ -11121,7 +11065,6 @@ function tcVerDia(dia) {
   // Resetear solo si cambia de día
   if (diaAnterior !== dia) {
     _tcSeriesCompletadas = {};
-    _tcSeriesFallidas = {};
     _tcCardioCompletado = {};
     _tcLog = [];
   }
@@ -11174,7 +11117,6 @@ function tcVerDia(dia) {
   // Botón iniciar rutina
   const yaIniciada = localStorage.getItem('tc-timer-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x')) !== null;
   html += '<button onclick="tcIniciarRutina()" id="tc-btn-iniciar-rutina" style="width:100%;padding:10px;border-radius:10px;border:none;background:#0a0a0a;color:' + (yaIniciada?'#4caf50':'#e31e24') + ';font-size:13px;font-weight:700;cursor:pointer;border:1px solid ' + (yaIniciada?'#4caf50':'#e31e24') + ';margin-bottom:14px">' + (yaIniciada?'✅ Rutina en curso':'▶ Iniciar rutina') + '</button>';
-  html += '<div style="text-align:center;margin-bottom:14px;margin-top:4px"><button onclick="tcMostrarAyudaRutina()" style="background:transparent;border:none;color:#888;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:4px"><span style="background:#333;color:#fff;width:16px;height:16px;border-radius:50%;font-size:10px;display:inline-flex;align-items:center;justify-content:center;font-weight:700">?</span> ¿Como funciona?</button></div>';
 
   if (recordatorio) {
     html += '<div style="background:var(--card);border-left:3px solid #e31e24;border-radius:10px;padding:12px 14px;margin-bottom:14px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">🏷️ Título</div><div style="font-size:13px;color:var(--texto-suave);line-height:1.5">' + recordatorio + '</div></div>';
@@ -11281,7 +11223,6 @@ function tcVerDia(dia) {
       }
     }
   });
-  tcInyectarPesos();
   }, 50);
 }
 
@@ -11298,7 +11239,6 @@ function tcGuardarProgreso() {
   const key = 'tc-progreso-' + uid + '-' + tcFechaHoy() + '-' + (_tcDia||'');
   localStorage.setItem(key, JSON.stringify({
     series: _tcSeriesCompletadas,
-    seriesFallidas: _tcSeriesFallidas,
     cardio: _tcCardioCompletado
   }));
 }
@@ -11310,7 +11250,6 @@ function tcCargarProgreso() {
     const d = JSON.parse(localStorage.getItem(key));
     if (d) {
       _tcSeriesCompletadas = d.series || {};
-      _tcSeriesFallidas = d.seriesFallidas || {};
       _tcCardioCompletado = d.cardio || {};
     }
   } catch(e) {}
@@ -11429,8 +11368,6 @@ function tcDetenerRutina() {
 function tcConfirmarFinalizar() {
   const conf = document.getElementById('tc-confirm-finalizar');
   if (conf) conf.remove();
-  tcGuardarPesos();
-  // Desbloqueo del servidor se mantiene hasta que el cliente vuelva a entrar
 
   // Calcular resumen
   const btns = document.querySelectorAll('[id^="tc-btn-serie-"]');
@@ -11491,10 +11428,7 @@ function tcConfirmarFinalizar() {
       const totalS = parseInt(ej.series) || 3;
       const hechas = parseInt(_tcSeriesCompletadas[i]) || 0;
       const pct = Math.round(hechas / totalS * 100);
-      const bars = Array.from({length: totalS}, (_, s) => {
-        if (s >= hechas) return '⭕';
-        return _tcSeriesFallidas[i + '-' + s] ? '🟠' : '🟢';
-      }).join('');
+      const bars = Array.from({length: totalS}, (_, s) => s < hechas ? '🟢' : '⭕').join('');
       detalleRows += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #2a2a2a">'
         + '<div><div style="font-size:12px;font-weight:700;color:#fff">' + (ej.nombre||'Ejercicio') + '</div>'
         + '<div style="font-size:10px;color:#aaaaaa;margin-top:1px">' + (ej.grupo||'') + (ej.reps ? ' · ' + ej.reps + ' reps' : '') + (ej.rir ? ' · RIR ' + ej.rir : '') + '</div></div>'
@@ -11535,11 +11469,11 @@ function tcConfirmarFinalizar() {
       + (tiempoSeg > 0 ? '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:14px;font-weight:900;color:#e31e24;font-family:monospace">' + hh+':'+mm+':'+ss + '</div><div style="font-size:9px;color:#aaaaaa;text-transform:uppercase">Tiempo</div></div>' : '')
       + '</div></div>'
       // Botón desplegable
-      + '<div onclick="(function(){var d=document.getElementById(\'' + rid + '\');d.style.display=d.style.display===\'none\'?\'block\':\'none\';})()" style="cursor:pointer;background:#7a1015;border:1px solid #a32028;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+      + '<div onclick="(function(){var d=document.getElementById(\'' + rid + '\');d.style.display=d.style.display===\'none\'?\'block\':\'none\';})()" style="cursor:pointer;background:#e31e24;border:1px solid #ff4d4d;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
       + '<span style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px">📊 Ver detalle</span>'
       + '<span style="color:#fff;font-size:14px">▾</span></div>'
       // Detalle desplegable
-      + '<div id="' + rid + '" style="display:none;background:#7a1015;border:1px solid #a32028;border-radius:10px;padding:10px 14px;margin-bottom:4px">'
+      + '<div id="' + rid + '" style="display:none;background:#e31e24;border:1px solid #ff4d4d;border-radius:10px;padding:10px 14px;margin-bottom:4px">'
       + detalleRows
       + (cardioRows ? '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px">🏃 Cardio</div>' + cardioRows : '')
       + (_tcLog.length > 0 ? (()=>{
@@ -11550,15 +11484,7 @@ function tcConfirmarFinalizar() {
             const mm = String(Math.floor(seg/60)).padStart(2,'0');
             const ss = String(seg%60).padStart(2,'0');
             const icon = ev.tipo === 'cardio' ? '🏃' : '💪';
-            const label = ev.tipo === 'cardio' ? ev.nombre : (function(){
-              const _nomEjLog = (ev.nombre||'').replace(/[^a-zA-Z0-9]/g,'_');
-              const _pesoDataLog = JSON.parse(localStorage.getItem('tc-pesos-' + ((_tcUsuario&&_tcUsuario.id)||'x') + '-' + _nomEjLog)||'{}');
-              const _pesosLog = _pesoDataLog.pesos || [];
-              const _unidadLog = _pesoDataLog.unidad || 'kg';
-              const _serieIdx = (ev.serieNum||1) - 1;
-              const _pesoVal = _pesosLog[_serieIdx];
-              return ev.nombre + ' — Serie ' + ev.serieNum + (_pesoVal ? ' · ' + _pesoVal + _unidadLog : '');
-            })();
+            const label = ev.tipo === 'cardio' ? ev.nombre : ev.nombre + ' — Serie ' + ev.serieNum;
             crono += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #2a2a2a">'
               + '<div style="font-size:11px;color:#e0e0e0">' + icon + ' ' + label + '</div>'
               + '<div style="font-size:11px;font-weight:700;color:#aaaaaa;font-family:monospace">' + mm + ':' + ss + '</div>'
@@ -11657,8 +11583,7 @@ function tcMostrarResumenFinal() {
     html2 += '</div></div>';
     html2 += '<div style="font-size:11px;color:#333;margin-top:8px">' + r.fecha + '</div>';
     html2 += '</div>';
-    var _dcont = document.getElementById('tc-dia-contenido');
-    if (_dcont) { _dcont.innerHTML = html2; } else { cont.innerHTML = html2; }
+    cont.innerHTML = html2;
     localStorage.setItem('tc-estado-' + ((_tcUsuario && _tcUsuario.id) || 'x'), 'resumen');
   } catch(e) {}
 }
@@ -11809,20 +11734,9 @@ function tcScrollNotas() {
 
 function tcDeshacerSerie(ejIdx, serieIdx) {
   const completadas = _tcSeriesCompletadas[ejIdx] || 0;
-  // Solo permite tocar la ultima serie completada
+  // Solo permite deshacer la última serie completada
   if (serieIdx !== completadas - 1) return;
   const bomb = document.getElementById('tc-bomb-' + ejIdx + '-' + serieIdx);
-  const key = ejIdx + '-' + serieIdx;
-  const esFallida = !!_tcSeriesFallidas[key];
-
-  if (!esFallida) {
-    _tcSeriesFallidas[key] = true;
-    if (bomb) { bomb.textContent = '\uD83D\uDFE0'; bomb.style.opacity = '1'; }
-    tcGuardarProgreso();
-    return;
-  }
-
-  delete _tcSeriesFallidas[key];
   if (bomb) { bomb.textContent = '⭕'; bomb.style.opacity = '0.25'; }
   _tcSeriesCompletadas[ejIdx] = completadas - 1;
   const btn = document.getElementById('tc-btn-serie-' + ejIdx);
@@ -14632,140 +14546,4 @@ function saFiltrarConvenios(texto) {
   });
 }
 
-</script>
-
-<script>
-// ── DESHABILITAR BOTÓN ATRÁS ──────────────────────
-(function(){
-  history.pushState(null, '');
-  window.addEventListener('popstate', function(){
-    history.pushState(null, '');
-  });
-})();
-</script>
-
-<script>
-// ── PESOS POR SERIE: inyección post-render ──────────────────
-function tcInyectarPesos() {
-  var uid = (_tcUsuario && _tcUsuario.id) || 'x';
-  if (!_tcEjercicios) return;
-
-  _tcEjercicios.forEach(function(ej, i) {
-    var nomEj = (ej.nombre||'ej'+i).replace(/[^a-zA-Z0-9]/g,'_');
-    var key = 'tc-pesos-' + uid + '-' + nomEj;
-    var data = JSON.parse(localStorage.getItem(key)||'{}');
-    var pesosGuardados = data.pesos || [];
-    var unidad = data.unidad || 'kg';
-    var series = parseInt(ej.series) || 3;
-
-    // Buscar el contenedor de bombillas de este ejercicio
-    var bomb0 = document.getElementById('tc-bomb-' + i + '-0');
-    if (!bomb0) return;
-    var contenedor = bomb0.parentElement;
-    if (!contenedor) return;
-
-    // Crear wrapper con toggle + inputs encima de cada circulo
-    var wrapper = document.createElement('div');
-    wrapper.id = 'tc-peso-wrap-' + i;
-
-    // Toggle kg/lb
-    var toggleHtml = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
-    toggleHtml += '<span style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px">Peso:</span>';
-    toggleHtml += '<div style="display:flex;background:#1a1a1a;border-radius:20px;overflow:hidden;border:1px solid #333">';
-    toggleHtml += '<button id="tc-kg-' + i + '" onclick="tcToggleUnidad(' + i + ',\'kg\')" style="background:' + (unidad==='kg'?'#e31e24':'transparent') + ';border:none;color:' + (unidad==='kg'?'#fff':'#666') + ';font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">kg</button>';
-    toggleHtml += '<button id="tc-lb-' + i + '" onclick="tcToggleUnidad(' + i + ',\'lb\')" style="background:' + (unidad==='lb'?'#e31e24':'transparent') + ';border:none;color:' + (unidad==='lb'?'#fff':'#666') + ';font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">lb</button>';
-    toggleHtml += '</div></div>';
-    wrapper.innerHTML = toggleHtml;
-
-    // Mover cada circulo dentro de un div con su input encima
-    // Fila 1: series 0-4, Fila 2: series 5-9
-    var fila1 = document.createElement('div');
-    fila1.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap';
-    var fila2 = document.createElement('div');
-    fila2.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap';
-
-    for (var s = 0; s < series; s++) {
-      var bomb = document.getElementById('tc-bomb-' + i + '-' + s);
-      if (!bomb) continue;
-
-      var item = document.createElement('div');
-      item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px';
-
-      var inp = document.createElement('input');
-      inp.id = 'tc-peso-' + i + '-' + s;
-      inp.type = 'number';
-      inp.min = '0';
-      inp.max = '999';
-      inp.value = pesosGuardados[s] || '';
-      inp.placeholder = '-';
-      inp.style.cssText = 'width:42px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:4px 2px;outline:none';
-      inp.addEventListener('focus', function(){ this.style.borderColor='#e31e24'; });
-      inp.addEventListener('blur', function(){ this.style.borderColor='#333'; });
-
-      item.appendChild(inp);
-      item.appendChild(bomb);
-
-      if (s < 5) { fila1.appendChild(item); }
-      else { fila2.appendChild(item); }
-    }
-
-    wrapper.appendChild(fila1);
-    if (series > 5) wrapper.appendChild(fila2);
-
-    // Reemplazar contenedor original
-    contenedor.parentElement.replaceChild(wrapper, contenedor);
-  });
-}
-
-function tcToggleUnidad(ejIdx, unidad) {
-  var kgBtn = document.getElementById('tc-kg-' + ejIdx);
-  var lbBtn = document.getElementById('tc-lb-' + ejIdx);
-  if (!kgBtn || !lbBtn) return;
-  if (unidad === 'kg') {
-    kgBtn.style.background = '#e31e24'; kgBtn.style.color = '#fff';
-    lbBtn.style.background = 'transparent'; lbBtn.style.color = '#666';
-  } else {
-    lbBtn.style.background = '#e31e24'; lbBtn.style.color = '#fff';
-    kgBtn.style.background = 'transparent'; kgBtn.style.color = '#666';
-  }
-  var uid = (_tcUsuario && _tcUsuario.id) || 'x';
-  var ej = _tcEjercicios && _tcEjercicios[ejIdx];
-  if (!ej) return;
-  var nomEj = (ej.nombre||'ej'+ejIdx).replace(/[^a-zA-Z0-9]/g,'_');
-  var key = 'tc-pesos-' + uid + '-' + nomEj;
-  var data = JSON.parse(localStorage.getItem(key)||'{}');
-  data.unidad = unidad;
-  localStorage.setItem(key, JSON.stringify(data));
-}
-
-function tcGuardarPesos() {
-  var uid = (_tcUsuario && _tcUsuario.id) || 'x';
-  if (!_tcEjercicios) return;
-  _tcEjercicios.forEach(function(ej, i) {
-    var nomEj = (ej.nombre||'ej'+i).replace(/[^a-zA-Z0-9]/g,'_');
-    var key = 'tc-pesos-' + uid + '-' + nomEj;
-    var data = JSON.parse(localStorage.getItem(key)||'{}');
-    var series = parseInt(ej.series) || 3;
-    var pesos = [];
-    for (var s = 0; s < series; s++) {
-      var inp = document.getElementById('tc-peso-' + i + '-' + s);
-      pesos.push(inp ? (inp.value||'') : '');
-    }
-    if (pesos.some(function(p){ return p !== ''; })) {
-      data.pesos = pesos;
-      localStorage.setItem(key, JSON.stringify(data));
-    }
-  });
-}
-</script>
-
-<script>
-// Botón temporal para limpiar rutina del día
-function tcLimpiarRutinaHoy() {
-  const uid = (_tcUsuario && _tcUsuario.id) || 'x';
-  const fecha = tcFechaHoy();
-  localStorage.removeItem('tc-rutina-completa-' + uid + '-' + fecha);
-  localStorage.removeItem('tc-estado-' + uid);
-  alert('✅ Listo, recarga la rutina');
-}
 </script>

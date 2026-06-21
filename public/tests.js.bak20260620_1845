@@ -259,11 +259,8 @@ function renderFuerza() {
     <button onclick="enviarTest('fuerza');toggleMenu('menu-test-fuerza')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
       📲 Enviar por WhatsApp
     </button>
-    <button onclick="copiarTest('fuerza');toggleMenu('menu-test-fuerza')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
+    <button onclick="copiarTest('fuerza');toggleMenu('menu-test-fuerza')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
       📋 Copiar texto
-    </button>
-    <button onclick="compartirTest('fuerza');toggleMenu('menu-test-fuerza')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📤 Compartir
     </button>
   </div>
 </div>
@@ -329,11 +326,8 @@ function renderResist() {
     <button onclick="enviarTest('resist');toggleMenu('menu-test-resist')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
       📲 Enviar por WhatsApp
     </button>
-    <button onclick="copiarTest('resist');toggleMenu('menu-test-resist')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
+    <button onclick="copiarTest('resist');toggleMenu('menu-test-resist')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
       📋 Copiar texto
-    </button>
-    <button onclick="compartirTest('resist');toggleMenu('menu-test-resist')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📤 Compartir
     </button>
   </div>
 </div>
@@ -402,11 +396,8 @@ function renderEspecif() {
     <button onclick="enviarTest('especif');toggleMenu('menu-test-especif')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
       📲 Enviar por WhatsApp
     </button>
-    <button onclick="copiarTest('especif');toggleMenu('menu-test-especif')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;border-bottom:1px solid rgba(128,128,128,0.2);color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
+    <button onclick="copiarTest('especif');toggleMenu('menu-test-especif')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
       📋 Copiar texto
-    </button>
-    <button onclick="compartirTest('especif');toggleMenu('menu-test-especif')" style="width:100%;padding:12px 16px;background:var(--fondo,#111);border:none;color:var(--texto);font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
-      📤 Compartir
     </button>
   </div>
 </div>
@@ -537,17 +528,6 @@ async function copiarTest(tipo) {
     toast('📋 Test copiado al portapapeles');
   } catch(e) {
     toast('Error al copiar', false);
-  }
-}
-
-async function compartirTest(tipo) {
-  try {
-    const r = await generarTextoTest(tipo);
-    if (typeof compartirTextoNativo === 'function') {
-      await compartirTextoNativo(r.texto, 'Test físico');
-    }
-  } catch(e) {
-    toast('Error al compartir', false);
   }
 }
 
