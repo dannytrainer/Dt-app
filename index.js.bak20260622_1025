@@ -540,7 +540,35 @@ cron.schedule('* * * * *', async () => {
       }
     }
 
-    // Push de pagos (próximos y vencidos) unificado en bloque 8:37am
+    // Push vencidos 7:00am — solo una vez
+    if (ahora.getHours() === 7 && ahora.getMinutes() === 0) {
+      for (const u of usuarios) {
+        if (!u.activo) continue;
+        if (u.estado_pago !== 'vencido') continue;
+        if (u.push_vencido_enviado) continue;
+        const subCli = pushSuscripciones[u.id];
+        if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '🔴 Plan vencido', mensaje: u.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.' })).catch(e => registrarError('webpush', e));
+        const subEnt = pushSuscripciones[u.entrenador_id];
+        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '🔴 Pago vencido', mensaje: (u.nombre || 'Un cliente') + ' tiene pago vencido.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(e => registrarError('webpush', e));
+        u.push_vencido_enviado = true;
+      }
+    }
+
+    // 8:37am — solo WhatsApp (push eliminado para evitar duplicados)
+
+    // Push próximos 9:00am — solo una vez
+    if (ahora.getHours() === 9 && ahora.getMinutes() === 0) {
+      for (const u of usuarios) {
+        if (!u.activo) continue;
+        if (u.estado_pago !== 'proximo') continue;
+        if (u.push_proximo_enviado) continue;
+        const subCli = pushSuscripciones[u.id];
+        if (subCli) webpush.sendNotification(subCli, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: u.msg_proximo || 'Tu plan vence en 3 días.' })).catch(e => registrarError('webpush', e));
+        const subEnt = pushSuscripciones[u.entrenador_id];
+        if (subEnt) webpush.sendNotification(subEnt, JSON.stringify({ titulo: '⚠️ Pago próximo', mensaje: (u.nombre || 'Un cliente') + ' vence en 3 días.', urlAccion: 'https://dt-app.net/?accion=cobro&clienteId=' + u.id })).catch(e => registrarError('webpush', e));
+        u.push_proximo_enviado = true;
+      }
+    }
 
     guardarJSON('logs.json', logs);
   } catch(e) {

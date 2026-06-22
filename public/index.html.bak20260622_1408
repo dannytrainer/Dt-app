@@ -11570,19 +11570,7 @@ function tcConfirmarFinalizar() {
             const mm = String(Math.floor(seg/60)).padStart(2,'0');
             const ss = String(seg%60).padStart(2,'0');
             const icon = ev.tipo === 'cardio' ? '🏃' : '💪';
-            const label = (() => {
-              if (ev.tipo === 'cardio') return ev.nombre;
-              const uid = ((_tcUsuario && _tcUsuario.id) || 'x');
-              const nomEj = (ev.nombre||'').replace(/[^a-zA-Z0-9]/g,'_');
-              const key = 'tc-pesos-' + uid + '-' + nomEj;
-              try {
-                const data = JSON.parse(localStorage.getItem(key)||'{}');
-                const peso = data.pesos && data.pesos[ev.serieNum - 1];
-                const unidad = data.unidad || 'kg';
-                const pesoStr = peso ? ' (' + peso + ' ' + unidad + ')' : '';
-                return ev.nombre + ' — Serie ' + ev.serieNum + pesoStr;
-              } catch(e) { return ev.nombre + ' — Serie ' + ev.serieNum; }
-            })();
+            const label = ev.tipo === 'cardio' ? ev.nombre : ev.nombre + ' — Serie ' + ev.serieNum;
             crono += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #2a2a2a">'
               + '<div style="font-size:11px;color:#e0e0e0">' + icon + ' ' + label + '</div>'
               + '<div style="font-size:11px;font-weight:700;color:#aaaaaa;font-family:monospace">' + mm + ':' + ss + '</div>'
@@ -14711,7 +14699,7 @@ function tcInyectarPesos() {
       inp.placeholder = '-';
       inp.style.cssText = 'width:42px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:4px 2px;outline:none';
       inp.addEventListener('focus', function(){ this.style.borderColor='#e31e24'; });
-      inp.addEventListener('blur', function(){ this.style.borderColor='#333'; tcGuardarPesos(); });
+      inp.addEventListener('blur', function(){ this.style.borderColor='#333'; });
       item.appendChild(inp);
       item.appendChild(bomb);
       if (s < 5) { fila1.appendChild(item); }
