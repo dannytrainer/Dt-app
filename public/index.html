@@ -19,7 +19,21 @@
 <meta name="description" content="Gestiona tus clientes, rutinas, pagos y seguimiento deportivo desde un solo lugar. La herramienta digital que todo entrenador profesional necesita. Disponible en Colombia. 🏋️">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--fondo);color:var(--texto-suave);font-family:'Segoe UI',sans-serif}
+body{background:#111;color:var(--texto-suave);font-family:'Segoe UI',sans-serif}
+@media(min-width:600px){
+  body{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;background:#0a0a0a}
+  #app-entrenador,#app-cliente,#pantalla-login,#pantalla-registro{max-width:480px;width:100%;margin:0 auto;background:var(--fondo);min-height:100vh;position:relative}
+  .nav-bar,#app-header{max-width:480px;left:50%;transform:translateX(-50%)}
+  .modal{left:0!important;right:0!important;width:100vw!important;transform:none!important}
+  .modal>div{max-width:480px;margin:0 auto}
+  #terminal-cliente-app{width:480px!important;left:50%!important;transform:translateX(-50%)!important}
+  #tc-config-panel>div:nth-child(2){max-width:480px;margin:0 auto;width:100%}
+  #tc-config-panel>div:first-child{max-width:480px;margin:0 auto;width:100%}
+  #config-sheet>div{max-width:480px;margin:0 auto;width:100%}
+  #chat-ent-fab,#chat-ent-badge{right:calc(50% - 480px/2 + 62px)!important}
+  #tc-chat-fab,#tc-chat-badge{right:calc(50% - 480px/2 + 128px)!important}
+  .fab{right:calc(50% - 480px/2 + 20px)!important}
+}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 70% 50% at 10% 0%,rgba(227,30,36,0.18) 0%,transparent 55%),radial-gradient(ellipse 60% 45% at 90% 100%,rgba(74,158,255,0.10) 0%,transparent 55%),radial-gradient(ellipse 50% 60% at 50% 50%,rgba(156,39,176,0.06) 0%,transparent 60%)}
 #app-entrenador,#app-cliente{position:relative;z-index:1}
 :root{
@@ -2373,8 +2387,8 @@ function renderAdminConfig(){
       html+='<div style="color:#4caf50;font-weight:700;margin-bottom:8px">✅ Premium activo</div>';
       if(hasta) html+='<div style="font-size:11px;color:var(--texto-medio)">Activo hasta: '+hasta+'</div>';
     } else {
-      html+='<div style="font-size:12px;color:var(--texto-secundario);margin-bottom:12px">Acceso completo a todas las funciones profesionales por $50.000/mes</div>';
-      html+='<button onclick="entPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Pagar Premium $50.000/mes</button>';
+      html+='<div style="font-size:12px;color:var(--texto-secundario);margin-bottom:12px">Acceso completo a todas las funciones profesionales por $39.999/mes</div>';
+      html+='<button onclick="entPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Pagar Premium $39.999/mes</button>';
       html+='<div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px;text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>';
       html+='<div style="display:flex;gap:8px;align-items:center">';
       html+='<input id="cfg-codigo-premium" type="text" placeholder="INGRESA TU CÓDIGO..." style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">';
@@ -9972,7 +9986,7 @@ function filtrarRutinas(){
     <!-- PREMIUM -->
     <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px">&#128273; Premium</div>
     <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
-      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Plan Premium Entrenador — $50.000/mes</div>
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Plan Premium Entrenador — $39.999/mes</div>
       <div id="cfg-premium-estado" style="font-size:11px;color:var(--texto-medio);margin-bottom:12px">Acceso completo a todas las funciones profesionales</div>
       <button onclick="var s=JSON.parse(localStorage.getItem('dt_sesion')||'{}');var uid=s.id;if(!uid){toast('⚠️ Inicia sesión primero',false);return;}window.open('/premium-entrenador.html?uid='+uid,'_blank');" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Ver planes Premium</button>
       <div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px;text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>
@@ -10465,10 +10479,8 @@ async function compartirPlanNativo() {
   <div id="tc-contenido" style="flex:1;overflow-y:auto;padding:16px"></div>
 
   <!-- CHAT FLOTANTE -->
-  <div style="position:fixed;top:14px;right:128px;z-index:9000;width:36px;height:36px">
-  <button id="tc-chat-fab" onclick="tcToggleChat()" style="width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.55);border:none;color:rgba(255,255,255,0.85);font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center">💬</button>
-  <div id="tc-chat-badge" style="display:none;position:absolute;top:-6px;right:-6px;background:rgba(255,152,0,0.9);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
-  </div>
+  <button id="tc-chat-fab" onclick="tcToggleChat()" style="position:fixed;top:14px;right:128px;width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.55);border:none;color:rgba(255,255,255,0.85);font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:9000;display:flex;align-items:center;justify-content:center">💬</button>
+  <div id="tc-chat-badge" style="display:none;position:fixed;top:8px;right:122px;background:rgba(255,152,0,0.9);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
 
   <!-- PANEL CHAT -->
   <div id="tc-chat-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:9999;flex-direction:column">
@@ -10643,8 +10655,8 @@ function mostrarCandadoPremium(mensaje) {
   el.innerHTML = '<div style="background:#111;border:2px solid #e31e24;border-radius:20px;padding:28px 20px;text-align:center;max-width:320px">' +
     '<div style="font-size:36px;margin-bottom:12px">🔒</div>' +
     '<div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:8px">Plan Premium</div>' +
-    '<div style="font-size:13px;color:var(--texto-medio);line-height:1.6;margin-bottom:16px">' + m + '<br><br>Activa Premium por solo <span style="color:#e31e24;font-weight:700">$50.000/mes</span>.</div>' +
-    '<button onclick="document.getElementById(\'modal-ent-premium\').remove();entPagarPremiumModal();" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px">💳 Pagar $50.000/mes</button>' +
+    '<div style="font-size:13px;color:var(--texto-medio);line-height:1.6;margin-bottom:16px">' + m + '<br><br>Activa Premium por solo <span style="color:#e31e24;font-weight:700">$39.999/mes</span>.</div>' +
+    '<button onclick="document.getElementById(\'modal-ent-premium\').remove();entPagarPremiumModal();" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px">💳 Pagar $39.999/mes</button>' +
     '<button onclick="this.parentNode.parentNode.remove()" style="width:100%;padding:10px;border-radius:10px;border:1px solid #333;background:transparent;color:#888;font-size:13px;cursor:pointer">Ahora no</button>' +
     '</div>';
   document.body.appendChild(el);
@@ -10872,8 +10884,8 @@ function tcMostrarPremium() {
   el.innerHTML = '<div style="background:#111;border:2px solid #e31e24;border-radius:20px;padding:28px 20px;text-align:center;max-width:320px">' +
     '<div style="font-size:36px;margin-bottom:12px">⭐</div>' +
     '<div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:8px">Función Premium</div>' +
-    '<div style="font-size:13px;color:var(--texto-medio);line-height:1.6;margin-bottom:16px">Desbloquea todo el potencial de DT-APP por solo <span style="color:#e31e24;font-weight:700">$20.000/mes</span>.</div>' +
-    '<button onclick="document.getElementById(\'modal-tc-premium\').remove();tcPagarPremiumModal();" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px">💳 Pagar $20.000/mes</button>' +
+    '<div style="font-size:13px;color:var(--texto-medio);line-height:1.6;margin-bottom:16px">Desbloquea todo el potencial de DT-APP por solo <span style="color:#e31e24;font-weight:700">$9.999/mes</span>.</div>' +
+    '<button onclick="document.getElementById(\'modal-tc-premium\').remove();tcPagarPremiumModal();" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e31e24;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px">💳 Pagar $9.999/mes</button>' +
     '<button onclick="this.parentNode.parentNode.remove()" style="width:100%;padding:10px;border-radius:10px;border:1px solid #333;background:transparent;color:#888;font-size:13px;cursor:pointer">Ahora no</button>' +
     '</div>';
   document.body.appendChild(el);
@@ -10979,8 +10991,7 @@ function tcMostrarAyudaRutina(){
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
         <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Toca <b>Iniciar rutina</b> para activar el cronometro del dia.</span></div>
         <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Toca el boton <b>Serie X de Y</b> cada vez que termines una serie.</span></div>
-        <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Registra el <b>peso usado</b> en cada serie. Elige <b>kg o lb</b> por ejercicio. Se guarda automaticamente y aparece la proxima vez que hagas esa rutina.</span></div>
-              <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Al completar todo, se envia un reporte a tu entrenador.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Al completar todo, se envia un reporte a tu entrenador.</span></div>
       </div>
       <div style="background:#0d0d0d;border-radius:12px;padding:14px;margin-bottom:18px">
         <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">Significado de los circulos</div>
@@ -11031,17 +11042,14 @@ function tcRenderRutina(cont) {
   const _uid2 = (_tcUsuario && _tcUsuario.id) || 'x';
   const _diaActualHoy2 = DIAS_ES[new Date().getDay()];
   const _fecha2 = new Date().toISOString().split('T')[0];
-  // Verificar desbloqueo por cualquier día desbloqueado hoy
-  const _diasDesbHoy = (_tcUsuario && _tcUsuario.dias_desbloqueados) ? 
-    Object.keys(_tcUsuario.dias_desbloqueados).filter(d => _tcUsuario.dias_desbloqueados[d].includes(_fecha2)) : [];
-  const _desbloqueadoHoy = _diasDesbHoy.length > 0;
+  const _desbloqueadoHoy = (_tcUsuario && _tcUsuario.dias_desbloqueados && _tcUsuario.dias_desbloqueados[_diaActualHoy2] && _tcUsuario.dias_desbloqueados[_diaActualHoy2].includes(_fecha2));
   if (_desbloqueadoHoy) {
-    // Limpiar localStorage de cada día desbloqueado
-    _diasDesbHoy.forEach(function(d) {
-      localStorage.removeItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy() + '-' + d);
-    });
     localStorage.removeItem('tc-rutina-completa-' + _uid2 + '-' + tcFechaHoy());
-    localStorage.removeItem('tc-estado-' + _uid2);
+    fetch('/api/usuarios/' + _uid2 + '/limpiar-desbloqueo', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({dia: _diaActualHoy2})
+    }).catch(()=>{});
   }
   // Limpiar también días desbloqueados manualmente
   if (_tcUsuario && _tcUsuario.dias_desbloqueados) {
@@ -11430,7 +11438,7 @@ function tcConfirmarFinalizar() {
   const conf = document.getElementById('tc-confirm-finalizar');
   if (conf) conf.remove();
   tcGuardarPesos();
-  // Desbloqueo del servidor se mantiene hasta que el cliente vuelva a entrar
+  tcGuardarPesos();
 
   // Calcular resumen
   const btns = document.querySelectorAll('[id^="tc-btn-serie-"]');
@@ -11550,15 +11558,7 @@ function tcConfirmarFinalizar() {
             const mm = String(Math.floor(seg/60)).padStart(2,'0');
             const ss = String(seg%60).padStart(2,'0');
             const icon = ev.tipo === 'cardio' ? '🏃' : '💪';
-            const label = ev.tipo === 'cardio' ? ev.nombre : (function(){
-              const _nomEjLog = (ev.nombre||'').replace(/[^a-zA-Z0-9]/g,'_');
-              const _pesoDataLog = JSON.parse(localStorage.getItem('tc-pesos-' + ((_tcUsuario&&_tcUsuario.id)||'x') + '-' + _nomEjLog)||'{}');
-              const _pesosLog = _pesoDataLog.pesos || [];
-              const _unidadLog = _pesoDataLog.unidad || 'kg';
-              const _serieIdx = (ev.serieNum||1) - 1;
-              const _pesoVal = _pesosLog[_serieIdx];
-              return ev.nombre + ' — Serie ' + ev.serieNum + (_pesoVal ? ' · ' + _pesoVal + _unidadLog : '');
-            })();
+            const label = ev.tipo === 'cardio' ? ev.nombre : ev.nombre + ' — Serie ' + ev.serieNum;
             crono += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #2a2a2a">'
               + '<div style="font-size:11px;color:#e0e0e0">' + icon + ' ' + label + '</div>'
               + '<div style="font-size:11px;font-weight:700;color:#aaaaaa;font-family:monospace">' + mm + ':' + ss + '</div>'
@@ -13357,7 +13357,7 @@ function tcAbrirConfig() {
   premDiv.style.cssText = 'background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:16px';
   var premEstado = (_tcUsuario && _tcUsuario.premium) ? '✅ Activo' : '⭐ Activar';
   var premColor = (_tcUsuario && _tcUsuario.premium) ? '#4caf50' : '#e31e24';
-  premDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:8px">Plan Premium — $20.000/mes</div>' +
+  premDiv.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:8px">Plan Premium — $9.999/mes</div>' +
     '<div style="font-size:12px;color:var(--texto-medio);margin-bottom:12px">Acceso completo a la app</div>' +
     ((_tcUsuario && _tcUsuario.premium) ?
       '<div style="color:' + premColor + ';font-weight:700">✅ Premium activo</div>' +
@@ -14645,11 +14645,10 @@ function saFiltrarConvenios(texto) {
 </script>
 
 <script>
-// ── PESOS POR SERIE: inyección post-render ──────────────────
+// ── PESOS POR SERIE ──────────────────────────────────────────
 function tcInyectarPesos() {
   var uid = (_tcUsuario && _tcUsuario.id) || 'x';
   if (!_tcEjercicios) return;
-
   _tcEjercicios.forEach(function(ej, i) {
     var nomEj = (ej.nombre||'ej'+i).replace(/[^a-zA-Z0-9]/g,'_');
     var key = 'tc-pesos-' + uid + '-' + nomEj;
@@ -14657,18 +14656,12 @@ function tcInyectarPesos() {
     var pesosGuardados = data.pesos || [];
     var unidad = data.unidad || 'kg';
     var series = parseInt(ej.series) || 3;
-
-    // Buscar el contenedor de bombillas de este ejercicio
     var bomb0 = document.getElementById('tc-bomb-' + i + '-0');
     if (!bomb0) return;
     var contenedor = bomb0.parentElement;
     if (!contenedor) return;
-
-    // Crear wrapper con toggle + inputs encima de cada circulo
     var wrapper = document.createElement('div');
     wrapper.id = 'tc-peso-wrap-' + i;
-
-    // Toggle kg/lb
     var toggleHtml = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
     toggleHtml += '<span style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px">Peso:</span>';
     toggleHtml += '<div style="display:flex;background:#1a1a1a;border-radius:20px;overflow:hidden;border:1px solid #333">';
@@ -14676,21 +14669,15 @@ function tcInyectarPesos() {
     toggleHtml += '<button id="tc-lb-' + i + '" onclick="tcToggleUnidad(' + i + ',\'lb\')" style="background:' + (unidad==='lb'?'#e31e24':'transparent') + ';border:none;color:' + (unidad==='lb'?'#fff':'#666') + ';font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">lb</button>';
     toggleHtml += '</div></div>';
     wrapper.innerHTML = toggleHtml;
-
-    // Mover cada circulo dentro de un div con su input encima
-    // Fila 1: series 0-4, Fila 2: series 5-9
     var fila1 = document.createElement('div');
     fila1.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap';
     var fila2 = document.createElement('div');
     fila2.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap';
-
     for (var s = 0; s < series; s++) {
       var bomb = document.getElementById('tc-bomb-' + i + '-' + s);
       if (!bomb) continue;
-
       var item = document.createElement('div');
       item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px';
-
       var inp = document.createElement('input');
       inp.id = 'tc-peso-' + i + '-' + s;
       inp.type = 'number';
@@ -14701,18 +14688,13 @@ function tcInyectarPesos() {
       inp.style.cssText = 'width:42px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:4px 2px;outline:none';
       inp.addEventListener('focus', function(){ this.style.borderColor='#e31e24'; });
       inp.addEventListener('blur', function(){ this.style.borderColor='#333'; });
-
       item.appendChild(inp);
       item.appendChild(bomb);
-
       if (s < 5) { fila1.appendChild(item); }
       else { fila2.appendChild(item); }
     }
-
     wrapper.appendChild(fila1);
     if (series > 5) wrapper.appendChild(fila2);
-
-    // Reemplazar contenedor original
     contenedor.parentElement.replaceChild(wrapper, contenedor);
   });
 }
@@ -14757,13 +14739,10 @@ function tcGuardarPesos() {
     }
   });
 }
-</script>
 
-<script>
-// Botón temporal para limpiar rutina del día
 function tcLimpiarRutinaHoy() {
-  const uid = (_tcUsuario && _tcUsuario.id) || 'x';
-  const fecha = tcFechaHoy();
+  var uid = (_tcUsuario && _tcUsuario.id) || 'x';
+  var fecha = tcFechaHoy();
   localStorage.removeItem('tc-rutina-completa-' + uid + '-' + fecha);
   localStorage.removeItem('tc-estado-' + uid);
   alert('✅ Listo, recarga la rutina');
