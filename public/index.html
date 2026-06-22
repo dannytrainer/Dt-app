@@ -10984,14 +10984,26 @@ function tcTab(tab) {
 function tcMostrarAyudaRutina(){
   const modal = document.createElement('div');
   modal.id = 'modal-ayuda-rutina';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
   modal.innerHTML = `
-    <div style="max-width:380px;width:100%;background:#161616;border-radius:18px;padding:22px;max-height:80vh;overflow-y:auto">
+    <div style="max-width:380px;width:100%;background:#111 !important;border-radius:18px;padding:22px;max-height:85vh;overflow-y:auto;border:1px solid #2a2a2a">
       <div style="font-size:18px;font-weight:900;color:#e31e24;margin-bottom:14px;text-align:center">Como funciona tu rutina?</div>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
         <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Toca <b>Iniciar rutina</b> para activar el cronometro del dia.</span></div>
         <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Toca el boton <b>Serie X de Y</b> cada vez que termines una serie.</span></div>
-        <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Al completar todo, se envia un reporte a tu entrenador.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Registra el <b>peso usado</b> en cada serie. Elige <b>kg o lb</b> por ejercicio. Se guarda automaticamente y aparece la proxima vez.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start"><span style="background:#e31e24;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</span><span style="font-size:13px;color:#e0e0e0;line-height:1.5">Al completar todo, se envia un reporte a tu entrenador.</span></div>
+      </div>
+      <div style="background:#0d0d0d;border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">Indicadores del ejercicio</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:900;color:#fff;background:#1a1a1a;border-radius:6px;padding:3px 8px;min-width:44px;text-align:center">SERIES</span><span style="font-size:12px;color:#ccc">Cuantas veces repites el bloque</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:900;color:#fff;background:#1a1a1a;border-radius:6px;padding:3px 8px;min-width:44px;text-align:center">REPS</span><span style="font-size:12px;color:#ccc">Repeticiones por serie</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:900;color:#e31e24;background:#1a0000;border-radius:6px;padding:3px 8px;min-width:44px;text-align:center">RIR</span><span style="font-size:12px;color:#ccc">Repeticiones en reserva — esfuerzo que te queda</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:900;color:#fff;background:#1a1a1a;border-radius:6px;padding:3px 8px;min-width:44px;text-align:center">DESC</span><span style="font-size:12px;color:#ccc">Segundos de pausa entre series</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:900;color:#e31e24;background:#1a0000;border:1px solid #e31e24;border-radius:6px;padding:3px 8px;min-width:44px;text-align:center">VAR</span><span style="font-size:12px;color:#ccc">Variacion del ejercicio — tocalo para ir a las notas</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:900;color:#888;background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:3px 8px;min-width:44px;text-align:center">VER</span><span style="font-size:12px;color:#ccc">Abre el video o enciclopedia del ejercicio</span></div>
+        </div>
       </div>
       <div style="background:#0d0d0d;border-radius:12px;padding:14px;margin-bottom:18px">
         <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">Significado de los circulos</div>
