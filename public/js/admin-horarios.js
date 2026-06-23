@@ -1,3 +1,11 @@
+// ===== HORARIOS =====
+let _horariosData = {recurrentes:[], unicos:[]};
+let _horariosVista = 'semana';
+let _horariosOffset = 0;
+let _horarioColorSel = '#e31e24';
+let _horarioDiasSel = [];
+let _horarioEditId = null;
+
 async function cargarHorarios(){
   const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
   const res = await fetch('/api/horarios?entrenador_id=' + _eid);
