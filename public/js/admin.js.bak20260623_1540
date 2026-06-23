@@ -1339,6 +1339,74 @@ function mostrarModalRecibo(canvas, u, p, d, nombreEntrenador){
 }
 
 // ═══════════════════════════════
+// COLORES PERSONALIZABLES
+// ═══════════════════════════════
+const _coloresConfig = {
+  general: [
+    {var:'--rojo', label:'Color acento', def:'#e31e24'},
+    {var:'--fondo', label:'Fondo app', def:'#0a0a0a'},
+    {var:'--card', label:'Fondo cards', def:'#111111'},
+    {var:'--gris', label:'Fondo inputs', def:'#1a1a1a'},
+  ],
+  chips: [
+    {var:'--chip-activos', label:'🟢 Activos', def:'#4caf50'},
+    {var:'--chip-person', label:'💪 Personalizados', def:'#e31e24'},
+    {var:'--chip-asesor', label:'📋 Asesorados', def:'#4a9eff'},
+    {var:'--chip-pausados', label:'⏸️ Pausados', def:'#666666'},
+  ],
+  tests: [
+    {var:'--test-fuerza', label:'💪 Fuerza', def:'#e31e24'},
+    {var:'--test-resist', label:'🫁 Resistencia', def:'#4a9eff'},
+    {var:'--test-especif', label:'⭐ Específico', def:'#9c27b0'},
+  ]
+};
+let _tabColoresActual = 'general';
+
+function mostrarTabColores(tab){
+  _tabColoresActual = tab;
+  ['general','chips','tests'].forEach(t=>{
+    const btn = document.getElementById('tab-col-'+t);
+    btn.style.background = t===tab ? 'var(--rojo)' : '#2a2a2a';
+    btn.style.color = t===tab ? '#fff' : '#888';
+  });
+  const root = getComputedStyle(document.documentElement);
+  const items = _coloresConfig[tab];
+  let html = '';
+  items.forEach(item=>{
+    const val = root.getPropertyValue(item.var).trim() || item.def;
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #222">';
+    html += '<span style="font-size:13px;color:var(--texto-suave)">'+item.label+'</span>';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    html += '<span style="font-size:11px;color:var(--texto-secundario)">'+val+'</span>';
+    html += '<input type="color" value="'+val+'" data-var="'+item.var+'" onchange="aplicarColor(this)" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:0">';
+    html += '</div></div>';
+  });
+  document.getElementById('tab-colores-content').innerHTML = html;
+}
+
+function aplicarColor(input){
+  document.documentElement.style.setProperty(input.dataset.var, input.value);
+}
+
+async function guardarColores(){
+  const root = getComputedStyle(document.documentElement);
+  const colores = {};
+  ['general','chips','tests'].forEach(tab=>{
+    _coloresConfig[tab].forEach(item=>{
+      colores[item.var] = document.documentElement.style.getPropertyValue(item.var) || root.getPropertyValue(item.var).trim() || item.def;
+    });
+  });
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colores, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  toast('✅ Colores guardados');
+}
+
+function aplicarColoresGuardados(colores){
+  if(!colores) return;
+  Object.entries(colores).forEach(([key,val])=>{
+    document.documentElement.style.setProperty(key, val);
+  });
+}
+// ═══════════════════════════════
 // CONFIG BOTTOM SHEET
 // ═══════════════════════════════
 
