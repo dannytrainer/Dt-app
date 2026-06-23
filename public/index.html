@@ -13916,29 +13916,6 @@ async function chatEntEnviarImagen(input) {
   input.value = '';
 }
 
-async function tcEnviarVideo(input) {
-  const uid = _tcUsuario && _tcUsuario.id;
-  if (!input.files[0] || !uid) return;
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    await fetch('/api/chat/' + uid, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'cliente',tipo:'video',contenido:e.target.result})});
-    tcCargarMensajes();
-  };
-  reader.readAsDataURL(input.files[0]);
-  input.value = '';
-}
-
-async function chatEntEnviarVideo(input) {
-  if (!input.files[0] || !_chatEntClienteId) return;
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    await fetch('/api/chat/' + _chatEntClienteId, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({autor:'entrenador',tipo:'video',contenido:e.target.result})});
-    cargarMensajesEntrenador();
-  };
-  reader.readAsDataURL(input.files[0]);
-  input.value = '';
-}
-
 function tcToggleMenu() {
   const m = document.getElementById('tc-chat-menu');
   if (m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
