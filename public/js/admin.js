@@ -1,0 +1,8412 @@
+const DIAS=['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+let rutinaActual={},diaSeleccionado='lunes';
+
+function showPage(p){
+const hPanel=document.getElementById('herramienta-panel');
+if(hPanel&&hPanel.style.display!=='none'){
+  hPanel.style.display='none';
+  const st=document.querySelector('#page-logs .st');
+  if(st){st.style.display='block';if(st.nextElementSibling)st.nextElementSibling.style.display='grid';}
+}
+desbloquearSwipe();
+// Detener todos los loops de juegos
+window._juegoActivo=false;
+if(window._hk) window._hk.activo=false;
+if(window._invActivo!==undefined) window._invActivo=false;
+document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+document.getElementById('page-'+p).classList.add('active');
+const nav=document.getElementById('nav-principal');
+if(p==='inicio'){nav.style.display='none';}
+else{nav.style.display='flex';const navIdx=['inicio','clientes','rutinas','logs','enviar'].indexOf(p);if(navIdx>=0)document.querySelectorAll('.nav button')[navIdx].classList.add('active');}
+document.getElementById('fab-btn').style.display=p==='clientes'?'flex':'none';
+if(p==='inicio')cargarInicio();
+if(p==='clientes'){cargarClientes();cargarEstadoPausaGlobal();}
+if(p==='rutinas')cargarRutinasClientes();
+if(p==='festivos')cargarFestivos();
+if(p==='logs')cargarLogs();
+if(p==='enviar'){cargarSelectEnviar();cargarDifusion();}
+if(p==='admin'){cargarAdmin();setTimeout(cargarCobroAutoEstado,500);}
+if(p==='horarios')initHorarios();
+}
+function toast(msg,ok=true){
+const t=document.getElementById('toast');
+t.textContent=msg;
+t.style.borderLeftColor=ok?'#4caf50':'#e31e24';
+t.classList.add('show');
+setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function togglePago2(){
+const t=document.getElementById('cliente-tipo-pago').value;
+document.getElementById('pago2-box').style.display=t==='quincenal'?'block':'none';
+}
+
+function epBadge(ep){
+if(ep==='vencido')return '<span class="badge bv">🔴 Vencido</span>';
+if(ep==='proximo')return '<span class="badge bpr">⚠️ Pago próximo</span>';
+return '<span class="badge bal">✅ Al día</span>';
+}
+
+
+
+
+
+
+// ═══════════════════════════════
+// MOTOR DE RECOMENDACIONES
+// ═══════════════════════════════
+function copiarMensaje(msg){
+  navigator.clipboard.writeText(msg).then(()=>toast('📋 Mensaje copiado')).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    toast('📋 Mensaje copiado');
+  });
+}
+
+function proximaFechaEspecial(){
+  const hoy=new Date();
+  const anio=hoy.getFullYear();
+  const fechas=[
+    {nombre:'Día de las Madres', fecha:new Date(anio,4,segundoDomingo(anio,5)), msg:'🌸 ¡Se acerca el Día de las Madres! Tenemos un plan especial para ti. Este mes entrena con nosotros y celebra sintiéndote increíble. 💪'},
+    {nombre:'Día del Padre', fecha:new Date(anio,5,tercerDomingo(anio,6)), msg:'💪 ¡Se acerca el Día del Padre! Regálate salud y fuerza. Tenemos un plan especial esperándote. 🏋️'},
+    {nombre:'Amor y Amistad', fecha:new Date(anio,8,tercerSabado(anio,9)), msg:'❤️ ¡Septiembre es el mes del Amor y la Amistad! Comparte el bienestar — trae un amigo y obtén un beneficio especial. 🎁'},
+    {nombre:'Halloween', fecha:new Date(anio,9,31), msg:'🎃 ¡Halloween se acerca! Transforma tu cuerpo antes de fin de año. Únete ahora con condiciones especiales. 👻'},
+    {nombre:'Navidad', fecha:new Date(anio,11,25), msg:'🎄 ¡Navidad en camino! El mejor regalo eres tú mismo. Planes especiales de diciembre disponibles. ⭐'},
+    {nombre:'Año Nuevo', fecha:new Date(anio+1,0,1), msg:'🎆 ¡El nuevo año se acerca! Empieza con el pie derecho — planes de enero con condiciones especiales. 💫'},
+  ];
+  const proximas=fechas.filter(f=>{
+    const diff=(f.fecha-hoy)/(1000*60*60*24);
+    return diff>=0&&diff<=15;
+  });
+  return proximas;
+}
+
+function segundoDomingo(anio,mes){
+  let d=new Date(anio,mes-1,1);
+  let dom=0,count=0;
+  while(count<2){if(d.getDay()===0)count++;if(count<2)d.setDate(d.getDate()+1);}
+  return d.getDate();
+}
+function tercerDomingo(anio,mes){
+  let d=new Date(anio,mes-1,1);
+  let count=0;
+  while(count<3){if(d.getDay()===0)count++;if(count<3)d.setDate(d.getDate()+1);}
+  return d.getDate();
+}
+function tercerSabado(anio,mes){
+  let d=new Date(anio,mes-1,1);
+  let count=0;
+  while(count<3){if(d.getDay()===6)count++;if(count<3)d.setDate(d.getDate()+1);}
+  return d.getDate();
+}
+
+function generarRecomendaciones(usuarios,adminData,dash){
+  const rec=[];
+  const hoy=new Date();
+  const clientes=adminData.clientes||{};
+  const cfg=adminData.config||{};
+  const activos=usuarios.filter(u=>u.activo);
+  const pausados=usuarios.filter(u=>!u.activo);
+
+  // 1. Clientes pausados > 30 dias
+  pausados.forEach(u=>{
+    const d=clientes[u.id]||{};
+    const precio=d.precio||0;
+    const pagos=d.pagos||[];
+    const ultimoPago=pagos.length?new Date(pagos[pagos.length-1].fecha):null;
+    if(!ultimoPago){
+      // Nunca ha pagado
+      rec.push({
+        icono:'🆕',
+        titulo:u.nombre+' — aún no ha pagado su primera mensualidad',
+        detalle:'Cliente registrado sin pagos. Verifica si ya inició o si está pendiente de cobro.',
+        color:'#607d8b',
+        mensaje:'Hola '+u.nombre+' 👋, quería saber cómo vas con tu plan. ¿Arrancamos? 💪',
+        btnWA:'Hola '+u.nombre+' 👋, quería saber cómo vas con tu plan. ¿Arrancamos? 💪'
+      });
+    } else {
+      const diasPausado=Math.floor((hoy-ultimoPago)/(1000*60*60*24));
+      if(diasPausado>30){
+        const desc=30;
+        const precioDesc=Math.round(precio*(1-desc/100));
+        const msg='Hola '+u.nombre+' 👋, te extrañamos en el gym! Tenemos un plan especial de regreso con '+desc+'% de descuento — solo '+(precioDesc>0?precioDesc.toLocaleString():'[precio]')+' este mes. ¿Volvemos? 💪';
+        rec.push({
+          icono:'⏸️',
+          titulo:u.nombre+' lleva '+diasPausado+' días pausado',
+          detalle:'Último pago: '+ultimoPago.toLocaleDateString('es-CO')+' · Precio: '+(precio>0?precio.toLocaleString()+' '+(d.moneda||'COP'):'sin registrar')+' · Plan retoma con '+desc+'% off'+(precioDesc>0?' = '+precioDesc.toLocaleString():''),
+          color:'#ff9800',
+          mensaje:msg,
+          btnWA:msg
+        });
+      }
+    }
+  });
+
+  // 2. Clientes vencidos - agrupar en una sola recomendacion
+  const vencidosList=activos.filter(u=>u.estado_pago==='vencido');
+  if(vencidosList.length===1){
+    const u=vencidosList[0];
+    const msg='Hola '+u.nombre+' 👋, te recuerdo que tienes un pago pendiente. Comunícate conmigo para ponernos al día. ¡Gracias! 💪';
+    rec.push({icono:'🔴',titulo:u.nombre+' tiene pago vencido',detalle:'Día de pago: '+(u.dia_pago||'sin definir')+'. Envíale un recordatorio ahora.',color:'#e31e24',mensaje:msg,btnWA:msg});
+  } else if(vencidosList.length>1){
+    const nombres=vencidosList.map(u=>u.nombre).join(', ');
+    const total=vencidosList.reduce((s,u)=>{const d=clientes[u.id]||{};return s+(d.precio||0);},0);
+    rec.push({icono:'🔴',titulo:vencidosList.length+' clientes con pago vencido',detalle:nombres+'. Total en riesgo: '+(total>0?total.toLocaleString()+' COP':'calcular precios'),color:'#e31e24',mensaje:null,btnWA:null});
+  }
+
+  // 3. Fechas especiales proximas
+  const especiales=proximaFechaEspecial();
+  especiales.forEach(fe=>{
+    const diff=Math.floor((fe.fecha-hoy)/(1000*60*60*24));
+    const desc=diff<=7?20:15;
+    const totalMesLocal=dash.totalMes||0;
+    const clientesSinPrecio=activos.filter(u=>!(clientes[u.id]&&clientes[u.id].precio>0)).length;
+    const potencialPromo=Math.round(totalMesLocal*desc/100);
+    const propuesta=diff<=7
+      ?'Lanza YA un '+desc+'% de descuento — quedan solo '+diff+' días. Podrías atraer '+(pausados.length>0?pausados.length+' clientes pausados':'nuevos clientes')+'.'
+      :'Tienes '+diff+' días para preparar una promo de '+desc+'% de descuento'+(potencialPromo>0?' — inversión estimada: '+potencialPromo.toLocaleString()+' COP':'');
+    rec.push({
+      icono:'🎯',
+      titulo:fe.nombre+' en '+diff+' día'+(diff===1?'':'s'),
+      detalle:propuesta,
+      color:'#9c27b0',
+      mensaje:fe.msg,
+      btnWA:fe.msg
+    });
+  });
+
+  // 4. Cobrado < 50% proyeccion a mitad de mes
+  const dia=hoy.getDate();
+  const totalMes=dash.totalMes||0;
+  const totalPagos=dash.totalPagos||0;
+  if(dia>=15&&totalMes>0&&totalPagos<totalMes*0.5){
+    rec.push({
+      icono:'⚠️',
+      titulo:'Solo has cobrado el '+Math.round(totalPagos/totalMes*100)+'% de tu proyección',
+      detalle:'Llevas '+totalPagos.toLocaleString()+' de '+totalMes.toLocaleString()+' proyectados. Activa cobros pendientes.',
+      color:'#ff9800',
+      mensaje:null,
+      btnWA:null
+    });
+  }
+
+  // 5. Clientes sin precio registrado
+  const sinPrecio=activos.filter(u=>!(clientes[u.id]&&clientes[u.id].precio>0));
+  if(sinPrecio.length>0){
+    rec.push({
+      icono:'💰',
+      titulo:sinPrecio.length+' clientes sin precio registrado',
+      detalle:sinPrecio.map(u=>u.nombre).join(', ')+'. Registra sus precios para mejorar tus proyecciones.',
+      color:'#4a9eff',
+      mensaje:null,
+      btnWA:null
+    });
+  }
+
+  // MEJORA 2: Retención — clientes 3+ meses activos
+  activos.forEach(u=>{
+    const d=clientes[u.id]||{};
+    const precio=d.precio||0;
+    const pagos=d.pagos||[];
+    if(pagos.length===0) return;
+    const primerPago=new Date(pagos[0].fecha);
+    const mesesActivo=Math.floor((hoy-primerPago)/(1000*60*60*24*30));
+    if(mesesActivo>=3 && mesesActivo<6){
+      const desc=10;
+      const precioDesc=Math.round(precio*(1-desc/100));
+      const msg='Hola '+u.nombre+' 💪, llevas '+mesesActivo+' meses entrenando y eso merece reconocimiento. Quiero ofrecerte un precio preferencial de '+precioDesc.toLocaleString()+' para que sigamos juntos mucho más. ¡Cuéntame!';
+      rec.push({
+        icono:'🏅',
+        titulo:u.nombre+' lleva '+mesesActivo+' meses — fidelizar ahora',
+        detalle:'Cliente activo desde '+primerPago.toLocaleDateString('es-CO')+'. Ofrecer '+desc+'% preferencial antes de los 6 meses = '+precioDesc.toLocaleString()+' '+(d.moneda||'COP'),
+        color:'#4caf50',
+        mensaje:msg,
+        btnWA:msg
+      });
+    }
+  });
+
+  // MEJORA 3: Temporada baja — mes actual vs anterior
+  const totalMesAct=dash.totalPagos||0;
+  const totalMesAnt=dash.totalMesAnt||0;
+  if(totalMesAnt>0 && totalMesAct<totalMesAnt*0.8){
+    const caida=Math.round((1-totalMesAct/totalMesAnt)*100);
+    rec.push({
+      icono:'📉',
+      titulo:'Este mes vas '+caida+'% por debajo del anterior',
+      detalle:'Mes anterior: '+totalMesAnt.toLocaleString()+' → Este mes: '+totalMesAct.toLocaleString()+'. Momento ideal para campaña de reactivación.',
+      color:'#ff5722',
+      mensaje:null,
+      btnWA:null
+    });
+  }
+
+  // MEJORA 1: Propuestas 2x1 — clientes con horario similar
+  const horarioMap={};
+  activos.forEach(u=>{
+    if(!u.horario) return;
+    const h=u.horario.trim().toLowerCase();
+    if(!horarioMap[h]) horarioMap[h]=[];
+    horarioMap[h].push(u);
+  });
+  Object.entries(horarioMap).forEach(([horario,grupo])=>{
+    if(grupo.length>=2){
+      grupo.forEach(u=>{
+        const d=clientes[u.id]||{};
+        const precio=d.precio||0;
+        const precioDesc=Math.round(precio*0.7);
+        const msg='Hola '+u.nombre+' 👋, tengo una propuesta especial: si traes un amigo a tu horario ('+horario+') ambos pagan solo el 70% — quedarías en '+precioDesc.toLocaleString()+'. ¿Conoces a alguien? 💪';
+        rec.push({
+          icono:'👥',
+          titulo:'2x1 para '+u.nombre+' (horario '+horario+')',
+          detalle:grupo.length+' clientes en este horario. Sugerir traer amigo con 30% descuento = '+precioDesc.toLocaleString()+' '+(d.moneda||'COP'),
+          color:'#00bcd4',
+          mensaje:msg,
+          btnWA:msg
+        });
+      });
+    }
+  });
+
+  // MEJORA 5: Historial de promociones enviadas
+  const promoHistorial=JSON.parse(localStorage.getItem('dt_promo_historial')||'[]');
+  const hoyStr=hoy.toISOString().split('T')[0];
+  const enviadas=promoHistorial.filter(p=>p.fecha===hoyStr);
+  if(enviadas.length>0){
+    rec.push({
+      icono:'📊',
+      titulo:'Hoy enviaste '+enviadas.length+' promoción'+(enviadas.length>1?'es':''),
+      detalle:enviadas.map(p=>p.cliente+': '+p.tipo).join(' · '),
+      color:'#607d8b',
+      mensaje:null,
+      btnWA:null
+    });
+  }
+
+  // MEJORA 6: Promociones personalizadas — UNA tarjeta grupal por promo
+  const promosPersonalizadas=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  promosPersonalizadas.filter(p=>p.activa).forEach(promo=>{
+    let candidatos=[];
+    if(promo.condicion==='nuevo'){
+      candidatos=activos.filter(u=>{
+        const d=clientes[u.id]||{};
+        const pagos=d.pagos||[];
+        if(pagos.length===0) return true;
+        const primer=new Date(pagos[0].fecha);
+        return Math.floor((hoy-primer)/(1000*60*60*24))<=30;
+      });
+    } else if(promo.condicion==='pausado'){
+      candidatos=pausados;
+    } else if(promo.condicion==='activo'){
+      candidatos=activos;
+    } else if(promo.condicion==='todos'){
+      candidatos=[...activos,...pausados];
+    }
+    if(candidatos.length===0) return;
+    const desc=promo.descuento||0;
+    const potencial=candidatos.reduce((s,u)=>{
+      const d=clientes[u.id]||{};
+      return s+Math.round((d.precio||0)*(1-desc/100));
+    },0);
+    const msg=promo.mensaje
+      .replace(/{nombre}/g,'[cliente]')
+      .replace(/{descuento}/g,desc+'%')
+      .replace(/{precio}/g,'[precio]')
+      .replace(/{precio_con_descuento}/g,'[precio con descuento]');
+    const condLabel=promo.condicion==='nuevo'?'nuevos':promo.condicion==='pausado'?'pausados':promo.condicion==='activo'?'activos':'total';
+    rec.push({
+      icono:'🎁',
+      titulo:promo.nombre+' · '+candidatos.length+' clientes '+condLabel,
+      detalle:desc+'% descuento · Potencial recuperable: '+(potencial>0?potencial.toLocaleString()+' COP':'calcular precios'),
+      color:'#e91e63',
+      mensaje:msg,
+      btnWA:msg
+    });
+  });
+
+  return rec;
+}
+// ═══════════════════════════════
+
+function cobroAutoActualizarUI(activo){
+  const toggle = document.getElementById('cobro-auto-toggle');
+  const dot = document.getElementById('cobro-auto-dot');
+  if(toggle) toggle.style.background = activo ? '#e31e24' : '#333';
+  if(dot) dot.style.left = activo ? '18px' : '2px';
+}
+async function cargarCobroAutoEstado(){
+  try{
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const cfg = await fetch('/api/config?entrenador_id='+eid).then(r=>r.json());
+    const activo = cfg.cobro_auto_activo !== false;
+    cobroAutoActualizarUI(activo);
+  }catch(e){}
+}
+async function toggleCobroAuto(){
+  const esPremium = typeof entEsPremium === 'function' ? entEsPremium() : false;
+  if(!esPremium){
+    toast('⭐ Función Premium — Activa tu plan para usarla.',false);
+    return;
+  }
+  try{
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const cfg = await fetch('/api/config?entrenador_id='+eid).then(r=>r.json());
+    const nuevoEstado = cfg.cobro_auto_activo === false ? true : false;
+    await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entrenador_id:eid, cobro_auto_activo:nuevoEstado})});
+    cobroAutoActualizarUI(nuevoEstado);
+  }catch(e){}
+}
+
+
+async function enviarCobroManual(id){
+  console.log('enviarCobroManual id:', id);
+  const u = (window._adminUsuarios||[]).find(x=>x.id==id || x.id=='cli_'+id || x.id.replace('cli_','')==String(id));
+  console.log('usuario encontrado:', u ? u.nombre : 'NO');
+  if(!u){ toast('❌ Cliente no encontrado',false); return; }
+  const msg = document.getElementById('ac-msg') ? document.getElementById('ac-msg').value : (u.msg_pago||'');
+  if(!msg){ toast('⚠️ Escribe un mensaje de cobro primero',false); return; }
+  if(!u.telefono){ toast('⚠️ Cliente sin teléfono registrado',false); return; }
+  try{
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const res = await fetch('/api/enviar',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({telefono:u.telefono, mensaje:msg, entrenador_id:eid})
+    });
+    const d = await res.json();
+    if(d.ok){ toast('✅ Mensaje enviado a '+u.nombre); }
+    else{ toast('❌ '+(d.error||'No se pudo enviar'),false); }
+  }catch(e){ toast('❌ Error de conexión',false); }
+}
+
+// MODULO ADMINISTRATIVO
+// ═══════════════════════════════
+const MONEDAS = ['COP','USD','EUR','GBP','MXN','ARS','BRL','PEN','CLP'];
+
+async function cargarAdmin(){
+  try{
+    const [usuarios, adminData, configData] = await Promise.all([
+      fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()),
+      fetch('/api/admin?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()),
+      fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json())
+    ]);
+    window._adminUsuarios = usuarios;
+    window._adminData = adminData;
+    if(!window._adminData.config) window._adminData.config = {};
+    Object.assign(window._adminData.config, configData);
+    showAdminTab('dashboard');
+  }catch(e){console.error('cargarAdmin',e);}
+}
+
+function showAdminTab(tab){
+  ['dashboard','clientes','promos','config'].forEach(t=>{
+    const btn=document.getElementById('atab-'+t);
+    if(btn){btn.style.background=t===tab?'var(--rojo)':'#2a2a2a';btn.style.color=t===tab?'#fff':'#888';}
+  });
+  const c=document.getElementById('admin-tab-content');
+  if(tab==='dashboard') c.innerHTML=renderAdminDashboard();
+  else if(tab==='clientes') c.innerHTML=renderAdminClientes();
+  else if(tab==='config') {
+    fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg=>{
+      if(!window._adminData) window._adminData={};
+      window._adminData.config = cfg;
+      c.innerHTML=renderAdminConfig();
+      cargarCodigoVinc();
+    });
+  }
+}
+
+function _adminPanelMetodos(met,pagos,color){
+  let h='<div style="margin-top:10px;border-top:1px solid #2a2a2a;padding-top:10px">';
+  const icons={efectivo:'💵',transferencia:'🏦',tarjeta:'💳',otro:'📦'};
+  Object.keys(met).forEach(k=>{
+    if(met[k]>0)h+='<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:var(--texto-medio)">'+icons[k]+' '+k.charAt(0).toUpperCase()+k.slice(1)+'</span><span style="color:'+color+';font-weight:700">'+met[k].toLocaleString()+'</span></div>';
+  });
+  if(pagos.length){
+    h+='<div style="margin-top:8px;font-size:11px;color:var(--texto-secundario);text-transform:uppercase;letter-spacing:1px">Detalle</div>';
+    pagos.forEach(p=>{
+      h+='<div style="background:var(--fondo);border-radius:8px;padding:7px;margin-top:4px"><div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--texto);font-weight:600">'+p.nombre+'</span><span style="font-size:12px;color:'+color+';font-weight:700">'+p.monto.toLocaleString()+' '+p.moneda+'</span></div><div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">'+p.fecha+' · '+p.metodo+(p.novedad?' · '+p.novedad:'')+'</div></div>';
+    });
+  }
+  h+='</div>';
+  return h;
+}
+
+if(!window._chartInstances)window._chartInstances={};
+function abrirComparativoModal(){
+  var dash=window._dash||{};
+  var meses=dash.meses||[];
+  var existing=document.getElementById("modal-comparativo");
+  if(existing){existing.remove();return;}
+  var metAnt=dash.metodosMesAnt||{};
+  var met=dash.metodos||{};
+  var pagosMesAnt=dash.pagosMesAnt||[];
+  var pagosMes=dash.pagosMes||[];
+  var mesAnt=meses[dash.mesAnterior]||'Ant';
+  var mesAct=meses[dash.mesActual]||'Act';
+  var totalAnt=dash.totalMesAnt||0;
+  var totalAct=dash.totalPagos||0;
+  var diff=totalAct-totalAnt;
+  var diffColor=diff>=0?'#4caf50':'#e31e24';
+  var diffIcon=diff>=0?'▲':'▼';
+  function fmt(n){return (n||0).toLocaleString();}
+  function listapagos(arr,color){
+    if(!arr||!arr.length)return '<div style="color:#666;font-size:12px;padding:8px">Sin pagos registrados</div>';
+    var s='';
+    arr.forEach(function(p){
+      var ic=p.metodo==='transferencia'?'🏦':p.metodo==='tarjeta'?'💳':'💵';
+      s+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a">';
+      s+='<div><div style="font-size:13px;color:#fff;font-weight:600">'+p.nombre+'</div>';
+      s+='<div style="font-size:11px;color:#666">'+p.fecha+' · '+ic+' '+p.metodo+'</div></div>';
+      s+='<div style="font-size:13px;font-weight:700;color:'+color+'">'+fmt(p.monto)+' '+p.moneda+'</div></div>';
+    });
+    return s;
+  }
+  var modal=document.createElement('div');
+  modal.id='modal-comparativo';
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:9999;overflow-y:auto;padding:16px;box-sizing:border-box';
+  var h='';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">';
+  h+='<div style="font-size:16px;font-weight:700;color:#fff">📊 Comparativo mensual</div>';
+  h+='<button onclick="document.getElementById(\'modal-comparativo\').remove()" style="background:#2a2a2a;border:none;border-radius:8px;color:#fff;padding:8px 14px;font-size:13px;cursor:pointer">✕ Cerrar</button></div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">';
+  h+='<div style="background:#111;border:1px solid #4a9eff44;border-radius:14px;padding:14px;text-align:center">';
+  h+='<div style="font-size:11px;color:#4a9eff;font-weight:700;margin-bottom:6px">'+mesAnt+'</div>';
+  h+='<div style="font-size:20px;font-weight:800;color:#fff">'+fmt(totalAnt)+'</div>';
+  h+='<div style="font-size:10px;color:#666;margin-top:2px">'+pagosMesAnt.length+' pagos</div></div>';
+  h+='<div style="background:#111;border:1px solid #e31e2444;border-radius:14px;padding:14px;text-align:center">';
+  h+='<div style="font-size:11px;color:#e31e24;font-weight:700;margin-bottom:6px">'+mesAct+'</div>';
+  h+='<div style="font-size:20px;font-weight:800;color:#fff">'+fmt(totalAct)+'</div>';
+  h+='<div style="font-size:10px;color:#666;margin-top:2px">'+pagosMes.length+' pagos</div></div></div>';
+  h+='<div style="background:#111;border-radius:14px;padding:14px;margin-bottom:20px;text-align:center">';
+  h+='<div style="font-size:11px;color:#888;margin-bottom:4px">Diferencia</div>';
+  h+='<div style="font-size:22px;font-weight:800;color:'+diffColor+'">'+diffIcon+' '+fmt(Math.abs(diff))+'</div></div>';
+  h+='<div style="background:#111;border-radius:14px;padding:14px;margin-bottom:20px">';
+  h+='<canvas id="chart-comp-modal" style="width:100%;max-height:200px"></canvas></div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">';
+  var metodos=[['💵','efectivo'],['🏦','transferencia'],['💳','tarjeta'],['📦','otro']];
+  metodos.forEach(function(m){
+    var ic=m[0],key=m[1];
+    h+='<div style="background:#111;border-radius:12px;padding:12px">';
+    h+='<div style="font-size:11px;color:#888;margin-bottom:6px">'+ic+' '+key.charAt(0).toUpperCase()+key.slice(1)+'</div>';
+    h+='<div style="font-size:12px;color:#4a9eff">'+mesAnt+': <b>'+fmt(metAnt[key]||0)+'</b></div>';
+    h+='<div style="font-size:12px;color:#e31e24">'+mesAct+': <b>'+fmt(met[key]||0)+'</b></div></div>';
+  });
+  h+='</div>';
+  h+='<div style="background:#111;border-radius:14px;padding:14px;margin-bottom:16px">';
+  h+='<div style="font-size:13px;font-weight:700;color:#4a9eff;margin-bottom:10px">📅 Pagos '+mesAnt+'</div>';
+  h+=listapagos(pagosMesAnt,'#4a9eff');
+  h+='</div>';
+  h+='<div style="background:#111;border-radius:14px;padding:14px;margin-bottom:16px">';
+  h+='<div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:10px">📅 Pagos '+mesAct+'</div>';
+  h+=listapagos(pagosMes,'#e31e24');
+  h+='</div>';
+  modal.innerHTML=h;
+  document.body.appendChild(modal);
+  setTimeout(function(){
+    var ctx=document.getElementById('chart-comp-modal');
+    if(!ctx)return;
+    new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:['Efectivo','Transfer.','Tarjeta','Otro'],
+        datasets:[
+          {label:mesAnt,data:[metAnt.efectivo||0,metAnt.transferencia||0,metAnt.tarjeta||0,metAnt.otro||0],backgroundColor:'#4a9eff44',borderColor:'#4a9eff',borderWidth:2,borderRadius:6},
+          {label:mesAct,data:[met.efectivo||0,met.transferencia||0,met.tarjeta||0,met.otro||0],backgroundColor:'#e31e2444',borderColor:'#e31e24',borderWidth:2,borderRadius:6}
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#ccc',font:{size:11}}}},scales:{x:{ticks:{color:'#888'}},y:{ticks:{color:'#888',callback:function(v){return v.toLocaleString();}}}}}
+    });
+  },300);
+}
+
+function toggleDashPanel(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const visible=el.style.display==='none';
+  el.style.display=visible?'block':'none';
+  if(!visible)return;
+  const dash=window._dash||{};
+  if(id==='dp-cob'){
+    const ctx=document.getElementById('chart-metodos');
+    if(!ctx)return;
+    if(window._chartInstances['metodos'])window._chartInstances['metodos'].destroy();
+    const met=dash.metodos||{efectivo:0,transferencia:0,tarjeta:0,otro:0};
+    const vals=[met.efectivo,met.transferencia,met.tarjeta,met.otro];
+    if(vals.every(v=>v===0))return;
+    window._chartInstances['metodos']=new Chart(ctx,{
+      type:'doughnut',
+      data:{labels:['💵 Efectivo','🏦 Transferencia','💳 Tarjeta','📦 Otro'],datasets:[{data:vals,backgroundColor:['#4caf50','#4a9eff','#ff9800','#9c27b0'],borderWidth:0}]},
+      options:{plugins:{legend:{labels:{color:'#ccc',font:{size:11}}}},cutout:'65%'}
+    });
+  }
+  if(id==='dp-ant'){
+    const ctx=document.getElementById('chart-comparativo');
+    if(!ctx)return;
+    if(window._chartInstances['comp'])window._chartInstances['comp'].destroy();
+    const met=dash.metodos||{};
+    const metAnt=dash.metodosMesAnt||{};
+    const meses=dash.meses||[];
+    window._chartInstances['comp']=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:['Efectivo','Transfer.','Tarjeta','Otro'],
+        datasets:[
+          {label:meses[dash.mesAnterior]||'Ant',data:[metAnt.efectivo||0,metAnt.transferencia||0,metAnt.tarjeta||0,metAnt.otro||0],backgroundColor:'#4a9eff44',borderColor:'#4a9eff',borderWidth:2,borderRadius:6},
+          {label:meses[dash.mesActual]||'Act',data:[met.efectivo||0,met.transferencia||0,met.tarjeta||0,met.otro||0],backgroundColor:'#e31e2444',borderColor:'#e31e24',borderWidth:2,borderRadius:6}
+        ]
+      },
+      options:{plugins:{legend:{labels:{color:'#ccc',font:{size:11}}}},scales:{x:{ticks:{color:'#888'}},y:{ticks:{color:'#888',callback:function(v){return v.toLocaleString();}}}}}
+    });
+  }
+  if(id==='dp-proy'){
+    const ctx=document.getElementById('chart-proyeccion');
+    if(!ctx)return;
+    if(window._chartInstances['proy'])window._chartInstances['proy'].destroy();
+    const clientes=dash.proyeccionClientes||[];
+    window._chartInstances['proy']=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:clientes.map(c=>c.nombre.split(' ')[0]),
+        datasets:[{label:'Precio plan',data:clientes.map(c=>c.precio),backgroundColor:'#4caf5044',borderColor:'#4caf50',borderWidth:2,borderRadius:6}]
+      },
+      options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#888',callback:function(v){return v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(0)+'k':v;}}},y:{ticks:{color:'#ccc',font:{size:11}},grid:{lineWidth:0}}}}
+    });
+  }
+}
+
+function renderAdminDashboard(){
+  const data=window._adminData||{clientes:{}};
+  const usuarios=window._adminUsuarios||[];
+  const hoy=new Date();
+  const mesActual=hoy.getMonth();
+  const anioActual=hoy.getFullYear();
+  const mesAnterior=mesActual===0?11:mesActual-1;
+  const anioAnterior=mesActual===0?anioActual-1:anioActual;
+  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  let totalMes=0,totalMesAnt=0,totalPagos=0,totalDesc=0;
+  const monedas={};
+  const metodos={efectivo:0,transferencia:0,tarjeta:0,otro:0};
+  const metodosMesAnt={efectivo:0,transferencia:0,tarjeta:0,otro:0};
+  const pagosMes=[],pagosMesAnt=[],proyeccionClientes=[];
+  usuarios.forEach(u=>{
+    const d=data.clientes[u.id]||data.clientes[(u.id||'').replace('cli_','')]||{};
+    const precio=d.precio||0;
+    const moneda=d.moneda||'COP';
+    if(!monedas[moneda])monedas[moneda]=0;
+    if(u.activo){
+      monedas[moneda]+=precio;
+      totalMes+=precio;
+      proyeccionClientes.push({nombre:u.nombre,precio,moneda});
+    }
+    (d.pagos||[]).forEach(p=>{
+      const fp=new Date(p.fecha);
+      if(fp.getMonth()===mesActual&&fp.getFullYear()===anioActual){
+        totalPagos+=p.monto||0;
+        const m=p.metodo||'efectivo';
+        if(metodos[m]!==undefined)metodos[m]+=p.monto||0; else metodos.otro+=p.monto||0;
+        if(p.descuento_valor)totalDesc+=p.descuento_tipo==='pct'?Math.round((d.precio||0)*p.descuento_valor/100):p.descuento_valor;
+        pagosMes.push({nombre:u.nombre,monto:p.monto,moneda:p.moneda||moneda,metodo:p.metodo||'efectivo',fecha:p.fecha,novedad:p.novedad||''});
+      }
+      if(fp.getMonth()===mesAnterior&&fp.getFullYear()===anioAnterior){
+        totalMesAnt+=p.monto||0;
+        const m=p.metodo||'efectivo';
+        if(metodosMesAnt[m]!==undefined)metodosMesAnt[m]+=p.monto||0; else metodosMesAnt.otro+=p.monto||0;
+        pagosMesAnt.push({nombre:u.nombre,monto:p.monto,moneda:p.moneda||moneda,metodo:p.metodo||'efectivo',fecha:p.fecha});
+      }
+    });
+  });
+  window._dash={totalMes,totalMesAnt,totalPagos,totalDesc,monedas,metodos,metodosMesAnt,pagosMes,pagosMesAnt,proyeccionClientes,meses,mesActual,mesAnterior,anioActual,anioAnterior};
+  window._chartInstances={};
+  let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
+  html+='<div onclick="toggleDashPanel(\'dp-proy\')" style="background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.25);border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
+  html+='<div style="font-size:10px;color:#4caf50;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Proyección mes</div>';
+  html+='<div style="font-size:20px;font-weight:800;color:#4caf50">'+totalMes.toLocaleString()+'</div>';
+  html+='<div style="font-size:10px;color:var(--texto-tenue);margin-top:2px">'+meses[mesActual]+' '+anioActual+' · toca ▾</div>';
+  html+='<div id="dp-proy" style="display:none;margin-top:10px;border-top:1px solid #1e3a1e;padding-top:10px">';
+  proyeccionClientes.forEach(cl=>{
+    html+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #1e3a1e"><span style="color:var(--texto-medio)">'+cl.nombre+'</span><span style="color:#4caf50;font-weight:700;white-space:nowrap;margin-left:8px">'+cl.precio.toLocaleString()+' '+cl.moneda+'</span></div>';
+  });
+  if(totalDesc>0)html+='<div style="margin-top:6px;font-size:11px;color:#f0c040">🏷️ Inversión en retención: '+totalDesc.toLocaleString()+'</div>';
+  html+='<div style="overflow-y:scroll;max-height:280px;margin-top:12px"><canvas id="chart-proyeccion" style="width:100%;height:'+(proyeccionClientes.length*36+30)+'px"></canvas></div>';
+  html+='</div></div>';
+  html+='<div onclick="toggleDashPanel(\'dp-cob\')" style="background:var(--card);border:1px solid rgba(227,30,36,0.25);border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">';
+  html+='<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cobrado este mes</div>';
+  html+='<div style="font-size:20px;font-weight:800;color:#e31e24">'+totalPagos.toLocaleString()+'</div>';
+  html+='<div style="font-size:10px;color:var(--texto-tenue);margin-top:2px">Toca para ver ▾</div>';
+  html+='<div id="dp-cob" style="display:none">'+_adminPanelMetodos(metodos,pagosMes,"#e31e24")+'<canvas id="chart-metodos" style="margin-top:12px;max-height:180px"></canvas></div>';
+  html+='</div>';
+  html+='<div onclick="abrirComparativoModal()" style="background:#1a0000;border:1px solid #10203a;border-radius:14px;padding:14px;cursor:pointer;overflow:hidden;min-width:0">';
+  html+='<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Mes anterior</div>';
+  html+='<div style="font-size:20px;font-weight:800;color:#e31e24">'+totalMesAnt.toLocaleString()+'</div>';
+  html+='<div style="font-size:10px;color:var(--texto-tenue);margin-top:2px">'+meses[mesAnterior]+' '+(mesActual===0?anioAnterior:anioActual)+' · toca ▾</div>';
+  html+='<div id="dp-ant" style="display:none">'+_adminPanelMetodos(metodosMesAnt,pagosMesAnt,"#4a9eff")+'<canvas id="chart-comparativo" style="margin-top:12px;max-height:180px"></canvas></div>';
+  html+='</div>';
+  html+='<div style="background:var(--card);border:1px solid #2a2a2a;border-radius:14px;padding:14px">';
+  html+='<div style="font-size:10px;color:var(--texto-medio);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Clientes activos</div>';
+  const nActivos=usuarios.filter(u=>u.activo).length;
+  const nTotal=usuarios.length;
+  html+='<div style="font-size:20px;font-weight:800;color:var(--texto)">'+nActivos+'<span style="font-size:13px;color:var(--texto-secundario);font-weight:400">/'+nTotal+'</span></div>';
+  html+='<div style="font-size:10px;color:var(--texto-tenue);margin-top:2px">Activos / Total registrados</div></div>';
+  html+='</div>';
+
+  // ═══ CHIP POTENCIAL ═══
+  const pausados=(window._adminUsuarios||[]).filter(u=>!u.activo);
+  const vencidos2=(window._adminUsuarios||[]).filter(u=>u.activo&&u.estado_pago==='vencido');
+  let potencial=0;
+  [...pausados,...vencidos2].forEach(u=>{
+    const d=(window._adminData||{clientes:{}}).clientes[u.id]||{};
+    potencial+=d.precio||0;
+  });
+  if(potencial>0){
+    html+='<div style="background:var(--card);border:1px solid rgba(240,192,64,0.25);border-radius:14px;padding:14px;margin-top:10px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">';
+    html+='<div style="font-size:10px;color:#f0c040;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">💛 Potencial recuperable</div>';
+    html+='<div style="font-size:20px;font-weight:800;color:#f0c040">'+potencial.toLocaleString()+'</div>';
+    html+='<div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">'+pausados.length+' pausados · '+vencidos2.length+' vencidos</div>';
+    html+='</div>';
+  }
+
+  // ═══ RECOMENDACIONES ═══
+  const recomendaciones=generarRecomendaciones(window._adminUsuarios||[],window._adminData||{},window._dash||{});
+  if(recomendaciones.length){
+    html+='<div style="margin-top:16px">';
+    html+='<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px">🎯 Recomendaciones</div>';
+    recomendaciones.forEach(r=>{
+      html+='<div style="background:var(--card);border-left:3px solid '+r.color+';border-radius:0 12px 12px 0;padding:12px 14px;margin-bottom:8px">';
+      html+='<div style="font-size:13px;color:var(--texto);font-weight:600;margin-bottom:4px">'+r.icono+' '+r.titulo+'</div>';
+      html+='<div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">'+r.detalle+'</div>';
+      if(r.mensaje){
+        html+='<div style="background:var(--fondo);border-radius:8px;padding:8px;font-size:11px;color:var(--texto-medio);margin-bottom:8px;font-style:italic">'+r.mensaje+'</div>';
+      }
+      if(r.btnWA){
+        html+='<button onclick="copiarMensaje(\''+r.btnWA.replace(/'/g,"\\'")+'\');" style="background:#1a3a1a;border:none;border-radius:8px;color:#4caf50;font-size:11px;font-weight:700;padding:7px 12px;cursor:pointer;margin-right:6px">📋 Copiar</button>';
+      }
+      html+='</div>';
+    });
+    html+='</div>';
+  }
+
+  // Panel promos al final
+  html+='<div id="promo-panel" style="display:none;background:var(--gris);border-radius:14px;padding:14px;margin-top:12px">';
+  html+='<div style="font-size:12px;color:#e91e63;font-weight:700;margin-bottom:8px">🎁 Promociones personalizadas</div>';
+  html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">El motor las sugerirá según la condición. Tú decides si envías.</div>';
+  const promosCustom=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  promosCustom.forEach((p,i)=>{
+    html+='<div style="background:var(--card);border-radius:10px;padding:10px;margin-bottom:6px;border-left:3px solid #e91e63">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    html+='<span style="font-size:12px;color:var(--texto);font-weight:600">'+p.nombre+'</span>';
+    html+='<div style="display:flex;gap:6px;align-items:center">';
+    html+='<label class="switch"><input type="checkbox" '+(p.activa?'checked':'')+' onchange="togglePromoCustom('+i+',this.checked)"><span class="slider"></span></label>';
+    html+='<button onclick="borrarPromoCustom('+i+')" style="background:#2a0a0a;border:1px solid #5a1a1a;border-radius:6px;color:#e31e24;font-size:11px;padding:3px 7px;cursor:pointer">🗑️</button>';
+    html+='</div></div>';
+    html+='<div style="font-size:10px;color:var(--texto-medio);margin-top:4px">'+(p.condicion==='nuevo'?'🆕 Nuevos':p.condicion==='pausado'?'⏸️ Pausados':p.condicion==='activo'?'✅ Activos':'👥 Todos')+' · '+p.descuento+'% off</div>';
+  });
+  html+='<div style="border-top:1px solid #2a2a2a;margin:10px 0"></div>';
+  html+='<div style="font-size:11px;color:#e91e63;font-weight:700;margin-bottom:8px">➕ Nueva promoción</div>';
+  html+='<input type="text" id="np-nombre" placeholder="Nombre (ej: Promo familia)" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  html+='<select id="np-condicion" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto);font-size:12px;margin-bottom:6px">';
+  html+='<option value="nuevo">🆕 Nuevos clientes (< 30 días)</option>';
+  html+='<option value="pausado">⏸️ Pausados</option>';
+  html+='<option value="activo">✅ Activos</option>';
+  html+='<option value="todos">👥 Todos</option>';
+  html+='</select>';
+  html+='<input type="number" id="np-descuento" placeholder="% descuento (ej: 20)" min="0" max="100" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  html+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre} {precio} {descuento} {precio_con_descuento}" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto);font-size:12px;min-height:70px;box-sizing:border-box;margin-bottom:6px"></textarea>';
+  html+='<div style="font-size:10px;color:var(--texto-secundario);margin-bottom:8px">Variables: {nombre} {precio} {descuento} {precio_con_descuento}</div>';
+  html+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:8px;color:#e91e63;font-size:12px;font-weight:700;padding:9px;cursor:pointer">💾 Guardar promoción</button>';
+  html+='</div>';
+
+  return html;
+}
+function renderAdminClientes(){
+  const usuarios=window._adminUsuarios||[];
+  const data=window._adminData||{clientes:{}};
+  let html='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:80px">';
+  usuarios.forEach(u=>{
+    const d=data.clientes[u.id]||data.clientes[(u.id+'').replace('cli_','')]||{precio:0,moneda:'COP',pagos:[]};
+    const ultimoPago=d.pagos&&d.pagos.length?d.pagos[d.pagos.length-1].fecha:'Sin pagos';
+    html+='<div class="admin-cliente-row" data-uid='+JSON.stringify(u.id)+' style="background:var(--card);border:1px solid #1e1e1e;border-radius:14px;padding:14px;cursor:pointer">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    html+='<div><div style="font-size:14px;font-weight:700;color:var(--texto)">'+u.nombre+'</div>';
+    html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">Último pago: '+ultimoPago+'</div></div>';
+    html+='<div style="text-align:right"><div style="font-size:16px;font-weight:800;color:#4caf50">'+(d.precio||0).toLocaleString()+'</div>';
+    html+='<div style="font-size:10px;color:var(--texto-secundario)">'+(d.moneda||'COP')+'</div></div></div></div>';
+  });
+  html+='</div>';
+  setTimeout(()=>{
+    document.querySelectorAll('.admin-cliente-row').forEach(el=>{
+      el.onclick=()=>abrirAdminCliente(el.dataset.uid);
+      el.style.cursor='pointer';
+    });
+  },50);
+  return html;
+}
+
+function renderAdminConfig(){
+  const cfg=(window._adminData||{}).config||{};
+  const tab=window._configTab||'general';
+  let html='<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:80px">';
+  html+='<div style="display:flex;gap:6px;margin-bottom:4px">';
+  [{id:'general',icon:'⚙️',lbl:'General'},{id:'vinculacion',icon:'🔗',lbl:'Vinculación'},{id:'whatsapp',icon:'💬',lbl:'WhatsApp'},{id:'premium',icon:'🔑',lbl:'Premium'}].forEach(t=>{
+    const a=t.id===tab;
+    html+='<button onclick="window._configTab=\''+t.id+'\';document.getElementById(\'admin-tab-content\').innerHTML=renderAdminConfig();if(\''+t.id+'\'===\'whatsapp\')cargarEstadoWA();else cargarCodigoVinc();" style="flex:1;padding:8px 2px;border-radius:10px;border:'+(a?'2px solid #e31e24':'1px solid #333')+';background:'+(a?'#1a0000':'#111')+';color:'+(a?'#e31e24':'#888')+';font-size:10px;font-weight:700;cursor:pointer">'+t.icon+'<br>'+t.lbl+'</button>';
+  });
+  html+='</div>';
+
+  if(tab==='general'){
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:600;margin-bottom:10px">Moneda por defecto</div>';
+    html+='<select id="admin-moneda-default" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:13px">';
+    MONEDAS.forEach(m=>{html+='<option value="'+m+'"'+(cfg.moneda_default===m?' selected':'')+'>'+m+'</option>';});
+    html+='</select></div>';
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:600;margin-bottom:10px">Mensaje recordatorio por defecto</div>';
+    html+='<textarea id="admin-msg-default" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:80px;box-sizing:border-box">'+(cfg.msg_default||'')+'</textarea></div>';
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center">';
+    html+='<div><div style="font-size:13px;color:var(--texto);font-weight:600">Mensaje prellenado en WhatsApp</div>';
+    html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">Abrir chat con mensaje o vacío</div></div>';
+    html+='<label class="switch"><input type="checkbox" id="admin-prellenado"'+(cfg.msg_prellenado?' checked':'')+' onchange="guardarAdminConfig()"><span class="slider"></span></label></div>';
+    html+='<button onclick="guardarAdminConfig()" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:var(--texto);font-size:14px;font-weight:700;padding:12px;cursor:pointer">💾 Guardar</button>';
+
+  // Botón notificaciones push
+  html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+  html+='<div style="font-size:13px;color:var(--texto);font-weight:600;margin-bottom:10px">🔔 Notificaciones push</div>';
+  html+='<div id="push-estado-card" style="background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">';
+  html+='<div><div id="push-estado-txt" style="font-size:13px;color:var(--texto);font-weight:600">Verificando...</div>';
+  html+='<div id="push-estado-sub" style="font-size:11px;color:var(--texto-secundario);margin-top:3px"></div></div>';
+  html+='<button id="push-estado-btn" onclick="gestionarPushAdmin()" style="background:#333;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;display:none">...</button>';
+  html+='</div></div>';
+  setTimeout(()=>actualizarEstadoPushUI(), 100);
+  }
+
+  if(tab==='vinculacion'){
+    const cod=cfg.codigo_vinculacion||'';
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:6px">Código de vinculación</div>';
+    html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">Comparte este código con tus clientes.</div>';
+    html+='<div style="display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid #e31e24;border-radius:12px;padding:10px 14px">';
+    html+='<div id="admin-codigo-vinc-txt" style="flex:1;font-size:18px;font-weight:900;color:#e31e24;letter-spacing:4px;font-family:monospace;white-space:nowrap">'+(cod||'——')+'</div>';
+    html+='<button onclick="copiarCodigoVinc()" style="background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">📋 Copiar</button>';
+    html+='</div></div>';
+    html+='<div style="margin-top:10px"><div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:10px">🎁 Promociones personalizadas</div>';
+    html+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">El motor las sugerirá según condición. Tú decides si envías.</div>';
+    const promosCustom=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+    promosCustom.forEach((p,i)=>{
+      html+='<div style="background:var(--gris);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #e91e63">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+      html+='<span style="font-size:13px;color:var(--texto);font-weight:600">'+p.nombre+'</span>';
+      html+='<div style="display:flex;gap:8px;align-items:center">';
+      html+='<label class="switch"><input type="checkbox" '+(p.activa?'checked':'')+' onchange="togglePromoCustom('+i+',this.checked)"><span class="slider"></span></label>';
+      html+='<button onclick="borrarPromoCustom('+i+')" style="background:#2a0a0a;border:1px solid #5a1a1a;border-radius:8px;color:#e31e24;font-size:11px;padding:4px 8px;cursor:pointer">🗑️</button>';
+      html+='</div></div>';
+      html+='<div style="font-size:11px;color:var(--texto-medio)">'+(p.condicion==='nuevo'?'🆕 Nuevos':p.condicion==='pausado'?'⏸️ Pausados':p.condicion==='activo'?'✅ Activos':'👥 Todos')+' · '+p.descuento+'% off</div>';
+      html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:4px;font-style:italic">'+p.mensaje.substring(0,60)+(p.mensaje.length>60?'...':'')+'</div>';
+      html+='</div>';
+    });
+    html+='<div style="background:var(--gris);border-radius:14px;padding:14px;margin-top:10px">';
+    html+='<div style="font-size:12px;color:#e91e63;font-weight:700;margin-bottom:10px">➕ Nueva promoción</div>';
+    html+='<input type="text" id="np-nombre" placeholder="Nombre (ej: Promo julio)" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:8px">';
+    html+='<select id="np-condicion" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:13px;margin-bottom:8px">';
+    html+='<option value="nuevo">🆕 Nuevos clientes</option>';
+    html+='<option value="pausado">⏸️ Pausados</option>';
+    html+='<option value="activo">✅ Activos</option>';
+    html+='<option value="todos">👥 Todos</option>';
+    html+='</select>';
+    html+='<div style="display:flex;gap:8px;margin-bottom:8px">';
+    html+='<input type="number" id="np-descuento" placeholder="% descuento" min="0" max="100" style="flex:1;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:13px;outline:none">';
+    html+='<div style="display:flex;align-items:center;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;font-size:11px;color:var(--texto-secundario)">% off</div>';
+    html+='</div>';
+    html+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre}, {precio}, {descuento}" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:80px;box-sizing:border-box;margin-bottom:8px"></textarea>';
+    html+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:10px;color:#e91e63;font-size:13px;font-weight:700;padding:10px;cursor:pointer">💾 Guardar promoción</button>';
+    html+='</div></div>';
+  }
+
+  if(tab==='whatsapp'){
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:12px">💬 Conexión WhatsApp</div>';
+    html+='<div id="wa-estado-box" style="background:var(--card);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
+    html+='<div id="wa-estado-txt" style="font-size:15px;font-weight:700;color:#888">Verificando...</div>';
+    html+='</div>';
+    html+='<div id="wa-codigo-box" style="display:none;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
+    html+='<div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Ingresa este código en WhatsApp → Dispositivos vinculados → Vincular con número</div>';
+    html+='<div style="font-size:10px;color:#ff9800;margin-top:6px">⏳ Ingresa el código rápido (antes de 30 seg). Si WhatsApp muestra un error al inicio, espera unos segundos: normalmente conecta igual.</div>';
+    html+='<div id="wa-codigo-txt" style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>';
+    html+='</div></div>';
+  }
+
+  if(tab==='premium'){
+    const esPremium = esEntrenadorPremium();
+    const hasta = (window._entConfig && window._entConfig.premium_entrenador_hasta) ? window._entConfig.premium_entrenador_hasta : '';
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:8px">🔑 Plan Premium Entrenador</div>';
+    if(esPremium){
+      html+='<div style="color:#4caf50;font-weight:700;margin-bottom:8px">✅ Premium activo</div>';
+      if(hasta) html+='<div style="font-size:11px;color:var(--texto-medio)">Activo hasta: '+hasta+'</div>';
+    } else {
+      html+='<div style="font-size:12px;color:var(--texto-secundario);margin-bottom:12px">Acceso completo a todas las funciones profesionales por $39.999/mes</div>';
+      html+='<button onclick="entPagarPremium()" style="width:100%;background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:12px;box-sizing:border-box">💳 Pagar Premium $39.999/mes</button>';
+      html+='<div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px;text-align:center">¿Ya tienes un código? Ingrésalo aquí</div>';
+      html+='<div style="display:flex;gap:8px;align-items:center">';
+      html+='<input id="cfg-codigo-premium" type="text" placeholder="INGRESA TU CÓDIGO..." style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;letter-spacing:2px;text-transform:uppercase">';
+      html+='<button onclick="validarCodigoPremium()" style="background:#333;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Activar</button>';
+      html+='</div>';
+      html+='<div id="cfg-codigo-status" style="font-size:11px;margin-top:8px;text-align:center"></div>';
+    }
+    html+='</div>';
+  }
+
+  html+='</div>';
+  html+='<div style="margin-top:16px;padding:14px;background:#0a1a2a;border:1px solid #2196f3;border-radius:12px">';
+  html+='<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">💡 Sugerencias para DT-APP</div>';
+  html+='<button onclick="entSugerencias()" style="width:100%;background:#0a1a2a;border:1px solid #2196f3;border-radius:8px;color:#2196f3;font-size:13px;font-weight:700;cursor:pointer;padding:10px;box-sizing:border-box">💡 Enviar sugerencia</button>';
+  html+='</div>';
+  return html;
+}
+
+function entSugerencias(){
+  var msg = 'Hola, tengo una sugerencia para DT-APP 💡: ';
+  var wa = 'https://wa.me/573006197897?text=' + encodeURIComponent(msg);
+  window.open(wa, '_blank');
+}
+
+function togglePromoPanel(){
+  // Quitar modal anterior si existe
+  const existing=document.getElementById('modal-promos');
+  if(existing){existing.remove();return;}
+
+  const promosCustom=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  let inner='<div style="font-size:13px;color:#e91e63;font-weight:700;margin-bottom:8px">🎁 Promociones personalizadas</div>';
+  inner+='<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">El motor las sugerirá según condición. Tú decides si envías.</div>';
+  promosCustom.forEach((p,i)=>{
+    inner+='<div style="background:var(--fondo);border-radius:10px;padding:10px;margin-bottom:6px;border-left:3px solid #e91e63">';
+    inner+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    inner+='<span style="font-size:12px;color:var(--texto);font-weight:600">'+p.nombre+'</span>';
+    inner+='<div style="display:flex;gap:6px;align-items:center">';
+    inner+='<label class="switch"><input type="checkbox" '+(p.activa?'checked':'')+' onchange="togglePromoCustom('+i+',this.checked)"><span class="slider"></span></label>';
+    inner+='<button onclick="borrarPromoCustom('+i+')" style="background:#2a0a0a;border:1px solid #5a1a1a;border-radius:6px;color:#e31e24;font-size:11px;padding:3px 7px;cursor:pointer">🗑️</button>';
+    inner+='</div></div>';
+    inner+='<div style="font-size:10px;color:var(--texto-medio);margin-top:4px">'+(p.condicion==='nuevo'?'🆕 Nuevos':p.condicion==='pausado'?'⏸️ Pausados':p.condicion==='activo'?'✅ Activos':'👥 Todos')+' · '+p.descuento+'% off</div>';
+    inner+='</div>';
+  });
+  inner+='<div style="border-top:1px solid #2a2a2a;margin:12px 0"></div>';
+  inner+='<div style="font-size:11px;color:#e91e63;font-weight:700;margin-bottom:8px">➕ Nueva promoción</div>';
+  inner+='<input type="text" id="np-nombre" placeholder="Nombre (ej: Promo familia)" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  inner+='<select id="np-condicion" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto);font-size:12px;margin-bottom:6px">';
+  inner+='<option value="nuevo">🆕 Nuevos clientes (< 30 días)</option>';
+  inner+='<option value="pausado">⏸️ Pausados</option>';
+  inner+='<option value="activo">✅ Activos</option>';
+  inner+='<option value="todos">👥 Todos</option>';
+  inner+='</select>';
+  inner+='<input type="number" id="np-descuento" placeholder="% descuento (ej: 20)" min="0" max="100" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  inner+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre} {precio} {descuento} {precio_con_descuento}" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:8px;color:var(--texto);font-size:12px;min-height:70px;box-sizing:border-box;margin-bottom:6px"></textarea>';
+  inner+='<div style="font-size:10px;color:var(--texto-secundario);margin-bottom:8px">Variables: {nombre} {precio} {descuento} {precio_con_descuento}</div>';
+  inner+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:8px;color:#e91e63;font-size:12px;font-weight:700;padding:9px;cursor:pointer">💾 Guardar promoción</button>';
+
+  const modal=document.createElement('div');
+  modal.id='modal-promos';
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#000a;z-index:9999;display:flex;align-items:flex-end';
+  modal.innerHTML='<div style="background:var(--gris);border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:85vh;overflow-y:auto;box-sizing:border-box">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'+
+    '<span style="font-size:14px;color:var(--texto);font-weight:700">🎁 Promociones</span>'+
+    '<button onclick="togglePromoPanel()" style="background:var(--gris2);border:none;border-radius:8px;color:var(--texto-medio);font-size:13px;padding:5px 10px;cursor:pointer">✕ Cerrar</button>'+
+    '</div>'+inner+'</div>';
+  document.body.appendChild(modal);
+}
+
+function guardarPromoCustom(){
+  const nombre=document.getElementById('np-nombre').value.trim();
+  const condicion=document.getElementById('np-condicion').value;
+  const descuento=parseInt(document.getElementById('np-descuento').value)||0;
+  const mensaje=document.getElementById('np-mensaje').value.trim();
+  if(!nombre||!mensaje){toast('⚠️ Completa nombre y mensaje');return;}
+  const promos=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  promos.push({nombre,condicion,descuento,mensaje,activa:true,fecha:new Date().toISOString().split('T')[0]});
+  localStorage.setItem('dt_promos_custom',JSON.stringify(promos));
+  toast('✅ Promoción guardada');
+  showAdminTab('config');
+}
+
+function togglePromoCustom(i,activa){
+  const promos=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  if(promos[i])promos[i].activa=activa;
+  localStorage.setItem('dt_promos_custom',JSON.stringify(promos));
+  toast(activa?'✅ Promoción activada':'⏸️ Promoción pausada');
+}
+
+function borrarPromoCustom(i){
+  const promos=JSON.parse(localStorage.getItem('dt_promos_custom')||'[]');
+  promos.splice(i,1);
+  localStorage.setItem('dt_promos_custom',JSON.stringify(promos));
+  toast('🗑️ Promoción eliminada');
+  showAdminTab('config');
+}
+
+function toggleLockCodigo() {
+  const bloqueado = localStorage.getItem('vinc-bloqueado') === '1';
+  localStorage.setItem('vinc-bloqueado', bloqueado ? '0' : '1');
+  const btn = document.getElementById('btn-lock-vinc');
+  const btnGen = document.getElementById('btn-generar-vinc');
+  if (btn) btn.textContent = bloqueado ? '🔓' : '🔒';
+  if (btnGen) { btnGen.disabled = !bloqueado; btnGen.style.opacity = bloqueado ? '1' : '0.4'; }
+  toast(bloqueado ? '🔓 Código desbloqueado' : '🔒 Código bloqueado');
+}
+
+async function generarCodigoVinc() {
+  if (localStorage.getItem('vinc-bloqueado') === '1') { toast('🔒 Desbloquea primero el código'); return; }
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let sufijo = '';
+  for (let i = 0; i < 6; i++) sufijo += chars[Math.floor(Math.random() * chars.length)];
+  const codigo = 'DT-' + sufijo;
+  const res = await fetch('/api/config', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({codigo_vinculacion: codigo})
+  });
+  if (res.ok) {
+    if (!window._adminData) window._adminData = {};
+    if (!window._adminData.config) window._adminData.config = {};
+    window._adminData.config.codigo_vinculacion = codigo;
+    const el = document.getElementById('vinc-codigo-txt');
+    if (el) el.textContent = codigo;
+    toast('✅ Código generado: ' + codigo);
+  }
+}
+
+function copiarCodigoVinc() {
+  const el = document.getElementById('vinc-codigo-txt');
+  if (!el || el.textContent === '——————') { toast('Primero genera un código'); return; }
+  navigator.clipboard.writeText(el.textContent).then(() => toast('📋 Código copiado'));
+}
+
+// Cargar código guardado al abrir config
+let _waQRInstance = null;
+let _waQRTexto = null;
+
+async function cargarEstadoWA() {
+  const entId = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+  try {
+    const res = await fetch('/api/wa/estado?entrenador_id=' + entId);
+    const data = await res.json();
+    const txt = document.getElementById('wa-estado-txt');
+    const box = document.getElementById('wa-codigo-box');
+    const cod = document.getElementById('wa-codigo-txt');
+    const btnCon = document.getElementById('wa-btn-conectar');
+    const btnQR = document.getElementById('wa-btn-qr');
+    const btnDesc = document.getElementById('wa-btn-desconectar');
+    const numTxt = document.getElementById('wa-numero-txt');
+    const qrBox = document.getElementById('wa-qr-box');
+    const qrCanvas = document.getElementById('wa-qr-canvas');
+    if (numTxt) numTxt.textContent = (data.conectado && data.telefono) ? ('Número registrado: ' + data.telefono) : 'Sin número registrado';
+    if (!txt) return;
+    const btnReconectar = document.getElementById('wa-btn-reconectar');
+    if (data.conectado) {
+      txt.textContent = '✅ WhatsApp conectado';
+      txt.style.color = '#4caf50';
+      if (box) box.style.display = 'none';
+      if (btnCon) btnCon.style.display = 'none';
+      if (btnQR) btnQR.style.display = 'none';
+      if (btnReconectar) btnReconectar.style.display = 'none';
+      if (qrBox) qrBox.style.display = 'none';
+      if (btnDesc) btnDesc.style.display = 'block';
+      _waQRTexto = null;
+    } else {
+      txt.textContent = '🔴 No conectado';
+      txt.style.color = '#e31e24';
+      if (data.pairingCode && box && cod) {
+        box.style.display = 'block';
+        cod.textContent = data.pairingCode;
+        if (btnCon) btnCon.style.display = 'none';
+        if (btnQR) btnQR.style.display = 'none';
+        if (btnReconectar) btnReconectar.style.display = 'none';
+        if (qrBox) qrBox.style.display = 'none';
+        if (btnDesc) btnDesc.style.display = 'block';
+        _waQRTexto = null;
+      } else if (data.qrCode && qrBox && qrCanvas) {
+        if (box) box.style.display = 'none';
+        if (btnCon) btnCon.style.display = 'block';
+        if (btnQR) btnQR.style.display = 'none';
+        if (btnReconectar) btnReconectar.style.display = 'none';
+        qrBox.style.display = 'block';
+        if (btnDesc) btnDesc.style.display = 'block';
+        if (data.qrCode !== _waQRTexto && window.QRCode) {
+          qrCanvas.innerHTML = '';
+          _waQRInstance = new QRCode(qrCanvas, { text: data.qrCode, width: 200, height: 200 });
+          _waQRTexto = data.qrCode;
+        }
+      } else {
+        if (box) box.style.display = 'none';
+        if (qrBox) qrBox.style.display = 'none';
+        if (btnDesc) btnDesc.style.display = 'none';
+        _waQRTexto = null;
+        if (data.tieneCredenciales) {
+          if (btnCon) btnCon.style.display = 'none';
+          if (btnQR) btnQR.style.display = 'none';
+          if (btnReconectar) btnReconectar.style.display = 'block';
+        } else {
+          if (btnCon) btnCon.style.display = 'block';
+          if (btnQR) btnQR.style.display = 'block';
+          if (btnReconectar) btnReconectar.style.display = 'none';
+        }
+      }
+    }
+  } catch(e) {
+    const txt = document.getElementById('wa-estado-txt');
+    if (txt) { txt.textContent = '⚠️ Error al verificar'; txt.style.color = '#ff9800'; }
+  }
+}
+
+async function corregirNumeroWA() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  const tel = prompt('Ingresa el número correcto de WhatsApp con código de país (ej: 573012345678):');
+  if (!tel) return;
+  const res = await fetch('/api/wa/corregir-numero', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId, telefono: tel })
+  });
+  const data = await res.json();
+  toast(data.ok ? '✅ Número corregido: ' + tel : (data.error || 'Error al corregir'));
+  await cargarEstadoWA();
+}
+
+async function conectarMiWhatsApp() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  alert('PASOS PARA CONECTAR:\n\n1. Abre WhatsApp y entra a Dispositivos vinculados\n2. Toca en Anadir dispositivo\n3. Toca "Vincular con numero de telefono" (debajo del escaner)\n4. Vuelve aqui y presiona OK, luego escribe tu numero con 57 adelante\n5. Te llegara una notificacion de WhatsApp de intento de vinculacion: aceptala\n6. Copia el codigo que aparece aqui y pegalo en WhatsApp\n\nPuede salir "vinculacion fallida" pero conecta en menos de 1 minuto. Espera sin cerrar.');
+  const tel = prompt('Ingresa tu número de WhatsApp con código de país (ej: 573012345678):');
+  if (!tel) return;
+  const btn = document.getElementById('wa-btn-conectar');
+  if (btn) { btn.textContent = '⏳ Conectando...'; btn.disabled = true; }
+  const res = await fetch('/api/wa/conectar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId, telefono: tel })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    let _waPolling = setInterval(async () => { await cargarEstadoWA(); const s = waSessions && waSessions[entId]; if (document.getElementById("wa-estado-txt") && document.getElementById("wa-estado-txt").textContent.includes("✅")) clearInterval(_waPolling); }, 3000);
+  } else {
+    toast(data.error || 'Error al conectar');
+    if (btn) { btn.textContent = '📲 Conectar WhatsApp'; btn.disabled = false; }
+  }
+}
+
+async function reconectarMiWhatsApp() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  const btn = document.getElementById('wa-btn-reconectar');
+  if (btn) { btn.textContent = '⏳ Reconectando...'; btn.disabled = true; }
+  const res = await fetch('/api/wa/conectar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    let _waPolling = setInterval(async () => { await cargarEstadoWA(); if (document.getElementById("wa-estado-txt") && document.getElementById("wa-estado-txt").textContent.includes("✅")) clearInterval(_waPolling); }, 3000);
+  } else {
+    toast(data.error || 'Error al reconectar');
+  }
+  if (btn) { btn.textContent = '🔄 Reconectar'; btn.disabled = false; }
+}
+
+async function generarQRMiWhatsApp() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  const btn = document.getElementById('wa-btn-qr');
+  if (btn) { btn.textContent = '⏳ Generando...'; btn.disabled = true; }
+  const res = await fetch('/api/wa/conectar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    let _waPolling = setInterval(async () => { await cargarEstadoWA(); if (document.getElementById("wa-estado-txt") && document.getElementById("wa-estado-txt").textContent.includes("✅")) clearInterval(_waPolling); }, 3000);
+  } else {
+    toast(data.error || 'Error al generar QR');
+  }
+  if (btn) { btn.textContent = '📷 Generar código QR'; btn.disabled = false; }
+}
+
+async function desconectarMiWhatsApp() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  if (!confirm('¿Seguro que quieres desconectar WhatsApp?')) return;
+  const btn = document.getElementById('wa-btn-desconectar');
+  if (btn) { btn.textContent = '⏳ Desconectando...'; btn.disabled = true; }
+  const res = await fetch('/api/wa/desconectar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId })
+  });
+  const data = await res.json();
+  toast(data.ok ? '✅ WhatsApp desconectado' : (data.error || 'Error al desconectar'));
+  if (btn) { btn.textContent = '🛑 Desconectar'; btn.disabled = false; }
+  await cargarEstadoWA();
+}
+
+function cargarCodigoVinc() {
+  fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg=>{
+    const el = document.getElementById('vinc-codigo-txt');
+    if (el && cfg.codigo_vinculacion) el.textContent = cfg.codigo_vinculacion;
+    const el2 = document.getElementById('admin-codigo-vinc-txt');
+    if (el2 && cfg.codigo_vinculacion) el2.textContent = cfg.codigo_vinculacion;
+  });
+  const bloqueado = localStorage.getItem('vinc-bloqueado') === '1';
+  const btn = document.getElementById('btn-lock-vinc');
+  const btnGen = document.getElementById('btn-generar-vinc');
+  if (btn) btn.textContent = bloqueado ? '🔒' : '🔓';
+  if (btnGen) { btnGen.disabled = bloqueado; btnGen.style.opacity = bloqueado ? '0.4' : '1'; }
+}
+
+async function generarCodigoVinculacion() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let codigo = '';
+  for (let i = 0; i < 6; i++) codigo += chars[Math.floor(Math.random() * chars.length)];
+  const res = await fetch('/api/config', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({codigo_vinculacion: codigo})
+  });
+  if (res.ok) {
+    if (!window._adminData) window._adminData = {};
+    if (!window._adminData.config) window._adminData.config = {};
+    window._adminData.config.codigo_vinculacion = codigo;
+    showAdminTab('config');
+    toast('✅ Código generado: ' + codigo);
+  }
+}
+
+async function guardarAdminConfig(){
+  const cfg={
+    moneda_default:document.getElementById('admin-moneda-default').value,
+    msg_default:document.getElementById('admin-msg-default').value.trim(),
+    msg_prellenado:document.getElementById('admin-prellenado').checked,
+    entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)
+  };
+  await fetch('/api/admin/config/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
+  window._adminData.config=cfg;
+  toast('✅ Configuración guardada');
+}
+
+async function abrirAdminCliente(id){
+  const rawId=(id+'').replace('cli_','');
+  const u=(window._adminUsuarios||[]).find(x=>String(x.id)===String(id));
+  if(!u)return;
+  const data=window._adminData||{clientes:{}};
+  const d=data.clientes[id]||data.clientes[(id+'').replace('cli_','')]||{precio:0,moneda:'COP',pagos:[]};
+  const cfg=data.config||{};
+  const tipoPago=u.tipo_pago||'mensual';
+  const diaPago=u.dia_pago||'';
+  const diaPago2=u.dia_pago2||'';
+
+  let html='<div style="padding:0 0 80px">';
+  html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">';
+  html+='<button onclick="showAdminTab(\'clientes\')" style="background:var(--gris);border:1px solid #2a2a2a;border-radius:10px;color:var(--texto-medio);font-size:14px;padding:7px 12px;cursor:pointer">‹ Volver</button>';
+  html+='<span style="font-size:15px;font-weight:700;color:var(--texto)">'+u.nombre+'</span></div>';
+
+  
+
+  html+='<div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:10px">';
+  html+='<div style="font-size:12px;color:var(--texto-medio);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">💰 Precio del plan</div>';
+  html+='<div style="display:flex;gap:8px">';
+  html+='<input type="number" id="ac-precio" placeholder="ej: 200 = $200.000" value="'+(Math.round((d.precio||0)/1000))+'" style="flex:1;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:14px;outline:none">';
+  html+='<select id="ac-moneda" style="background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:13px">';
+  MONEDAS.forEach(m=>{html+='<option value="'+m+'"'+(d.moneda===m?' selected':'')+'>'+m+'</option>';});
+  html+='</select></div>';
+
+  html+='<div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:10px">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+  html+='<div style="font-size:12px;color:var(--texto-medio);text-transform:uppercase;letter-spacing:1px">💬 Mensaje de cobro</div>';
+  html+='<div style="font-size:11px;color:#e31e24;font-weight:700">'+(tipoPago==='quincenal'?'📅 Quincenal — días '+diaPago+' y '+diaPago2:'📅 Mensual — día '+diaPago)+'</div></div>';
+  html+='<textarea id="ac-msg" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:70px;box-sizing:border-box" placeholder="Mensaje 3 días antes (lo escribe el entrenador)...">'+(u.msg_proximo||u.msg_pago||'')+'</textarea>';
+  html+='<div style="font-size:11px;color:var(--texto-medio);margin:8px 0 4px">💬 Mensaje de vencimiento (automático)</div>';
+  html+='<div style="font-size:12px;color:#555;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;margin-bottom:0">El día de hoy se venció tu plan de entrenamiento.</div></div>';
+
+  html+='<button onclick="guardarAdminCliente('+rawId+')" style="width:100%;background:var(--rojo);border:none;border-radius:12px;color:var(--texto);font-size:14px;font-weight:700;padding:12px;cursor:pointer;margin-bottom:8px">💾 Guardar</button>';
+  html+='<button onclick="enviarCobroManual(&quot;'+id+'&quot;)" style="width:100%;background:var(--card);border:1px solid #25D366;border-radius:12px;color:#25D366;font-size:13px;font-weight:700;padding:11px;cursor:pointer;margin-bottom:10px">📲 Enviar cobro por WhatsApp</button>';
+
+  html+='<div style="font-size:12px;color:var(--texto-medio);text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">📋 Registrar pago</div>';
+  html+='<div style="background:var(--gris);border-radius:14px;padding:16px;margin-bottom:10px">';
+  html+='<div style="display:flex;gap:8px;margin-bottom:8px">';
+  html+='<input type="number" id="ac-monto" placeholder="ej: 350 = $350.000" style="flex:1;min-width:0;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:13px;outline:none">';
+  html+='<select id="ac-metodo" style="width:130px;flex-shrink:0;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:13px">';
+  html+='<option value="efectivo">💵 Efectivo</option><option value="transferencia">🏦 Transferencia</option><option value="tarjeta">💳 Tarjeta</option><option value="otro">📝 Otro</option>';
+  html+='</select></div>';
+  html+='<input type="text" id="ac-novedad" placeholder="📝 Novedades del pago (opcional)" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:9px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:8px">';
+  html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer" onclick="toggleDescPanel()">';
+  html+='<div style="width:18px;height:18px;border:2px solid #555;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px" id="ac-desc-check">+</div>';
+  html+='<span style="font-size:12px;color:var(--texto-medio)">🏷️ Aplicar descuento</span></div>';
+  html+='<div id="ac-desc-panel" style="display:none;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;margin-bottom:8px">';
+  html+='<div style="display:flex;gap:8px;margin-bottom:6px">';
+  html+='<select id="ac-desc-tipo" onchange="calcDescuento()" style="width:140px;background:var(--fondo);border:1px solid #333;border-radius:8px;padding:7px;color:var(--texto);font-size:12px">';
+  html+='<option value="pct">% Porcentaje</option><option value="fijo">Valor fijo</option></select>';
+  html+='<input type="number" id="ac-desc-valor" oninput="calcDescuento()" placeholder="0" style="flex:1;min-width:0;background:var(--fondo);border:1px solid #333;border-radius:8px;padding:7px;color:var(--texto);font-size:13px;outline:none">';
+  html+='</div>';
+  html+='<input type="text" id="ac-desc-motivo" placeholder="Motivo (ej: primer mes, referido)" style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:8px;padding:7px;color:var(--texto);font-size:12px;outline:none;box-sizing:border-box;margin-bottom:6px">';
+  html+='<div id="ac-desc-info" style="font-size:12px;color:#4caf50;font-weight:700"></div>';
+  html+='</div>';
+  html+='<button onclick="registrarPago('+rawId+')" style="width:100%;background:#0f1a0f;border:1px solid #1e3a1e;border-radius:10px;color:#4caf50;font-size:13px;font-weight:700;padding:10px;cursor:pointer">✅ Registrar pago</button></div>';
+
+  // Historial pagos
+  if(d.pagos&&d.pagos.length){
+    html+='<div style="font-size:12px;color:var(--texto-medio);text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="toggleHistAdmin(\''+id+'\')" >📅 Ver historial <span id="hist-arr-'+id+'">▾</span></div>';
+    html+='<div id="hist-'+id+'" style="display:none">';
+    [...d.pagos].reverse().forEach(p=>{
+      const tieneDesc=p.descuento_valor&&p.descuento_valor>0;
+      html+='<div style="background:var(--card);border:1px solid #1e1e1e;border-radius:12px;padding:12px;margin-bottom:6px">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+      html+='<div><div style="font-size:13px;color:var(--texto);font-weight:600">'+(p.monto||0).toLocaleString()+' '+(p.moneda||d.moneda||'COP')+'</div>';
+      html+='<div style="font-size:11px;color:var(--texto-secundario);margin-top:2px">'+p.fecha+' · '+(p.metodo||'efectivo')+(p.novedad?' · <span style="color:var(--texto-medio)">'+p.novedad+'</span>':'')+'</div></div>';
+      html+='<div style="display:flex;gap:6px;align-items:center">';
+      if(tieneDesc)html+='<span style="background:#1a1500;border:1px solid #3a3000;border-radius:6px;padding:2px 6px;font-size:10px;color:#f0c040">🏷️ DESC</span>';
+      html+='<button onclick="window._reciboClienteId=\''+id+'\';window._reciboIdx='+([...d.pagos].reverse().indexOf(p))+';generarRecibo()" style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;color:#e31e24;font-size:11px;font-weight:700;padding:4px 8px;cursor:pointer">🧾</button>';
+      html+='<span style="color:#4caf50;font-size:16px">✅</span></div></div>';
+      if(tieneDesc){
+        const descStr=p.descuento_tipo==='pct'?p.descuento_valor+'%':((p.descuento_valor/1000).toLocaleString()+' mil');
+        html+='<div style="margin-top:6px;font-size:11px;color:#f0c040">🏷️ Descuento: '+descStr+(p.descuento_motivo?' — '+p.descuento_motivo:'')+'</div>';
+      }
+    html+='</div>';
+      html+='</div>';
+    });
+  }
+  html+='</div>';
+  document.getElementById('admin-tab-content').innerHTML=html;
+}
+
+function calcDescuento(){
+  const precio=parseFloat(document.getElementById('ac-precio')?document.getElementById('ac-precio').value:0)||0;
+  const tipo=document.getElementById('ac-desc-tipo')?document.getElementById('ac-desc-tipo').value:'pct';
+  const val=parseFloat(document.getElementById('ac-desc-valor')?document.getElementById('ac-desc-valor').value:0)||0;
+  const montoEl=document.getElementById('ac-monto');
+  const infoEl=document.getElementById('ac-desc-info');
+  if(!montoEl)return;
+  let final=precio;
+  if(tipo==='pct') final=Math.round(precio*(1-val/100));
+  else final=Math.max(0,precio-val);
+  montoEl.value=final>0?final:'';
+  if(infoEl) infoEl.textContent=final>0?'💰 Recomendado: '+(final).toLocaleString()+' mil':'';
+}
+function toggleDescPanel(){
+  const p=document.getElementById('ac-desc-panel');
+  if(p)p.style.display=p.style.display==='none'?'block':'none';
+}
+
+function toggleHistAdmin(id){
+  const h=document.getElementById('hist-'+id);
+  const a=document.getElementById('hist-arr-'+id);
+  if(!h)return;
+  const visible=h.style.display==='none';
+  h.style.display=visible?'block':'none';
+  if(a)a.textContent=visible?'▴':'▾';
+}
+async function guardarAdminCliente(id){
+  const precio=(parseFloat(document.getElementById('ac-precio').value)||0)*1000;
+  const moneda=document.getElementById('ac-moneda').value;
+  const msg=document.getElementById('ac-msg').value.trim();
+  const msgProximo=msg;
+  const descTipo=document.getElementById('ac-desc-tipo').value;
+  const descValorRaw=parseFloat(document.getElementById('ac-desc-valor').value)||0;
+  const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
+  const descMotivo=document.getElementById('ac-desc-motivo').value.trim();
+  const _rawid=(id+'').replace('cli_','');
+  await fetch('/api/admin/'+_rawid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({precio,moneda,msg_proximo:msg,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  if(!window._adminData.clientes[_rawid])window._adminData.clientes[_rawid]={pagos:[]};
+  Object.assign(window._adminData.clientes[_rawid],{precio,moneda,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo});
+  const uIdx=(window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
+  if(uIdx!==-1){window._adminUsuarios[uIdx].msg_proximo=msg;window._adminUsuarios[uIdx].precio=precio;window._adminUsuarios[uIdx].moneda=moneda;}
+  if(typeof cargarInicio === 'function') cargarInicio();
+  // Refrescar datos completos del módulo admin para que persista al navegar
+  try {
+    const eidR=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const usuariosFrescos = await fetch('/api/usuarios?entrenador_id='+eidR).then(r=>r.json());
+    window._adminUsuarios = usuariosFrescos;
+  } catch(e) {}
+  toast('✅ Cliente guardado');
+  const acMsg=document.getElementById('ac-msg'); if(acMsg) acMsg.value=msg;
+}
+
+async function registrarPago(id){
+  const monto=(parseFloat(document.getElementById('ac-monto').value)||0)*1000;
+  const metodo=document.getElementById('ac-metodo').value;
+  const _mid=(window._adminData.clientes[id])?id:(id+'').replace('cli_','');
+  const moneda=(window._adminData.clientes[_mid]||{}).moneda||'COP';
+  const novedad=document.getElementById('ac-novedad')?document.getElementById('ac-novedad').value.trim():'';
+  const descPanel=document.getElementById('ac-desc-panel');
+  const tieneDesc=descPanel&&descPanel.style.display!=='none';
+  const descTipo=tieneDesc&&document.getElementById('ac-desc-tipo')?document.getElementById('ac-desc-tipo').value:'';
+  const descValorRaw=tieneDesc&&document.getElementById('ac-desc-valor')?parseFloat(document.getElementById('ac-desc-valor').value)||0:0;
+  const descValor=descTipo==='pct'?descValorRaw:descValorRaw*1000;
+  const descMotivo=tieneDesc&&document.getElementById('ac-desc-motivo')?document.getElementById('ac-desc-motivo').value.trim():'';
+  if(!monto){toast('❌ Ingresa un monto',false);return;}
+  const pagoData={monto,metodo,moneda,novedad,descuento_tipo:descTipo,descuento_valor:descValor,descuento_motivo:descMotivo,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)};
+  await fetch('/api/admin/'+(id+'').replace('cli_','')+'/pago',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pagoData)});
+  const _cid=(window._adminData.clientes[id])?id:(id+'').replace('cli_','');
+  if(!window._adminData.clientes[_cid])window._adminData.clientes[_cid]={precio:0,moneda,pagos:[]};
+  if(!window._adminData.clientes[_cid].pagos)window._adminData.clientes[_cid].pagos=[];
+  window._adminData.clientes[_cid].pagos.push({...pagoData,fecha:new Date().toISOString().split('T')[0]});
+  const uIdx = (window._adminUsuarios||[]).findIndex(x=>String(x.id)===String(id));
+  if(uIdx !== -1) window._adminUsuarios[uIdx].estado_pago = 'aldia';
+  toast('✅ Pago registrado');
+  window._reciboClienteId = id;
+  abrirAdminCliente(id);
+}
+
+function generarRecibo(){
+  const id = window._reciboClienteId;
+  if(!id) return;
+  const u = (window._adminUsuarios||[]).find(x=>String(x.id)===String(id));
+  const d = (window._adminData||{clientes:{}}).clientes[id]||{};
+  const pagos = d.pagos||[];
+  const ridx = window._reciboIdx !== undefined ? window._reciboIdx : pagos.length-1;
+  const p = pagos.length ? [...pagos].reverse()[ridx] : {};
+  const nombreEntrenador = (window._configApp&&window._configApp.nombre_entrenador)||(window._config&&window._config.nombre_entrenador)||(window._adminData&&window._adminData.config&&window._adminData.config.nombre_entrenador)||'DT-APP';
+  const logoSrc = '/logo_trainer.png';
+
+  const W = 420, H = 820;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  function dibujar(){
+    // Fondo blanco
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,W,H);
+
+    // Banda roja superior
+    ctx.fillStyle = '#e31e24';
+    ctx.fillRect(0,0,W,100);
+
+    // Nombre entrenador
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 22px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(nombreEntrenador, 110, 42);
+    ctx.fillStyle = '#ffcccc';
+    ctx.font = '12px Arial';
+    ctx.fillText('RECIBO DE PAGO', 110, 62);
+
+    // ID y fecha arriba derecha
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ffcccc';
+    ctx.font = '11px Arial';
+    ctx.fillText('ID: ' + id, W-14, 42);
+    ctx.fillText(p.fecha || new Date().toISOString().split('T')[0], W-14, 60);
+
+    // Línea separadora
+    ctx.strokeStyle = '#eeeeee';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(20,118); ctx.lineTo(W-20,118);
+    ctx.stroke();
+
+    // DATOS DEL CLIENTE
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#e31e24';
+    ctx.font = 'bold 10px Arial';
+    ctx.fillText('DATOS DEL CLIENTE', 20, 140);
+
+    ctx.fillStyle = '#111';
+    ctx.font = 'bold 17px Arial';
+    ctx.fillText(u ? u.nombre : '—', 20, 162);
+
+    ctx.fillStyle = '#555';
+    ctx.font = '12px Arial';
+    ctx.fillText('Tel: ' + (u&&u.telefono ? u.telefono : '—'), 20, 182);
+
+    const tipoPlan = u&&u.tipo ? u.tipo.charAt(0).toUpperCase()+u.tipo.slice(1) : '—';
+    const tipoPago = u&&u.tipo_pago ? u.tipo_pago.charAt(0).toUpperCase()+u.tipo_pago.slice(1) : '—';
+    ctx.fillText('Plan: ' + tipoPlan, 20, 200);
+    ctx.fillText('Modalidad: ' + tipoPago, 20, 218);
+
+    // Línea separadora
+    ctx.strokeStyle = '#eeeeee';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(20,234); ctx.lineTo(W-20,234);
+    ctx.stroke();
+
+    // DETALLE DEL PAGO
+    ctx.fillStyle = '#e31e24';
+    ctx.font = 'bold 10px Arial';
+    ctx.fillText('DETALLE DEL PAGO', 20, 254);
+
+    ctx.fillStyle = '#333';
+    ctx.font = '13px Arial';
+    const metodo = p.metodo ? p.metodo.charAt(0).toUpperCase()+p.metodo.slice(1) : '—';
+    ctx.fillText('Método: ' + metodo, 20, 276);
+    ctx.fillText('Moneda: ' + (p.moneda||d.moneda||'COP'), 20, 296);
+
+    let yDet = 316;
+    if(p.novedad){
+      ctx.fillStyle = '#333';
+      ctx.font = '12px Arial';
+      const maxW = W-40;
+      const words = ('Nota: '+p.novedad).split(' ');
+      let line = '';
+      words.forEach(function(w){
+        const test = line + w + ' ';
+        if(ctx.measureText(test).width > maxW && line !== ''){
+          ctx.fillText(line, 20, yDet);
+          yDet += 18;
+          line = w + ' ';
+        } else { line = test; }
+      });
+      if(line) { ctx.fillText(line, 20, yDet); yDet += 18; }
+      yDet += 4;
+    }
+
+    if(p.descuento_valor && p.descuento_valor > 0){
+      const ds = p.descuento_tipo==='pct'
+        ? p.descuento_valor + '% de descuento'
+        : (p.descuento_valor/1000).toLocaleString() + ' mil de descuento';
+      const motivo = p.descuento_motivo ? ' — ' + p.descuento_motivo : '';
+      ctx.fillStyle = '#b07000';
+      ctx.font = 'bold 12px Arial';
+      ctx.fillText('Descuento: ' + ds + motivo, 20, yDet);
+      yDet += 20;
+    }
+
+    // Caja monto centrada
+    const cajaY = yDet + 20;
+    ctx.fillStyle = '#fff5f5';
+    ctx.beginPath();
+    ctx.roundRect(20, cajaY, W-40, 110, 14);
+    ctx.fill();
+    ctx.strokeStyle = '#e31e24';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#e31e24';
+    ctx.font = 'bold 11px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('TOTAL PAGADO', W/2, cajaY+28);
+
+    ctx.fillStyle = '#1a7a1a';
+    ctx.font = 'bold 48px Arial';
+    ctx.fillText((p.monto||0).toLocaleString(), W/2, cajaY+80);
+
+    ctx.fillStyle = '#888';
+    ctx.font = '13px Arial';
+    ctx.fillText(p.moneda||d.moneda||'COP', W/2, cajaY+100);
+
+    // Banda roja inferior
+    ctx.fillStyle = '#e31e24';
+    ctx.fillRect(0, H-110, W, 110);
+
+    // Texto legal
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 9px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Recibo generado mediante DT-APP como herramienta de gestion.', W/2, H-62);
+    ctx.fillStyle = '#ffcccc';
+    ctx.font = '9px Arial';
+    ctx.fillText('La responsabilidad del cobro y servicios corresponde', W/2, H-46);
+    ctx.fillText('exclusivamente a tu entrenador personal.', W/2, H-32);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 9px Arial';
+    ctx.fillText('DT-APP', W/2, H-18);
+  }
+
+  const img = new Image();
+  img.onload = function(){
+    dibujar();
+    // Logo en banda superior
+    ctx.drawImage(img, 8, 8, 85, 85);
+    // Marca de agua centro
+    ctx.globalAlpha = 0.07;
+    ctx.drawImage(img, W/2-90, 320, 180, 180);
+    ctx.globalAlpha = 1.0;
+    // Icono DT-APP en pie (solo el icono, centrado, encima del texto)
+    const iconApp = new Image();
+    iconApp.onload = function(){
+      ctx.drawImage(iconApp, W/2-16, H-108, 32, 32);
+      mostrarModalRecibo(canvas, u, p, d, nombreEntrenador);
+    };
+    iconApp.onerror = function(){
+      mostrarModalRecibo(canvas, u, p, d, nombreEntrenador);
+    };
+    iconApp.src = '/icon.png';
+  };
+  img.onerror = function(){
+    dibujar();
+    mostrarModalRecibo(canvas, u, p, d, nombreEntrenador);
+  };
+  img.src = logoSrc;
+}
+
+function mostrarModalRecibo(canvas, u, p, d, nombreEntrenador){
+  const imgData = canvas.toDataURL('image/png');
+  const nombreArchivo = 'recibo-'+(u?u.nombre.replace(/ /g,'-'):'cliente')+'-'+(p.fecha||'hoy')+'.png';
+  const montoStr = (p.monto||0).toLocaleString();
+  const monedaStr = p.moneda||d.moneda||'COP';
+  const tel = u ? (u.telefono||'') : '';
+
+  const old = document.getElementById('modal-recibo');
+  if(old) old.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'modal-recibo';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000000cc;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;overflow-y:auto';
+
+  const div = document.createElement('div');
+  div.style.cssText = 'background:#111;border-radius:16px;padding:16px;width:100%;max-width:380px';
+
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px';
+
+  const titulo = document.createElement('span');
+  titulo.style.cssText = 'color:#fff;font-weight:700;font-size:15px';
+  titulo.textContent = 'Recibo generado';
+
+  const btnX = document.createElement('button');
+  btnX.textContent = 'X';
+  btnX.style.cssText = 'background:#2a2a2a;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer';
+  btnX.onclick = function(){ document.getElementById('modal-recibo').remove(); };
+
+  header.appendChild(titulo);
+  header.appendChild(btnX);
+
+  const imgEl = document.createElement('img');
+  imgEl.src = imgData;
+  imgEl.style.cssText = 'width:100%;border-radius:10px;margin-bottom:12px';
+
+  const btns = document.createElement('div');
+  btns.style.cssText = 'display:flex;gap:8px';
+
+  const btnGuardar = document.createElement('a');
+  btnGuardar.href = imgData;
+  btnGuardar.download = nombreArchivo;
+  btnGuardar.textContent = 'Guardar imagen';
+  btnGuardar.style.cssText = 'flex:1;background:#1a3a1a;border:1px solid #4caf50;border-radius:10px;color:#4caf50;font-size:13px;font-weight:700;padding:10px;cursor:pointer;text-align:center;text-decoration:none';
+
+  const btnWA = document.createElement('button');
+  btnWA.textContent = 'Compartir WA';
+  btnWA.style.cssText = 'flex:1;background:#1a2a1a;border:1px solid #25d366;border-radius:10px;color:#25d366;font-size:13px;font-weight:700;padding:10px;cursor:pointer';
+  btnWA.onclick = function(){
+    if(navigator.share){
+      canvas.toBlob(function(blob){
+        const file = new File([blob], nombreArchivo, {type:'image/png'});
+        navigator.share({
+          title: 'Recibo de pago',
+          text: 'Recibo - '+nombreEntrenador,
+          files: [file]
+        }).catch(function(e){ console.log('share cancel',e); });
+      });
+    } else {
+      const txt = 'Recibo de pago%0ANombre: '+encodeURIComponent(u?u.nombre:'')+'%0ATotal: '+encodeURIComponent(montoStr)+' '+encodeURIComponent(monedaStr)+'%0A'+encodeURIComponent(nombreEntrenador);
+      const url = tel ? 'https://wa.me/'+tel+'?text='+txt : 'https://wa.me/?text='+txt;
+      window.open(url,'_blank');
+    }
+  };
+
+  btns.appendChild(btnGuardar);
+  btns.appendChild(btnWA);
+  div.appendChild(header);
+  div.appendChild(imgEl);
+  div.appendChild(btns);
+  modal.appendChild(div);
+  document.body.appendChild(modal);
+}
+
+// ═══════════════════════════════
+// COLORES PERSONALIZABLES
+// ═══════════════════════════════
+const _coloresConfig = {
+  general: [
+    {var:'--rojo', label:'Color acento', def:'#e31e24'},
+    {var:'--fondo', label:'Fondo app', def:'#0a0a0a'},
+    {var:'--card', label:'Fondo cards', def:'#111111'},
+    {var:'--gris', label:'Fondo inputs', def:'#1a1a1a'},
+  ],
+  chips: [
+    {var:'--chip-activos', label:'🟢 Activos', def:'#4caf50'},
+    {var:'--chip-person', label:'💪 Personalizados', def:'#e31e24'},
+    {var:'--chip-asesor', label:'📋 Asesorados', def:'#4a9eff'},
+    {var:'--chip-pausados', label:'⏸️ Pausados', def:'#666666'},
+  ],
+  tests: [
+    {var:'--test-fuerza', label:'💪 Fuerza', def:'#e31e24'},
+    {var:'--test-resist', label:'🫁 Resistencia', def:'#4a9eff'},
+    {var:'--test-especif', label:'⭐ Específico', def:'#9c27b0'},
+  ]
+};
+let _tabColoresActual = 'general';
+
+function mostrarTabColores(tab){
+  _tabColoresActual = tab;
+  ['general','chips','tests'].forEach(t=>{
+    const btn = document.getElementById('tab-col-'+t);
+    btn.style.background = t===tab ? 'var(--rojo)' : '#2a2a2a';
+    btn.style.color = t===tab ? '#fff' : '#888';
+  });
+  const root = getComputedStyle(document.documentElement);
+  const items = _coloresConfig[tab];
+  let html = '';
+  items.forEach(item=>{
+    const val = root.getPropertyValue(item.var).trim() || item.def;
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #222">';
+    html += '<span style="font-size:13px;color:var(--texto-suave)">'+item.label+'</span>';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    html += '<span style="font-size:11px;color:var(--texto-secundario)">'+val+'</span>';
+    html += '<input type="color" value="'+val+'" data-var="'+item.var+'" onchange="aplicarColor(this)" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:0">';
+    html += '</div></div>';
+  });
+  document.getElementById('tab-colores-content').innerHTML = html;
+}
+
+function aplicarColor(input){
+  document.documentElement.style.setProperty(input.dataset.var, input.value);
+}
+
+async function guardarColores(){
+  const root = getComputedStyle(document.documentElement);
+  const colores = {};
+  ['general','chips','tests'].forEach(tab=>{
+    _coloresConfig[tab].forEach(item=>{
+      colores[item.var] = document.documentElement.style.getPropertyValue(item.var) || root.getPropertyValue(item.var).trim() || item.def;
+    });
+  });
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colores, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  toast('✅ Colores guardados');
+}
+
+function aplicarColoresGuardados(colores){
+  if(!colores) return;
+  Object.entries(colores).forEach(([key,val])=>{
+    document.documentElement.style.setProperty(key, val);
+  });
+}
+// ═══════════════════════════════
+// CONFIG BOTTOM SHEET
+// ═══════════════════════════════
+
+
+async function subirLogo(input){
+  const file=input.files[0];
+  if(!file)return;
+  const form=new FormData();
+  form.append('logo',file);
+  try{
+    const r=await fetch('/api/config/logo',{method:'POST',body:form});
+    const d=await r.json();
+    if(d.ok){
+      document.getElementById('cfg-logo-preview').src='/logo_trainer.png?t='+Date.now();
+      toast('✅ Logo actualizado');
+    }
+  }catch(e){toast('❌ Error subiendo logo',false);}
+}
+async function guardarNombreEntrenador(){
+  const nombre=document.getElementById('cfg-nombre').value.trim();
+  if(!nombre)return;
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre_entrenador:nombre, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  // Actualizar todos los elementos que muestran el nombre
+  ['nombre-entrenador','span-nombre-cfg','informe-nombre-ent'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent=nombre;
+  });
+  // Actualizar sesión local
+  const sesion=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  sesion.nombre=nombre;
+  localStorage.setItem('dt_sesion', JSON.stringify(sesion));
+  setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
+  toast('✅ Nombre actualizado');
+}
+function toggleTema(){
+  const claro = document.body.classList.toggle('modo-claro');
+  document.getElementById('btn-tema').textContent = claro ? '☀️' : '🌙';
+  localStorage.setItem('tema', claro ? 'claro' : 'oscuro');
+  localStorage.setItem('dt_tema', claro ? 'claro' : 'oscuro');
+  fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:claro?'claro':'oscuro', entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+}
+function cargarTema(){
+  let tema = localStorage.getItem('dt_tema') || localStorage.getItem('tema');
+  if (!tema) {
+    tema = window.matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'oscuro';
+  }
+  if(tema === 'claro'){
+    document.body.classList.add('modo-claro');
+    const btn = document.getElementById('btn-tema');
+    if(btn) btn.textContent = '☀️';
+  } else {
+    document.body.classList.remove('modo-claro');
+    const btn = document.getElementById('btn-tema');
+    if(btn) btn.textContent = '🌙';
+  }
+  localStorage.setItem('dt_tema', tema);
+  localStorage.setItem('tema', tema);
+}
+async function guardarInstagram(){
+  const ig=document.getElementById('cfg-instagram').value.trim();
+  if(!ig)return;
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({instagram_entrenador:ig, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  // Actualizar todos los elementos que muestran el IG
+  ['span-ig-entrenador','informe-ig-ent','cfg-ig-display'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='@'+ig.replace('@','');
+  });
+  // Guardar en sesión local
+  const sesion=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  sesion.instagram=ig;
+  localStorage.setItem('dt_sesion', JSON.stringify(sesion));
+  setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
+  toast('✅ Instagram guardado');
+}
+async function cargarNombreEntrenador(){
+  try{
+    const cfg=await fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json());
+    if(cfg.colores)aplicarColoresGuardados(cfg.colores);
+    if(cfg.nombre_entrenador){
+      document.getElementById('nombre-entrenador').textContent=cfg.nombre_entrenador;
+      const inp=document.getElementById('cfg-nombre');
+      if(inp)inp.value=cfg.nombre_entrenador;
+    }
+    if(cfg.instagram_entrenador){
+      const inpIg=document.getElementById('cfg-instagram');
+      if(inpIg)inpIg.value=cfg.instagram_entrenador;
+    }
+    if(cfg.logo_entrenador){
+      const t='?t='+Date.now();
+      const prev=document.getElementById('cfg-logo-preview');
+      if(prev)prev.src=cfg.logo_entrenador+t;
+    }
+  }catch(e){console.error('cargarNombreEntrenador',e);}
+}
+function abrirConfig(){
+  // Mostrar botón superadmin solo para Danny
+  const _sesaCheck = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const _btnSA = document.getElementById('btn-superadmin');
+  if (_btnSA) _btnSA.style.display = _sesaCheck.email === 'danielgaviriabotero@gmail.com' ? 'block' : 'none';
+  const sh=document.getElementById('config-sheet');
+  sh.style.display='flex';
+  cargarNombreEntrenador();
+  cargarCodigoVinc();
+  cargarEstadoWA();
+  cargarEstadoWA();
+  // Mostrar estado premium entrenador
+  fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg => {
+    const el = document.getElementById('cfg-premium-estado');
+    if (!el) return;
+    const activo = cfg.premium_entrenador;
+    const hasta = cfg.premium_entrenador_hasta;
+    const hoy = new Date().toISOString().split('T')[0];
+    if (activo && hasta && hasta >= hoy) {
+      el.style.color = '#4caf50';
+      el.textContent = '✅ Premium activo — Vence: ' + hasta;
+    } else if (activo && hasta && hasta < hoy) {
+      el.style.color = '#e31e24';
+      el.textContent = '❌ Premium vencido — Renovar para continuar';
+    } else {
+      el.style.color = '#555';
+      el.textContent = 'Acceso completo a todas las funciones profesionales';
+    }
+  }).catch(()=>{});
+}
+async function validarCodigoPremium(){
+  const input = document.getElementById('cfg-codigo-premium');
+  const status = document.getElementById('cfg-codigo-status');
+  const codigo = (input.value || '').trim().toUpperCase();
+  if(!codigo){ status.style.color='#666'; status.textContent='Ingresa un código.'; return; }
+  status.style.color='#888'; status.textContent='Verificando...';
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const email = sesion.email || '';
+  try {
+    // Intentar primero como código de convenio
+    const deviceId = getDeviceId();
+    const resConv = await fetch('/api/convenio/activar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ codigo, email, tipo: 'entrenador', deviceId })
+    });
+    const dConv = await resConv.json();
+    if(dConv.ok){
+      status.style.color='#4caf50';
+      status.textContent='✅ Premium activado' + (dConv.hasta ? ' — Activo hasta: ' + dConv.hasta : '');
+      input.value='';
+      localStorage.setItem('dt_premium','1');
+      localStorage.setItem('dt_premium_hasta', dConv.hasta || '');
+      return;
+    }
+    // Si no es convenio, intentar código personal
+    const res = await fetch('/api/premium/activar-entrenador', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ codigo })
+    });
+    const d = await res.json();
+    if(d.ok){
+      status.style.color='#4caf50';
+      status.textContent='✅ Premium activado' + (d.hasta ? ' — Activo hasta: ' + d.hasta : '');
+      input.value='';
+      localStorage.setItem('dt_premium','1');
+      localStorage.setItem('dt_premium_hasta', d.hasta || '');
+    } else {
+      status.style.color='#e31e24';
+      status.textContent='❌ ' + (dConv.error || d.msg || 'Código inválido');
+    }
+  } catch(e) {
+    status.style.color='#e31e24';
+    status.textContent='❌ Error de conexión';
+  }
+}
+function entToggleTema(btn) {
+  document.body.classList.toggle("modo-claro");
+  var claro = document.body.classList.contains("modo-claro");
+  localStorage.setItem("dt_tema", claro ? "claro" : "oscuro");
+  btn.innerHTML = claro ? "&#9728; Claro" : "&#127769; Oscuro";
+  btn.style.background = claro ? "#e31e24" : "#1a1a1a";
+  var lbl = document.getElementById("ent-cfg-tema-lbl");
+  if (lbl) lbl.textContent = claro ? "Modo claro" : "Modo oscuro";
+  // Actualizar fondo del panel config
+  var sh = document.getElementById("config-sheet");
+  if (sh) sh.style.background = claro ? "#f5f5f5" : "#050505";
+}
+
+
+
+
+function cerrarConfig(){
+  const sh=document.getElementById('config-sheet');
+  sh.style.display='none';
+}
+// ═══════════════════════════════
+// PANTALLA INICIO
+// ═══════════════════════════════
+
+let _vencIdx=0;
+let _vencidos=[];
+function enviarPagoWA(idx){
+  const u=_vencidos[idx];
+  if(!u)return;
+  const msgTexto = (u.msg_pago && u.msg_pago.trim()) ? u.msg_pago : 'El día de hoy se venció tu plan de entrenamiento.';
+  const msg=encodeURIComponent(msgTexto);
+  window.open('https://wa.me/'+u.telefono.replace(/\D/g,'')+'?text='+msg,'_blank');
+}
+async function cargarInicio(){
+  try{
+    const usuarios=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json());
+    const activos=usuarios.filter(u=>u.activo);
+    const person=activos.filter(u=>u.tipo==='personalizado').length;
+    const asesor=activos.filter(u=>u.tipo==='asesorado').length;
+    const pausados=usuarios.filter(u=>!u.activo).length;
+    document.getElementById('hi-stat-activos').textContent=activos.length;
+    document.getElementById('hi-stat-person').textContent=person;
+    document.getElementById('hi-stat-asesor').textContent=asesor;
+    document.getElementById('hi-stat-pausados').textContent=pausados;
+    const badge=document.getElementById('hi-badge-clientes');
+    // Badge ahora muestra mensajes no leídos
+    fetch('/api/chat/no-leidos/entrenador').then(r=>r.json()).then(data=>{
+      badge.textContent=data.total;
+      badge.style.display=data.total>0?'block':'none';
+    }).catch(()=>{ badge.style.display='none'; });
+    const hoy=new Date();
+    _vencIdx=0;_vencidos=[];
+    const vencidos=activos.filter(u=>u.estado_pago==='vencido');
+    _vencidos=vencidos;
+    const proximos=activos.filter(u=>{
+      if(!u.dia_pago||u.estado_pago==='vencido')return false;
+      const dia=parseInt(u.dia_pago);
+      // Fecha de pago este mes
+      let d=new Date(hoy.getFullYear(),hoy.getMonth(),dia);
+      let diff=Math.ceil((d-hoy)/(1000*60*60*24));
+      // Si ya pasó este mes, revisar el mes siguiente
+      if(diff<-3){
+        d=new Date(hoy.getFullYear(),hoy.getMonth()+1,dia);
+        diff=Math.ceil((d-hoy)/(1000*60*60*24));
+      }
+      return diff>=0&&diff<=3;
+    });
+    _vencidos=vencidos;
+    let cobrosHtml='';
+    if(vencidos.length===0&&proximos.length===0){
+      cobrosHtml='<div style="background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.25);border-radius:16px;padding:20px;text-align:center;min-width:180px;flex-shrink:0"><div style="font-size:28px">✅</div><div style="font-size:13px;color:#4caf50;font-weight:700;margin-top:6px">Todo al día</div><div style="font-size:11px;color:var(--texto-tenue);margin-top:4px">Sin cobros pendientes</div></div>';
+    }
+    vencidos.forEach((u,_vi)=>{
+      cobrosHtml+='<div style="background:rgba(227,30,36,0.08);border:1px solid rgba(227,30,36,0.25);border-radius:16px;padding:16px;min-width:190px;flex-shrink:0;backdrop-filter:blur(10px)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🔴</span><span style="font-size:11px;font-weight:800;color:#e31e24;text-transform:uppercase;letter-spacing:.5px">Cobro vencido</span></div><div style="font-size:14px;color:var(--texto);font-weight:700;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:var(--texto-medio);margin-bottom:10px">'+(u.msg_pago||'Pago pendiente')+'</div><div style="background:rgba(227,30,36,0.15);border:1px solid rgba(227,30,36,0.3);border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#e31e24;font-weight:700;cursor:pointer" id=\"wa-btn-'+ _vi +'\">📲 WhatsApp</div></div>';
+    });
+    proximos.forEach((u,_pi)=>{
+      cobrosHtml+='<div style="background:rgba(255,152,0,0.08);border:1px solid rgba(255,152,0,0.30);border-radius:16px;padding:16px;min-width:190px;flex-shrink:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">⚠️</span><span style="font-size:11px;font-weight:800;color:#ff9800;text-transform:uppercase;letter-spacing:.5px">Próximo cobro</span></div><div style="font-size:14px;color:var(--texto);font-weight:600;margin-bottom:4px">'+u.nombre+'</div><div style="font-size:11px;color:var(--texto-medio);margin-bottom:10px">Vence día '+u.dia_pago+'</div><div style="background:rgba(255,152,0,0.15);border:1px solid rgba(255,152,0,0.30);border-radius:10px;padding:8px;text-align:center;font-size:12px;color:#ff9800;font-weight:700;cursor:pointer" id="prox-btn-'+_pi+'">📲 Recordar</div></div>';
+    });
+    document.getElementById('hi-cobros').innerHTML=cobrosHtml;
+    proximos.forEach((_u,_pi)=>{
+      const bp=document.getElementById('prox-btn-'+_pi);
+      if(bp)bp.onclick=()=>{
+        const msgTexto = (_u.msg_proximo && _u.msg_proximo.trim()) ? _u.msg_proximo : ('Hola '+_u.nombre+' 👋, te recuerdo que tu plan vence pronto. Comunícate conmigo para renovarlo. ¡Gracias! 💪');
+        const msg=encodeURIComponent(msgTexto);
+        window.open('https://wa.me/'+_u.telefono.replace(/\D/g,'')+'?text='+msg,'_blank');
+      };
+    });
+    vencidos.forEach((_u,_i)=>{
+      const b=document.getElementById('wa-btn-'+_i);
+      if(b)b.onclick=()=>enviarPagoWA(_i);
+    });
+    const items=[];
+    if(activos.length>0)items.push('👥 '+activos.length+' clientes activos');
+    if(vencidos.length>0)items.push('🔴 Cobro vencido: '+vencidos.map(u=>u.nombre).join(', '));
+    if(proximos.length>0)items.push('⚠️ Próximo cobro: '+proximos.map(u=>u.nombre).join(', '));
+    items.push('📅 '+new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'}));
+    const txt=items.join('   •   ');
+    document.getElementById('ticker-inner').textContent=txt+'   •   '+txt;
+  }catch(e){console.error('cargarInicio',e);}
+}
+async function cargarClientes(){
+const res=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'));
+const usuarios=await res.json();
+const lista=document.getElementById('lista-clientes');
+const empty=document.getElementById('empty-clientes');
+if(!usuarios.length){lista.innerHTML='';empty.style.display='block';return;}
+empty.style.display='none';
+window._usuariosCargados=usuarios;
+const sActivos=usuarios.filter(u=>u.activo).length;
+const sPersonalizados=usuarios.filter(u=>u.activo&&u.tipo==='personalizado').length;
+const sAsesorados=usuarios.filter(u=>u.activo&&u.tipo==='asesorado').length;
+const sPausados=usuarios.filter(u=>!u.activo).length;
+document.getElementById('stat-activos').textContent=sActivos;
+document.getElementById('stat-personalizados').textContent=sPersonalizados;
+document.getElementById('stat-asesorados').textContent=sAsesorados;
+document.getElementById('stat-pausados').textContent=sPausados;
+lista.innerHTML=usuarios.map(u=>{
+const ep=u.estado_pago||'aldia';
+const cc=ep==='vencido'?'card vencido':ep==='proximo'?'card proximo':'card';
+return`<div class="${cc}">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+${avatarHTML(u)}
+<div style="flex:1">
+<div style="font-size:16px;font-weight:700;color:var(--texto)">${u.nombre}</div>
+<div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
+</div>
+<label class="toggle"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
+</div>
+<div style="margin-bottom:10px">
+<span class="badge ${u.activo?'ba':'bp2'}">${u.activo?'● Activo':'⏸ Pausado'}</span>
+<span class="badge bti">${u.tipo}</span>
+${epBadge(ep)}
+</div>
+<div style="display:flex;gap:5px">
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
+<button class="btn bp" style="font-size:11px;padding:8px 10px" onclick="eliminarCliente('${u.id}')">🗑️</button>
+</div>
+</div>`;
+}).join('');
+}
+
+function selEstado(e){
+document.getElementById('cliente-estado-pago').value=e;
+['aldia','proximo','vencido'].forEach(x=>{
+const b=document.getElementById('btn-'+x);
+b.className='eb'+(x===e?' s'+x.slice(0,2):'');
+if(x==='aldia'&&e==='aldia')b.className='eb sal';
+if(x==='proximo'&&e==='proximo')b.className='eb spr';
+if(x==='vencido'&&e==='vencido')b.className='eb sve';
+});
+}
+
+var _ultimoClienteId=null;
+
+async function marcarSesionRapida(id,btn){
+  try{
+    const res=await fetch('/api/usuarios/'+id+'/sesion',{method:'POST'});
+    const data=await res.json();
+    btn.textContent='✅';
+    btn.style.background='#1a3a1a';
+    btn.style.color='#4caf50';
+    setTimeout(()=>{btn.textContent='+1 💪';btn.style.background='';btn.style.color='';},2000);
+    toast('💪 Sesión: Total '+data.sesiones_total+' | Ciclo '+data.sesiones_ciclo);
+    _ultimoClienteId=id;
+  }catch(e){toast('Error',false);}
+}
+
+async function abrirMedidasYSubir(id,nombre){
+  _ultimoClienteId=id;
+  _reordenarLista();
+  await abrirMedidas(id,nombre);
+}
+
+async function abrirTestsYSubir(id,nombre){
+  _ultimoClienteId=id;
+  _reordenarLista();
+  await abrirTests(id,nombre);
+}
+
+function _reordenarLista(){
+  if(!_ultimoClienteId||!window._usuariosCargados)return;
+  const idx=window._usuariosCargados.findIndex(u=>u.id===_ultimoClienteId);
+  if(idx>0){
+    const u=window._usuariosCargados.splice(idx,1)[0];
+    window._usuariosCargados.unshift(u);
+  }
+}
+
+function _renderListaLocal(){
+  if(!window._usuariosCargados)return;
+  const lista=document.getElementById('lista-clientes');
+  if(!lista)return;
+  lista.innerHTML=window._usuariosCargados.map(u=>{
+    const ep=u.estado_pago||'aldia';
+    const cc=ep==='vencido'?'card vencido':ep==='proximo'?'card proximo':'card';
+    return`<div class="${cc}">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+${avatarHTML(u)}
+<div style="flex:1">
+<div style="font-size:16px;font-weight:700;color:var(--texto)">${u.nombre}</div>
+<div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
+</div>
+<label class="toggle"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
+</div>
+<div style="margin-bottom:10px">
+<span class="badge ${u.activo?'ba':'bp2'}">${u.activo?'● Activo':'⏸ Pausado'}</span>
+<span class="badge bti">${u.tipo}</span>
+${epBadge(ep)}
+</div>
+<div style="display:flex;gap:5px">
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
+<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
+<button class="btn bp" style="font-size:11px;padding:8px 10px" onclick="eliminarCliente('${u.id}')">🗑️</button>
+</div>
+</div>`;
+  }).join('');
+}
+
+async function abrirTests(id,nombre){
+  window.clienteTestsId=id;
+  document.getElementById("modal-tests-titulo").textContent="🏋️ Tests - "+nombre;
+  document.getElementById("modal-tests").classList.add("open");
+await renderTests(id);
+}
+async function abrirModalCliente(){
+  if (!entEsPremium()) {
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const usuarios = await fetch('/api/usuarios?entrenador_id=' + eid).then(r=>r.json()).catch(()=>[]);
+    const activos = usuarios.filter(u => u.activo !== false).length;
+    if (activos >= 3) {
+      mostrarCandadoPremium('Has alcanzado el limite de 3 clientes del Plan Gratis. Activa Premium para clientes ilimitados.');
+      return;
+    }
+  }
+document.getElementById('cliente-id').value='';
+document.getElementById('cliente-nombre').value='';
+document.getElementById('cliente-telefono').value='';
+document.getElementById('cliente-pago').value='';
+document.getElementById('cliente-pago2').value='';
+document.getElementById('cliente-tipo-pago').value='mensual';
+document.getElementById('pago2-box').style.display='none';
+selEstado('aldia');
+document.getElementById('modal-titulo').textContent='➕ Nuevo cliente';
+document.getElementById('modal-cliente').classList.add('open');
+}
+
+async function editarCliente(id){
+const res=await fetch('/api/usuarios/'+id);
+const u=await res.json();
+document.getElementById('cliente-id').value=u.id;
+document.getElementById('cliente-nombre').value=u.nombre;
+document.getElementById('cliente-telefono').value=u.telefono;
+document.getElementById('cliente-email').value=u.email||'';
+document.getElementById('cliente-tipo').value=u.tipo;
+document.getElementById('cliente-pago').value=u.dia_pago||'';
+document.getElementById('cliente-pago2').value=u.dia_pago2||'';
+document.getElementById('cliente-tipo-pago').value=u.tipo_pago||'mensual';
+document.getElementById('pago2-box').style.display=(u.tipo_pago==='quincenal')?'block':'none';
+document.getElementById('cliente-msg-q1').value=u.msg_q1||'';
+document.getElementById('cliente-msg-q2').value=u.msg_q2||'';
+document.getElementById('msg-quincena1-box').style.display=(u.tipo_pago==='quincenal')?'block':'none';
+document.getElementById('msg-quincena2-box').style.display=(u.tipo_pago==='quincenal')?'block':'none';
+selEstado(u.estado_pago||'aldia');
+const up=u.perfil||{};
+if(document.getElementById('cliente-fnac')) document.getElementById('cliente-fnac').value=up.fecha_nacimiento||'';
+if(document.getElementById('cliente-altura')) document.getElementById('cliente-altura').value=up.altura||'';
+if(document.getElementById('cliente-sexo')) document.getElementById('cliente-sexo').value=up.sexo||'M';
+if(document.getElementById('cliente-objetivo')) document.getElementById('cliente-objetivo').value=up.etiqueta||'perdida';
+if(document.getElementById('cliente-notas')) document.getElementById('cliente-notas').value=up.notas||'';
+if(document.getElementById('cliente-condiciones')) document.getElementById('cliente-condiciones').value=up.condiciones_medicas||'';
+if(document.getElementById('cliente-alimentacion')) document.getElementById('cliente-alimentacion').value=up.preferencias_alimentarias||'';
+document.getElementById('modal-titulo').textContent='✏️ Editar cliente';
+document.getElementById('modal-cliente').classList.add('open');
+}
+
+function cerrarModal(){document.getElementById('modal-cliente').classList.remove('open');}
+
+async function guardarCliente(){
+const id=document.getElementById('cliente-id').value;
+const datos={
+entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null),
+nombre:document.getElementById('cliente-nombre').value.trim(),
+telefono:document.getElementById('cliente-telefono').value.replace(/\D/g,''),
+email:document.getElementById('cliente-email').value.trim(),
+tipo:document.getElementById('cliente-tipo').value,
+tipo_pago:document.getElementById('cliente-tipo-pago').value,
+dia_pago:parseInt(document.getElementById('cliente-pago').value)||null,
+dia_pago2:parseInt(document.getElementById('cliente-pago2').value)||null,
+estado_pago:document.getElementById('cliente-estado-pago').value,
+
+};
+// Manejar destino grupo
+if(window._destinoWA==='grupo'){
+  const link=document.getElementById('cliente-grupo-link')?document.getElementById('cliente-grupo-link').value.trim():'';
+  if(!link){toast('Pega el link del grupo',false);return;}
+  const codigo=link.split('/').pop();
+  datos.telefono='grupo:'+codigo;
+  datos.es_grupo=true;
+}
+if(!datos.nombre||!datos.telefono){toast('Completa nombre y teléfono',false);return;}
+const perfilDatos={
+  fecha_nacimiento:document.getElementById('cliente-fnac')?document.getElementById('cliente-fnac').value:'',
+  altura:document.getElementById('cliente-altura')?document.getElementById('cliente-altura').value:'',
+  sexo:document.getElementById('cliente-sexo')?document.getElementById('cliente-sexo').value:'M',
+  etiqueta:document.getElementById('cliente-objetivo')?document.getElementById('cliente-objetivo').value:'',
+  notas:document.getElementById('cliente-notas')?document.getElementById('cliente-notas').value.trim():'',
+  condiciones_medicas:document.getElementById('cliente-condiciones')?document.getElementById('cliente-condiciones').value.trim():'',
+  preferencias_alimentarias:document.getElementById('cliente-alimentacion')?document.getElementById('cliente-alimentacion').value.trim():''
+};
+if(id){
+await fetch('/api/usuarios/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(datos)});
+await fetch('/api/usuarios/'+id+'/perfil-admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(perfilDatos)});
+toast('✅ Cliente actualizado');
+}else{
+const nuevo=await fetch('/api/usuarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(datos)}).then(r=>r.json());
+if(nuevo.id) await fetch('/api/usuarios/'+nuevo.id+'/perfil-admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(perfilDatos)});
+toast('✅ Cliente agregado');
+}
+cerrarModal();cargarClientes();
+}
+
+async function eliminarCliente(id){
+if(!confirm('¿Eliminar este cliente?'))return;
+await fetch('/api/usuarios/'+id,{method:'DELETE'});
+toast('🗑️ Cliente eliminado');cargarClientes();
+}
+
+async function toggleActivo(id,activo){
+await fetch('/api/usuarios/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({activo})});
+toast(activo?'✅ Activado':'⏸️ Pausado');cargarClientes();
+}
+
+
+function avatarHTML(u){
+  const iniciales = (u.nombre||'?').split(' ').slice(0,2).map(n=>n[0]?n[0].toUpperCase():'').join('') || '?';
+  if(u.foto){
+    return `<div class="avatar" onclick="cambiarFoto('${u.id}')"><img src="${u.foto}" onerror="this.parentElement.innerHTML='${iniciales}'"></div>`;
+  }
+  return `<div class="avatar" onclick="cambiarFoto('${u.id}')">${iniciales}</div>`;
+}
+
+async function cambiarFoto(id){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+          if(file.size > 5 * 1024 * 1024){ toast('⚠️ Imagen muy grande. Máximo 5MB', false); return; }
+    const fd = new FormData();
+    fd.append('foto', file);
+    const res = await fetch('/api/foto-cliente/'+id, {method:'POST', body:fd});
+    const data = await res.json();
+    if(data.ok){ toast('✅ Foto actualizada'); cargarClientes(); }
+    else toast('❌ Error al subir foto', false);
+  };
+  input.click();
+}
+
+
+// ===== HORARIOS =====
+let _horariosData = {recurrentes:[], unicos:[]};
+let _horariosVista = 'semana';
+let _horariosOffset = 0;
+let _horarioColorSel = '#e31e24';
+let _horarioDiasSel = [];
+let _horarioEditId = null;
+
+async function cargarHorarios(){
+  const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  const res = await fetch('/api/horarios?entrenador_id=' + _eid);
+  _horariosData = await res.json();
+  if(!_horariosData.recurrentes) _horariosData.recurrentes = [];
+  if(!_horariosData.unicos) _horariosData.unicos = [];
+}
+
+async function initHorarios(){
+  await cargarHorarios();
+  const fr = await fetch('/api/festivos');
+  window._festivos = await fr.json();
+  _horariosOffset = 0;
+  _horariosVista = 'semana';
+  horariosVista('semana');
+  cargarClientesSelectH();
+}
+
+function cargarClientesSelectH(){
+  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(usuarios=>{
+    const sel = document.getElementById('h-cliente');
+    if(!sel) return;
+    sel.innerHTML = '<option value="">— Seleccionar cliente —</option>' +
+      usuarios.filter(u=>u.activo).map(u=>`<option value="${u.id}">${u.nombre}</option>`).join('');
+  });
+}
+
+function horariosVista(v){
+  _horariosVista = v;
+  _horariosOffset = 0;
+  document.getElementById('htab-semana').style.background = v==='semana'?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#2a2a2a';
+  document.getElementById('htab-semana').style.color = v==='semana'?'#fff':'#888';
+  document.getElementById('htab-mes').style.background = v==='mes'?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#2a2a2a';
+  document.getElementById('htab-mes').style.color = v==='mes'?'#fff':'#888';
+  renderHorarios();
+}
+
+function horariosNav(dir){
+  _horariosOffset += dir;
+  renderHorarios();
+}
+
+function getLunesDeSemana(offset){
+  const hoy = new Date();
+  const dia = hoy.getDay();
+  const diffLunes = (dia===0?-6:1-dia);
+  const lunes = new Date(hoy);
+  lunes.setDate(hoy.getDate() + diffLunes + offset*7);
+  lunes.setHours(0,0,0,0);
+  return lunes;
+}
+
+function getPrimerDiaMes(offset){
+  const hoy = new Date();
+  return new Date(hoy.getFullYear(), hoy.getMonth()+offset, 1);
+}
+
+function fechaStr(d){
+  return d.toISOString().split('T')[0];
+}
+
+function getDiaSemana(fecha){
+  const d = new Date(fecha+'T12:00:00');
+  return d.getDay()===0?6:d.getDay()-1; // 0=Lun, 6=Dom
+}
+
+function getEventosDia(fechaStr){
+  const diaSem = getDiaSemana(fechaStr);
+  const recurrentes = _horariosData.recurrentes.filter(e=>e.dias && e.dias.includes(diaSem));
+  const unicos = _horariosData.unicos.filter(e=>e.fecha===fechaStr);
+  return [...recurrentes.map(e=>({...e,tipo:'rec'})), ...unicos.map(e=>({...e,tipo:'uni'}))];
+}
+
+function renderHorarios(){
+  if(_horariosVista==='semana') renderHorariosSemana();
+  else renderHorariosMes();
+}
+
+function renderHorariosSemana(){
+  const lunes = getLunesDeSemana(_horariosOffset);
+  const dias = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const hoy = fechaStr(new Date());
+
+  // Titulo
+  const domingo = new Date(lunes); domingo.setDate(lunes.getDate()+6);
+  document.getElementById('horarios-titulo').textContent =
+    lunes.getDate()+'/'+(lunes.getMonth()+1)+' — '+domingo.getDate()+'/'+(domingo.getMonth()+1);
+
+  // Horas 5am a 10pm
+  const horas = [];
+  for(let h=5;h<=22;h++){
+    horas.push(h+':00');
+    if(h<22) horas.push(h+':30');
+  }
+
+  // Fechas de la semana
+  const fechas = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(lunes); d.setDate(lunes.getDate()+i);
+    fechas.push(fechaStr(d));
+  }
+
+  let html = `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+  <div style="min-width:520px">
+  <!-- Header días -->
+  <div style="display:grid;grid-template-columns:44px repeat(7,1fr);gap:2px;margin-bottom:4px">
+    <div></div>`;
+  const festivosSem = (window._festivos||[]).map(x=>x.fecha);
+  fechas.forEach((f,i)=>{
+    const esHoy = f===hoy;
+    const esFestivo = festivosSem.includes(f);
+    html += `<div style="text-align:center;font-size:10px;color:${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#888'};font-weight:${esHoy?'800':'400'}">
+      ${dias[i]}<br><span style="font-size:13px;color:${esHoy?'#fff':'#ccc'};font-weight:${esHoy?'800':'400'}">${new Date(f+'T12:00:00').getDate()}</span>${esFestivo?'<br><span style="width:6px;height:6px;background:#e31e24;border-radius:50%;display:inline-block;margin-top:2px"></span>':''}
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Grid fijo de fondo + clases absolutas encima
+  const PX_POR_MIN = 1.2; // pixels por minuto
+  const HORA_INICIO = 5;  // 5am
+  const HORA_FIN = 22;    // 10pm
+  const totalMin = (HORA_FIN - HORA_INICIO) * 60;
+  const totalAlto = totalMin * PX_POR_MIN;
+
+  // Contenedor principal
+  html += `<div style="position:relative;display:grid;grid-template-columns:44px repeat(7,1fr);gap:2px">`;
+
+  // Columna de horas (fondo)
+  html += `<div style="position:relative;height:${totalAlto}px">`;
+  for(let h=HORA_INICIO; h<=HORA_FIN; h++){
+    const topPx = (h - HORA_INICIO) * 60 * PX_POR_MIN;
+    const ampm = h < 12 ? 'AM' : 'PM';
+    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    html += `<div style="position:absolute;top:${topPx}px;left:0;right:0;font-size:9px;color:var(--texto-tenue);text-align:right;padding-right:4px;border-top:1px solid #1a1a1a">${h12}:00 ${ampm}</div>`;
+  }
+  html += `</div>`;
+
+  // Columnas de días
+  fechas.forEach(f=>{
+    const eventos = getEventosDia(f);
+    html += `<div style="position:relative;height:${totalAlto}px;border-left:1px solid #1a1a1a">`;
+
+    // Líneas de hora de fondo
+    for(let h=HORA_INICIO; h<=HORA_FIN; h++){
+      const topPx = (h - HORA_INICIO) * 60 * PX_POR_MIN;
+      html += `<div onclick="abrirModalHorario('${f}','${h}:00')" style="position:absolute;top:${topPx}px;left:0;right:0;height:${60*PX_POR_MIN}px;border-top:1px solid #1a1a1a;cursor:pointer" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='transparent'"></div>`;
+    }
+
+    // Clases encima
+    eventos.forEach(e=>{
+      const inicioMin = tiempoAMin(e.inicio) - HORA_INICIO*60;
+      const durMin = tiempoAMin(e.fin) - tiempoAMin(e.inicio);
+      if(inicioMin < 0 || inicioMin > totalMin) return;
+      const topPx = inicioMin * PX_POR_MIN;
+      const altoPx = Math.max(20, durMin * PX_POR_MIN);
+      html += `<div onclick="editarHorario('${e.id||''}','${e.tipo}')" style="position:absolute;top:${topPx}px;left:1px;right:1px;height:${altoPx}px;background:${e.color||'#e31e24'};border-radius:6px;padding:2px 4px;cursor:pointer;overflow:hidden;z-index:2">
+        <div style="font-size:9px;color:#fff;font-weight:700;line-height:1.2">${e.nombreCliente||e.desc||'Clase'}</div>
+        <div style="font-size:8px;color:rgba(255,255,255,.7)">${e.inicio}-${e.fin}</div>
+      </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  html += `</div></div></div>`;
+  document.getElementById('horarios-contenido').innerHTML = html;
+}
+
+function renderHorariosMes(){
+  const primer = getPrimerDiaMes(_horariosOffset);
+  const mes = primer.getMonth();
+  const anio = primer.getFullYear();
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('horarios-titulo').textContent = meses[mes]+' '+anio;
+
+  const hoy = fechaStr(new Date());
+  const diasMes = new Date(anio, mes+1, 0).getDate();
+  const festivosMes = (window._festivos || []).map(f=>f.fecha);
+  const primerDiaSem = primer.getDay()===0?6:primer.getDay()-1;
+
+  let html = `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">`;
+  ['L','M','X','J','V','S','D'].forEach(d=>{
+    html += `<div style="text-align:center;font-size:10px;color:var(--texto-secundario);font-weight:700">${d}</div>`;
+  });
+  html += `</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">`;
+
+  for(let i=0;i<primerDiaSem;i++) html += `<div></div>`;
+
+  for(let d=1;d<=diasMes;d++){
+    const f = anio+'-'+String(mes+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const eventos = getEventosDia(f);
+    const esHoy = f===hoy;
+    html += `<div onclick="verDiaHorario('${f}')" style="background:${esHoy?'#1a0000':'#111'};border:1px solid ${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#1e1e1e'};border-radius:10px;padding:6px;min-height:52px;cursor:pointer">
+      <div style="font-size:12px;color:${esHoy?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#ccc'};font-weight:${esHoy?'800':'400'};margin-bottom:3px;display:flex;align-items:center;gap:3px">${d}${festivosMes.includes(f)?'<span style="width:6px;height:6px;background:#e31e24;border-radius:50%;display:inline-block;flex-shrink:0" title="Festivo"></span>':''}</div>
+      ${eventos.slice(0,3).map(e=>`<div style="background:${e.color||'#9c27b0'};border-radius:3px;height:5px;margin-bottom:2px"></div>`).join('')}
+      ${eventos.length>3?`<div style="font-size:8px;color:var(--texto-secundario)">+${eventos.length-3}</div>`:''}
+    </div>`;
+  }
+  html += `</div>`;
+  document.getElementById('horarios-contenido').innerHTML = html;
+}
+
+function verDiaHorario(fecha){
+  _horariosVista = 'semana';
+  // Calcular offset exacto por días
+  const lunes = getLunesDeSemana(0);
+  const target = new Date(fecha+'T12:00:00');
+  const diffDias = Math.floor((target-lunes)/(24*3600*1000));
+  _horariosOffset = Math.floor(diffDias/7);
+  document.getElementById('htab-semana').style.background = getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24';
+  document.getElementById('htab-semana').style.color = '#fff';
+  document.getElementById('htab-mes').style.background = '#2a2a2a';
+  document.getElementById('htab-mes').style.color = '#888';
+  renderHorarios();
+}
+
+function tiempoAMin(t){
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+
+function generarOpcionesHora(){
+  const ops = [];
+  for(let h=5;h<=22;h++){
+    ops.push(String(h).padStart(2,'0')+':00');
+    ops.push(String(h).padStart(2,'0')+':30');
+  }
+  ops.push('23:00');
+  return ops;
+}
+function hora24a12(h24){
+  const [h,m] = h24.split(':');
+  const hn = parseInt(h);
+  const ampm = hn>=12?'PM':'AM';
+  const h12 = hn===0?12:hn>12?hn-12:hn;
+  return h12+':'+m+' '+ampm;
+}
+
+function abrirModalHorario(fecha, hora){
+  _horarioEditId = null;
+  _horarioDiasSel = [];
+  _horarioColorSel = '#e31e24';
+  document.getElementById('modal-horario-titulo').textContent = '➕ Nueva clase';
+  document.getElementById('h-editando-id').value = '';
+  document.getElementById('h-desc').value = '';
+  document.getElementById('h-recurrente').checked = false;
+  document.getElementById('h-dias-container').style.display = 'none';
+  document.getElementById('h-fecha-container').style.display = '';
+  document.getElementById('h-btn-eliminar').style.display = 'none';
+  toggleTipoHorario('cliente');
+
+  // Colores
+  seleccionarColorH('#e31e24');
+
+  // Días botones reset
+  for(let i=0;i<7;i++){
+    const el = document.getElementById('hdia-'+i);
+    if(el){ el.style.background='#1a1a1a'; el.style.color='#888'; el.style.borderColor='#333'; }
+  }
+
+  // Fecha y hora
+  if(fecha) document.getElementById('h-fecha').value = fecha;
+  else {
+    const hoy = new Date();
+    const yy = hoy.getFullYear();
+    const mm = String(hoy.getMonth()+1).padStart(2,'0');
+    const dd = String(hoy.getDate()).padStart(2,'0');
+    document.getElementById('h-fecha').value = yy+'-'+mm+'-'+dd;
+  }
+
+  // Opciones hora
+  const ops = generarOpcionesHora();
+  const optHTML = ops.map(o=>`<option value="${o}">${hora24a12(o)}</option>`).join('');
+  document.getElementById('h-inicio').innerHTML = optHTML;
+  document.getElementById('h-fin').innerHTML = optHTML;
+  if(hora){
+    document.getElementById('h-inicio').value = hora;
+    const finIdx = Math.min(ops.indexOf(hora)+2, ops.length-1);
+    document.getElementById('h-fin').value = ops[finIdx];
+  }
+
+  cargarClientesSelectH();
+  document.getElementById('modal-horario').classList.add('open');
+}
+
+function cerrarModalHorario(){
+  document.getElementById('modal-horario').classList.remove('open');
+}
+
+function seleccionarColorH(color){
+  _horarioColorSel = color;
+  document.getElementById('h-color').value = color;
+  document.querySelectorAll('#h-colores div').forEach(d=>{
+    const bg = d.style.backgroundColor||d.style.background;
+    const tmp = document.createElement('div');
+    tmp.style.background = color;
+    document.body.appendChild(tmp);
+    const colorComp = getComputedStyle(tmp).backgroundColor;
+    document.body.removeChild(tmp);
+    const tmp2 = document.createElement('div');
+    tmp2.style.background = bg;
+    document.body.appendChild(tmp2);
+    const bgComp = getComputedStyle(tmp2).backgroundColor;
+    document.body.removeChild(tmp2);
+    d.style.border = bgComp===colorComp ? '3px solid #fff':'3px solid transparent';
+    d.style.transform = bgComp===colorComp ? 'scale(1.2)':'scale(1)';
+  });
+}
+
+function toggleDiaH(i){
+  const el = document.getElementById('hdia-'+i);
+  if(_horarioDiasSel.includes(i)){
+    _horarioDiasSel = _horarioDiasSel.filter(d=>d!==i);
+    el.style.background='#1a1a1a'; el.style.color='#888'; el.style.borderColor='#333';
+  } else {
+    _horarioDiasSel.push(i);
+    el.style.background=getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24'; el.style.color='#fff'; el.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24';
+  }
+}
+
+
+function toggleTipoHorario(tipo){
+  const esCliente = tipo==='cliente';
+  const esEvento = tipo==='evento';
+  const esDisponible = tipo==='disponible';
+  document.getElementById('h-modo-cliente').style.display = esCliente?'':'none';
+  document.getElementById('h-modo-evento').style.display = esEvento?'':'none';
+  document.getElementById('h-modo-disponible').style.display = esDisponible?'':'none';
+  document.getElementById('htipo-cliente').style.background = esCliente?'var(--rojo)':'var(--gris2)';
+  document.getElementById('htipo-cliente').style.color = esCliente?'#fff':'var(--texto-medio)';
+  document.getElementById('htipo-evento').style.background = esEvento?'var(--rojo)':'var(--gris2)';
+  document.getElementById('htipo-evento').style.color = esEvento?'#fff':'var(--texto-medio)';
+  document.getElementById('htipo-disponible').style.background = esDisponible?'#4caf50':'var(--gris2)';
+  document.getElementById('htipo-disponible').style.color = esDisponible?'#fff':'var(--texto-medio)';
+  if(esDisponible){
+    document.getElementById('h-color').value='#4caf50';
+    document.querySelectorAll('#h-colores div').forEach(d=>d.style.border='none');
+  }
+}
+
+function toggleRecurrente(){
+  const rec = document.getElementById('h-recurrente').checked;
+  document.getElementById('h-dias-container').style.display = rec?'':'none';
+  document.getElementById('h-fecha-container').style.display = rec?'none':'';
+}
+
+async function guardarHorario(){
+  const clienteId = document.getElementById('h-cliente').value;
+  const desc = document.getElementById('h-desc').value.trim();
+  const inicio = document.getElementById('h-inicio').value;
+  const fin = document.getElementById('h-fin').value;
+  const color = document.getElementById('h-color').value||'#e31e24';
+  const recurrente = document.getElementById('h-recurrente').checked;
+  const fecha = document.getElementById('h-fecha').value;
+
+  if(!inicio||!fin){ toast('Completa hora inicio y fin',false); return; }
+  if(tiempoAMin(fin)<=tiempoAMin(inicio)){ toast('La hora fin debe ser mayor',false); return; }
+  if(recurrente && _horarioDiasSel.length===0){ toast('Selecciona al menos un día',false); return; }
+  if(!recurrente && !fecha){ toast('Selecciona una fecha',false); return; }
+
+  // Nombre según modo
+  const modoEvento = document.getElementById('h-modo-evento').style.display!=='none';
+  const modoDisponible = document.getElementById('h-modo-disponible').style.display!=='none';
+  const desc2 = modoEvento ? document.getElementById('h-desc').value.trim() : (modoDisponible ? (document.getElementById('h-disponible-desc').value.trim()||'Disponible para venta') : '');
+  let nombreCliente = modoDisponible ? '🟢 ' + desc2 : desc2;
+  const clienteId2 = (modoEvento||modoDisponible) ? '' : document.getElementById('h-cliente').value;
+  if(!modoEvento && !modoDisponible && clienteId){
+    const sel = document.getElementById('h-cliente');
+    nombreCliente = sel.options[sel.selectedIndex].text;
+  }
+  if(!nombreCliente && !modoDisponible){ toast('Agrega un cliente o nombre de evento',false); return; }
+
+  await cargarHorarios();
+
+  if(recurrente){
+    const evento = { id: Date.now().toString(), clienteId:clienteId2||clienteId, nombreCliente, desc:desc2, inicio, fin, color, dias: _horarioDiasSel };
+    if(_horarioEditId){
+      const idx = _horariosData.recurrentes.findIndex(e=>e.id===_horarioEditId);
+      if(idx>=0){ evento.id=_horarioEditId; _horariosData.recurrentes[idx]=evento; }
+    } else {
+      _horariosData.recurrentes.push(evento);
+    }
+  } else {
+    const evento = { id: Date.now().toString(), clienteId:clienteId2||clienteId, nombreCliente, desc:desc2, inicio, fin, color, fecha };
+    if(_horarioEditId){
+      const idx = _horariosData.unicos.findIndex(e=>e.id===_horarioEditId);
+      if(idx>=0){ evento.id=_horarioEditId; _horariosData.unicos[idx]=evento; }
+    } else {
+      _horariosData.unicos.push(evento);
+    }
+  }
+
+  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
+  toast('✅ Horario guardado');
+  cerrarModalHorario();
+  // Si es único, navegar a la semana del evento
+  if(!recurrente && fecha){
+    const lunes = getLunesDeSemana(0);
+    const target = new Date(fecha+'T12:00:00');
+    const diff = Math.round((target-lunes)/(7*24*3600*1000));
+    _horariosOffset = diff;
+  }
+  renderHorarios();
+}
+
+function editarHorario(id, tipo){
+  if(!id) return;
+  const lista = tipo==='rec'?_horariosData.recurrentes:_horariosData.unicos;
+  const e = lista.find(x=>x.id===id);
+  if(!e) return;
+
+  _horarioEditId = id;
+  _horarioDiasSel = e.dias||[];
+  _horarioColorSel = e.color||'#e31e24';
+
+  document.getElementById('modal-horario-titulo').textContent = '✏️ Editar clase';
+  document.getElementById('h-editando-id').value = id;
+  document.getElementById('h-desc').value = e.desc||'';
+  document.getElementById('h-btn-eliminar').style.display = '';
+
+  const ops = generarOpcionesHora();
+  const optHTML = ops.map(o=>`<option value="${o}">${o}</option>`).join('');
+  document.getElementById('h-inicio').innerHTML = optHTML;
+  document.getElementById('h-fin').innerHTML = optHTML;
+  document.getElementById('h-inicio').value = e.inicio;
+  document.getElementById('h-fin').value = e.fin;
+
+  const rec = tipo==='rec';
+  document.getElementById('h-recurrente').checked = rec;
+  document.getElementById('h-dias-container').style.display = rec?'':'none';
+  document.getElementById('h-fecha-container').style.display = rec?'none':'';
+
+  if(rec){
+    for(let i=0;i<7;i++){
+      const el=document.getElementById('hdia-'+i);
+      if(el){
+        const sel=_horarioDiasSel.includes(i);
+        el.style.background=sel?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#1a1a1a';
+        el.style.color=sel?'#fff':'#888';
+        el.style.borderColor=sel?getComputedStyle(document.documentElement).getPropertyValue('--rojo').trim()||'#e31e24':'#333';
+      }
+    }
+  } else {
+    document.getElementById('h-fecha').value = e.fecha||'';
+  }
+
+  seleccionarColorH(e.color||'#e31e24');
+  cargarClientesSelectH();
+  setTimeout(()=>{ if(e.clienteId) document.getElementById('h-cliente').value=e.clienteId; },200);
+  document.getElementById('modal-horario').classList.add('open');
+}
+
+async function eliminarHorario(){
+  if(!_horarioEditId) return;
+  await cargarHorarios();
+  _horariosData.recurrentes = _horariosData.recurrentes.filter(e=>e.id!==_horarioEditId);
+  _horariosData.unicos = _horariosData.unicos.filter(e=>e.id!==_horarioEditId);
+  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
+  toast('🗑️ Eliminado');
+  cerrarModalHorario();
+  renderHorarios();
+}
+// ===== FIN HORARIOS =====
+
+async function cargarRutinasClientes(){
+const res=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'));
+const usuarios=await res.json();
+document.getElementById('lista-rutinas-clientes').innerHTML=usuarios.map(u=>`
+<div class="card" onclick="abrirRutina('${u.id}','${u.nombre}')" style="cursor:pointer">
+<div style="display:flex;align-items:center;gap:12px">
+${avatarHTML(u)}
+<div style="flex:1"><div style="font-weight:700">${u.nombre}</div>
+<div style="font-size:12px;color:#777">Toca para editar rutina</div></div>
+<span style="color:#e31e24;font-size:22px">›</span>
+</div></div>`).join('');
+}
+
+function switchRutinaTab(tab){
+  const esEnt = tab === 'entrenamiento';
+  document.getElementById('panel-entrenamiento').style.display = esEnt ? 'block' : 'none';
+  document.getElementById('panel-alimentacion').style.display = esEnt ? 'none' : 'block';
+  document.getElementById('tab-entrenamiento').style.background = esEnt ? 'var(--rojo)' : 'transparent';
+  document.getElementById('tab-entrenamiento').style.color = esEnt ? '#fff' : '#666';
+  document.getElementById('tab-alimentacion').style.background = esEnt ? 'transparent' : 'var(--rojo)';
+  document.getElementById('tab-alimentacion').style.color = esEnt ? '#666' : '#fff';
+  document.getElementById('btns-rutina').style.display = esEnt ? 'flex' : 'none';
+  if(!esEnt) mostrarRecomendacionesMacros();
+}
+async function abrirRutina(id,nombre){
+window._clienteActual=id;
+window.clienteMedidasId=id;
+document.getElementById('rutina-cliente-id').value=id;
+document.getElementById('rutina-titulo').textContent='📋 '+nombre;
+const res=await fetch('/api/rutinas/'+id);
+rutinaActual=await res.json();
+diaSeleccionado='lunes';
+renderDiasTabs();renderRutinaForm();
+switchRutinaTab('entrenamiento');
+document.getElementById('modal-rutina').classList.add('open');
+cargarAlimentacion(id);
+}
+
+async function cargarAlimentacion(id){
+  try {
+    const r = await fetch('/api/alimentacion/'+id);
+    if(!r.ok) return;
+    const d = await r.json();
+    if(!d) return;
+    if(d.peso_actual)   document.getElementById('ali-peso-actual').value   = d.peso_actual;
+    if(d.peso_objetivo) document.getElementById('ali-peso-objetivo').value = d.peso_objetivo;
+    if(d.proteina)      document.getElementById('ali-proteina').value      = d.proteina;
+    if(d.carbos)        document.getElementById('ali-carbos').value        = d.carbos;
+    if(d.grasas)        document.getElementById('ali-grasas').value        = d.grasas;
+    if(d.comidas)       document.getElementById('ali-comidas').value       = d.comidas;
+    if(d.pretreno){
+      document.getElementById('ali-pretreno-check').checked = true;
+      document.getElementById('ali-pretreno-pos').style.display = 'block';
+      if(d.pretreno_pos) document.getElementById('ali-pretreno-pos').value = d.pretreno_pos;
+    }
+    if(d.nivel_eco) selectEco(d.nivel_eco);
+    // Cargar objetivo desde perfil del usuario
+    try {
+      const ru = await fetch('/api/usuarios/' + id);
+      const du = await ru.json();
+      const etiqueta = du && du.perfil ? du.perfil.etiqueta : '';
+      const selObj = document.getElementById('ali-objetivo');
+      if(selObj && etiqueta) selObj.value = etiqueta;
+    } catch(e) {}
+    mostrarRecomendacionesMacros();
+    if(d.medico)   d.medico.forEach(item   => { const el = [...document.querySelectorAll('#chips-medico button')].find(b=>b.textContent===item);   if(el) toggleChip(el,'medico',item); });
+    if(d.vida)     d.vida.forEach(item     => { const el = [...document.querySelectorAll('#chips-vida button')].find(b=>b.textContent===item);     if(el) toggleChip(el,'vida',item); });
+    if(d.alergias) d.alergias.forEach(item => { const el = [...document.querySelectorAll('#chips-alergia button')].find(b=>b.textContent===item); if(el) toggleChip(el,'alergia',item); });
+    calcularMacros();
+  } catch(e) { console.log('Sin datos de alimentación aún'); }
+}
+
+function renderDiasTabs(){
+document.getElementById('dias-tabs').innerHTML=DIAS.map(d=>
+`<button class="${d===diaSeleccionado?'active':''}" onclick="seleccionarDia('${d}')">${d.charAt(0).toUpperCase()+d.slice(1)}</button>`
+).join('');
+}
+
+function seleccionarDia(dia){
+const rec=document.getElementById('rec-'+diaSeleccionado);
+const rut=document.getElementById('rut-'+diaSeleccionado);
+if(rec){if(!rutinaActual[diaSeleccionado])rutinaActual[diaSeleccionado]={};rutinaActual[diaSeleccionado].recordatorio=rec.value;if(rut)rutinaActual[diaSeleccionado].rutina=rut.value;}
+guardarEjsActuales();diaSeleccionado=dia;renderDiasTabs();renderRutinaForm();
+}
+
+function renderRutinaForm(){
+const d=rutinaActual[diaSeleccionado]||{recordatorio:'',rutina:'',ejercicios:[]};
+const cardios=Array.isArray(d.cardio)&&d.cardio.length>0?d.cardio:[];
+setTimeout(()=>{
+  if(cardios.length>0){
+    const p=document.getElementById('panel-cardio');
+    if(p) p.style.display='block';
+  }
+  renderCardios(cardios);
+},50);
+const ejs=d.ejercicios||[];
+let h='';
+ejs.forEach((e,i)=>{h+=`<div id="rut-drag-ej-${i}" draggable="true" ondragstart="rutDragStart(event,${i},'ej')" ondragover="rutDragOver(event,${i},'ej')" ondrop="rutDrop(event,${i},'ej')" ondragend="rutDragEnd(event)" style="background:var(--fondo);border:1px solid #222;border-radius:8px;padding:10px;margin-bottom:6px;cursor:grab"><div style="display:flex;gap:6px;margin-bottom:6px"><span ontouchstart="rutTouchStart(event,${i},'ej')" ontouchmove="rutTouchMove(event)" ontouchend="rutTouchEnd(event)" style="color:var(--texto-tenue);font-size:16px;padding:6px 4px;cursor:grab;touch-action:none">☰</span><input type="text" value="${e.nombre||''}" placeholder="Ejercicio" id="ej-${i}-n" style="flex:1;background:var(--card);border:1px solid #333;border-radius:6px;padding:8px;color:var(--texto);font-size:13px;outline:none"><button onclick="eliminarEjercicio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button></div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">${[['series','S','4'],['reps','Reps','8-10'],['rir','RIR','1-2'],['desc','DESC','60s'],['var','VAR','V1']].map(([f,label,ph])=>`<div><div style="font-size:9px;color:var(--texto-secundario);text-align:center;margin-bottom:2px">${label}</div><input type="text" id="ej-${i}-${f}" value="${e[f]||''}" placeholder="${ph}" style="width:100%;background:var(--card);border:1px solid #333;border-radius:6px;padding:6px;color:var(--texto);font-size:12px;text-align:center;outline:none"></div>`).join('')}</div></div>`;});
+document.getElementById('rutina-form').innerHTML=`<div class="ig"><label>🏷️ Título</label><textarea id="rec-${diaSeleccionado}" placeholder="Escribe el título del dia...">${d.recordatorio||''}</textarea></div><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:10px 0 8px">📋 Ejercicios</div><div id="lista-ejs">${h}</div><button onclick="agregarEjercicio()" style="width:100%;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar ejercicio</button><div style="margin-top:10px"><button onclick="toggleCardio()" style="width:100%;background:var(--fondo);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer">🏃 Cardio</button><div id="panel-cardio" style="display:none;background:var(--fondo);border:1px solid #222;border-radius:8px;padding:10px;margin-top:6px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:8px">🏃 CARDIO</div><div id="lista-cardio"></div><button onclick="agregarCardio()" style="width:100%;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar momento de cardio</button></div></div><div style="margin-top:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700">📝 Notas</div><button id="chip-presencial" onclick="togglePresencial()" style="padding:5px 12px;border-radius:20px;border:1px solid #333;background:${d.presencial?'#e31e24':'#1a1a1a'};color:${d.presencial?'#fff':'#666'};font-size:10px;font-weight:700;cursor:pointer">🏟️ Presencial</button></div><textarea id="rut-${diaSeleccionado}" placeholder="Notas adicionales..." style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;min-height:80px">${d.rutina||''}</textarea></div>`;
+}
+
+function guardarEjsActuales(){
+const dia=diaSeleccionado;
+if(!rutinaActual[dia])rutinaActual[dia]={recordatorio:'',rutina:'',ejercicios:[]};
+const recEl=document.getElementById('rec-'+dia);
+const rutEl=document.getElementById('rut-'+dia);
+if(recEl)rutinaActual[dia].recordatorio=recEl.value;
+if(rutEl)rutinaActual[dia].rutina=rutEl.value;
+const lista=document.getElementById('lista-ejs');
+if(!lista)return;
+const n=lista.querySelectorAll('[id$="-n"]').length;
+const ejs=[];
+for(let i=0;i<n;i++){
+ejs.push({
+nombre:document.getElementById('ej-'+i+'-n')?.value||'',
+series:document.getElementById('ej-'+i+'-series')?.value||'',
+reps:document.getElementById('ej-'+i+'-reps')?.value||'',
+rir:document.getElementById('ej-'+i+'-rir')?.value||'',
+desc:document.getElementById('ej-'+i+'-desc')?.value||'',
+var:document.getElementById('ej-'+i+'-var')?.value||''
+});
+}
+rutinaActual[dia].ejercicios=ejs;
+  const listaCardio=document.getElementById('lista-cardio');
+  if(listaCardio){
+    const n=listaCardio.querySelectorAll('[id$="-cm"]').length;
+    const cardios=[];
+    for(let i=0;i<n;i++){
+      cardios.push({
+        momento:document.getElementById('c-'+i+'-cm')?.value||'',
+        ejercicio:document.getElementById('c-'+i+'-ce')?.value||'',
+        tiempo:document.getElementById('c-'+i+'-ct')?.value||'',
+        notas:document.getElementById('c-'+i+'-cn')?.value||''
+      });
+    }
+    rutinaActual[dia].cardio=cardios;
+  }
+}
+
+function agregarEjercicio(){
+guardarEjsActuales();
+const dia=diaSeleccionado;
+if(!rutinaActual[dia].ejercicios)rutinaActual[dia].ejercicios=[];
+rutinaActual[dia].ejercicios.push({nombre:'',series:'',reps:'',rir:'',desc:'',var:''});
+renderRutinaForm();
+}
+
+function eliminarEjercicio(idx){
+guardarEjsActuales();
+rutinaActual[diaSeleccionado].ejercicios.splice(idx,1);
+renderRutinaForm();
+}
+function toggleCardio(){
+  guardarEjsActuales();
+  const p=document.getElementById('panel-cardio');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+function renderCardios(arr){
+  const lista=document.getElementById('lista-cardio');
+  if(!lista)return;
+  lista.innerHTML=arr.map((c,i)=>`<div id="rut-drag-cardio-${i}" draggable="true" ondragstart="rutDragStart(event,${i},'cardio')" ondragover="rutDragOver(event,${i},'cardio')" ondrop="rutDrop(event,${i},'cardio')" ondragend="rutDragEnd(event)" style="background:var(--card);border:1px solid #2a2a2a;border-radius:8px;padding:10px;margin-bottom:6px;cursor:grab"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span ontouchstart="rutTouchStart(event,${i},'cardio')" ontouchmove="rutTouchMove(event)" ontouchend="rutTouchEnd(event)" style="font-size:16px;color:var(--texto-tenue);cursor:grab;touch-action:none">☰</span><span style="font-size:11px;color:#e31e24;font-weight:700">MOMENTO ${i+1}</span><button onclick="eliminarCardio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">🗑️</button></div><div style="margin-bottom:6px"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:3px">Momento</div><input type="text" id="c-${i}-cm" value="${c.momento||''}" placeholder="Ej: Calentamiento, Final..." style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:6px;padding:7px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:6px"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:3px">Ejercicio</div><input type="text" id="c-${i}-ce" value="${c.ejercicio||''}" placeholder="Ej: Bici, Elíptica..." style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:6px;padding:7px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box"></div><div style="margin-bottom:6px"><div style="font-size:10px;color:var(--texto-medio);margin-bottom:3px">Tiempo (min)</div><input type="number" id="c-${i}-ct" value="${c.tiempo||''}" placeholder="Ej: 20" style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:6px;padding:7px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box"></div><div><div style="font-size:10px;color:var(--texto-medio);margin-bottom:3px">Notas</div><textarea id="c-${i}-cn" placeholder="Observaciones..." style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:6px;padding:7px;color:var(--texto);font-size:13px;outline:none;min-height:55px;box-sizing:border-box">${c.notas||''}</textarea></div></div>`).join('');
+}
+function agregarCardio(){
+  guardarEjsActuales();
+  const dia=diaSeleccionado;
+  if(!Array.isArray(rutinaActual[dia].cardio)) rutinaActual[dia].cardio=[];
+  rutinaActual[dia].cardio.push({momento:'',ejercicio:'',tiempo:'',notas:''});
+  renderCardios(rutinaActual[dia].cardio);
+  const p=document.getElementById('panel-cardio');
+  if(p) p.style.display='block';
+}
+function eliminarCardio(idx){
+  guardarEjsActuales();
+  if(Array.isArray(rutinaActual[diaSeleccionado].cardio)){
+    rutinaActual[diaSeleccionado].cardio.splice(idx,1);
+    renderCardios(rutinaActual[diaSeleccionado].cardio);
+  }
+}
+
+function cerrarModalRutina(){guardarEjsActuales();document.getElementById('modal-rutina').classList.remove('open');}
+
+function togglePresencial(){
+  const dia = diaSeleccionado;
+  if(!rutinaActual[dia]) rutinaActual[dia]={recordatorio:'',rutina:'',ejercicios:[]};
+  rutinaActual[dia].presencial = !rutinaActual[dia].presencial;
+  const chip = document.getElementById('chip-presencial');
+  if(chip){
+    chip.style.background = rutinaActual[dia].presencial ? '#e31e24' : '#1a1a1a';
+    chip.style.color = rutinaActual[dia].presencial ? '#fff' : '#666';
+    chip.style.borderColor = rutinaActual[dia].presencial ? '#e31e24' : '#333';
+  }
+}
+async function guardarRutina(){
+guardarEjsActuales();
+const rec=document.getElementById('rec-'+diaSeleccionado);
+const rut=document.getElementById('rut-'+diaSeleccionado);
+if(rec)rutinaActual[diaSeleccionado]={...rutinaActual[diaSeleccionado],recordatorio:rec.value,rutina:rut?.value||''};
+const id=document.getElementById('rutina-cliente-id').value;
+await fetch('/api/rutinas/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rutinaActual)});
+toast('✅ Rutina guardada');cerrarModalRutina();
+}
+
+async function cargarFestivos(){
+const res=await fetch('/api/festivos');
+const festivos=await res.json();
+document.getElementById('lista-festivos').innerHTML=festivos.length?festivos.map(f=>`
+<div class="fi">
+<div><div style="font-weight:700">${f.nombre}</div>
+<div style="font-size:12px;color:var(--texto-secundario)">${f.fecha}</div></div>
+<button class="btn bp" style="padding:6px 12px;font-size:12px" onclick="eliminarFestivo('${f.fecha}')">🗑️</button>
+</div>`).join(''):'<p style="color:var(--texto-secundario);text-align:center;padding:20px">No hay festivos</p>';
+}
+
+async function agregarFestivo(){
+const fecha=document.getElementById('festivo-fecha').value;
+const nombre=document.getElementById('festivo-nombre').value.trim();
+if(!fecha||!nombre){toast('Completa los campos',false);return;}
+await fetch('/api/festivos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha,nombre})});
+document.getElementById('festivo-fecha').value='';
+document.getElementById('festivo-nombre').value='';
+toast('✅ Festivo agregado');cargarFestivos();
+}
+
+async function eliminarFestivo(fecha){
+await fetch('/api/festivos/'+fecha,{method:'DELETE'});
+toast('🗑️ Eliminado');cargarFestivos();
+}
+
+function showHerramienta(nombre){
+  document.getElementById('herramienta-panel').style.display='block';
+  document.querySelector('#page-logs .st').style.display='none';
+  document.querySelector('#page-logs .st').nextElementSibling.style.display='none';
+  const c=document.getElementById('herramienta-contenido');
+  if(nombre==='enciclopedia') renderEnciclopedia(c);
+  else if(nombre==='cronometros') renderCronometros(c);
+  else if(nombre==='temporizadores') renderTemporizadores(c);
+  else if(nombre==='hiit') renderHiit(c);
+  else if(nombre==='calculadoras') renderCalculadoras(c);
+  else if(nombre==='sonidos') renderSonidos(c);
+  else if(nombre==='competencias') renderCompetencias(c);
+  else if(nombre==='ruleta') renderRuleta(c);
+  else if(nombre==='juegos') renderJuegos(c);
+  else c.innerHTML='<p style="color:var(--texto-secundario);text-align:center;padding:40px">🚧 Próximamente: '+nombre+'</p>';
+}
+
+// ═══════════════════════════════════════════
+// 🎮 JUEGOS
+// ═══════════════════════════════════════════
+function bloquearSwipe() {
+  document.body.setAttribute('data-swipe-bloqueado','1');
+}
+function desbloquearSwipe() {
+  document.body.removeAttribute('data-swipe-bloqueado');
+}
+function _swipeBlockFn(e) {
+  if(document.body.getAttribute('data-swipe-bloqueado')==='1') e.preventDefault();
+}
+
+function renderJuegos(c) {
+  desbloquearSwipe();
+  c.innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;margin-bottom:12px">🎮 Juegos</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="card" onclick="renderTriqui(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
+          <div style="font-size:28px;margin-bottom:6px">✕○</div>
+          <div style="font-size:13px;font-weight:700;color:var(--texto)">Triqui</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">2 jugadores</div>
+        </div>
+        <div class="card" onclick="renderSnake(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
+          <div style="font-size:28px;margin-bottom:6px">🐍</div>
+          <div style="font-size:13px;font-weight:700;color:var(--texto)">Snake</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Esquiva y crece</div>
+        </div>
+        <div class="card" onclick="renderMemoria(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
+          <div style="font-size:28px;margin-bottom:6px">🧠</div>
+          <div style="font-size:13px;font-weight:700;color:var(--texto)">Memoria</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Encuentra los pares</div>
+        </div>
+        <div class="card" onclick="renderHockey(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
+          <div style="font-size:28px;margin-bottom:6px">🏒</div>
+          <div style="font-size:13px;font-weight:700;color:var(--texto)">DT Hockey</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">2 jugadores</div>
+        </div>
+        </div>
+        <div class="card" onclick="(localStorage.getItem('dt_rol')==='cliente'&&!tcEsPremium())?tcMostrarPremium():renderInvaders(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px;grid-column:1/-1">
+          <div style="font-size:28px;margin-bottom:6px">👾</div>
+          <div style="font-size:13px;font-weight:700;color:var(--texto)">DT Invaders ⭐</div>
+          <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">100 niveles — Derrota al Sedentario Supremo</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderHockey(c) {
+  bloquearSwipe();
+  c.innerHTML = `
+    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="text-align:center;flex:1">
+        <div id="hk-score1" style="font-size:32px;font-weight:700;color:#3b82f6">0</div>
+        <div style="font-size:10px;color:var(--texto-secundario)">JUGADOR 1</div>
+      </div>
+      <div style="font-size:12px;color:var(--texto-secundario)">VS</div>
+      <div style="text-align:center;flex:1">
+        <div id="hk-score2" style="font-size:32px;font-weight:700;color:#e31e24">0</div>
+        <div style="font-size:10px;color:var(--texto-secundario)">JUGADOR 2</div>
+      </div>
+    </div>
+    <canvas id="hk-canvas" style="width:100%;border-radius:12px;display:block;background:#111;border:1px solid #333;touch-action:none"></canvas>
+    <div style="text-align:center;margin-top:10px">
+      <button onclick="hkReset()" style="background:var(--gris);color:var(--texto);border:none;border-radius:8px;padding:8px 20px;font-size:12px;cursor:pointer">🔄 Reiniciar</button>
+    </div>`;
+  hkInit();
+}
+
+var _hk = {};
+
+function hkInit() {
+  var canvas = document.getElementById('hk-canvas');
+  if (!canvas) return;
+  var W = canvas.offsetWidth;
+  var H = Math.round(W * 1.7);
+  canvas.width = W;
+  canvas.height = H;
+  var R = W * 0.07;
+  _hk = {
+    W: W, H: H, R: R,
+    puck: { x: W/2, y: H/2, r: W*0.055, vx: 3, vy: 4 },
+    p1: { x: W/2, y: H*0.82, r: R, color: '#3b82f6' },
+    p2: { x: W/2, y: H*0.18, r: R, color: '#e31e24' },
+    score: [0, 0],
+    activo: true,
+    goalH: W*0.3,
+    postR: W*0.025
+  };
+  canvas.ontouchstart = hkTouch;
+  canvas.ontouchmove = hkTouch;
+  hkLoop();
+}
+
+function hkTouch(e) {
+  e.preventDefault();
+  var canvas = document.getElementById('hk-canvas');
+  var rect = canvas.getBoundingClientRect();
+  var scaleX = _hk.W / rect.width;
+  var scaleY = _hk.H / rect.height;
+  for (var i = 0; i < e.touches.length; i++) {
+    var t = e.touches[i];
+    var tx = (t.clientX - rect.left) * scaleX;
+    var ty = (t.clientY - rect.top) * scaleY;
+    if (ty > _hk.H * 0.5) {
+      _hk.p1.x = Math.max(_hk.R, Math.min(_hk.W - _hk.R, tx));
+      _hk.p1.y = Math.max(_hk.H * 0.55, Math.min(_hk.H - _hk.R, ty));
+    } else {
+      _hk.p2.x = Math.max(_hk.R, Math.min(_hk.W - _hk.R, tx));
+      _hk.p2.y = Math.max(_hk.R, Math.min(_hk.H * 0.45, ty));
+    }
+  }
+}
+
+function hkLoop() {
+  if (!document.getElementById('hk-canvas')) return;
+  if (!_hk.activo) return;
+  hkUpdate();
+  hkDraw();
+  requestAnimationFrame(hkLoop);
+}
+
+function hkUpdate() {
+  var p = _hk.puck;
+  p.x += p.vx;
+  p.y += p.vy;
+  if (p.x - p.r < 0) { p.x = p.r; p.vx = Math.abs(p.vx); }
+  if (p.x + p.r > _hk.W) { p.x = _hk.W - p.r; p.vx = -Math.abs(p.vx); }
+  // Gol arriba (jugador 2 recibe gol)
+  if (p.y - p.r < 0) {
+    var gx = _hk.W/2 - _hk.goalH/2;
+    if (p.x > gx && p.x < gx + _hk.goalH) {
+      _hk.score[0]++;
+      document.getElementById('hk-score1').textContent = _hk.score[0];
+      hkResetPuck(1);
+    } else { p.y = p.r; p.vy = Math.abs(p.vy); }
+    return;
+  }
+  // Gol abajo (jugador 1 recibe gol)
+  if (p.y + p.r > _hk.H) {
+    var gx = _hk.W/2 - _hk.goalH/2;
+    if (p.x > gx && p.x < gx + _hk.goalH) {
+      _hk.score[1]++;
+      document.getElementById('hk-score2').textContent = _hk.score[1];
+      hkResetPuck(-1);
+    } else { p.y = _hk.H - p.r; p.vy = -Math.abs(p.vy); }
+    return;
+  }
+  hkColision(_hk.p1);
+  hkColision(_hk.p2);
+}
+
+function hkColision(player) {
+  var p = _hk.puck;
+  var dx = p.x - player.x;
+  var dy = p.y - player.y;
+  var dist = Math.sqrt(dx*dx + dy*dy);
+  var minDist = p.r + player.r;
+  if (dist < minDist && dist > 0) {
+    var nx = dx/dist;
+    var ny = dy/dist;
+    var speed = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
+    speed = Math.min(speed * 1.05, 14);
+    p.vx = nx * speed;
+    p.vy = ny * speed;
+    p.x = player.x + nx * (minDist + 1);
+    p.y = player.y + ny * (minDist + 1);
+  }
+}
+
+function hkResetPuck(dir) {
+  _hk.puck = { x: _hk.W/2, y: _hk.H/2, r: _hk.W*0.055, vx: (Math.random()-0.5)*6, vy: dir*4 };
+}
+
+function hkReset() {
+  _hk.score = [0,0];
+  document.getElementById('hk-score1').textContent = '0';
+  document.getElementById('hk-score2').textContent = '0';
+  hkResetPuck(1);
+}
+
+function hkDraw() {
+  var canvas = document.getElementById('hk-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = _hk.W, H = _hk.H;
+  ctx.fillStyle = '#111';
+  ctx.fillRect(0, 0, W, H);
+  // Línea central
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8,6]);
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+  ctx.setLineDash([]);
+  // Círculo central
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(W/2, H/2, W*0.12, 0, Math.PI*2); ctx.stroke();
+  // Porterías
+  var gx = W/2 - _hk.goalH/2;
+  ctx.strokeStyle = '#e31e24';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx + _hk.goalH, 0); ctx.stroke();
+  ctx.strokeStyle = '#3b82f6';
+  ctx.beginPath(); ctx.moveTo(gx, H); ctx.lineTo(gx + _hk.goalH, H); ctx.stroke();
+  // Disco gym (puck)
+  var p = _hk.puck;
+  ctx.fillStyle = '#888';
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#555';
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.r*0.55, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#666';
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.r*0.2, 0, Math.PI*2); ctx.fill();
+  // Jugadores
+  [_hk.p1, _hk.p2].forEach(function(pl) {
+    ctx.fillStyle = pl.color;
+    ctx.beginPath(); ctx.arc(pl.x, pl.y, pl.r, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath(); ctx.arc(pl.x, pl.y, pl.r, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(pl.x, pl.y, pl.r, 0, Math.PI*2); ctx.stroke();
+  });
+}
+
+function renderInvaders(c) {
+  bloquearSwipe();
+  if(_inv.loop) cancelAnimationFrame(_inv.loop);
+  var reps = parseInt(localStorage.getItem('inv_monedas')||0);
+  var nivelGuardado = parseInt(localStorage.getItem('inv_nivel')||1);
+  var scoreGuardado = parseInt(localStorage.getItem('inv_score')||0);
+  var mejor = parseInt(localStorage.getItem('inv_mejor')||0);
+  c.innerHTML = `
+    <button onclick="desbloquearSwipe();renderJuegos(document.getElementById('herramienta-contenido'));invStop();" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:12px">← Juegos</button>
+    <div style="text-align:center;padding:16px 0 8px">
+      <div style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:2px;text-shadow:0 0 20px #e31e2488">DT INVADERS</div>
+      <div style="font-size:11px;color:#666;margin-top:4px;letter-spacing:1px">DERROTA AL SEDENTARIO SUPREMO</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0">
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:#e31e24">${nivelGuardado}</div>
+        <div style="font-size:10px;color:#666;margin-top:2px">NIVEL</div>
+      </div>
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:#f59e0b">${reps} 💪</div>
+        <div style="font-size:10px;color:#666;margin-top:2px">REPS</div>
+      </div>
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:#22c55e">${mejor}</div>
+        <div style="font-size:10px;color:#666;margin-top:2px">MEJOR</div>
+      </div>
+    </div>
+    <div style="background:#1a1a1a;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:16px">
+      <div style="font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Mundo actual</div>
+      <div id="inv-mundo-label" style="font-size:13px;font-weight:700;color:#e31e24"></div>
+      <div style="display:flex;gap:4px;margin-top:8px">
+        ${[1,2,3,4,5].map((m,i) => '<div style="flex:1;height:4px;border-radius:2px;background:'+(nivelGuardado>(i*20)?'#e31e24':'#333')+'"></div>').join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:#444;margin-top:4px">
+        <span>Gym</span><span>Calle</span><span>Fast Food</span><span>Vicios</span><span>Final</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <button onclick="invIrTienda()" style="background:#1a1a1a;color:#f59e0b;border:1px solid #f59e0b;border-radius:10px;padding:14px;font-size:13px;font-weight:700;cursor:pointer">🏪 Tienda</button>
+      <button onclick="invIrNiveles()" style="background:#1a1a1a;color:#3b82f6;border:1px solid #3b82f6;border-radius:10px;padding:14px;font-size:13px;font-weight:700;cursor:pointer">🗺️ Niveles</button>
+    </div>
+    <button onclick="invEmpezar()" style="width:100%;background:#e31e24;color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:2px">▶ JUGAR — NIVEL ${nivelGuardado}</button>
+    <div id="inv-contenido"></div>`;
+  var mundo = Math.min(4, Math.floor((nivelGuardado-1)/20));
+  var mundos = ['🏋️ Gym Novato','🚶 Calle','🍔 Fast Food','🥃 Vicios Avanzados','👹 Jefe Final'];
+  var ml = document.getElementById('inv-mundo-label');
+  if(ml) ml.textContent = mundos[mundo];
+}
+
+function invIrNiveles() {
+  var c = document.getElementById('inv-contenido');
+  if(!c) return;
+  var nivelActual = parseInt(localStorage.getItem('inv_nivel')||1);
+  var mundos = [
+    {nombre:'Gym Novato', color:'#e31e24', desde:1, hasta:20},
+    {nombre:'Calle', color:'#f59e0b', desde:21, hasta:40},
+    {nombre:'Fast Food', color:'#22c55e', desde:41, hasta:60},
+    {nombre:'Vicios', color:'#a855f7', desde:61, hasta:80},
+    {nombre:'Jefe Final', color:'#fff', desde:81, hasta:100}
+  ];
+  var div = document.createElement('div');
+  div.style.marginTop = '12px';
+
+  var btnVolver = document.createElement('button');
+  btnVolver.textContent = '← Inicio';
+  btnVolver.style.cssText = 'background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:12px';
+  btnVolver.onclick = function(){ c.innerHTML=''; };
+  div.appendChild(btnVolver);
+
+  mundos.forEach(function(m) {
+    var sec = document.createElement('div');
+    sec.style.marginBottom = '16px';
+    var titulo = document.createElement('div');
+    titulo.style.cssText = 'font-size:12px;font-weight:700;color:'+m.color+';margin-bottom:8px;display:flex;justify-content:space-between';
+    titulo.innerHTML = '<span>'+m.nombre+'</span><span style="color:#555;font-weight:400">'+m.desde+'-'+m.hasta+'</span>';
+    sec.appendChild(titulo);
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:6px';
+    for(var n=m.desde; n<=m.hasta; n++) {
+      var desbloqueado = n <= nivelActual;
+      var esActual = n === nivelActual;
+      var esJefe = n % 10 === 0;
+      var celda = document.createElement('div');
+      celda.style.cssText = 'background:'+(esActual?m.color:'#1a1a1a')+';border:1px solid '+(esActual?m.color:desbloqueado?'#333':'#1a1a1a')+';border-radius:8px;padding:6px 2px;text-align:center;cursor:'+(desbloqueado?'pointer':'default');
+      celda.innerHTML = '<div style="font-size:14px">'+(esJefe?'👹':desbloqueado?'✅':'🔒')+'</div><div style="font-size:10px;color:'+(esActual?'#fff':desbloqueado?'#aaa':'#333')+';font-weight:'+(esActual?'700':'400')+'">'+n+'</div>';
+      if(desbloqueado) {
+        (function(nivel){ celda.onclick = function(){ invJugarNivel(nivel); }; })(n);
+      }
+      grid.appendChild(celda);
+    }
+    sec.appendChild(grid);
+    div.appendChild(sec);
+  });
+  c.innerHTML = '';
+  c.appendChild(div);
+}
+
+function invJugarNivel(n) {
+  localStorage.setItem('inv_nivel', n);
+  invEmpezar();
+}
+
+function invIrTienda(pestana) {
+  pestana = pestana || 'upgrades';
+  var c = document.getElementById('inv-contenido');
+  if(!c) return;
+  var reps = parseInt(localStorage.getItem('inv_monedas')||0);
+  var upgrades = JSON.parse(localStorage.getItem('inv_upgrades')||'{}');
+  var skins = JSON.parse(localStorage.getItem('inv_skins')||'{}');
+
+  var div = document.createElement('div');
+  div.style.marginTop = '12px';
+
+  // Botón volver
+  var btnV = document.createElement('button');
+  btnV.textContent = '← Inicio';
+  btnV.style.cssText = 'background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:12px';
+  btnV.onclick = function(){ c.innerHTML=''; };
+  div.appendChild(btnV);
+
+  // Header reps
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px';
+  hdr.innerHTML = '<div style="font-size:15px;font-weight:700;color:#f59e0b">🏪 Tienda</div><div style="font-size:13px;color:#f59e0b;font-weight:700" id="inv-tienda-reps">'+reps+' 💪</div>';
+  div.appendChild(hdr);
+
+  // Pestañas
+  var tabs = document.createElement('div');
+  tabs.style.cssText = 'display:flex;gap:6px;margin-bottom:14px';
+  ['upgrades','disparos','naves'].forEach(function(tab){
+    var t = document.createElement('button');
+    t.textContent = tab==='upgrades'?'⚔️ Mejoras':tab==='disparos'?'💥 Disparos':'🚀 Naves';
+    t.style.cssText = 'flex:1;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:'+(pestana===tab?'#e31e24':'#1a1a1a')+';color:'+(pestana===tab?'#fff':'#666');
+    t.onclick = (function(tb){ return function(){ invIrTienda(tb); }; })(tab);
+    tabs.appendChild(t);
+  });
+  div.appendChild(tabs);
+
+  var contenido = document.createElement('div');
+
+  if(pestana === 'upgrades') {
+    // UPGRADES PROGRESIVOS
+    var progresivos = [
+      {key:'disparo_vel', emoji:'⚡', nombre:'Velocidad disparo', desc:'Dispara más rápido', costo:40, max:5},
+      {key:'vida_max', emoji:'❤️', nombre:'Vida máxima', desc:'+1 vida al iniciar nivel', costo:50, max:5},
+      {key:'escudo', emoji:'🛡️', nombre:'Escudo pasivo', desc:'Cooldown menor entre escudos', costo:60, max:5},
+      {key:'cobertura', emoji:'🧱', nombre:'Coberturas', desc:'+1 cobertura y +1 vida por cobertura', costo:45, max:5}
+    ];
+    var unicos = [
+      {key:'doble_disparo', emoji:'👐', nombre:'Doble disparo', desc:'Dispara por ambas manos siempre', costo:300},
+      {key:'barra_especial', emoji:'🏋️', nombre:'Barra 100kg', desc:'Poder especial — carga matando enemigos', costo:500}
+    ];
+
+    var sep1 = document.createElement('div');
+    sep1.style.cssText = 'font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px';
+    sep1.textContent = 'Mejoras progresivas';
+    contenido.appendChild(sep1);
+
+    progresivos.forEach(function(item){
+      var nv = upgrades[item.key]||0;
+      var costo = item.costo + nv*25;
+      var puede = reps >= costo && nv < item.max;
+      var fila = invCrearFilaTienda(item.emoji, item.nombre, item.desc, nv, item.max, costo, puede, item.key, false);
+      contenido.appendChild(fila);
+    });
+
+    var sep2 = document.createElement('div');
+    sep2.style.cssText = 'font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px';
+    sep2.textContent = '⭐ Compra única';
+    contenido.appendChild(sep2);
+
+    unicos.forEach(function(item){
+      var comprado = upgrades[item.key] >= 1;
+      var puede = reps >= item.costo && !comprado;
+      var fila = invCrearFilaTienda(item.emoji, item.nombre, item.desc, comprado?1:0, 1, item.costo, puede, item.key, true);
+      contenido.appendChild(fila);
+    });
+
+  } else if(pestana === 'disparos') {
+    var skinsDisp = [
+      {key:'disp_rojo', emoji:'🔴', nombre:'Mancuerna Roja', desc:'Disparo clásico', costo:0},
+      {key:'disp_verde', emoji:'🟢', nombre:'Mancuerna Verde', desc:'Disparo energético', costo:50},
+      {key:'disp_azul', emoji:'🔵', nombre:'Mancuerna Azul', desc:'Disparo helado', costo:100},
+      {key:'disp_rayo', emoji:'⚡', nombre:'Rayo Eléctrico', desc:'Disparo eléctrico', costo:200},
+      {key:'disp_fuego', emoji:'🔥', nombre:'Llama de Fuego', desc:'Disparo ardiente', costo:300},
+      {key:'disp_dorado', emoji:'⭐', nombre:'Mancuerna Dorada', desc:'Disparo élite', costo:500}
+    ];
+    var skinActiva = skins.disparo || 'disp_rojo';
+    skinsDisp.forEach(function(sk){
+      var comprado = sk.costo===0 || skins[sk.key];
+      var activa = skinActiva === sk.key;
+      var puede = reps >= sk.costo && !comprado;
+      var fila = document.createElement('div');
+      fila.style.cssText = 'background:'+(activa?'#1a0000':'#1a1a1a')+';border:1px solid '+(activa?'#e31e24':'#2a2a2a')+';border-radius:10px;padding:10px;margin-bottom:8px;display:flex;align-items:center;gap:10px';
+      var em = document.createElement('div');
+      em.style.fontSize='24px'; em.textContent=sk.emoji;
+      var inf = document.createElement('div');
+      inf.style.flex='1';
+      inf.innerHTML='<div style="font-size:13px;font-weight:700;color:#fff">'+sk.nombre+'</div><div style="font-size:10px;color:#666">'+sk.desc+'</div>';
+      fila.appendChild(em); fila.appendChild(inf);
+      if(activa){
+        var act=document.createElement('div');
+        act.style.cssText='font-size:10px;color:#e31e24;font-weight:700';
+        act.textContent='ACTIVO'; fila.appendChild(act);
+      } else if(comprado){
+        var btn=document.createElement('button');
+        btn.style.cssText='background:#333;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer';
+        btn.textContent='Usar';
+        (function(k){ btn.onclick=function(){ skins.disparo=k; localStorage.setItem('inv_skins',JSON.stringify(skins)); invIrTienda('disparos'); }; })(sk.key);
+        fila.appendChild(btn);
+      } else {
+        var btn2=document.createElement('button');
+        btn2.style.cssText='background:'+(puede?'#e31e24':'#2a2a2a')+';color:'+(puede?'#fff':'#555')+';border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:'+(puede?'pointer':'not-allowed');
+        btn2.textContent=sk.costo+' 💪';
+        if(puede)(function(k,co){ btn2.onclick=function(){ var r=parseInt(localStorage.getItem('inv_monedas')||0); if(r<co)return; r-=co; localStorage.setItem('inv_monedas',r); skins[k]=true; skins.disparo=k; localStorage.setItem('inv_skins',JSON.stringify(skins)); invIrTienda('disparos'); }; })(sk.key,sk.costo);
+        fila.appendChild(btn2);
+      }
+      contenido.appendChild(fila);
+    });
+
+  } else if(pestana === 'naves') {
+    var skinsNave = [
+      {key:'nave_m', emoji:'🏋️', nombre:'Entrenador', desc:'La nave original', costo:0, img:'Entrenador1.png'},
+      {key:'nave_f', emoji:'🏋️‍♀️', nombre:'Entrenadora', desc:'Versión femenina', costo:150},
+      {key:'nave_box', emoji:'🥊', nombre:'Boxeador DT', desc:'Estilo boxeo', costo:300},
+      {key:'nave_elite', emoji:'⚡', nombre:'DT Élite', desc:'Versión definitiva', costo:1000}
+    ];
+    var naveActiva = skins.nave || 'nave_m';
+    skinsNave.forEach(function(sk){
+      var comprado = sk.costo===0 || skins[sk.key];
+      var activa = naveActiva === sk.key;
+      var puede = reps >= sk.costo && !comprado;
+      var fila = document.createElement('div');
+      fila.style.cssText = 'background:'+(activa?'#1a0000':'#1a1a1a')+';border:1px solid '+(activa?'#e31e24':'#2a2a2a')+';border-radius:10px;padding:10px;margin-bottom:8px;display:flex;align-items:center;gap:10px';
+      var em=document.createElement('div'); em.style.fontSize='24px'; em.textContent=sk.emoji;
+      var inf=document.createElement('div'); inf.style.flex='1';
+      inf.innerHTML='<div style="font-size:13px;font-weight:700;color:#fff">'+sk.nombre+'</div><div style="font-size:10px;color:#666">'+sk.desc+'</div>';
+      fila.appendChild(em); fila.appendChild(inf);
+      if(activa){
+        var act=document.createElement('div'); act.style.cssText='font-size:10px;color:#e31e24;font-weight:700'; act.textContent='ACTIVO'; fila.appendChild(act);
+      } else if(comprado){
+        var btn=document.createElement('button');
+        btn.style.cssText='background:#333;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer';
+        btn.textContent='Usar';
+        (function(k){ btn.onclick=function(){ skins.nave=k; localStorage.setItem('inv_skins',JSON.stringify(skins)); invIrTienda('naves'); }; })(sk.key);
+        fila.appendChild(btn);
+      } else {
+        var btn2=document.createElement('button');
+        btn2.style.cssText='background:'+(puede?'#e31e24':'#2a2a2a')+';color:'+(puede?'#fff':'#555')+';border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:'+(puede?'pointer':'not-allowed');
+        btn2.textContent=sk.costo+' 💪';
+        if(puede)(function(k,co){ btn2.onclick=function(){ var r=parseInt(localStorage.getItem('inv_monedas')||0); if(r<co)return; r-=co; localStorage.setItem('inv_monedas',r); skins[k]=true; skins.nave=k; localStorage.setItem('inv_skins',JSON.stringify(skins)); invIrTienda('naves'); }; })(sk.key,sk.costo);
+        fila.appendChild(btn2);
+      }
+      contenido.appendChild(fila);
+    });
+  }
+
+  div.appendChild(contenido);
+  c.innerHTML='';
+  c.appendChild(div);
+}
+
+function invCrearFilaTienda(emoji, nombre, desc, nv, max, costo, puede, key, unico) {
+  var fila = document.createElement('div');
+  fila.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px';
+  var em=document.createElement('div'); em.style.fontSize='24px'; em.textContent=emoji;
+  var inf=document.createElement('div'); inf.style.flex='1';
+  var barras='';
+  for(var i=0;i<max;i++) barras+='<div style="width:16px;height:3px;border-radius:2px;background:'+(i<nv?'#f59e0b':'#333')+'"></div>';
+  inf.innerHTML='<div style="font-size:13px;font-weight:700;color:#fff">'+nombre+'</div><div style="font-size:10px;color:#666;margin-bottom:4px">'+desc+'</div><div style="display:flex;gap:2px">'+barras+'</div>';
+  fila.appendChild(em); fila.appendChild(inf);
+  if(nv>=max){
+    var mx=document.createElement('div'); mx.style.cssText='font-size:10px;color:#22c55e;font-weight:700;white-space:nowrap'; mx.textContent=unico?'✅ Comprado':'MAX ✅'; fila.appendChild(mx);
+  } else {
+    var btn=document.createElement('button');
+    btn.style.cssText='background:'+(puede?'#e31e24':'#2a2a2a')+';color:'+(puede?'#fff':'#555')+';border:none;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700;cursor:'+(puede?'pointer':'not-allowed')+';white-space:nowrap';
+    btn.textContent=costo+' 💪';
+    if(puede)(function(k,co){ btn.onclick=function(){ invComprarItem(k,co); }; })(key,costo);
+    fila.appendChild(btn);
+  }
+  return fila;
+}
+
+function invIrTienda_old() {
+  var c = document.getElementById('inv-contenido');
+  if(!c) return;
+  var reps = parseInt(localStorage.getItem('inv_monedas')||0);
+  var upgrades = JSON.parse(localStorage.getItem('inv_upgrades')||'{}');
+  var items = [
+    {key:'velocidad', emoji:'💨', nombre:'Velocidad nave', desc:'Muévete más rápido', costo:30},
+    {key:'cadencia', emoji:'⚡', nombre:'Cadencia disparo', desc:'Dispara más seguido', costo:40},
+    {key:'vida_max', emoji:'❤️', nombre:'Vida máxima', desc:'+1 vida permanente', costo:50},
+    {key:'dano', emoji:'🏋️', nombre:'Barra 100kg', desc:'Daño especial masivo', costo:60},
+    {key:'escudo', emoji:'🛡️', nombre:'Escudo pasivo', desc:'Absorbe 1 golpe cada 15s', costo:80},
+    {key:'cobertura', emoji:'🧱', nombre:'Coberturas GYM DT', desc:'2 bloques protectores por nivel', costo:45}
+  ];
+  var div = document.createElement('div');
+  div.style.marginTop = '12px';
+
+  var btnVolver = document.createElement('button');
+  btnVolver.textContent = '← Inicio';
+  btnVolver.style.cssText = 'background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:12px';
+  btnVolver.onclick = function(){ c.innerHTML=''; };
+  div.appendChild(btnVolver);
+
+  var header = document.createElement('div');
+  header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px';
+  var titulo = document.createElement('div');
+  titulo.style.cssText = 'font-size:14px;font-weight:700;color:#f59e0b';
+  titulo.textContent = '🏪 Tienda';
+  var repsEl = document.createElement('div');
+  repsEl.id = 'inv-tienda-reps';
+  repsEl.style.cssText = 'font-size:13px;color:#f59e0b;font-weight:700';
+  repsEl.textContent = reps+' 💪 reps';
+  header.appendChild(titulo); header.appendChild(repsEl);
+  div.appendChild(header);
+
+  items.forEach(function(item) {
+    var nv = upgrades[item.key]||0;
+    var max = 5;
+    var costo = item.costo + nv*20;
+    var puede = reps >= costo && nv < max;
+    var fila = document.createElement('div');
+    fila.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px';
+    var emojiEl = document.createElement('div');
+    emojiEl.style.fontSize = '24px';
+    emojiEl.textContent = item.emoji;
+    var info = document.createElement('div');
+    info.style.flex = '1';
+    var barras = '';
+    for(var i=0;i<max;i++) barras += '<div style="width:16px;height:3px;border-radius:2px;background:'+(i<nv?'#f59e0b':'#333')+'"></div>';
+    info.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff">'+item.nombre+'</div><div style="font-size:10px;color:#666;margin-bottom:4px">'+item.desc+'</div><div style="display:flex;gap:2px">'+barras+'</div>';
+    fila.appendChild(emojiEl); fila.appendChild(info);
+    if(nv >= max) {
+      var maxEl = document.createElement('div');
+      maxEl.style.cssText = 'font-size:10px;color:#22c55e;font-weight:700;white-space:nowrap';
+      maxEl.textContent = 'MAX ✅';
+      fila.appendChild(maxEl);
+    } else {
+      var btn = document.createElement('button');
+      btn.style.cssText = 'background:'+(puede?'#e31e24':'#2a2a2a')+';color:'+(puede?'#fff':'#555')+';border:none;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700;cursor:'+(puede?'pointer':'not-allowed')+';white-space:nowrap';
+      btn.textContent = costo+' 💪';
+      if(puede) {
+        (function(k,co){ btn.onclick = function(){ invComprarItem(k,co); }; })(item.key, costo);
+      }
+      fila.appendChild(btn);
+    }
+    div.appendChild(fila);
+  });
+  c.innerHTML = '';
+  c.appendChild(div);
+}
+
+function invComprarItem(key, costo) {
+  var reps = parseInt(localStorage.getItem('inv_monedas')||0);
+  var upgrades = JSON.parse(localStorage.getItem('inv_upgrades')||'{}');
+  if(reps < costo || (upgrades[key]||0) >= 5) return;
+  upgrades[key] = (upgrades[key]||0) + 1;
+  reps -= costo;
+  localStorage.setItem('inv_monedas', reps);
+  localStorage.setItem('inv_upgrades', JSON.stringify(upgrades));
+  invIrTienda();
+}
+
+function invEmpezar() {
+  var c = document.getElementById('inv-contenido');
+  if(!c) return;
+  c.innerHTML = `
+    <button onclick="desbloquearSwipe();renderJuegos(document.getElementById('herramienta-contenido'));invStop();"  style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:8px">← Juegos</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="font-size:11px;color:var(--texto-secundario)">Nivel <span id="inv-nivel" style="color:#e31e24;font-weight:700">1</span></div>
+      <div style="font-size:13px;font-weight:700;color:#f59e0b">⭐ <span id="inv-score">0</span></div>
+      <div style="font-size:11px;color:var(--texto-secundario)">❤️ <span id="inv-vidas" style="font-weight:700">3</span></div>
+    </div>
+    <canvas id="inv-canvas" style="width:100%;border-radius:12px;display:block;background:#000;touch-action:none"></canvas>
+    <div style="display:flex;gap:6px;margin-top:8px;justify-content:center">
+      <div id="inv-btn-fuego" style="background:#e31e24;color:#fff;border:none;border-radius:8px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;flex:1;text-align:center">🔫 FUEGO</div>
+    </div>
+    <div style="text-align:center;font-size:10px;color:var(--texto-secundario);margin-top:6px">Desliza en el canvas para mover · Toca FUEGO para disparar</div>
+    <div id="inv-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px">
+      <div id="inv-overlay-title" style="font-size:24px;font-weight:700;color:#e31e24;text-align:center"></div>
+      <div id="inv-overlay-sub" style="font-size:14px;color:var(--texto-medio);text-align:center"></div>
+      <button id="inv-overlay-btn" style="background:#e31e24;color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px"></button>
+    </div>`;
+  invInit();
+}
+
+var _invImg = {};
+var _invImgEntrenador = new Image();
+_invImgEntrenador.src = '/images/Entrenador1.png';
+_invImgEntrenador.onload = function(){ _invImg.entrenador = _invImgEntrenador; };
+
+var _inv = {
+  loop: null, corriendo: false,
+  W: 0, H: 0,
+  nave: { x: 0, y: 0, w: 36, h: 20, vel: 0, speed: 5 },
+  balas: [], enemigas: [], powerups: [], particulas: [],
+  enemigos: [], obstaculos: [],
+  score: 0, nivel: 1, vidas: 3,
+  dirMover: 0, ultimoBalaEnemigo: 0, ultimoFrame: 0,
+  mundos: [
+    {
+      nombre:'Gym Novato', color:'#e31e24',
+      emojis:['🧔','👨','👩','🧕','👴','👩‍🦳','🧍'],
+      // tipos disponibles en este mundo: 0-6 (gorditos básicos)
+      // img futuras: gordito0.png - gordito6.png
+      enemigosPool: [
+        {tipo:0, emoji:'🧔', nombre:'Gordito Rojo'},
+        {tipo:0, emoji:'👨', nombre:'Gordito Común'},
+        {tipo:0, emoji:'👩', nombre:'Gordita'},
+        {tipo:0, emoji:'🧕', nombre:'Gordita 2'},
+        {tipo:0, emoji:'👴', nombre:'Gordito Mayor'},
+        {tipo:0, emoji:'👩‍🦳', nombre:'Gordita Mayor'},
+        {tipo:0, emoji:'🧍', nombre:'Gordito Negro'}
+      ]
+    },
+    {
+      nombre:'Calle', color:'#f59e0b',
+      emojis:['🍔','🍕','🍺','🥤','🍟','🍬','🍰','🍦'],
+      enemigosPool: [
+        {tipo:0, emoji:'🍔', nombre:'Hamburguesa'},
+        {tipo:1, emoji:'🍕', nombre:'Pizza', desc:'Zigzag'},
+        {tipo:2, emoji:'🍺', nombre:'Cerveza', desc:'Blindado'},
+        {tipo:6, emoji:'🥤', nombre:'Refresco', desc:'Francotirador'},
+        {tipo:3, emoji:'🍟', nombre:'Papas Fritas', desc:'Bomba'},
+        {tipo:5, emoji:'🍬', nombre:'Dulces', desc:'Clonador'},
+        {tipo:4, emoji:'🍰', nombre:'Pastel', desc:'Fantasma'},
+        {tipo:0, emoji:'🍦', nombre:'Helado'}
+      ]
+    },
+    {
+      nombre:'Fast Food', color:'#22c55e',
+      emojis:['🎮','📺','📱','📲','🍿','😴'],
+      enemigosPool: [
+        {tipo:1, emoji:'🎮', nombre:'Videojuegos', desc:'Corredor'},
+        {tipo:2, emoji:'📺', nombre:'TV', vida:5, desc:'Blindado fuerte'},
+        {tipo:6, emoji:'📱', nombre:'Redes Sociales', desc:'Francotirador'},
+        {tipo:6, emoji:'📲', nombre:'Celular', desc:'Francotirador preciso'},
+        {tipo:3, emoji:'🍿', nombre:'Comida Chatarra', desc:'Bomba grande'},
+        {tipo:0, emoji:'😴', nombre:'Flojera', desc:'Muy lento mucha vida', vida:4}
+      ]
+    },
+    {
+      nombre:'Vicios', color:'#a855f7',
+      emojis:['🚬','🍾','💊','😵','😤','🦥','🧟'],
+      enemigosPool: [
+        {tipo:1, emoji:'🚬', nombre:'Fumar', desc:'Dispara humo'},
+        {tipo:1, emoji:'🍾', nombre:'Alcohol', desc:'Zigzag borracho'},
+        {tipo:2, emoji:'💊', nombre:'Drogas', desc:'Errático'},
+        {tipo:4, emoji:'😵', nombre:'No Dormir', desc:'Invisible frecuente'},
+        {tipo:1, emoji:'😤', nombre:'Estrés', desc:'Se acelera'},
+        {tipo:5, emoji:'🦥', nombre:'Procrastinación', desc:'Reaparece'},
+        {tipo:2, emoji:'🧟', nombre:'Aislamiento', desc:'Jefe mini', vida:3}
+      ]
+    },
+    {
+      nombre:'Jefe Final', color:'#fff',
+      emojis:['👹','💀','😈','🔥','☠️','👿','🤡'],
+      enemigosPool: [
+        {tipo:2, emoji:'👹', nombre:'Demonio Gordo', vida:3},
+        {tipo:6, emoji:'💀', nombre:'Calavera', desc:'Francotirador élite'},
+        {tipo:3, emoji:'😈', nombre:'Diablo', desc:'Bomba masiva'},
+        {tipo:4, emoji:'🔥', nombre:'Fuego', desc:'Invisible'},
+        {tipo:1, emoji:'☠️', nombre:'Veneno', desc:'Corredor élite'},
+        {tipo:5, emoji:'👿', nombre:'Maldad', desc:'Clonador élite'},
+        {tipo:2, emoji:'🤡', nombre:'Payaso Sedentario', vida:5}
+      ]
+    }
+  ]
+};
+
+function invInit() {
+  var canvas = document.getElementById('inv-canvas');
+  if(!canvas) return;
+  var W = canvas.offsetWidth;
+  canvas.width = W;
+  canvas.height = Math.round(W * 1.5);
+  _inv.W = W; _inv.H = canvas.height;
+  _inv.nave.x = W/2;
+  _inv.nave.y = _inv.H - 50;
+  _inv.score = parseInt(localStorage.getItem('inv_score')||0);
+  _inv.nivel = parseInt(localStorage.getItem('inv_nivel')||1);
+  // Aplicar upgrades comprados
+  var up = JSON.parse(localStorage.getItem('inv_upgrades')||'{}');
+  // Cadencia — 300ms base, cada nivel -40ms
+  _inv.cadenciaMs = Math.max(80, 300 - (up.disparo_vel||0) * 40);
+  // Vida máxima
+  _inv.vidas = 3 + (up.vida_max||0);
+  // Escudo pasivo — cooldown base 15s, cada nivel -2s
+  _inv.escudoPasivo = (up.escudo||0) > 0;
+  _inv.escudoCooldown = Math.max(5000, 15000 - (up.escudo||0) * 2000);
+  _inv.escudoPasivoTimer = 0;
+  // Jefe
+  invDibujarJefe();
+  // Coberturas — cantidad y vida según nivel
+  _inv.coberturas = (up.cobertura||0) > 0;
+  _inv.coberturasCant = 2 + (up.cobertura||0);
+  _inv.coberturasVida = 2 + (up.cobertura||0);
+  // Doble disparo permanente
+  _inv.dobleDisparo = (up.doble_disparo||0) >= 1;
+  // Barra especial desbloqueada
+  _inv.barraDesbloqueada = (up.barra_especial||0) >= 1;
+  _inv.barraCarga = 0;
+  _inv.barraMax = 20;
+  _inv.balas = []; _inv.powerups = []; _inv.particulas = [];
+  _inv.ultimoEvento = Date.now();
+  _inv.proximoEvento = 20000 + Math.random()*15000;
+  document.getElementById('inv-score').textContent = _inv.score;
+  document.getElementById('inv-nivel').textContent = _inv.nivel;
+  document.getElementById('inv-vidas').textContent = _inv.vidas;
+  _inv.jefe = null;
+  _inv.oleadaActual = 1;
+  var digitoNivel = _inv.nivel % 10;
+  _inv.oleadasTotal = digitoNivel === 0 ? 1 : digitoNivel <= 3 ? 3 : digitoNivel <= 6 ? 4 : 5;
+  _inv.transicion = false;
+  invCrearEnemigos();
+  if(_inv.coberturas) invCrearCoberturas();
+  setTimeout(invBindControles, 100);
+  _inv.corriendo = true;
+  invLoop();
+}
+
+function invCrearCoberturas() {
+  _inv.coberturasArr = [];
+  var cant = _inv.coberturasCant || 2;
+  var vida = _inv.coberturasVida || 3;
+  for(var i=0;i<cant;i++) {
+    var x = _inv.W * (0.15 + (i/(cant-1||1))*0.7);
+    _inv.coberturasArr.push({x:x, y:_inv.H*0.72, vida:vida, maxVida:vida});
+  }
+}
+
+function invCrearEnemigo(x, y, tipo, emoji, vida, vx, vy) {
+  // Si no se pasa emoji, tomar del pool del mundo actual
+  var mundo = Math.min(4, Math.floor((_inv.nivel-1)/20));
+  var pool = _inv.mundos[mundo].enemigosPool;
+  // Buscar en pool un enemigo del tipo solicitado
+  var candidatos = pool.filter(function(e){ return e.tipo === (tipo||0); });
+  var def = candidatos.length > 0
+    ? candidatos[Math.floor(Math.random()*candidatos.length)]
+    : pool[Math.floor(Math.random()*pool.length)];
+  var vidaFinal = vida || def.vida || 1;
+  var emojiFinal = emoji || def.emoji;
+  // Posición inicial fuera de pantalla para animación de entrada
+  var entradaDesde = Math.floor(Math.random()*3); // 0=arriba 1=izq 2=der
+  var startX = entradaDesde===1 ? -40 : entradaDesde===2 ? (_inv.W||400)+40 : x;
+  var startY = entradaDesde===0 ? -40 : y;
+  return {
+    x:startX, y:startY,
+    destX:x, destY:y,
+    w:28, h:28,
+    tipo: def.tipo||0,
+    vida: vidaFinal, vidaMax: vidaFinal,
+    emoji: emojiFinal,
+    nombre: def.nombre||'',
+    angulo:0, invisible:false, invisTimer:0,
+    vx:vx||0, vy:vy||0,
+    entrando: true, entradaT: 0
+  };
+}
+
+// ═══════════════════════════════════════
+// JEFES
+// ═══════════════════════════════════════
+var _invJefes = [
+  {nivel:10,  nombre:'El Gordo del Gym',        emoji:'🧔', vida:60,  color:'#e31e24'},
+  {nivel:20,  nombre:'El Rey del Sofá',          emoji:'🛋️', vida:100, color:'#f59e0b'},
+  {nivel:30,  nombre:'Ronald Malcomida',         emoji:'🍔', vida:140, color:'#22c55e'},
+  {nivel:40,  nombre:'El Señor Vicio',           emoji:'🍾', vida:180, color:'#a855f7'},
+  {nivel:50,  nombre:'La Pizza Gigante',         emoji:'🍕', vida:220, color:'#f97316'},
+  {nivel:60,  nombre:'El Aguardiente Supremo',   emoji:'🥃', vida:260, color:'#06b6d4'},
+  {nivel:70,  nombre:'El Sedentario Élite',      emoji:'😴', vida:300, color:'#6366f1'},
+  {nivel:80,  nombre:'El Anti-DT',               emoji:'😈', vida:360, color:'#ec4899'},
+  {nivel:90,  nombre:'La Pereza Absoluta',       emoji:'🦥', vida:400, color:'#84cc16'},
+  {nivel:100, nombre:'EL SEDENTARIO SUPREMO',    emoji:'👹', vida:600, color:'#e31e24'}
+];
+
+function invEsNivelJefe(nivel) { return nivel % 10 === 0; }
+
+function invCrearJefe(nivel) {
+  var def = _invJefes.find(function(j){ return j.nivel === nivel; });
+  if(!def) def = _invJefes[Math.floor((nivel/10)-1)] || _invJefes[_invJefes.length-1];
+  _inv.jefe = {
+    x: _inv.W/2, y: 80,
+    w: 64, h: 64,
+    vida: def.vida + nivel*2,
+    vidaMax: def.vida + nivel*2,
+    nombre: def.nombre,
+    emoji: def.emoji,
+    color: def.color,
+    fase: 1,
+    angulo: 0,
+    velX: 1.5,
+    ultimoDisparo: 0,
+    escolta: []
+  };
+}
+
+function invUpdateJefe() {
+  if(!_inv.jefe) return;
+  var j = _inv.jefe;
+  var W = _inv.W, H = _inv.H;
+  var pct = j.vida / j.vidaMax;
+
+  // Determinar fase
+  j.fase = pct > 0.6 ? 1 : pct > 0.3 ? 2 : 3;
+
+  // Movimiento según fase
+  j.angulo += 0.02;
+  if(j.fase === 1) {
+    j.x += j.velX * (1 + (_inv.nivel*0.02));
+    if(j.x < 50 || j.x > W-50) j.velX *= -1;
+  } else if(j.fase === 2) {
+    j.x += j.velX * 1.8;
+    j.y = 80 + Math.sin(j.angulo*2)*20;
+    if(j.x < 50 || j.x > W-50) j.velX *= -1;
+  } else {
+    // Fase 3 — parpadea y baja lentamente
+    j.x += j.velX * 2.5;
+    j.y = Math.min(j.y + 0.05, H*0.35);
+    if(j.x < 50 || j.x > W-50) j.velX *= -1;
+  }
+
+  // Disparos del jefe
+  var ahora = Date.now();
+  var cooldown = j.fase===1 ? 2000 : j.fase===2 ? 1200 : 700;
+  if(ahora - j.ultimoDisparo > cooldown) {
+    j.ultimoDisparo = ahora;
+    if(j.fase === 1) {
+      // 1 bala hacia la nave
+      var dx = _inv.nave.x - j.x, dy = _inv.nave.y - j.y;
+      var dist = Math.sqrt(dx*dx+dy*dy)||1;
+      _inv.balas.push({x:j.x, y:j.y+35, dy:(dy/dist)*5, dx:(dx/dist)*3, w:10, h:16, esNave:false, esJefe:true});
+    } else if(j.fase === 2) {
+      // 2 balas en diagonal
+      _inv.balas.push({x:j.x-20, y:j.y+35, dy:5, dx:-2, w:10, h:16, esNave:false, esJefe:true});
+      _inv.balas.push({x:j.x+20, y:j.y+35, dy:5, dx:2, w:10, h:16, esNave:false, esJefe:true});
+    } else {
+      // 3 balas en abanico
+      for(var bi=-1;bi<=1;bi++)
+        _inv.balas.push({x:j.x, y:j.y+35, dy:5, dx:bi*3, w:10, h:16, esNave:false, esJefe:true});
+    }
+    // Fase 2: invocar escolta
+    if(j.fase === 2 && j.escolta.length < 3 && Math.random()<0.3) {
+      var mundo = Math.min(4,Math.floor((_inv.nivel-1)/20));
+      j.escolta.push(invCrearEnemigo(j.x+(Math.random()-0.5)*100, j.y+80, 0, null, 1));
+      _inv.enemigos.push(j.escolta[j.escolta.length-1]);
+    }
+  }
+
+  // Colisiones balas jugador vs jefe
+  _inv.balas.filter(function(b){return b.esNave;}).forEach(function(b){
+    if(Math.abs(b.x-j.x)<(j.w/2+b.w/2) && Math.abs(b.y-j.y)<(j.h/2+b.h/2)) {
+      var dano = b.especial ? 3 : 1;
+      j.vida -= dano;
+      b.y = -999;
+      invParticulasExp(j.x+(Math.random()-0.5)*30, j.y+(Math.random()-0.5)*30, '💥');
+      if(j.vida <= 0) invMatarJefe();
+    }
+  });
+
+  // Colisión jefe vs nave
+  if(Math.abs(j.x-_inv.nave.x)<50 && Math.abs(j.y-_inv.nave.y)<60) {
+    invPerdidaVida();
+  }
+}
+
+function invMatarJefe() {
+  var repsJefe = 50 + (_inv.nivel/10)*50;
+  var totalReps = parseInt(localStorage.getItem('inv_monedas')||0) + repsJefe;
+  localStorage.setItem('inv_monedas', totalReps);
+  _inv.score += 500 * _inv.nivel;
+  document.getElementById('inv-score').textContent = _inv.score;
+  invParticulasExp(_inv.jefe.x, _inv.jefe.y, '🏆');
+  invParticulasExp(_inv.jefe.x-30, _inv.jefe.y, '💥');
+  invParticulasExp(_inv.jefe.x+30, _inv.jefe.y, '💥');
+  _inv.jefe = null;
+  invNivelCompletado();
+}
+
+function invDibujarJefe() {
+  if(!_inv.jefe) return;
+  var j = _inv.jefe;
+  var ctx = document.getElementById('inv-canvas').getContext('2d');
+  var pct = j.vida/j.vidaMax;
+
+  // Parpadeo en fase 3
+  if(j.fase === 3 && Math.floor(Date.now()/150)%2===0) ctx.globalAlpha=0.6;
+
+  // Sombra/glow
+  ctx.shadowColor = j.color;
+  ctx.shadowBlur = 20;
+  ctx.font = j.fase===3?'52px sans-serif':'48px sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(j.emoji, j.x, j.y+18);
+  ctx.shadowBlur=0;
+  ctx.globalAlpha=1;
+
+  // Nombre
+  ctx.fillStyle=j.color;
+  ctx.font='bold 11px sans-serif';
+  ctx.fillText(j.nombre, j.x, j.y-38);
+
+  // Barra de vida
+  var bw=100, bh=8;
+  ctx.fillStyle='#333'; ctx.fillRect(j.x-bw/2, j.y-28, bw, bh);
+  ctx.fillStyle = pct>0.6?'#22c55e':pct>0.3?'#f59e0b':'#e31e24';
+  ctx.fillRect(j.x-bw/2, j.y-28, bw*pct, bh);
+  ctx.strokeStyle='#555'; ctx.lineWidth=1;
+  ctx.strokeRect(j.x-bw/2, j.y-28, bw, bh);
+
+  // Fase indicator
+  ctx.fillStyle='#fff'; ctx.font='9px sans-serif';
+  ctx.fillText('FASE '+j.fase, j.x, j.y-32);
+}
+
+function invCrearEnemigos() {
+  _inv.enemigos = [];
+  var nivel = _inv.nivel;
+  var oleada = _inv.oleadaActual || 1;
+  var mundo = Math.min(4, Math.floor((nivel-1)/20));
+  var emojis = _inv.mundos[mundo].emojis;
+  var W = _inv.W;
+
+  function emoji() { return emojis[Math.floor(Math.random()*emojis.length)]; }
+  function fila(cant, y, tipo, vida, vx, vy) {
+    var espX = (W-30)/cant;
+    for(var i=0;i<cant;i++)
+      _inv.enemigos.push(invCrearEnemigo(15+i*espX+espX/2, y, tipo||0, emoji(), vida||1, vx||0, vy||0));
+  }
+
+  // ═══════════════════════════
+  // NIVELES JEFE (múltiplos de 10)
+  // ═══════════════════════════
+  if(invEsNivelJefe(nivel)) {
+    invCrearJefe(nivel);
+    // Escoltas iniciales
+    fila(3, 130, 0, 1);
+    return;
+  }
+
+  // ═══════════════════════════
+  // NIVEL 1 — Tutorial
+  // ═══════════════════════════
+  if(nivel === 1) {
+    _inv.dirEnemigos = 1;
+    _inv.velEnemigos = 0.5;
+    if(oleada === 1) {
+      // Oleada 1: 2 filas de 5 — lentos, solo izq/der
+      fila(5, 45, 0, 1);
+      fila(5, 78, 0, 1);
+    } else if(oleada === 2) {
+      // Oleada 2: 2 filas de 6 — un poco más rápido
+      _inv.velEnemigos = 0.65;
+      fila(6, 42, 0, 1);
+      fila(6, 74, 0, 1);
+    } else if(oleada === 3) {
+      // Oleada 3: 3 filas de 5 — velocidad normal, algunos disparan
+      _inv.velEnemigos = 0.8;
+      fila(5, 38, 0, 1);
+      fila(5, 68, 0, 1);
+      fila(5, 98, 0, 1);
+    }
+  }
+  // ═══════════════════════════
+  // NIVEL 2
+  // ═══════════════════════════
+  else if(nivel === 2) {
+    _inv.dirEnemigos = 1;
+    _inv.velEnemigos = 0.6 + oleada*0.1;
+    if(oleada === 1) {
+      // V simple
+      var cx=W/2;
+      for(var i=0;i<5;i++){
+        _inv.enemigos.push(invCrearEnemigo(cx-i*34, 42+i*26, 0, emoji(), 1));
+        if(i>0) _inv.enemigos.push(invCrearEnemigo(cx+i*34, 42+i*26, 0, emoji(), 1));
+      }
+    } else if(oleada === 2) {
+      fila(6, 40, 0, 1); fila(6, 70, 0, 1); fila(4, 100, 0, 1);
+    } else if(oleada === 3) {
+      // V + fila soporte
+      var cx2=W/2;
+      for(var i2=0;i2<4;i2++){
+        _inv.enemigos.push(invCrearEnemigo(cx2-i2*36, 38+i2*26, 0, emoji(), 1));
+        if(i2>0) _inv.enemigos.push(invCrearEnemigo(cx2+i2*36, 38+i2*26, 0, emoji(), 1));
+      }
+      fila(6, 115, 0, 1);
+    }
+  }
+  // ═══════════════════════════
+  // NIVELES 3+ — dinámico escalado
+  // ═══════════════════════════
+  else {
+    var cols = Math.min(4+Math.floor(nivel/8), 8);
+    var filas = Math.min(2+Math.floor(nivel/6), 6);
+    _inv.dirEnemigos = oleada%2===0 ? -1 : 1;
+    _inv.velEnemigos = 0.4 + nivel*0.04 + oleada*0.08;
+    var espX2 = (W-30)/cols;
+    for(var f=0;f<filas;f++) {
+      for(var c=0;c<cols;c++) {
+        var tipo = f===0&&nivel>5&&Math.random()<0.2 ? 1 : 0;
+        var vida2 = f===0&&nivel>8 ? 2 : 1;
+        _inv.enemigos.push(invCrearEnemigo(
+          15+c*espX2+espX2/2, 38+f*30,
+          tipo, emoji(), vida2,
+          oleada>=2&&f%2===0?0.3:0, 0
+        ));
+      }
+    }
+  }
+}
+
+function invBindControles() {
+  var canvas = document.getElementById('inv-canvas');
+  var fuego = document.getElementById('inv-btn-fuego');
+  if(!canvas) return;
+  var lastTouchX = null;
+  var lastTouchY = null;
+  var esHorizontal = false;
+  canvas.addEventListener('touchstart', function(e){
+    lastTouchX = e.touches[0].clientX;
+    lastTouchY = e.touches[0].clientY;
+    esHorizontal = false;
+  }, {passive:true});
+  canvas.addEventListener('touchmove', function(e){
+    if(lastTouchX === null) return;
+    var dx = e.touches[0].clientX - lastTouchX;
+    var dy = e.touches[0].clientY - lastTouchY;
+    if(!esHorizontal && Math.abs(dx) > Math.abs(dy)) esHorizontal = true;
+    if(esHorizontal) {
+      e.preventDefault();
+      _inv.nave.x += dx * 1.8;
+      _inv.nave.x = Math.max(20, Math.min(_inv.W-20, _inv.nave.x));
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+    }
+  }, {passive:false});
+  canvas.addEventListener('touchend', function(e){
+    lastTouchX = null; lastTouchY = null; esHorizontal = false;
+  }, {passive:true});
+  if(fuego) {
+    var _ultimoTapFuego = 0;
+    fuego.textContent = '🏋️ PODER';
+    fuego.style.background = '#333';
+    fuego.addEventListener('touchstart', function(e){
+      e.preventDefault();
+      var ahora = Date.now();
+      if(_inv.barraDesbloqueada && (_inv.barraCarga||0) >= (_inv.barraMax||20)) {
+        invBarraEspecial();
+        fuego.style.background = '#f59e0b';
+        setTimeout(function(){ fuego.style.background='#333'; }, 500);
+      } else if(!_inv.barraDesbloqueada) {
+        // Sin barra: disparo manual extra
+        invDisparar();
+      }
+      _ultimoTapFuego = ahora;
+    }, {passive:false});
+    fuego.addEventListener('click', function(){
+      if(!_inv.barraDesbloqueada) invDisparar();
+      else if((_inv.barraCarga||0) >= (_inv.barraMax||20)) invBarraEspecial();
+    });
+  }
+}
+
+function invBarraEspecial() {
+  if(!_inv.barraDesbloqueada || (_inv.barraCarga||0) < (_inv.barraMax||20)) return;
+  _inv.barraCarga = 0;
+  // Disparo masivo — 7 balas en abanico
+  for(var i=0;i<7;i++) {
+    var angulo = -Math.PI/2 + (i-3)*0.2;
+    _inv.balas.push({
+      x:_inv.nave.x, y:_inv.nave.y-20,
+      dy: Math.sin(angulo)*12,
+      dx: Math.cos(angulo)*4,
+      w:8, h:18, esNave:true, especial:true
+    });
+  }
+  // Flash visual
+  invParticulasExp(_inv.nave.x, _inv.nave.y-30, '🏋️');
+  invParticulasExp(_inv.nave.x-20, _inv.nave.y-20, '💥');
+  invParticulasExp(_inv.nave.x+20, _inv.nave.y-20, '💥');
+}
+
+function invStop() {
+  _inv.corriendo = false;
+  if(_inv.loop) cancelAnimationFrame(_inv.loop);
+}
+
+function invMover(dir) { _inv.dirMover = dir; }
+function invPararMover() { _inv.dirMover = 0; }
+
+function invDisparar() {
+  if(!_inv.corriendo) return;
+  var ahora = Date.now();
+  if(ahora - (_inv.ultimoBala||0) < (_inv.cadenciaMs||300)) return;
+  _inv.ultimoBala = ahora;
+  // Doble disparo si está comprado
+  if(_inv.dobleDisparo) {
+    _inv.balas.push({ x:_inv.nave.x-18, y:_inv.nave.y-20, dy:-9, w:5, h:14, esNave:true });
+    _inv.balas.push({ x:_inv.nave.x+18, y:_inv.nave.y-20, dy:-9, w:5, h:14, esNave:true });
+  } else {
+    _inv.balas.push({ x:_inv.nave.x, y:_inv.nave.y-20, dy:-9, w:5, h:14, esNave:true });
+  }
+  // Cargar barra especial matando
+  if(_inv.barraDesbloqueada) {
+    _inv.barraCarga = Math.min((_inv.barraCarga||0) + 0.2, _inv.barraMax||20);
+  }
+}
+
+function invLoop() {
+  if(!_inv.corriendo) return;
+  if(!document.getElementById('inv-canvas')) { _inv.corriendo=false; return; }
+  invUpdate();
+  invDraw();
+  _inv.loop = requestAnimationFrame(invLoop);
+}
+
+function invUpdate() {
+  var W=_inv.W, H=_inv.H;
+  // Mover nave
+  _inv.nave.x += _inv.dirMover * _inv.nave.speed;
+  _inv.nave.x = Math.max(20, Math.min(W-20, _inv.nave.x));
+  // Disparo automático
+  invDisparar();
+
+  // Mover balas del jugador
+  _inv.balas = _inv.balas.filter(function(b){
+    b.y += b.dy;
+    return b.y > -20 && b.y < H+20;
+  });
+
+  // Mover enemigos
+  var todosListos = true;
+  _inv.enemigos.forEach(function(e){
+    // Animación de entrada
+    if(e.entrando) {
+      todosListos = false;
+      e.x += (e.destX - e.x) * 0.12;
+      e.y += (e.destY - e.y) * 0.12;
+      if(Math.abs(e.x-e.destX)<1.5 && Math.abs(e.y-e.destY)<1.5) {
+        e.x=e.destX; e.y=e.destY; e.entrando=false;
+      }
+      return;
+    }
+    e.x += _inv.velEnemigos * _inv.dirEnemigos;
+    if(e.vx) { e.x += e.vx; if(e.x<16||e.x>W-16) e.vx*=-1; }
+  });
+  // Solo rebotar si todos ya entraron
+  if(todosListos) {
+    var normales = _inv.enemigos.filter(function(e){ return !e.entrando; });
+    if(normales.length > 0) {
+      var minX = Math.min.apply(null, normales.map(function(e){return e.x-e.w/2;}));
+      var maxX = Math.max.apply(null, normales.map(function(e){return e.x+e.w/2;}));
+      if(minX < 8 || maxX > W-8) {
+        _inv.dirEnemigos *= -1;
+        _inv.velEnemigos = Math.min(_inv.velEnemigos*1.02, 4);
+        // NO bajan al rebotar — solo bajan gradualmente con el tiempo
+      }
+      // Bajada gradual muy lenta
+      if(!_inv._ultimaBajada) _inv._ultimaBajada = Date.now();
+      if(Date.now() - _inv._ultimaBajada > 8000) {
+        _inv._ultimaBajada = Date.now();
+        _inv.enemigos.forEach(function(e){ if(!e.entrando) e.y += 6; });
+      }
+    }
+  }
+
+  // Disparos enemigos aleatorios
+  var ahora = Date.now();
+  var intervalo = Math.max(600, 2000 - _inv.nivel*30);
+  if(ahora - _inv.ultimoBalaEnemigo > intervalo && _inv.enemigos.length > 0) {
+    _inv.ultimoBalaEnemigo = ahora;
+    var e = _inv.enemigos[Math.floor(Math.random()*_inv.enemigos.length)];
+    _inv.balas.push({x:e.x, y:e.y+12, dy:4+_inv.nivel*0.1, w:6, h:10, esNave:false});
+  }
+
+  // Colisiones balas jugador vs enemigos
+  _inv.balas.filter(function(b){return b.esNave;}).forEach(function(b){
+    _inv.enemigos = _inv.enemigos.filter(function(e){
+      var hit = Math.abs(b.x-e.x)<(b.w/2+e.w/2) && Math.abs(b.y-e.y)<(b.h/2+e.h/2);
+      if(hit){
+        e.vida--;
+        b.y = -999;
+        invParticulasExp(e.x, e.y, e.emoji);
+        if(b.especial) e.vida -= 2; // barra especial hace doble daño
+        if(e.vida <= 0){
+          var puntosBase = e.elite ? 100 : (e.tipo===2?30:e.tipo===6?25:e.tipo===3?20:10);
+          _inv.score += puntosBase * _inv.nivel;
+          document.getElementById('inv-score').textContent = _inv.score;
+          var repsBase = e.elite ? 10 : (e.tipo===2?3:e.tipo===6?2:1);
+          var reps = parseInt(localStorage.getItem('inv_monedas')||0) + repsBase;
+          localStorage.setItem('inv_monedas', reps);
+          if(Math.random()<0.2) invSpawnPowerup(e.x, e.y);
+          return false;
+        }
+      }
+      return true;
+    });
+  });
+
+  // Colisiones balas enemigo vs coberturas
+  if(_inv.coberturasArr) {
+    _inv.balas.filter(function(b){return !b.esNave;}).forEach(function(b){
+      _inv.coberturasArr.forEach(function(cb){
+        if(cb.vida<=0) return;
+        if(Math.abs(b.x-cb.x)<28 && Math.abs(b.y-cb.y)<16){
+          b.y=_inv.H+999;
+          cb.vida--;
+        }
+      });
+    });
+  }
+  // Colisiones balas enemigo vs nave
+  _inv.balas.filter(function(b){return !b.esNave;}).forEach(function(b){
+    var n=_inv.nave;
+    if(Math.abs(b.x-n.x)<(b.w/2+n.w/2) && Math.abs(b.y-n.y)<(b.h/2+n.h/2)){
+      b.y=H+999;
+      invPerdidaVida();
+    }
+  });
+
+  // Enemigos llegan a nave
+  _inv.enemigos.forEach(function(e){
+    // Límite de bajada — rebotan antes de llegar a la nave
+    var limY = _inv.H * 0.70;
+    if(e.y > limY) {
+      e.y = limY;
+      if(e.vy > 0) e.vy *= -1; // rebotar hacia arriba
+      // Solo pierde vida si toca directamente la nave
+      if(Math.abs(e.x - _inv.nave.x) < 30) {
+        invPerdidaVida();
+        e.y = 50; // el enemigo sube tras golpear
+      } else {
+        // Empujar todo el grupo hacia arriba
+        _inv.enemigos.forEach(function(e2){ if(!e2.entrando) e2.y -= 20; });
+      }
+    }
+  });
+
+  // Eventos aleatorios
+  var ahoraEv = Date.now();
+  if(ahoraEv - (_inv.ultimoEvento||0) > (_inv.proximoEvento||25000) && _inv.enemigos.length > 0) {
+    _inv.ultimoEvento = ahoraEv;
+    _inv.proximoEvento = 20000 + Math.random()*15000;
+    var evento = Math.floor(Math.random()*4);
+    if(evento === 0) {
+      // Lluvia de power-ups — 4 caen simultáneos
+      for(var pi=0;pi<4;pi++) {
+        setTimeout(function(){
+          var tipos = ['proteina','creatina','aminoacidos','preentrenoo'];
+          var emojisEv = {'proteina':'🥛','creatina':'⚡','aminoacidos':'🛡️','preentrenoo':'💊'};
+          var t = tipos[Math.floor(Math.random()*tipos.length)];
+          _inv.powerups.push({x:20+Math.random()*(_inv.W-40), y:-20, tipo:t, emoji:emojisEv[t], vel:2.5});
+        }, pi*300);
+      }
+      invParticulasExp(_inv.W/2, 60, '🎁');
+    } else if(evento === 1) {
+      // Enemigo élite — vale 5x reps
+      var mundo = Math.min(4,Math.floor((_inv.nivel-1)/20));
+      var pool = _inv.mundos[mundo].enemigosPool;
+      var def = pool[Math.floor(Math.random()*pool.length)];
+      _inv.enemigos.push({
+        x: Math.random()<0.5 ? -30 : _inv.W+30,
+        y: 80, destX: _inv.W/2, destY: 80,
+        w:36, h:36, tipo:1, vida:4, vidaMax:4,
+        emoji: '⭐', nombre:'Élite',
+        elite:true, angulo:0, invisible:false, invisTimer:0,
+        vx:0, vy:0, entrando:true, entradaT:0
+      });
+      invParticulasExp(_inv.W/2, 40, '⚠️');
+    } else if(evento === 2) {
+      // Oleada sorpresa — 3 enemigos débiles, entran lento desde arriba
+      var mundo2 = Math.min(4,Math.floor((_inv.nivel-1)/20));
+      for(var si=0;si<3;si++) {
+        var ex2 = _inv.W*0.2 + si*(_inv.W*0.3);
+        var enemSorpresa = invCrearEnemigo(ex2, -40, 0, null, 1, 0, 0);
+        // Destino en zona superior — no bajan hasta la nave
+        enemSorpresa.destY = 50 + si*25;
+        enemSorpresa.y = -40;
+        _inv.enemigos.push(enemSorpresa);
+      }
+      invParticulasExp(_inv.W/2, 40, '👾');
+    } else {
+      // Escudo gratis cae del cielo
+      _inv.powerups.push({x:_inv.W/2, y:-20, tipo:'aminoacidos', emoji:'🛡️', vel:2});
+      invParticulasExp(_inv.W/2, 40, '🛡️');
+    }
+  }
+
+  // Powerups
+  _inv.powerups = _inv.powerups.filter(function(p){
+    p.y += 1.5;
+    var n=_inv.nave;
+    if(Math.abs(p.x-n.x)<30 && Math.abs(p.y-n.y)<30){
+      invAplicarPowerup(p.tipo);
+      return false;
+    }
+    return p.y < H+20;
+  });
+
+  // Partículas
+  _inv.particulas = _inv.particulas.filter(function(p){
+    p.x+=p.vx; p.y+=p.vy; p.vida--;
+    return p.vida>0;
+  });
+
+  // ¿Nivel completado?
+  if(_inv.enemigos.length === 0 && !_inv.transicion) {
+    _inv.transicion = true;
+    _inv.oleadaActual = (_inv.oleadaActual||1) + 1;
+    if(_inv.oleadaActual > _inv.oleadasTotal) {
+      _inv.corriendo = false;
+      setTimeout(function(){ invNivelCompletado(); }, 400);
+    } else {
+      _inv.corriendo = false;
+      var ov = document.getElementById('inv-overlay');
+      if(ov) {
+        ov.style.display='flex';
+        document.getElementById('inv-overlay-title').textContent = '💪 Oleada '+(_inv.oleadaActual-1)+' eliminada';
+        document.getElementById('inv-overlay-sub').textContent = 'Oleada '+_inv.oleadaActual+' de '+_inv.oleadasTotal+' — ¡Prepárate!';
+        document.getElementById('inv-overlay-btn').style.display='none';
+      }
+      setTimeout(function(){
+        if(ov) ov.style.display='none';
+        invCrearEnemigos();
+        _inv.transicion = false;
+        _inv.corriendo = true;
+        invLoop();
+      }, 1800);
+    }
+  }
+}
+
+function invPerdidaVida() {
+  _inv.vidas--;
+  document.getElementById('inv-vidas').textContent = Math.max(0,_inv.vidas);
+  invParticulasExp(_inv.nave.x, _inv.nave.y, '💥');
+  if(_inv.escudoPasivo) {
+    var ahora2 = Date.now();
+    if(ahora2 - _inv.escudoPasivoTimer > (_inv.escudoCooldown||15000)) {
+      _inv.escudoPasivoTimer = ahora2;
+      invParticulasExp(_inv.nave.x, _inv.nave.y, '🛡️');
+      return;
+    }
+  }
+  if(_inv.vidas <= 0) invGameOver();
+}
+
+function invSpawnPowerup(x, y) {
+  var tipos = ['proteina','creatina','aminoacidos','preentrenoo','barra'];
+  var emojis = {'proteina':'🥛','creatina':'⚡','aminoacidos':'🛡️','preentrenoo':'💊','barra':'🏋️'};
+  var tipo = tipos[Math.floor(Math.random()*tipos.length)];
+  _inv.powerups.push({x:x,y:y,tipo:tipo,emoji:emojis[tipo]});
+}
+
+function invAplicarPowerup(tipo) {
+  if(tipo==='proteina'){ _inv.vidas=Math.min(_inv.vidas+1,5); document.getElementById('inv-vidas').textContent=_inv.vidas; }
+  else if(tipo==='creatina'){ _inv.dobleDisparo=true; setTimeout(function(){_inv.dobleDisparo=false;},5000); }
+  else if(tipo==='aminoacidos'){ _inv.escudo=true; setTimeout(function(){_inv.escudo=false;},5000); }
+  else if(tipo==='preentrenoo'){ _inv.nave.speed=9; setTimeout(function(){_inv.nave.speed=5;},5000); }
+}
+
+function invParticulasExp(x, y, emoji) {
+  for(var i=0;i<8;i++){
+    _inv.particulas.push({
+      x:x,y:y,
+      vx:(Math.random()-0.5)*4,
+      vy:(Math.random()-0.5)*4,
+      vida:20, emoji:emoji
+    });
+  }
+}
+
+function invNivelCompletado() {
+  _inv.corriendo = false;
+  _inv.oleadaActual = 1;
+  _inv.transicion = false;
+  var monedasGanadas = 10 + _inv.nivel * 2;
+  var totalReps = parseInt(localStorage.getItem('inv_monedas')||0) + monedasGanadas;
+  localStorage.setItem('inv_monedas', totalReps);
+  var mejor = parseInt(localStorage.getItem('inv_mejor')||0);
+  if(_inv.score > mejor) { localStorage.setItem('inv_mejor', _inv.score); }
+  _inv.nivel++;
+  localStorage.setItem('inv_nivel', _inv.nivel);
+  localStorage.setItem('inv_score', _inv.score);
+  invMostrarOverlay('🏆 ¡Nivel completado!', '+'+monedasGanadas+' 💪 reps | Total: '+totalReps+' | Nivel '+_inv.nivel, 'Siguiente nivel ▶', function(){
+    _inv.balas=[]; _inv.powerups=[]; _inv.particulas=[];
+    _inv.vidas=3; document.getElementById('inv-vidas').textContent=3;
+    document.getElementById('inv-nivel').textContent=_inv.nivel;
+    invCrearEnemigos();
+    _inv.corriendo=true;
+    invLoop();
+  });
+}
+
+function invGameOver() {
+  _inv.corriendo = false;
+  var nivelMuerto = _inv.nivel;
+  localStorage.setItem('inv_score', 0);
+  invMostrarOverlay('💀 GAME OVER', 'Puntaje: '+_inv.score+' | Nivel '+nivelMuerto, '🔄 Reintentar nivel', function(){
+    _inv.score=0; _inv.vidas=3;
+    _inv.balas=[]; _inv.powerups=[]; _inv.particulas=[];
+    document.getElementById('inv-score').textContent=0;
+    document.getElementById('inv-nivel').textContent=nivelMuerto;
+    document.getElementById('inv-vidas').textContent=3;
+    _inv.oleadaActual=1;
+    var digitoNivel = nivelMuerto % 10;
+    _inv.oleadasTotal = digitoNivel===0?1:digitoNivel<=3?3:digitoNivel<=6?4:5;
+    _inv.transicion=false;
+    invCrearEnemigos();
+    _inv.corriendo=true;
+    invLoop();
+  });
+}
+
+function invMostrarOverlay(titulo, sub, btnTxt, cb) {
+  var ov = document.getElementById('inv-overlay');
+  if(!ov) return;
+  ov.style.display='flex';
+  document.getElementById('inv-overlay-title').textContent=titulo;
+  document.getElementById('inv-overlay-sub').textContent=sub;
+  var btn=document.getElementById('inv-overlay-btn');
+  btn.style.display='block';
+  btn.textContent=btnTxt;
+  btn.onclick=function(){ ov.style.display='none'; cb(); };
+}
+
+function invDraw() {
+  var canvas=document.getElementById('inv-canvas');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var W=_inv.W,H=_inv.H;
+  // Fondo estrellado
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  // Estrellas (estáticas con seed)
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  for(var s=0;s<40;s++){
+    var sx=(s*137.5)%W, sy=(s*97.3)%H;
+    ctx.fillRect(sx,sy,1,1);
+  }
+  // Mundo label
+  var mundo=Math.min(4,Math.floor((_inv.nivel-1)/20));
+  ctx.fillStyle=_inv.mundos[mundo].color+'44';
+  ctx.fillRect(0,0,W,24);
+  ctx.fillStyle=_inv.mundos[mundo].color;
+  ctx.font='10px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Mundo '+(mundo+1)+': '+_inv.mundos[mundo].nombre, 6, 16);
+
+  // Enemigos
+  ctx.font='22px sans-serif'; ctx.textAlign='center';
+  _inv.enemigos.forEach(function(e){
+    ctx.fillText(e.emoji, e.x, e.y+8);
+    if(e.vida>1){
+      ctx.fillStyle='#e31e24';
+      ctx.fillRect(e.x-10, e.y-14, 20, 3);
+      ctx.fillStyle='#22c55e';
+      ctx.fillRect(e.x-10, e.y-14, 20*(e.vida/2), 3);
+    }
+  });
+
+  // Balas
+  var skins = JSON.parse(localStorage.getItem('inv_skins')||'{}');
+  var skinDisp = skins.disparo || 'disp_rojo';
+  var coloresDisp = {
+    'disp_rojo':'#e31e24','disp_verde':'#22c55e','disp_azul':'#3b82f6',
+    'disp_rayo':'#f59e0b','disp_fuego':'#f97316','disp_dorado':'#fbbf24'
+  };
+  var colorBala = coloresDisp[skinDisp] || '#e31e24';
+  _inv.balas.forEach(function(b){
+    if(b.esNave) {
+      if(b.especial) {
+        ctx.fillStyle = '#f59e0b';
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 8;
+      } else {
+        ctx.fillStyle = colorBala;
+        ctx.shadowColor = colorBala;
+        ctx.shadowBlur = 4;
+      }
+    } else {
+      ctx.fillStyle = '#f59e0b';
+      ctx.shadowBlur = 0;
+    }
+    ctx.fillRect(b.x-b.w/2, b.y-b.h/2, b.w, b.h);
+    ctx.shadowBlur = 0;
+  });
+
+  // Powerups
+  ctx.font='18px sans-serif';
+  _inv.powerups.forEach(function(p){
+    ctx.fillText(p.emoji, p.x, p.y);
+  });
+
+  // Partículas
+  _inv.particulas.forEach(function(p){
+    ctx.globalAlpha = p.vida/20;
+    ctx.font='12px sans-serif';
+    ctx.fillText(p.emoji, p.x, p.y);
+  });
+  ctx.globalAlpha=1;
+
+  // Coberturas
+  if(_inv.coberturasArr) {
+    _inv.coberturasArr.forEach(function(cb){
+      if(cb.vida <= 0) return;
+      var alpha = cb.vida / cb.maxVida;
+      ctx.fillStyle = 'rgba(227,30,36,'+alpha+')';
+      ctx.fillRect(cb.x-25, cb.y-12, 50, 24);
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.font = 'bold 9px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('GYM DT', cb.x, cb.y+4);
+    });
+  }
+  // Barra especial HUD
+  if(_inv.barraDesbloqueada) {
+    var carga = _inv.barraCarga||0, max = _inv.barraMax||20;
+    ctx.fillStyle='#222'; ctx.fillRect(W*0.1, H-18, W*0.8, 8);
+    ctx.fillStyle = carga>=max ? '#f59e0b' : '#e31e24';
+    ctx.fillRect(W*0.1, H-18, W*0.8*(carga/max), 8);
+    if(carga>=max){
+      ctx.fillStyle='#f59e0b'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('🏋️ BARRA LISTA — Toca 2 veces FUEGO', W/2, H-22);
+    }
+  }
+  // Nave (entrenador)
+  ctx.font='28px sans-serif'; ctx.textAlign='center';
+  if(_invImg.entrenador) {
+    var nw=48, nh=56;
+    ctx.drawImage(_invImg.entrenador, _inv.nave.x-nw/2, _inv.nave.y-nh/2, nw, nh);
+  } else {
+    ctx.font='28px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('🏋️',_inv.nave.x,_inv.nave.y+10);
+  }
+  if(_inv.escudo){
+    ctx.strokeStyle='#3b82f6'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(_inv.nave.x,_inv.nave.y,22,0,Math.PI*2); ctx.stroke();
+  }
+}
+
+
+var _pen = { potTimer:null, potVal:0, potDir:1, animando:false, tiro:1, goles:0, mejor:0, lateral:50, altura:50, potencia:0, W:0, H:0 };
+
+function penInit() {
+  var canvas = document.getElementById('pen-canvas');
+  if(!canvas) return;
+  var W = canvas.offsetWidth;
+  canvas.width = W;
+  canvas.height = Math.round(W * 0.68);
+  _pen.W = W; _pen.H = Math.round(W*0.68);
+  _pen.tiro=1; _pen.goles=0; _pen.animando=false;
+  _pen.mejor = parseInt(localStorage.getItem('pen_mejor')||0);
+  _pen.lateral=50; _pen.altura=50; _pen.potVal=0;
+  document.getElementById('pen-mejor').textContent = _pen.mejor;
+  document.getElementById('pen-tiro').textContent = '1';
+  document.getElementById('pen-goles').textContent = '0';
+  penActLateral(); penActAltura();
+  penStartPotencia();
+  penDrawEstado(null, null, false, false);
+}
+
+function penActLateral() {
+  var v = parseInt(document.getElementById('pen-lateral').value);
+  _pen.lateral = v;
+  var label = v < 25 ? '◀◀ Muy izquierda' : v < 42 ? '◀ Izquierda' : v > 75 ? 'Muy derecha ▶▶' : v > 58 ? 'Derecha ▶' : 'Centro';
+  document.getElementById('pen-lat-val').textContent = label;
+  if(!_pen.animando) penDrawEstado(null, null, false, false);
+}
+
+function penActAltura() {
+  var v = parseInt(document.getElementById('pen-altura').value);
+  _pen.altura = v;
+  var label = v < 25 ? 'Muy raso' : v < 42 ? 'Raso' : v > 75 ? 'Muy alto' : v > 58 ? 'Alto' : 'Media altura';
+  document.getElementById('pen-alt-val').textContent = label;
+  if(!_pen.animando) penDrawEstado(null, null, false, false);
+}
+
+function penStartPotencia() {
+  if(_pen.potTimer) clearInterval(_pen.potTimer);
+  _pen.potVal = 0; _pen.potDir = 1;
+  var velocidad = 18;
+  _pen.potTimer = setInterval(function(){
+    _pen.potVal += _pen.potDir * 2.2;
+    if(_pen.potVal >= 100){ _pen.potVal=100; _pen.potDir=-1; }
+    if(_pen.potVal <= 0){ _pen.potVal=0; _pen.potDir=1; velocidad = Math.max(10, velocidad-1); }
+    var fill = document.getElementById('pen-pot-fill');
+    var val = document.getElementById('pen-pot-val');
+    if(!fill) { clearInterval(_pen.potTimer); return; }
+    var p = _pen.potVal;
+    var color = p < 30 ? '#555' : p < 55 ? '#22c55e' : p < 75 ? '#f59e0b' : '#e31e24';
+    fill.style.width = p+'%';
+    fill.style.background = 'linear-gradient(90deg,#333,'+color+')';
+    if(val) val.textContent = Math.round(p)+'%';
+  }, velocidad);
+}
+
+function penPararPotencia() {
+  _pen.potencia = Math.round(_pen.potVal);
+  clearInterval(_pen.potTimer);
+}
+
+function penLanzar() {
+  if(_pen.animando) return;
+  _pen.potencia = Math.round(_pen.potVal);
+  clearInterval(_pen.potTimer);
+  var lat = _pen.lateral;   // 0=izq extremo, 100=der extremo
+  var alt = _pen.altura;    // 0=raso, 100=muy alto
+  var pot = _pen.potencia;  // 0-100
+
+  // --- Destino del balón ---
+  var W = _pen.W, H = _pen.H;
+  var gx = W*0.18, gy = H*0.05, gw = W*0.64, gh = H*0.30;
+  // Posición en portería según sliders
+  var destX = gx + (lat/100)*gw;
+  var destY = gy + gh - (alt/100)*gh;
+
+  // --- ¿Sale fuera? ---
+  var fueraPorLado = lat < 8 || lat > 92;
+  var fueraPorArriba = alt > 88 && pot > 70;
+  var sinFuerza = pot < 18;
+  var excesoPotencia = pot > 90 && alt > 60;
+
+  // Si sale fuera ajustamos destino visual
+  if(fueraPorLado) { destX = lat < 50 ? gx - W*0.12 : gx + gw + W*0.12; }
+  if(fueraPorArriba || excesoPotencia) { destY = gy - H*0.15; }
+  if(sinFuerza) { destX = W/2; destY = H*0.75; }
+
+  // --- Portero IA ---
+  // Lee parcialmente el lateral (70% acierto) y salta
+  var aciertaLat = Math.random() < 0.62;
+  var zonaLat = lat < 35 ? 'izq' : lat > 65 ? 'der' : 'cen';
+  var porteroZona = aciertaLat ? zonaLat : ['izq','cen','der'][Math.floor(Math.random()*3)];
+  // Portero NO llega a esquinas muy cerradas ni a tiros muy altos
+  var porteroLlega = !(lat < 15 || lat > 85) && !(alt > 72) && pot < 82;
+
+  // --- Resultado ---
+  var gol = false;
+  var motivo = '';
+  if(sinFuerza) { motivo = '😅 ¡Sin potencia! El balón no llegó'; }
+  else if(fueraPorLado) { motivo = lat < 50 ? '↙️ Afuera por la izquierda' : '↘️ Afuera por la derecha'; }
+  else if(fueraPorArriba || excesoPotencia) { motivo = '🚀 ¡Demasiado alto! Por encima del arco'; }
+  else if(porteroZona === zonaLat && porteroLlega) { motivo = '🧤 ¡Atajado! El portero lo leyó'; }
+  else { gol = true; motivo = '⚽ ¡GOOOOL!'; }
+
+  _pen.animando = true;
+  document.getElementById('pen-btn').disabled = true;
+  document.getElementById('pen-resultado').textContent = '';
+
+  penAnimar(destX, destY, pot, gol, porteroZona, porteroLlega, sinFuerza, function(){
+    _pen.animando = false;
+    var res = document.getElementById('pen-resultado');
+    if(res){ res.textContent = motivo; res.style.color = gol ? '#22c55e' : '#e31e24'; }
+    if(gol){ _pen.goles++; document.getElementById('pen-goles').textContent = _pen.goles; }
+    setTimeout(function(){
+      if(_pen.tiro >= 5){ penFin(); return; }
+      _pen.tiro++;
+      document.getElementById('pen-tiro').textContent = _pen.tiro;
+      if(res) res.textContent='';
+      var btn = document.getElementById('pen-btn');
+      if(btn){ btn.disabled=false; btn.textContent='⚽ LANZAR'; }
+      penStartPotencia();
+      penDrawEstado(null, null, false, false);
+    }, 1800);
+  });
+}
+
+function penAnimar(destX, destY, pot, gol, porteroZona, porteroLlega, sinFuerza, cb) {
+  var canvas = document.getElementById('pen-canvas');
+  if(!canvas){ cb(); return; }
+  var W=_pen.W, H=_pen.H;
+  var frames=0, total = sinFuerza ? 20 : Math.max(22, Math.round(40 - pot*0.15));
+  var startX=W/2, startY=H*0.9;
+  // Portero posición inicial al centro, salta a su zona
+  var gx=W*0.18, gw=W*0.64;
+  var portInicX = gx+gw/2;
+  var portDestX = porteroZona==='izq' ? gx+gw*0.12 : porteroZona==='der' ? gx+gw*0.88 : gx+gw*0.5;
+
+  var anim = setInterval(function(){
+    frames++;
+    var t = frames/total;
+    var ease = t<0.5 ? 2*t*t : -1+(4-2*t)*t;
+    // Balón — trayectoria con arco
+    var bx = startX + (destX-startX)*ease;
+    var arc = sinFuerza ? 0 : -H*0.08*Math.sin(Math.PI*t);
+    var by = startY + (destY-startY)*ease + arc;
+    var size = sinFuerza ? 20 : Math.max(8, 22 - t*14);
+    // Portero salta en la segunda mitad
+    var px = t < 0.4 ? portInicX : portInicX + (portDestX-portInicX)*((t-0.4)/0.6);
+    var py_offset = porteroLlega && t > 0.5 ? -Math.sin((t-0.5)*Math.PI)*18 : 0;
+
+    penDrawEstado({x:bx,y:by,size:size}, {x:px,yOff:py_offset}, gol && frames===total, false);
+    if(frames>=total){ clearInterval(anim); cb(); }
+  }, 22);
+}
+
+function penDrawEstado(balon, portero, mostrarGol, preview) {
+  var canvas = document.getElementById('pen-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W=_pen.W, H=_pen.H;
+
+  // Fondo cancha con perspectiva
+  var grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#0d3d0d'); grad.addColorStop(1,'#1a5c1a');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+
+  // Líneas cancha
+  ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1;
+  ctx.strokeRect(W*0.05,H*0.02,W*0.9,H*0.9);
+  ctx.beginPath(); ctx.moveTo(W*0.05,H*0.5); ctx.lineTo(W*0.95,H*0.5); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W/2,H*0.5,W*0.12,0,Math.PI*2); ctx.stroke();
+
+  // Área grande
+  ctx.strokeStyle='rgba(255,255,255,0.2)';
+  ctx.strokeRect(W*0.15,H*0.02,W*0.7,H*0.42);
+
+  // Portería 3D
+  var gx=W*0.18, gy=H*0.05, gw=W*0.64, gh=H*0.30;
+  // Sombra portería
+  ctx.fillStyle='rgba(0,0,0,0.4)';
+  ctx.fillRect(gx+4,gy+4,gw,gh);
+  // Fondo red
+  ctx.fillStyle='rgba(255,255,255,0.04)';
+  ctx.fillRect(gx,gy,gw,gh);
+  // Red
+  ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=0.8;
+  for(var i=1;i<9;i++){ ctx.beginPath();ctx.moveTo(gx+gw/9*i,gy);ctx.lineTo(gx+gw/9*i,gy+gh);ctx.stroke(); }
+  for(var j=1;j<5;j++){ ctx.beginPath();ctx.moveTo(gx,gy+gh/5*j);ctx.lineTo(gx+gw,gy+gh/5*j);ctx.stroke(); }
+  // Marco portería
+  ctx.strokeStyle='#fff'; ctx.lineWidth=3;
+  ctx.strokeRect(gx,gy,gw,gh);
+  // Postes 3D
+  ctx.fillStyle='#ddd';
+  ctx.fillRect(gx-4,gy-4,8,gh+8);
+  ctx.fillRect(gx+gw-4,gy-4,8,gh+8);
+  ctx.fillRect(gx-4,gy-4,gw+8,8);
+
+  // Indicador de puntería (preview)
+  if(!balon) {
+    var lat=_pen.lateral, alt=_pen.altura;
+    var px2=gx+(lat/100)*gw, py2=gy+gh-(alt/100)*gh;
+    var fueraPorLado = lat<8||lat>92;
+    var fueraPorArriba = alt>88;
+    if(!fueraPorLado && !fueraPorArriba){
+      ctx.strokeStyle='rgba(255,255,0,0.4)'; ctx.lineWidth=1;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(W/2,H*0.9); ctx.lineTo(px2,py2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(255,255,0,0.6)';
+      ctx.beginPath(); ctx.arc(px2,py2,6,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  // Punto penal
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(W/2,H*0.86,4,0,Math.PI*2); ctx.fill();
+
+  // Portero
+  var portX = gx+gw/2, portY = gy+gh*0.42, portYoff=0;
+  if(portero){ portX=portero.x; portYoff=portero.yOff||0; }
+  // Cuerpo portero
+  ctx.fillStyle='#f59e0b';
+  ctx.beginPath(); ctx.arc(portX,portY+portYoff,14,0,Math.PI*2); ctx.fill();
+  ctx.font='18px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('🧤',portX,portY+portYoff+6);
+  // Brazos extendidos
+  ctx.strokeStyle='#f59e0b'; ctx.lineWidth=4; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(portX-14,portY+portYoff); ctx.lineTo(portX-28,portY+portYoff-8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(portX+14,portY+portYoff); ctx.lineTo(portX+28,portY+portYoff-8); ctx.stroke();
+
+  // Balón
+  if(balon){
+    ctx.font=balon.size+'px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('⚽',balon.x,balon.y);
+    // Sombra balón
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(balon.x, H*0.93, balon.size*0.4, balon.size*0.12, 0,0,Math.PI*2); ctx.fill();
+  } else {
+    ctx.font='22px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('⚽',W/2,H*0.9);
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(W/2,H*0.94,9,3,0,0,Math.PI*2); ctx.fill();
+  }
+
+  // GOL overlay
+  if(mostrarGol){
+    ctx.fillStyle='rgba(34,197,94,0.25)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#22c55e'; ctx.font='bold 28px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('⚽ GOOOOL!',W/2,H/2);
+  }
+}
+
+function penFin() {
+  clearInterval(_pen.potTimer);
+  if(_pen.goles > _pen.mejor){
+    _pen.mejor=_pen.goles;
+    localStorage.setItem('pen_mejor',_pen.mejor);
+    document.getElementById('pen-mejor').textContent=_pen.mejor;
+  }
+  var canvas=document.getElementById('pen-canvas');
+  if(canvas){
+    var ctx=canvas.getContext('2d');
+    ctx.fillStyle='rgba(0,0,0,0.8)'; ctx.fillRect(0,0,_pen.W,_pen.H);
+    var emoji = _pen.goles>=5?'🏆':_pen.goles>=3?'⚽':'😅';
+    var msg = _pen.goles>=5?'¡Golejada perfecta!':_pen.goles>=3?'¡Buen partido!':'Sigue entrenando...';
+    ctx.fillStyle='#f59e0b'; ctx.font='bold 22px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(emoji+' '+_pen.goles+'/5 goles',_pen.W/2,_pen.H/2-12);
+    ctx.fillStyle='#aaa'; ctx.font='13px sans-serif';
+    ctx.fillText(msg,_pen.W/2,_pen.H/2+14);
+    if(_pen.goles===_pen.mejor && _pen.goles>0){
+      ctx.fillStyle='#f59e0b'; ctx.font='12px sans-serif';
+      ctx.fillText('🌟 ¡Nuevo récord!',_pen.W/2,_pen.H/2+34);
+    }
+  }
+  var btn=document.getElementById('pen-btn');
+  if(btn){
+    btn.textContent='🔄 Jugar de nuevo'; btn.disabled=false;
+    btn.onclick=function(){
+      _pen.tiro=1; _pen.goles=0;
+      document.getElementById('pen-tiro').textContent='1';
+      document.getElementById('pen-goles').textContent='0';
+      document.getElementById('pen-resultado').textContent='';
+      btn.textContent='⚽ LANZAR';
+      btn.onclick=penLanzar;
+      penStartPotencia();
+      penDrawEstado(null,null,false,false);
+    };
+  }
+}
+
+function renderSnake(c) {
+  bloquearSwipe();
+  c.innerHTML = `
+    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
+    <div style="text-align:center;margin-bottom:10px">
+      <div style="font-size:15px;font-weight:700;color:var(--texto)">Snake DT</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:12px;color:var(--texto-secundario)">Puntos: <span id="sk-puntos" style="color:var(--texto);font-weight:700">0</span></div>
+      <div id="sk-nivel-label" style="font-size:12px;font-weight:700;color:#e31e24">PRINCIPIANTE</div>
+      <div style="font-size:12px;color:var(--texto-secundario)">Mejor: <span id="sk-mejor" style="color:#f59e0b;font-weight:700">0</span></div>
+    </div>
+    <canvas id="sk-canvas" style="width:100%;border-radius:12px;display:block;background:#111;border:1px solid #333"></canvas>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;max-width:220px;margin-left:auto;margin-right:auto">
+      <div></div>
+      <button ontouchstart="skDir(0,-1)" onclick="skDir(0,-1)" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:18px;cursor:pointer">▲</button>
+      <div></div>
+      <button ontouchstart="skDir(-1,0)" onclick="skDir(-1,0)" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:18px;cursor:pointer">◀</button>
+      <button ontouchstart="skPause()" onclick="skPause()" style="background:#e31e24;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer" id="sk-btn">▶</button>
+      <button ontouchstart="skDir(1,0)" onclick="skDir(1,0)" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:18px;cursor:pointer">▶</button>
+      <div></div>
+      <button ontouchstart="skDir(0,1)" onclick="skDir(0,1)" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:18px;cursor:pointer">▼</button>
+      <div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;justify-content:center">
+      <button onclick="skSetNivel(1)" style="background:var(--gris);color:#22c55e;border:1px solid #22c55e;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer">🟢 Principiante</button>
+      <button onclick="skSetNivel(2)" style="background:var(--gris);color:#f59e0b;border:1px solid #f59e0b;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer">🟡 Intermedio</button>
+      <button onclick="skSetNivel(3)" style="background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer">🔴 Avanzado</button>
+      <button onclick="skSetNivel(4)" style="background:var(--gris);color:#7c3aed;border:1px solid #7c3aed;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer">💜 Elite</button>
+    </div>`;
+  skInit();
+}
+
+var _sk = {};
+var _skColores = ['#e31e24','#3b82f6','#22c55e','#f59e0b','#a855f7','#ec4899','#14b8a6','#f97316'];
+var _skNiveles = { 1:{vel:200,obs:0,label:'PRINCIPIANTE'}, 2:{vel:130,obs:3,label:'INTERMEDIO'}, 3:{vel:80,obs:6,label:'AVANZADO'}, 4:{vel:50,obs:10,label:'ELITE'} };
+
+function skInit() {
+  var canvas = document.getElementById('sk-canvas');
+  if(!canvas) return;
+  var W = canvas.offsetWidth;
+  canvas.width = W;
+  canvas.height = W;
+  var mejor = parseInt(localStorage.getItem('sk_mejor')||0);
+  document.getElementById('sk-mejor').textContent = mejor;
+  _sk = {
+    W: W, cel: Math.floor(W/20), cols: 20, rows: 20,
+    serpiente: [{x:10,y:10},{x:9,y:10},{x:8,y:10}],
+    dir: {x:1,y:0}, nextDir: {x:1,y:0},
+    comida: null, obstaculos: [],
+    puntos: 0, mejor: mejor,
+    nivel: 1, loop: null, corriendo: false, pausado: false
+  };
+  skGenerarComida();
+  skDraw();
+}
+
+function skSetNivel(n) {
+  if(_sk.loop) clearInterval(_sk.loop);
+  _sk.nivel = n;
+  _sk.serpiente = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  _sk.dir = {x:1,y:0}; _sk.nextDir = {x:1,y:0};
+  _sk.puntos = 0; _sk.corriendo = false; _sk.pausado = false;
+  _sk.obstaculos = [];
+  document.getElementById('sk-puntos').textContent = 0;
+  document.getElementById('sk-nivel-label').textContent = _skNiveles[n].label;
+  document.getElementById('sk-btn').textContent = '▶';
+  skGenerarObstaculos();
+  skGenerarComida();
+  skDraw();
+}
+
+function skGenerarObstaculos() {
+  _sk.obstaculos = [];
+  var cant = _skNiveles[_sk.nivel].obs;
+  for(var i=0; i<cant; i++) {
+    var o;
+    do { o = {x:Math.floor(Math.random()*18)+1, y:Math.floor(Math.random()*18)+1}; }
+    while(_sk.serpiente.some(function(s){return s.x===o.x&&s.y===o.y;}));
+    _sk.obstaculos.push(o);
+  }
+}
+
+function skGenerarComida() {
+  var f;
+  do { f = {x:Math.floor(Math.random()*19)+1, y:Math.floor(Math.random()*19)+1}; }
+  while(_sk.serpiente.some(function(s){return s.x===f.x&&s.y===f.y;}) ||
+        _sk.obstaculos.some(function(o){return o.x===f.x&&o.y===f.y;}));
+  _sk.comida = f;
+}
+
+function skDir(x, y) {
+  if(!_sk.corriendo) { skPause(); return; }
+  if(x!==0 && _sk.dir.x!==0) return;
+  if(y!==0 && _sk.dir.y!==0) return;
+  _sk.nextDir = {x:x,y:y};
+}
+
+function skPause() {
+  if(!_sk.corriendo) {
+    _sk.corriendo = true; _sk.pausado = false;
+    document.getElementById('sk-btn').textContent = '⏸';
+    _sk.loop = setInterval(skStep, _skNiveles[_sk.nivel].vel);
+  } else {
+    _sk.corriendo = false;
+    clearInterval(_sk.loop);
+    document.getElementById('sk-btn').textContent = '▶';
+  }
+}
+
+function skStep() {
+  if(!document.getElementById('sk-canvas')) { clearInterval(_sk.loop); return; }
+  _sk.dir = _sk.nextDir;
+  var cab = {x:_sk.serpiente[0].x+_sk.dir.x, y:_sk.serpiente[0].y+_sk.dir.y};
+  if(cab.x<0||cab.x>=_sk.cols||cab.y<0||cab.y>=_sk.rows) { skGameOver(); return; }
+  if(_sk.serpiente.some(function(s){return s.x===cab.x&&s.y===cab.y;})) { skGameOver(); return; }
+  if(_sk.obstaculos.some(function(o){return o.x===cab.x&&o.y===cab.y;})) { skGameOver(); return; }
+  _sk.serpiente.unshift(cab);
+  if(cab.x===_sk.comida.x && cab.y===_sk.comida.y) {
+    _sk.puntos += _sk.nivel * 10;
+    document.getElementById('sk-puntos').textContent = _sk.puntos;
+    if(_sk.puntos > _sk.mejor) {
+      _sk.mejor = _sk.puntos;
+      localStorage.setItem('sk_mejor', _sk.mejor);
+      document.getElementById('sk-mejor').textContent = _sk.mejor;
+    }
+    skGenerarComida();
+    if(_sk.puntos % 50 === 0) skGenerarObstaculos();
+  } else {
+    _sk.serpiente.pop();
+  }
+  skDraw();
+}
+
+function skGameOver() {
+  clearInterval(_sk.loop);
+  _sk.corriendo = false;
+  var canvas = document.getElementById('sk-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(0,0,_sk.W,_sk.W);
+  ctx.fillStyle = '#e31e24';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('💀 GAME OVER', _sk.W/2, _sk.W/2-16);
+  ctx.fillStyle = '#aaa';
+  ctx.font = '14px sans-serif';
+  ctx.fillText('Puntos: '+_sk.puntos, _sk.W/2, _sk.W/2+10);
+  ctx.fillText('Toca ▶ para reiniciar', _sk.W/2, _sk.W/2+30);
+  document.getElementById('sk-btn').textContent = '▶';
+  _sk.serpiente = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  _sk.dir={x:1,y:0}; _sk.nextDir={x:1,y:0}; _sk.puntos=0;
+  document.getElementById('sk-puntos').textContent=0;
+  skGenerarObstaculos(); skGenerarComida();
+}
+
+function skDraw() {
+  var canvas = document.getElementById('sk-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var cel = _sk.cel;
+  ctx.fillStyle = '#111';
+  ctx.fillRect(0,0,_sk.W,_sk.W);
+  // Grid sutil
+  ctx.strokeStyle = '#1a1a1a';
+  ctx.lineWidth = 0.5;
+  for(var i=0;i<_sk.cols;i++){
+    ctx.beginPath();ctx.moveTo(i*cel,0);ctx.lineTo(i*cel,_sk.W);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,i*cel);ctx.lineTo(_sk.W,i*cel);ctx.stroke();
+  }
+  // Obstáculos
+  _sk.obstaculos.forEach(function(o){
+    ctx.fillStyle = '#333';
+    ctx.fillRect(o.x*cel+1,o.y*cel+1,cel-2,cel-2);
+    ctx.fillStyle = '#555';
+    ctx.font = (cel-4)+'px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('🧱',o.x*cel+cel/2,o.y*cel+cel-2);
+  });
+  // Comida
+  if(_sk.comida){
+    ctx.font = (cel-2)+'px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('🏋️',_sk.comida.x*cel+cel/2,_sk.comida.y*cel+cel-1);
+  }
+  // Serpiente
+  _sk.serpiente.forEach(function(s,i){
+    if(i===0){
+      // Cabeza entrenador
+      ctx.fillStyle = '#e31e24';
+      ctx.beginPath();
+      ctx.arc(s.x*cel+cel/2, s.y*cel+cel/2, cel/2-1, 0, Math.PI*2);
+      ctx.fill();
+      ctx.font = (cel-4)+'px sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText('🏋️',s.x*cel+cel/2,s.y*cel+cel-2);
+    } else {
+      // Cuerpo clientes multicolor
+      var color = _skColores[i % _skColores.length];
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(s.x*cel+cel/2, s.y*cel+cel/2, cel/2-2, 0, Math.PI*2);
+      ctx.fill();
+      var emojis = ['🏃‍♂️','🏃‍♀️','🧑‍🦱','👩‍🦱','🧑‍🦰','👩‍🦰','🧑🏾','👩🏾'];
+      ctx.font = (cel-6)+'px sans-serif';
+      ctx.fillText(emojis[i%emojis.length],s.x*cel+cel/2,s.y*cel+cel-3);
+    }
+  });
+}
+
+function renderMemoria(c) {
+  bloquearSwipe();
+  c.innerHTML = `
+    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:700;color:var(--texto)">Memoria DT</div>
+      <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Encuentra todos los pares</div>
+    </div>
+    <div id="mem-niveles" style="display:flex;gap:8px;margin-bottom:14px">
+      <button onclick="memStart(8)" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">
+        😊 Fácil<div style="font-size:10px;font-weight:400;color:var(--texto-secundario)">16 cartas</div>
+        <div style="font-size:10px;color:#f59e0b" id="mem-mejor-8">⏱ --</div>
+      </button>
+      <button onclick="memStart(10)" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">
+        💪 Medio<div style="font-size:10px;font-weight:400;color:var(--texto-secundario)">20 cartas</div>
+        <div style="font-size:10px;color:#f59e0b" id="mem-mejor-10">⏱ --</div>
+      </button>
+      <button onclick="memStart(12)" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">
+        🔥 Difícil<div style="font-size:10px;font-weight:400;color:var(--texto-secundario)">24 cartas</div>
+        <div style="font-size:10px;color:#f59e0b" id="mem-mejor-12">⏱ --</div>
+      </button>
+    </div>
+    <div id="mem-hud" style="display:none;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:13px;color:var(--texto-secundario)">Pares: <span id="mem-pares" style="color:var(--texto);font-weight:700">0</span></div>
+      <div style="font-size:16px;font-weight:700;color:#e31e24" id="mem-timer">00:00</div>
+      <div style="font-size:13px;color:var(--texto-secundario)">Intentos: <span id="mem-intentos" style="color:var(--texto);font-weight:700">0</span></div>
+    </div>
+    <div id="mem-board" style="display:grid;gap:8px"></div>`;
+  memCargarMejores();
+}
+
+var _mem = { pares:0, total:0, intentos:0, timer:null, seg:0, volteadas:[], bloqueado:false, nivel:8 };
+
+var _memIconos = [
+  '<img src="/images/Fuerza.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Cardio.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Mancuerna.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Proteina.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Shaker.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Termo.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Cronometro.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Correr.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Kettelball.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Guanterojo.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Soga_de_batir.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Trofeo.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Cerebro.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Fuego.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Mira.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Discobasico.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Bolso.png" style="width:56px;height:56px;object-fit:contain">',
+  '<img src="/images/Equismancuerna.png" style="width:56px;height:56px;object-fit:contain">'
+];
+
+function memCargarMejores() {
+  [8,10,12].forEach(function(n) {
+    var mejor = localStorage.getItem('mem_mejor_'+n);
+    var el = document.getElementById('mem-mejor-'+n);
+    if(el && mejor) el.textContent = '⏱ ' + mejor;
+  });
+}
+
+function memStart(pares) {
+  _mem = { pares:0, total:pares, intentos:0, seg:0, volteadas:[], bloqueado:false, nivel:pares };
+  clearInterval(_mem.timer);
+  var hud = document.getElementById('mem-hud');
+  var niveles = document.getElementById('mem-niveles');
+  if(hud) hud.style.display='flex';
+  if(niveles) niveles.style.display='none';
+  document.getElementById('mem-pares').textContent = '0';
+  document.getElementById('mem-intentos').textContent = '0';
+  document.getElementById('mem-timer').textContent = '00:00';
+  var iconos = _memIconos.slice(0, pares);
+  var cartas = [...iconos, ...iconos].sort(function(){ return Math.random()-0.5; });
+  var cols = pares === 8 ? 4 : pares === 10 ? 4 : 4;
+  var board = document.getElementById('mem-board');
+  board.style.gridTemplateColumns = 'repeat('+cols+',1fr)';
+  board.innerHTML = cartas.map(function(svg, i) {
+    return '<div id="mc'+i+'" onclick="memVoltear('+i+')" data-idx="'+i+'" data-svg="'+encodeURIComponent(svg)+'" style="background:var(--gris);border:1px solid #333;border-radius:10px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;transition:background .2s">🏋️</div>';
+  }).join('');
+  cartas.forEach(function(svg, i) {
+    document.getElementById('mc'+i).dataset.svg = encodeURIComponent(svg);
+  });
+  board.innerHTML = cartas.map(function(svg, i) {
+    return '<div id="mc'+i+'" onclick="memVoltear('+i+')" style="background:#1a1a1a;border:2px solid #333;border-radius:10px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden" data-svg="'+encodeURIComponent(svg)+'" data-volteada="0" data-encontrada="0"><span style="font-size:20px">💪</span></div>';
+  }).join('');
+  _mem.timer = setInterval(function(){
+    _mem.seg++;
+    var m = Math.floor(_mem.seg/60).toString().padStart(2,'0');
+    var s = (_mem.seg%60).toString().padStart(2,'0');
+    var t = document.getElementById('mem-timer');
+    if(t) t.textContent = m+':'+s;
+  }, 1000);
+}
+
+function memVoltear(i) {
+  if(_mem.bloqueado) return;
+  var el = document.getElementById('mc'+i);
+  if(!el || el.dataset.encontrada==='1' || el.dataset.volteada==='1') return;
+  el.dataset.volteada = '1';
+  el.style.background = '#2a2a2a';
+  el.style.borderColor = '#e31e24';
+  el.innerHTML = decodeURIComponent(el.dataset.svg);
+  _mem.volteadas.push(i);
+  if(_mem.volteadas.length === 2) {
+    _mem.bloqueado = true;
+    _mem.intentos++;
+    document.getElementById('mem-intentos').textContent = _mem.intentos;
+    var a = document.getElementById('mc'+_mem.volteadas[0]);
+    var b = document.getElementById('mc'+_mem.volteadas[1]);
+    if(a.dataset.svg === b.dataset.svg) {
+      a.dataset.encontrada = '1'; b.dataset.encontrada = '1';
+      a.style.borderColor = '#22c55e'; b.style.borderColor = '#22c55e';
+      a.style.background = '#052e16'; b.style.background = '#052e16';
+      _mem.pares++;
+      document.getElementById('mem-pares').textContent = _mem.pares;
+      _mem.volteadas = [];
+      _mem.bloqueado = false;
+      if(_mem.pares === _mem.total) memGanar();
+    } else {
+      setTimeout(function(){
+        a.dataset.volteada='0'; b.dataset.volteada='0';
+        a.style.background='#1a1a1a'; b.style.background='#1a1a1a';
+        a.style.borderColor='#333'; b.style.borderColor='#333';
+        a.innerHTML='<span style="font-size:20px">💪</span>';
+        b.innerHTML='<span style="font-size:20px">💪</span>';
+        _mem.volteadas=[];
+        _mem.bloqueado=false;
+      }, 900);
+    }
+  }
+}
+
+function memGanar() {
+  clearInterval(_mem.timer);
+  var m = Math.floor(_mem.seg/60).toString().padStart(2,'0');
+  var s = (_mem.seg%60).toString().padStart(2,'0');
+  var tiempo = m+':'+s;
+  var mejor = localStorage.getItem('mem_mejor_'+_mem.nivel);
+  var esMejor = !mejor || _mem.seg < parseInt(mejor.replace(':',''));
+  if(esMejor) localStorage.setItem('mem_mejor_'+_mem.nivel, tiempo);
+  var board = document.getElementById('mem-board');
+  if(board) board.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px 0"><div style="font-size:40px">🏆</div><div style="font-size:16px;font-weight:700;color:#22c55e;margin-top:8px">¡Completado!</div><div style="font-size:13px;color:var(--texto-secundario);margin-top:6px">Tiempo: '+tiempo+'</div><div style="font-size:12px;color:#f59e0b;margin-top:4px">'+(esMejor?'🌟 Nuevo récord!':'Mejor: '+mejor)+'</div><button onclick="renderMemoria(document.getElementById(\'herramienta-contenido\'))" style="margin-top:16px;background:#e31e24;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer">Jugar de nuevo</button></div>';
+}
+
+
+function renderTriqui(c) {
+  bloquearSwipe();
+  c.innerHTML = `
+    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:14px">← Juegos</button>
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:700;color:var(--texto)">Triqui DT</div>
+      <div id="triqui-status" style="font-size:12px;color:var(--texto-secundario);margin-top:4px">Turno: 🏋️ Entrenador</div>
+    </div>
+    <div id="triqui-board" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto 16px">
+    </div>
+    <div style="text-align:center">
+      <button onclick="triquiReset()" style="background:#e31e24;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer">🔄 Nueva partida</button>
+    </div>`;
+  triquiInit();
+}
+
+var _triqui = { board: Array(9).fill(null), turno: 0, activo: true };
+var _triquiJugadores = [
+  { nombre: 'Entrenador', emoji: '<img src="/images/Equismancuerna.png" style="width:48px;height:48px;object-fit:contain">', color: '#e31e24' },
+  { nombre: 'Cliente',    emoji: '<img src="/images/Kettelball.png" style="width:48px;height:48px;object-fit:contain">', color: '#3b82f6' }
+];
+var _triquiGanador = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function triquiInit() {
+  _triqui = { board: Array(9).fill(null), turno: 0, activo: true };
+  triquiRender();
+}
+function triquiReset() { triquiInit(); }
+
+function triquiJugar(i) {
+  if (!_triqui.activo || _triqui.board[i]) return;
+  _triqui.board[i] = _triqui.turno;
+  var ganador = triquiChequear();
+  if (ganador !== null) {
+    _triqui.activo = false;
+    triquiRender();
+    var st = document.getElementById('triqui-status');
+    if (ganador === -1) {
+      st.innerHTML = '🤝 ¡Empate!';
+      st.style.color = '#f59e0b';
+    } else {
+      var j = _triquiJugadores[ganador];
+      st.innerHTML = j.emoji + ' ¡' + j.nombre + ' gana!';
+      st.style.color = j.color;
+    }
+    return;
+  }
+  _triqui.turno = _triqui.turno === 0 ? 1 : 0;
+  triquiRender();
+  var j = _triquiJugadores[_triqui.turno];
+  document.getElementById('triqui-status').innerHTML = 'Turno: ' + j.emoji + ' ' + j.nombre;
+}
+
+function triquiChequear() {
+  var b = _triqui.board;
+  for (var w of _triquiGanador) {
+    if (b[w[0]] !== null && b[w[0]] === b[w[1]] && b[w[1]] === b[w[2]]) return b[w[0]];
+  }
+  if (b.every(function(x){ return x !== null; })) return -1;
+  return null;
+}
+
+function triquiRender() {
+  var board = document.getElementById('triqui-board');
+  if (!board) return;
+  var html = '';
+  for (var i = 0; i < 9; i++) {
+    var val = _triqui.board[i];
+    var contenido = val !== null ? _triquiJugadores[val].emoji : '';
+    var color = val !== null ? _triquiJugadores[val].color : 'transparent';
+    html += '<div onclick="triquiJugar(' + i + ')" style="background:var(--card);border:2px solid ' + (val !== null ? color : '#333') + ';border-radius:12px;height:80px;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;transition:border .2s">' + contenido + '</div>';
+  }
+  board.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// 🏆 COMPETENCIAS
+// ═══════════════════════════════════════════
+
+function renderCompetencias(c) {
+  var cats = [
+    {cat:'atleta',  icon:'<img src="/images/comp-mejor-atleta.png" style="width:72px;height:72px;object-fit:contain">', label:'Mejor Atleta',     sub:'Puntaje combinado'},
+    {cat:'fuerza',  icon:'<img src="/images/comp-mas-fuerza.png" style="width:72px;height:72px;object-fit:contain">', label:'El Más Fuerte',    sub:'Test de fuerza'},
+    {cat:'resist',  icon:'<img src="/images/comp-mas-resistente.png" style="width:72px;height:72px;object-fit:contain">', label:'Más Resistente',   sub:'Test de resistencia'},
+    {cat:'especif', icon:'<img src="/images/comp-mas-completo.png" style="width:72px;height:72px;object-fit:contain">', label:'Más Completo',     sub:'Test específico'},
+    {cat:'grasa',   icon:'<img src="/images/comp-mas-grasa.png" style="width:72px;height:72px;object-fit:contain">', label:'Más Grasa Bajada', sub:'Reducción de grasa'},
+    {cat:'musculo', icon:'<img src="/images/comp-mas-musculo.png" style="width:72px;height:72px;object-fit:contain">', label:'Más Músculo',      sub:'Ganancia muscular'},
+  ];
+  var cards = '';
+  for (var i=0; i<cats.length; i++) {
+    var x = cats[i];
+    cards += '<div onclick="verRankingCategoria(\'' + x.cat + '\')"' +
+      ' onmousedown="this.style.borderColor=\'#e31e24\';this.style.background=\'#1a0000\'"' +
+      ' onmouseup="this.style.borderColor=\'#2a0000\';this.style.background=\'#0d0d0d\'"' +
+      ' ontouchstart="this.style.borderColor=\'#e31e24\';this.style.background=\'#1a0000\'"' +
+      ' ontouchend="this.style.borderColor=\'#2a0000\';this.style.background=\'#0d0d0d\'"' +
+      ' style="background:var(--fondo);border:1px solid #2a0000;border-radius:12px;padding:16px 10px;text-align:center;cursor:pointer">' +
+      '<div style="font-size:32px;margin-bottom:6px">' + x.icon + '</div>' +
+      '<div style="font-size:12px;font-weight:700;color:var(--texto);margin-bottom:3px">' + x.label + '</div>' +
+      '<div style="font-size:10px;color:var(--texto-secundario)">' + x.sub + '</div>' +
+      '</div>';
+  }
+  c.innerHTML =
+    '<div style="margin-bottom:16px">' +
+      '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:12px">🏆 Categorías</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + cards + '</div>' +
+    '</div>' +
+    '<div style="margin-top:10px">' +
+      '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">🏅 Records Personales</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">' +
+        '<div onclick="verPRCategoria(\'fuerza\')" onmousedown="this.style.borderColor=\'#ff6b35\';this.style.background=\'#1a0a00\'" onmouseup="this.style.borderColor=\'#2a1500\';this.style.background=\'#0d0d0d\'" ontouchstart="this.style.borderColor=\'#ff6b35\';this.style.background=\'#1a0a00\'" ontouchend="this.style.borderColor=\'#2a1500\';this.style.background=\'#0d0d0d\'" style="background:var(--fondo);border:1px solid #2a1500;border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer">' +
+          '<div style="margin-bottom:4px"><img src="/images/comp-pr-fuerza.png" style="width:72px;height:72px;object-fit:contain"></div>' +
+          '<div style="font-size:10px;font-weight:700;color:#ff6b35">PR Fuerza</div>' +
+        '</div>' +
+        '<div onclick="verPRCategoria(\'resist\')" onmousedown="this.style.borderColor=\'#4a9eff\';this.style.background=\'#001020\'" onmouseup="this.style.borderColor=\'#001530\';this.style.background=\'#0d0d0d\'" ontouchstart="this.style.borderColor=\'#4a9eff\';this.style.background=\'#001020\'" ontouchend="this.style.borderColor=\'#001530\';this.style.background=\'#0d0d0d\'" style="background:var(--fondo);border:1px solid #001530;border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer">' +
+          '<div style="margin-bottom:4px"><img src="/images/comp-pr-resistencia.png" style="width:72px;height:72px;object-fit:contain"></div>' +
+          '<div style="font-size:10px;font-weight:700;color:#e31e24">PR Resist</div>' +
+        '</div>' +
+        '<div onclick="verPRCategoria(\'especif\')" onmousedown="this.style.borderColor=\'#ffd700\';this.style.background=\'#1a1500\'" onmouseup="this.style.borderColor=\'#2a2200\';this.style.background=\'#0d0d0d\'" ontouchstart="this.style.borderColor=\'#ffd700\';this.style.background=\'#1a1500\'" ontouchend="this.style.borderColor=\'#2a2200\';this.style.background=\'#0d0d0d\'" style="background:var(--fondo);border:1px solid #2a2200;border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer">' +
+          '<div style="margin-bottom:4px"><img src="/images/comp-pr-especifico.png" style="width:72px;height:72px;object-fit:contain"></div>' +
+          '<div style="font-size:10px;font-weight:700;color:#ffd700">PR Especif</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="margin-top:6px;display:flex;flex-direction:column;gap:8px">' +
+      '<button onclick="verRankingPersonalizado()" style="width:100%;background:#1a0000;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer">✏️ Competencia entre mis usuarios</button>' +
+      '<button onclick="verCompetenciasExternas()" style="width:100%;background:#0a0a1a;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer">🏟️ Tu Propia Competencia</button>' +
+    '</div>';
+}
+
+async function verRankingCategoria(cat) {
+  var c = document.getElementById('herramienta-contenido');
+  c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--texto-secundario)">⏳ Cargando ranking...</div>';
+  var cats = {
+    atleta:  {icon:'<img src="/images/comp-mejor-atleta.png" style="width:36px;height:36px;object-fit:contain">', label:'Mejor Atleta',     color:'#e31e24'},
+    fuerza:  {icon:'<img src="/images/comp-mas-fuerza.png" style="width:36px;height:36px;object-fit:contain">', label:'El Más Fuerte',    color:'#ff6b35'},
+    resist:  {icon:'<img src="/images/comp-mas-resistente.png" style="width:36px;height:36px;object-fit:contain">', label:'Más Resistente',   color:'#4a9eff'},
+    especif: {icon:'<img src="/images/comp-mas-completo.png" style="width:36px;height:36px;object-fit:contain">', label:'Más Completo',     color:'#ffd700'},
+    grasa:   {icon:'<img src="/images/comp-mas-grasa.png" style="width:36px;height:36px;object-fit:contain">', label:'Más Grasa Bajada', color:'#ff4500'},
+    musculo: {icon:'<img src="/images/comp-mas-musculo.png" style="width:36px;height:36px;object-fit:contain">', label:'Más Músculo',      color:'#4caf50'},
+  };
+  var info = cats[cat];
+  var usuarios = (window._usuariosCargados || []).filter(function(u){return u.activo;});
+  if (!usuarios.length) {
+    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--texto-secundario)">Sin usuarios activos</div>';
+    return;
+  }
+  var ranking = [];
+  for (var i=0; i<usuarios.length; i++) {
+    var u = usuarios[i];
+    var score = 0;
+    var detalle = 'Sin datos';
+    try {
+      var results = await Promise.all([
+        fetch('/api/historial/'+u.id).then(function(r){return r.json();}).catch(function(){return {peso:[],medidas:[]};}),
+        fetch('/api/tests/'+u.id).then(function(r){return r.json();}).catch(function(){return {registros:[]};})
+      ]);
+      var hist = results[0];
+      var tests = results[1];
+      var registros = tests.registros || [];
+      var sexo = u.sexo || 'M';
+      var pesos = hist.peso || [];
+      var peso = pesos.length ? pesos[pesos.length-1].valor : 70;
+      if (cat === 'grasa') {
+        var medidas = hist.medidas || [];
+        if (medidas.length >= 2) {
+          var ini = medidas[0].kgGrasa;
+          var fin = medidas[medidas.length-1].kgGrasa;
+          if (ini != null && fin != null) {
+            score = Math.round((ini - fin) * 10) / 10;
+            detalle = score > 0 ? '-' + score + ' kg grasa' : 'Sin cambio';
+          }
+        }
+      } else if (cat === 'musculo') {
+        var medidas2 = hist.medidas || [];
+        if (medidas2.length >= 2) {
+          var ini2 = medidas2[0].kgMusculo;
+          var fin2 = medidas2[medidas2.length-1].kgMusculo;
+          if (ini2 != null && fin2 != null) {
+            score = Math.round((fin2 - ini2) * 10) / 10;
+            detalle = score > 0 ? '+' + score + ' kg músculo' : 'Sin cambio';
+          }
+        }
+      } else {
+        var tipos = cat === 'atleta' ? ['fuerza','resist','especif'] : [cat];
+        var total = 0, count = 0;
+        for (var t=0; t<tipos.length; t++) {
+          var tipo = tipos[t];
+          var regs = registros.filter(function(r){return r.tipo===tipo && r.scoreTotal != null;});
+          var ultimo = regs.length ? regs[regs.length-1] : null;
+          if (ultimo && ultimo.scoreTotal != null) {
+            total += ultimo.scoreTotal;
+            count++;
+          }
+        }
+        score = count ? Math.round(total / count) : 0;
+        detalle = score ? score + ' pts' : 'Sin datos';
+      }
+    } catch(e) { score = 0; detalle = 'Error'; }
+    ranking.push({nombre: u.nombre, score: score, detalle: detalle, id: u.id});
+  }
+  ranking.sort(function(a,b){return b.score - a.score;});
+
+  var medallas = ['🥇','🥈','🥉'];
+  var coloresPodio = ['#ffd700','#c0c0c0','#cd7f32'];
+  var top3 = ranking.slice(0,3);
+  var resto = ranking.slice(3);
+  var podioOrden = [top3[1], top3[0], top3[2]].filter(Boolean);
+  var alturasPodio = [75, 100, 60];
+
+  var htmlPodio = '';
+  for (var p=0; p<podioOrden.length; p++) {
+    var pu = podioOrden[p];
+    var posReal = top3.indexOf(pu);
+    var altura = alturasPodio[p] || 60;
+    var col = coloresPodio[posReal];
+    var initials = pu.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlPodio +=
+      '<div style="display:flex;flex-direction:column;align-items:center;flex:1">' +
+        '<div style="font-size:11px;font-weight:700;color:var(--texto);margin-bottom:4px;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + pu.nombre.split(' ')[0] + '</div>' +
+        '<div style="width:52px;height:52px;border-radius:50%;background:' + col + '22;border:2px solid ' + col + ';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:' + col + ';margin-bottom:6px">' + initials + '</div>' +
+        '<div style="font-size:11px;color:var(--texto-medio);margin-bottom:6px">' + pu.detalle + '</div>' +
+        '<div style="width:100%;height:' + altura + 'px;background:linear-gradient(180deg,' + col + '44,' + col + '22);border:1px solid ' + col + '66;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center">' +
+          '<span style="font-size:24px">' + medallas[posReal] + '</span>' +
+        '</div>' +
+      '</div>';
+  }
+
+  var htmlResto = '';
+  for (var r=0; r<resto.length; r++) {
+    var ru = resto[r];
+    var pos = r + 4;
+    var ri = ru.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlResto +=
+      '<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #111">' +
+        '<div style="font-size:16px;font-weight:700;color:var(--texto-secundario);width:24px;text-align:center">' + pos + '</div>' +
+        '<div style="width:38px;height:38px;border-radius:50%;background:var(--gris);border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--texto-medio)">' + ri + '</div>' +
+        '<div style="flex:1">' +
+          '<div style="font-size:13px;font-weight:700;color:var(--texto)">' + ru.nombre + '</div>' +
+          '<div style="font-size:11px;color:var(--texto-secundario)">' + ru.detalle + '</div>' +
+        '</div>' +
+        '<div style="font-size:14px;font-weight:700;color:' + info.color + '">' + (ru.score || 0) + '</div>' +
+      '</div>';
+  }
+
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="renderCompetencias(document.getElementById(\'herramienta-contenido\'))" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="font-size:14px;font-weight:700;color:var(--texto)">' + info.icon + ' ' + info.label + '</div>' +
+    '</div>' +
+    '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:14px;padding:20px 10px 10px;margin-bottom:14px">' +
+      '<div style="font-size:10px;color:var(--texto-secundario);text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">Podio</div>' +
+      '<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px">' + htmlPodio + '</div>' +
+    '</div>' +
+    (resto.length ? '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:14px;overflow:hidden">' + htmlResto + '</div>' : '') +
+    (ranking.length === 0 ? '<div style="text-align:center;padding:30px;color:var(--texto-secundario)">Sin datos suficientes</div>' : '');
+}
+
+function verRankingPersonalizado() {
+  var c = document.getElementById('herramienta-contenido');
+  var usuarios = (window._usuariosCargados || []).filter(function(u){return u.activo;});
+  var listaU = '';
+  for (var i=0; i<usuarios.length; i++) {
+    var u = usuarios[i];
+    listaU +=
+      '<label style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #111;cursor:pointer">' +
+        '<input type="checkbox" id="comp-u-' + u.id + '" value="' + u.id + '" checked style="accent-color:#e31e24;width:16px;height:16px">' +
+        '<span style="font-size:13px;color:var(--texto)">' + u.nombre + '</span>' +
+      '</label>';
+  }
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="renderCompetencias(document.getElementById(\'herramienta-contenido\'))" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="font-size:14px;font-weight:700;color:var(--texto)">✏️ Competencia personalizada</div>' +
+    '</div>' +
+    '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:12px;padding:14px;margin-bottom:12px">' +
+      '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">¿Qué se compite?</div>' +
+      '<select id="comp-metrica" style="width:100%;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;margin-bottom:12px">' +
+        '<option value="atleta">🏆 Mejor Atleta (combinado)</option>' +
+        '<option value="fuerza">💪 Más Fuerte</option>' +
+        '<option value="resist">🫁 Más Resistente</option>' +
+        '<option value="especif">⚡ Más Completo</option>' +
+        '<option value="grasa">🔥 Más Grasa Bajada</option>' +
+        '<option value="musculo">💚 Más Músculo Ganado</option>' +
+      '</select>' +
+      '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px">Participantes</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+        '<button onclick="_compSelAll(true)" style="flex:1;background:var(--gris);color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:7px;font-size:11px;cursor:pointer">✅ Todos</button>' +
+        '<button onclick="_compSelAll(false)" style="flex:1;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:7px;font-size:11px;cursor:pointer">❌ Ninguno</button>' +
+      '</div>' +
+      '<div id="comp-usuarios-lista" style="max-height:220px;overflow-y:auto">' + listaU + '</div>' +
+    '</div>' +
+    '<button onclick="_lanzarCompPersonalizada()" style="width:100%;background:#e31e24;color:var(--texto);border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer">🏆 Ver Ranking</button>';
+}
+
+function _compSelAll(sel) {
+  document.querySelectorAll('[id^="comp-u-"]').forEach(function(cb){cb.checked=sel;});
+}
+
+async function _lanzarCompPersonalizada() {
+  var metrica = document.getElementById('comp-metrica').value;
+  var ids = Array.from(document.querySelectorAll('[id^="comp-u-"]:checked')).map(function(cb){return cb.value;});
+  if (ids.length < 2) { toast('⚠️ Selecciona al menos 2 participantes',false); return; }
+  var backup = window._usuariosCargados;
+  window._usuariosCargados = (backup || []).filter(function(u){return ids.includes(u.id);});
+  await verRankingCategoria(metrica);
+  window._usuariosCargados = backup;
+}
+
+// ═══════════════════════════════════════════
+// 🏟️ COMPETENCIAS EXTERNAS
+// ═══════════════════════════════════════════
+
+
+// ── COMPETENCIAS v2 ─────────────────────────────────────────────────────────
+var _compExt = [];
+var _compExtActual = null;
+var _compPruebasSeleccionadas = []; // pruebas al crear
+
+var _compExtMetricas = {
+  // ── Fuerza Absoluta (kg) ──────────────────────────────────────────────────
+  rm_pecho:      {label:'Press Pecho',       unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  rm_militar:    {label:'Press Militar',     unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  rm_espalda:    {label:'Remo/Jalon',        unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  rm_sentadilla: {label:'Sentadilla',        unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  rm_pmuerto:    {label:'Peso Muerto',       unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  rm_femoral:    {label:'Femoral',           unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  rm_hipthrust:  {label:'Hip Thrust',        unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  rm_gluteo:     {label:'Gluteo (máquina)',  unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  rm_biceps:     {label:'Curl Biceps',       unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  rm_triceps:    {label:'Triceps',           unidad:'kg',   modo:'max', grupo:'Fuerza Absoluta'},
+  // ── Fuerza Relativa (reps con % PC — porcentaje editable) ─────────────────
+  sent_rel:      {label:'Sentadilla',        unidad:'reps', modo:'max', grupo:'Fuerza Relativa', pct:130},
+  pecho_rel:     {label:'Press Pecho',       unidad:'reps', modo:'max', grupo:'Fuerza Relativa', pct:100},
+  pmuerto_rel:   {label:'Peso Muerto',       unidad:'reps', modo:'max', grupo:'Fuerza Relativa', pct:150},
+  militar_rel:   {label:'Press Militar',     unidad:'reps', modo:'max', grupo:'Fuerza Relativa', pct:75},
+  hipthrust_rel: {label:'Hip Thrust',        unidad:'reps', modo:'max', grupo:'Fuerza Relativa', pct:120},
+  remo_rel:      {label:'Remo/Jalon',        unidad:'reps', modo:'max', grupo:'Fuerza Relativa', pct:100},
+  biceps_rel:    {label:'Curl Biceps',       unidad:'reps', modo:'max', grupo:'Fuerza Relativa', pct:50},
+  // ── Resistencia (reps / tiempo) ───────────────────────────────────────────
+  pushups:       {label:'Flexiones',         unidad:'reps', modo:'max', grupo:'Resistencia'},
+  dominadas:     {label:'Dominadas',         unidad:'reps', modo:'max', grupo:'Resistencia'},
+  fondos:        {label:'Fondos',            unidad:'reps', modo:'max', grupo:'Resistencia'},
+  sentadilla_r:  {label:'Sentadilla libre',  unidad:'reps', modo:'max', grupo:'Resistencia'},
+  sent_salto:    {label:'Sentadilla Salto',  unidad:'reps', modo:'max', grupo:'Resistencia'},
+  goblet:        {label:'Sentadilla Goblet', unidad:'reps', modo:'max', grupo:'Resistencia'},
+  burpees:       {label:'Burpees',           unidad:'reps', modo:'max', grupo:'Resistencia'},
+  plancha:       {label:'Plancha',           unidad:'seg',  modo:'max', grupo:'Resistencia'},
+  cuerda:        {label:'Salto Cuerda 1min', unidad:'reps', modo:'max', grupo:'Resistencia'},
+  // ── Específico / Funcional ────────────────────────────────────────────────
+  cooper:        {label:'Cooper (12min)',     unidad:'m',    modo:'max', grupo:'Especifico'},
+  leger:         {label:'Leger',             unidad:'nivel',modo:'max', grupo:'Especifico'},
+  sitreach:      {label:'Sit and Reach',     unidad:'cm',   modo:'max', grupo:'Especifico'},
+  saltoL:        {label:'Salto Largo',       unidad:'cm',   modo:'max', grupo:'Especifico'},
+  saltoV:        {label:'Salto Vertical',    unidad:'cm',   modo:'max', grupo:'Especifico'},
+  vel30:         {label:'Velocidad 30m',     unidad:'seg',  modo:'min', grupo:'Especifico'},
+  km1:           {label:'1km Carrera',       unidad:'seg',  modo:'min', grupo:'Especifico'},
+  km2:           {label:'2km Carrera',       unidad:'seg',  modo:'min', grupo:'Especifico'},
+  personalizada: {label:'Prueba personalizada', unidad:'pts', modo:'max', grupo:'Custom'}
+};
+
+// ── LISTAR COMPETENCIAS ──────────────────────────────────────────────────────
+async function verCompetenciasExternas() {
+  var c = document.getElementById('herramienta-contenido');
+  try {
+    var res = await fetch('/api/competencias');
+    _compExt = await res.json();
+  } catch(e) { _compExt = []; }
+
+  var activas    = _compExt.filter(function(x){return x.estado !== 'finalizada';});
+  var finalizadas = _compExt.filter(function(x){return x.estado === 'finalizada';});
+
+  function cardComp(comp) {
+    var nPruebas = (comp.pruebas||[]).length;
+    var nPartic  = (comp.participantes||[]).length;
+    var label = nPruebas + ' prueba' + (nPruebas!==1?'s':'') + ' · ' + nPartic + ' participante' + (nPartic!==1?'s':'');
+    return '<div onclick="_abrirCompExt(\'' + comp.id + '\')" style="background:var(--fondo);border:1px solid ' + (comp.estado==='finalizada'?'#1a1a1a':'#1a3a1a') + ';border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+      '<div style="font-size:14px;font-weight:700;color:var(--texto)">' + comp.nombre + '</div>' +
+      '<div style="font-size:10px;color:' + (comp.estado==='finalizada'?'#555':'#4caf50') + ';font-weight:700">' + (comp.estado==='finalizada'?'🏁':'🟢') + '</div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--texto-secundario);margin-top:4px">' + label + '</div>' +
+      '</div>';
+  }
+
+  var htmlActivas    = activas.map(cardComp).join('') || '<div style="text-align:center;padding:20px;color:var(--texto-secundario);font-size:12px">Sin competencias activas</div>';
+  var htmlFinalizadas = finalizadas.length ? '<div style="font-size:10px;color:var(--texto-secundario);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Finalizadas</div>' + finalizadas.map(cardComp).join('') : '';
+
+  c.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
+    '<div style="font-size:16px;font-weight:700;color:var(--texto)">🏆 Competencias</div>' +
+    '<button onclick="_crearCompExt()" style="background:#4a9eff;color:var(--texto);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">➕ Nueva</button>' +
+    '</div>' +
+    htmlActivas + htmlFinalizadas;
+}
+
+// ── CREAR COMPETENCIA ────────────────────────────────────────────────────────
+function _crearCompExt() {
+  if(!entEsPremium()){mostrarCandadoPremium('Crear competencias requiere Plan Premium.');return;}
+  _compPruebasSeleccionadas = [];
+  var c = document.getElementById('herramienta-contenido');
+
+  // Construir selector de pruebas agrupado
+  var grupos = {};
+  var keys = Object.keys(_compExtMetricas);
+  for (var i=0; i<keys.length; i++) {
+    var k = keys[i];
+    var m = _compExtMetricas[k];
+    if (!grupos[m.grupo]) grupos[m.grupo] = [];
+    grupos[m.grupo].push({key:k, label:m.label, unidad:m.unidad});
+  }
+
+  var htmlGrupos = '';
+  var gkeys = Object.keys(grupos);
+  for (var g=0; g<gkeys.length; g++) {
+    var gn = gkeys[g];
+    var gid = 'compg-' + g;
+    var iconoGrupo = gn==='Fuerza Absoluta'?'🏋️':gn==='Fuerza Relativa'?'⚖️':gn==='Resistencia'?'🔁':gn==='Especifico'?'🎯':'✨';
+    htmlGrupos +=
+      '<div onclick="_compToggleGrupo(\'' + gid + '\')" ' +
+      'style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card);border:1px solid #2a2a2a;border-radius:8px;margin-bottom:4px;cursor:pointer;user-select:none">' +
+      '<div style="font-size:12px;font-weight:700;color:var(--texto)">' + iconoGrupo + ' ' + gn + '</div>' +
+      '<div id="arr-' + gid + '" style="font-size:12px;color:var(--texto-secundario);transition:transform 0.2s">▼</div>' +
+      '</div>' +
+      '<div id="' + gid + '" style="display:none;margin-bottom:8px">';
+    for (var h=0; h<grupos[gn].length; h++) {
+      var op = grupos[gn][h];
+      var esPctRel = (gn === 'Fuerza Relativa');
+      var subLabel = esPctRel ? op.unidad + ' · con % de tu PC' : op.unidad;
+      htmlGrupos +=
+        '<div onclick="_compTogglePrueba(\'' + op.key + '\',this)" data-key="' + op.key + '" ' +
+        'style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--fondo);border:1px solid #222;border-radius:8px;margin-bottom:4px;cursor:pointer">' +
+        '<div class="comp-check" style="width:18px;height:18px;border-radius:4px;border:2px solid #444;flex-shrink:0"></div>' +
+        '<div style="flex:1">' +
+        '<div style="font-size:12px;color:var(--texto);font-weight:600">' + op.label + '</div>' +
+        '<div style="font-size:10px;color:var(--texto-secundario)">' + subLabel + '</div>' +
+        '</div>' +
+        (esPctRel ?
+          '<div class="pct-box" style="display:none;align-items:center;gap:4px">' +
+          '<input onclick="event.stopPropagation()" id="pct-' + op.key + '" type="number" value="' + (op.pct||100) + '" min="1" max="500" ' +
+          'style="width:54px;background:var(--card);color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:4px 6px;font-size:12px;font-weight:700;text-align:center" ' +
+          'onchange="_compActualizarPct(\'' + op.key + '\',this.value)">' +
+          '<span style="font-size:10px;color:#e31e24;font-weight:700">% PC</span>' +
+          '</div>'
+        : '') +
+        '</div>';
+    }
+    htmlGrupos += '</div>';
+  }
+
+  // Panel prueba personalizada
+  htmlGrupos +=
+    '<div style="font-size:10px;color:#ffd700;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:10px 0 6px">Personalizada</div>' +
+    '<div style="background:var(--fondo);border:1px solid #2a2a00;border-radius:8px;padding:12px;margin-bottom:6px">' +
+    '<input id="cp-custom-nombre" placeholder="Nombre de la prueba" style="width:100%;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:6px;padding:8px;font-size:12px;margin-bottom:6px;box-sizing:border-box">' +
+    '<div style="display:flex;gap:6px">' +
+    '<input id="cp-custom-unidad" placeholder="Unidad (kg, reps, seg...)" style="flex:1;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:6px;padding:8px;font-size:12px;box-sizing:border-box">' +
+    '<select id="cp-custom-modo" style="background:var(--card);color:var(--texto);border:1px solid #333;border-radius:6px;padding:8px;font-size:12px">' +
+    '<option value="max">↑ Mayor</option><option value="min">↓ Menor</option>' +
+    '</select>' +
+    '</div>' +
+    '<button onclick="_compAgregarCustom()" style="width:100%;background:#2a2a00;color:#ffd700;border:1px solid #ffd700;border-radius:6px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px">➕ Añadir prueba personalizada</button>' +
+    '</div>';
+
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+    '<button onclick="verCompetenciasExternas()" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+    '<div style="font-size:14px;font-weight:700;color:var(--texto)">➕ Nueva Competencia</div>' +
+    '</div>' +
+    '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px">' +
+    '<div>' +
+    '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Nombre</div>' +
+    '<input id="cp-nombre" placeholder="Ej: Reto Fuerza Mayo" style="width:100%;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;box-sizing:border-box">' +
+    '</div>' +
+    '<div>' +
+    '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Categoría</div>' +
+    '<select id="cp-categoria" style="width:100%;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:13px">' +
+    '<option value="mixto">Mixto</option><option value="hombres">Hombres</option><option value="mujeres">Mujeres</option>' +
+    '</select>' +
+    '</div>' +
+    '<div>' +
+    '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Sistema de puntos</div>' +
+    '<select id="cp-puntos" style="width:100%;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:13px">' +
+    '<option value="ranking">🏆 Ranking decreciente (recomendado)</option>' +
+    '<option value="porcentaje">📊 Porcentaje del mejor</option>' +
+    '<option value="fijos">🎯 Puntos fijos por posición</option>' +
+    '</select>' +
+    '</div>' +
+    '</div>' +
+    '<div style="font-size:10px;color:var(--texto-medio);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px">Selecciona las pruebas</div>' +
+    '<div id="cp-pruebas-lista">' + htmlGrupos + '</div>' +
+    '<div id="cp-seleccionadas" style="min-height:36px;margin-bottom:8px"></div>' +
+    '<button onclick="_guardarCompExt()" style="width:100%;background:#4a9eff;color:var(--texto);border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer">Crear Competencia →</button>';
+}
+
+function _compToggleGrupo(gid) {
+  var el  = document.getElementById(gid);
+  var arr = document.getElementById('arr-' + gid);
+  if (!el) return;
+  var abierto = el.style.display !== 'none';
+  el.style.display  = abierto ? 'none' : 'block';
+  if (arr) arr.style.transform = abierto ? '' : 'rotate(180deg)';
+}
+
+function _compActualizarPct(key, val) {
+  var p = _compPruebasSeleccionadas.find(function(p){return p.key===key;});
+  if (p) p.pct = parseFloat(val) || 100;
+  _compActualizarSeleccionadas();
+}
+
+function _compTogglePrueba(key, el) {
+  var idx = _compPruebasSeleccionadas.findIndex(function(p){return p.key===key;});
+  var check = el.querySelector('.comp-check');
+  var pctBox = el.querySelector('.pct-box');
+  if (idx >= 0) {
+    _compPruebasSeleccionadas.splice(idx,1);
+    el.style.borderColor = '#222';
+    el.style.background = '#0d0d0d';
+    if (check) { check.style.background=''; check.style.borderColor='#444'; check.innerHTML=''; }
+    if (pctBox) pctBox.style.display = 'none';
+  } else {
+    var m = _compExtMetricas[key];
+    var pctInicial = m.pct || null;
+    var inputPct = document.getElementById('pct-' + key);
+    if (inputPct) pctInicial = parseFloat(inputPct.value) || m.pct || 100;
+    _compPruebasSeleccionadas.push({key:key, label:m.label, unidad:m.unidad, modo:m.modo, pct:pctInicial});
+    el.style.borderColor = '#4a9eff';
+    el.style.background = '#0a0a1a';
+    if (check) { check.style.background='#4a9eff'; check.style.borderColor='#4a9eff'; check.innerHTML='<span style="color:var(--texto);font-size:12px">✓</span>'; }
+    if (pctBox) pctBox.style.display = 'flex';
+  }
+  _compActualizarSeleccionadas();
+}
+
+function _compAgregarCustom() {
+  var nombre = (document.getElementById('cp-custom-nombre').value||'').trim();
+  var unidad = (document.getElementById('cp-custom-unidad').value||'pts').trim();
+  var modo   = document.getElementById('cp-custom-modo').value;
+  if (!nombre) { toast('⚠️ Escribe el nombre de la prueba',false); return; }
+  var key = 'custom_' + Date.now();
+  _compPruebasSeleccionadas.push({key:key, label:nombre, unidad:unidad, modo:modo, pct:null, custom:true});
+  document.getElementById('cp-custom-nombre').value = '';
+  document.getElementById('cp-custom-unidad').value = '';
+  _compActualizarSeleccionadas();
+}
+
+function _compActualizarSeleccionadas() {
+  var el = document.getElementById('cp-seleccionadas');
+  if (!el) return;
+  if (!_compPruebasSeleccionadas.length) { el.innerHTML=''; return; }
+  var html = '<div style="font-size:10px;color:#4caf50;font-weight:700;margin-bottom:6px">✅ ' + _compPruebasSeleccionadas.length + ' prueba(s) seleccionada(s):</div>';
+  for (var i=0; i<_compPruebasSeleccionadas.length; i++) {
+    var p = _compPruebasSeleccionadas[i];
+    html += '<div style="display:inline-block;background:#0a1a0a;border:1px solid #1a3a1a;border-radius:6px;padding:4px 8px;font-size:11px;color:#4caf50;margin:2px">' +
+      p.label + (p.pct?' ('+p.pct+'%PC)':'') +
+      '<span onclick="_compQuitarPrueba(\'' + p.key + '\')" style="margin-left:6px;color:#e31e24;cursor:pointer">✕</span>' +
+      '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function _compQuitarPrueba(key) {
+  _compPruebasSeleccionadas = _compPruebasSeleccionadas.filter(function(p){return p.key!==key;});
+  // desmarcar visualmente si es prueba estándar
+  var el = document.querySelector('[data-key="' + key + '"]');
+  if (el) {
+    el.style.borderColor = '#222';
+    el.style.background = '#0d0d0d';
+    var check = el.querySelector('.comp-check');
+    if (check) { check.style.background=''; check.style.borderColor='#444'; check.innerHTML=''; }
+  }
+  _compActualizarSeleccionadas();
+}
+
+async function _guardarCompExt() {
+  var nombre    = (document.getElementById('cp-nombre').value||'').trim();
+  var categoria = document.getElementById('cp-categoria').value;
+  var puntos    = document.getElementById('cp-puntos').value;
+  if (!nombre) { toast('⚠️ Ponle un nombre a la competencia',false); return; }
+  if (!_compPruebasSeleccionadas.length) { toast('⚠️ Selecciona al menos una prueba',false); return; }
+  var datos = {
+    nombre: nombre,
+    categoria: categoria,
+    sistemaPuntos: puntos,
+    pruebas: _compPruebasSeleccionadas,
+    participantes: [],
+    estado: 'activa'
+  };
+  try {
+    var res = await fetch('/api/competencias', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(datos)});
+    var r = await res.json();
+    if (r.ok) { await verCompetenciasExternas(); _abrirCompExt(r.id); }
+  } catch(e) { toast('❌ Error al guardar',false); }
+}
+
+// ── DETALLE COMPETENCIA ──────────────────────────────────────────────────────
+function _abrirCompExt(id) {
+  _compExtActual = _compExt.find(function(x){return x.id===id;}) || null;
+  if (!_compExtActual) return;
+  _renderCompExtDetalle();
+}
+
+function _calcularPuntosComp(comp) {
+  var partic = (comp.participantes || []).slice();
+  var pruebas = comp.pruebas || [];
+  var sistema = comp.sistemaPuntos || 'ranking';
+  var n = partic.length;
+
+  // Inicializar puntos
+  partic.forEach(function(p){ p._puntos = 0; p._detalle = {}; });
+
+  pruebas.forEach(function(prueba) {
+    // Ordenar por resultado en esta prueba
+    var conResultado = partic.filter(function(p){
+      return p.resultados && p.resultados[prueba.key] !== undefined && p.resultados[prueba.key] !== '';
+    });
+    conResultado.sort(function(a,b){
+      var va = parseFloat(a.resultados[prueba.key]);
+      var vb = parseFloat(b.resultados[prueba.key]);
+      return prueba.modo === 'min' ? va - vb : vb - va;
+    });
+
+    for (var i=0; i<conResultado.length; i++) {
+      var p = conResultado[i];
+      var pts = 0;
+      if (sistema === 'ranking') {
+        // Detectar empates
+        var val = parseFloat(p.resultados[prueba.key]);
+        var mismoValor = conResultado.filter(function(x){ return parseFloat(x.resultados[prueba.key]) === val; });
+        var posSum = 0;
+        for (var j=0; j<mismoValor.length; j++) {
+          posSum += (conResultado.length - (conResultado.indexOf(mismoValor[j])));
+        }
+        pts = posSum / mismoValor.length;
+      } else if (sistema === 'porcentaje') {
+        var mejor = parseFloat(conResultado[0].resultados[prueba.key]);
+        var val2  = parseFloat(p.resultados[prueba.key]);
+        pts = mejor > 0 ? Math.round((prueba.modo==='min' ? mejor/val2 : val2/mejor) * 100) : 0;
+      } else if (sistema === 'fijos') {
+        pts = conResultado.length - i;
+      }
+      p._puntos += pts;
+      p._detalle[prueba.key] = pts;
+    }
+  });
+
+  partic.sort(function(a,b){ return b._puntos - a._puntos; });
+  return partic;
+}
+
+function _renderCompExtDetalle() {
+  var comp = _compExtActual;
+  if (!comp) return;
+  var c = document.getElementById('herramienta-contenido');
+  var pruebas  = comp.pruebas || [];
+  var sistema  = comp.sistemaPuntos || 'ranking';
+  var sistLabel = sistema==='ranking'?'Ranking':(sistema==='porcentaje'?'% del mejor':'Puntos fijos');
+  var ranked   = _calcularPuntosComp(comp);
+  var n        = ranked.length;
+
+  var medallas    = ['🥇','🥈','🥉'];
+  var coloresPodio = ['#ffd700','#c0c0c0','#cd7f32'];
+  var top3        = ranked.slice(0,3);
+  var resto       = ranked.slice(3);
+  var podioOrden  = [top3[1],top3[0],top3[2]].filter(Boolean);
+  var alturas     = [75,100,60];
+
+  var htmlPodio = '';
+  if (top3.length >= 2) {
+    for (var p=0; p<podioOrden.length; p++) {
+      var pu  = podioOrden[p];
+      var posReal = top3.indexOf(pu);
+      var col = coloresPodio[posReal];
+      var alt = alturas[p]||60;
+      var ini = pu.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+      htmlPodio +=
+        '<div style="display:flex;flex-direction:column;align-items:center;flex:1">' +
+        '<div style="font-size:11px;font-weight:700;color:var(--texto);margin-bottom:4px;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + pu.nombre.split(' ')[0] + '</div>' +
+        '<div style="width:52px;height:52px;border-radius:50%;background:' + col + '22;border:2px solid ' + col + ';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:' + col + ';margin-bottom:4px">' + ini + '</div>' +
+        '<div style="font-size:13px;font-weight:700;color:' + col + ';margin-bottom:4px">' + Math.round(pu._puntos) + ' pts</div>' +
+        '<div style="width:100%;height:' + alt + 'px;background:linear-gradient(180deg,' + col + '44,' + col + '22);border:1px solid ' + col + '66;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center">' +
+        '<span style="font-size:24px">' + medallas[posReal] + '</span>' +
+        '</div>' +
+        '</div>';
+    }
+  }
+
+  var htmlResto = '';
+  for (var r=0; r<resto.length; r++) {
+    var ru = resto[r];
+    var ri = ru.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlResto +=
+      '<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #111">' +
+      '<div style="font-size:16px;font-weight:700;color:var(--texto-secundario);width:24px;text-align:center">' + (r+4) + '</div>' +
+      '<div style="width:38px;height:38px;border-radius:50%;background:var(--gris);border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--texto-medio)">' + ri + '</div>' +
+      '<div style="flex:1">' +
+      '<div style="font-size:13px;font-weight:700;color:var(--texto)">' + ru.nombre + '</div>' +
+      '<div style="font-size:11px;color:var(--texto-secundario)">' + Math.round(ru._puntos) + ' pts</div>' +
+      '</div>' +
+      (comp.estado !== 'finalizada' ? '<button onclick="_agregarParticipanteExt(' + comp.participantes.indexOf(ru) + ')" style="background:var(--gris);color:var(--texto-medio);border:1px solid #333;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✏️</button>' : '') +
+      '</div>';
+  }
+
+  // Tabla de resultados por prueba
+  var htmlTabla = '';
+  if (pruebas.length) {
+    htmlTabla = '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:12px;overflow:hidden;margin-bottom:14px">' +
+      '<div style="padding:10px 14px;border-bottom:1px solid #111;font-size:11px;color:var(--texto-secundario);font-weight:700;text-transform:uppercase;letter-spacing:1px">📋 Resultados por prueba</div>';
+    for (var pr=0; pr<pruebas.length; pr++) {
+      var prueba = pruebas[pr];
+      var conRes = ranked.filter(function(p){ return p.resultados && p.resultados[prueba.key] !== undefined; });
+      htmlTabla +=
+        '<div style="padding:10px 14px;border-bottom:1px solid #0a0a0a">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+        '<div style="font-size:12px;font-weight:700;color:var(--texto)">' + prueba.label + (prueba.pct?' <span style="color:var(--texto-secundario);font-weight:400;font-size:10px">('+prueba.pct+'% PC)</span>':'') + '</div>' +
+        '<div style="font-size:10px;color:var(--texto-secundario)">' + prueba.unidad + ' · ' + (prueba.modo==='min'?'↓ menor':'↑ mayor') + '</div>' +
+        '</div>';
+      if (conRes.length) {
+        for (var pi=0; pi<conRes.length; pi++) {
+          var pp = conRes[pi];
+          var val = pp.resultados[prueba.key];
+          var pts = pp._detalle[prueba.key] || 0;
+          htmlTabla +=
+            '<div style="display:flex;align-items:center;gap:8px;padding:4px 0">' +
+            '<div style="width:16px;font-size:10px;color:var(--texto-secundario);text-align:right">' + (pi+1) + '</div>' +
+            '<div style="flex:1;font-size:11px;color:var(--texto-medio)">' + pp.nombre + '</div>' +
+            (pp.peso ? '<div style="font-size:10px;color:var(--texto-secundario)">' + pp.peso + 'kg</div>' : '') +
+            '<div style="font-size:12px;color:var(--texto);font-weight:700">' + val + ' ' + prueba.unidad + '</div>' +
+            '<div style="font-size:10px;color:#e31e24;min-width:36px;text-align:right">' + Math.round(pts) + 'p</div>' +
+            '</div>';
+        }
+      } else {
+        htmlTabla += '<div style="font-size:11px;color:var(--texto-tenue);padding:4px 0">Sin resultados aún</div>';
+      }
+      htmlTabla += '</div>';
+    }
+    htmlTabla += '</div>';
+  }
+
+  // Lista general de participantes (solo cuando activa)
+  var htmlListaPartic = '';
+  if (comp.estado !== 'finalizada' && ranked.length) {
+    htmlListaPartic = '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:12px;overflow:hidden;margin-bottom:14px">' +
+      '<div style="padding:10px 14px;border-bottom:1px solid #111;font-size:11px;color:var(--texto-secundario);font-weight:700;text-transform:uppercase;letter-spacing:1px">👥 Participantes</div>';
+    for (var ri2=0; ri2<ranked.length; ri2++) {
+      var ru2 = ranked[ri2];
+      var ri2i = ru2.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+      htmlListaPartic +=
+        '<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #111">' +
+        '<div style="font-size:16px;font-weight:700;color:var(--texto-secundario);width:24px;text-align:center">' + (ri2+1) + '</div>' +
+        '<div style="width:36px;height:36px;border-radius:50%;background:var(--gris);border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--texto-medio)">' + ri2i + '</div>' +
+        '<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--texto)">' + ru2.nombre + '</div>' +
+        '<div style="font-size:11px;color:var(--texto-secundario)">' + Math.round(ru2._puntos) + ' pts</div></div>' +
+        '<button onclick="_agregarParticipanteExt(' + comp.participantes.indexOf(ru2) + ')" style="background:var(--gris);color:var(--texto-medio);border:1px solid #333;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✏️</button>' +
+        '</div>';
+    }
+    htmlListaPartic += '</div>';
+  }
+
+  var estadoBtn = comp.estado === 'finalizada'
+    ? '<button onclick="_toggleEstadoCompExt()" style="flex:1;background:var(--gris);color:var(--texto-secundario);border:1px solid #333;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🔄 Reabrir</button>'
+    : '<button onclick="_toggleEstadoCompExt()" style="flex:1;background:var(--gris);color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🏁 Finalizar</button>';
+
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
+    '<button onclick="verCompetenciasExternas()" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+    '<div style="flex:1;font-size:14px;font-weight:700;color:var(--texto)">' + comp.nombre + '</div>' +
+    '<div style="font-size:10px;color:' + (comp.estado==='finalizada'?'#555':'#4caf50') + ';font-weight:700">' + (comp.estado==='finalizada'?'🏁 FIN':'🟢 ACTIVA') + '</div>' +
+    '</div>' +
+    '<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">' + (comp.categoria||'Mixto') + ' · ' + pruebas.length + ' pruebas · ' + sistLabel + '</div>' +
+    (comp.estado === 'finalizada' && n >= 2 ?
+      '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:14px;padding:20px 10px 10px;margin-bottom:14px">' +
+      '<div style="font-size:10px;color:var(--texto-secundario);text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">🏅 Podio</div>' +
+      '<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px">' + htmlPodio + '</div>' +
+      '</div>'
+    : '') +
+    htmlListaPartic +
+    htmlTabla +
+    (comp.estado === 'finalizada' && resto.length ? '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:14px;overflow:hidden;margin-bottom:14px">' + htmlResto + '</div>' : '') +
+    (comp.estado !== 'finalizada' ?
+      '<button onclick="_agregarParticipanteExt()" style="width:100%;background:#0a0a1a;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">➕ Agregar / Editar Participante</button>'
+    : '') +
+    '<div style="display:flex;gap:8px">' +
+    estadoBtn +
+    '<button onclick="_eliminarCompExt()" style="flex:1;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">🗑️ Eliminar</button>' +
+    '</div>';
+}
+
+// ── AGREGAR / EDITAR PARTICIPANTE ────────────────────────────────────────────
+function _agregarParticipanteExt(editIdx) {
+  var comp = _compExtActual;
+  if (!comp) return;
+  var c = document.getElementById('herramienta-contenido');
+  var pruebas = comp.pruebas || [];
+  var partic  = (editIdx !== undefined) ? comp.participantes[editIdx] : null;
+
+  var htmlPruebas = '';
+  for (var i=0; i<pruebas.length; i++) {
+    var pr = pruebas[i];
+    var valActual = (partic && partic.resultados && partic.resultados[pr.key] !== undefined) ? partic.resultados[pr.key] : '';
+    htmlPruebas +=
+      '<div>' +
+      '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:4px">' +
+      pr.label + (pr.pct ? ' <span style="color:var(--texto-secundario)">('+pr.pct+'% PC)</span>' : '') +
+      ' <span style="color:var(--texto-secundario);font-weight:400">· ' + pr.unidad + ' · ' + (pr.modo==='min'?'↓ menor gana':'↑ mayor gana') + '</span>' +
+      '</div>' +
+      '<input id="cp-res-' + pr.key + '" type="number" step="0.1" placeholder="Dejar vacío si no tiene resultado" value="' + valActual + '" ' +
+      'style="width:100%;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;box-sizing:border-box">' +
+      '</div>';
+  }
+
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+    '<button onclick="_renderCompExtDetalle()" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+    '<div style="font-size:14px;font-weight:700;color:var(--texto)">' + (partic ? '✏️ Editar' : '➕ Agregar') + ' Participante</div>' +
+    '</div>' +
+    '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px">' +
+    '<div>' +
+    '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Nombre</div>' +
+    '<input id="cp-p-nombre" placeholder="Nombre del participante" value="' + (partic?partic.nombre:'') + '" style="width:100%;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;box-sizing:border-box">' +
+    '</div>' +
+    '<div>' +
+    '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Peso corporal (kg) <span style="color:var(--texto-secundario);font-weight:400">— para pruebas relativas</span></div>' +
+    '<input id="cp-p-peso" type="number" step="0.1" placeholder="Ej: 75.5" value="' + (partic?partic.peso||'':'') + '" style="width:100%;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;box-sizing:border-box">' +
+    '</div>' +
+    htmlPruebas +
+    '</div>' +
+    '<button onclick="_guardarParticipanteExt(' + (editIdx !== undefined ? editIdx : 'undefined') + ')" style="width:100%;background:#4a9eff;color:var(--texto);border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px">Guardar →</button>';
+}
+
+async function _guardarParticipanteExt(editIdx) {
+  var nombre = (document.getElementById('cp-p-nombre').value||'').trim();
+  var peso   = parseFloat(document.getElementById('cp-p-peso').value) || null;
+  if (!nombre) { toast('⚠️ Escribe el nombre del participante',false); return; }
+  var comp   = _compExtActual;
+  var pruebas = comp.pruebas || [];
+  var resultados = {};
+  for (var i=0; i<pruebas.length; i++) {
+    var pr  = pruebas[i];
+    var val = document.getElementById('cp-res-' + pr.key).value;
+    if (val !== '' && !isNaN(parseFloat(val))) {
+      resultados[pr.key] = parseFloat(val);
+    }
+  }
+  var entrada = {nombre:nombre, peso:peso, resultados:resultados, fecha:new Date().toISOString().split('T')[0]};
+  if (!comp.participantes) comp.participantes = [];
+  if (editIdx !== undefined && editIdx !== null) {
+    comp.participantes[editIdx] = entrada;
+  } else {
+    comp.participantes.push(entrada);
+  }
+  try {
+    await fetch('/api/competencias/' + comp.id, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({participantes:comp.participantes})});
+    _renderCompExtDetalle();
+  } catch(e) { toast('❌ Error al guardar',false); }
+}
+
+async function _toggleEstadoCompExt() {
+  var comp = _compExtActual;
+  if (!comp) return;
+  comp.estado = comp.estado === 'finalizada' ? 'activa' : 'finalizada';
+  await fetch('/api/competencias/' + comp.id, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({estado:comp.estado})});
+  _renderCompExtDetalle();
+}
+
+async function _eliminarCompExt() {
+  if (!confirm('Eliminar esta competencia?')) return;
+  await fetch('/api/competencias/' + _compExtActual.id, {method:'DELETE'});
+  _compExtActual = null;
+  await verCompetenciasExternas();
+}
+
+
+var _prMeta = {
+  fuerza:  {
+    pecho:   {label:'Press Pecho',   modo:'rm'},
+    espalda: {label:'Remo Jalon',    modo:'rm'},
+    biceps:  {label:'Biceps',        modo:'rm'},
+    triceps: {label:'Triceps',       modo:'rm'},
+    femoral: {label:'Femoral',       modo:'rm'},
+    cuad:    {label:'Cuadriceps',    modo:'rm'},
+    gluteo:  {label:'Gluteo',        modo:'rm'}
+  },
+  resist: {
+    pushups:    {label:'Flexiones',    modo:'max'},
+    dominadas:  {label:'Dominadas',    modo:'max'},
+    fondos:     {label:'Fondos',       modo:'max'},
+    sentadilla: {label:'Sentadilla',   modo:'max'},
+    plancha:    {label:'Plancha seg',  modo:'max'},
+    burpees:    {label:'Burpees',      modo:'max'}
+  },
+  especif: {
+    cooper:   {label:'Cooper m',       modo:'max'},
+    leger:    {label:'Leger nivel',    modo:'max'},
+    sitreach: {label:'Sit and Reach',  modo:'max'},
+    hombro:   {label:'Flex Hombro',    modo:'max'},
+    saltoL:   {label:'Salto Largo cm', modo:'max'},
+    saltoV:   {label:'Salto Vertical', modo:'max'},
+    vel30:    {label:'Vel 30m seg',    modo:'min'}
+  }
+};
+
+function _prContenedor() { return document.getElementById('herramienta-contenido'); }
+function _prTipoActual() { var s=document.getElementById('pr-ejercicio-sel'); return s?s.getAttribute('data-tipo'):''; }
+
+async function verPRCategoria(tipo) {
+  var c = _prContenedor();
+  var meta = _prMeta[tipo];
+  var keys = Object.keys(meta);
+  var infoMap = {
+    fuerza:  {icon:'<img src="/images/comp-pr-fuerza.png" style="width:36px;height:36px;object-fit:contain">', label:'PR Fuerza',      color:'#ff6b35'},
+    resist:  {icon:'<img src="/images/comp-pr-resistencia.png" style="width:36px;height:36px;object-fit:contain">', label:'PR Resistencia', color:'#4a9eff'},
+    especif: {icon:'<img src="/images/comp-pr-especifico.png" style="width:36px;height:36px;object-fit:contain">', label:'PR Especifico',  color:'#ffd700'}
+  };
+  var inf = infoMap[tipo];
+  var opts = '';
+  for (var k=0; k<keys.length; k++) {
+    opts += '<option value="' + keys[k] + '">' + meta[keys[k]].label + '</option>';
+  }
+  c.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+      '<button onclick="_prContenedor() && renderCompetencias(_prContenedor())" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<div style="font-size:14px;font-weight:700;color:var(--texto)">' + inf.icon + ' ' + inf.label + '</div>' +
+    '</div>' +
+    '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:12px;padding:14px;margin-bottom:12px">' +
+      '<div style="font-size:10px;color:' + inf.color + ';text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px">Ejercicio</div>' +
+      '<select id="pr-ejercicio-sel" data-tipo="' + tipo + '" onchange="_renderPRRanking()" style="width:100%;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:13px">' + opts + '</select>' +
+    '</div>' +
+    '<div id="pr-ranking-contenido"><div style="text-align:center;padding:30px;color:var(--texto-secundario)">Cargando...</div></div>';
+  await _renderPRRanking();
+}
+
+async function _renderPRRanking() {
+  var sel = document.getElementById('pr-ejercicio-sel');
+  if (!sel) return;
+  var tipo = sel.getAttribute('data-tipo');
+  var ejercicio = sel.value;
+  var meta = _prMeta[tipo][ejercicio];
+  var contenido = document.getElementById('pr-ranking-contenido');
+  contenido.innerHTML = '<div style="text-align:center;padding:30px;color:var(--texto-secundario)">Calculando PRs...</div>';
+  var todos = window._usuariosCargados || [];
+  var ranking = [];
+  for (var i=0; i<todos.length; i++) {
+    var u = todos[i];
+    var pr = null;
+    var prFecha = '';
+    try {
+      var res = await fetch('/api/tests/'+u.id).then(function(r){return r.json();}).catch(function(){return {registros:[]};});
+      var regs = (res.registros||[]).filter(function(r){return r.tipo===tipo;});
+      for (var j=0; j<regs.length; j++) {
+        var reg = regs[j];
+        var campo = reg[ejercicio];
+        if (!campo && campo !== 0) continue;
+        var val = null;
+        if (tipo === 'fuerza' && campo.rm != null) val = campo.rm;
+        else if (campo.valor != null) val = campo.valor;
+        else if (typeof campo === 'number') val = campo;
+        if (val == null) continue;
+        if (pr === null) { pr = val; prFecha = reg.fecha; }
+        else if (meta.modo === 'min' && val < pr) { pr = val; prFecha = reg.fecha; }
+        else if (meta.modo === 'max' && val > pr) { pr = val; prFecha = reg.fecha; }
+      }
+    } catch(e) {}
+    if (pr !== null) {
+      var unidad = '';
+      if (tipo === 'fuerza') unidad = ' kg RM';
+      else if (ejercicio === 'plancha' || ejercicio === 'vel30') unidad = ' seg';
+      else if (ejercicio === 'cooper') unidad = ' m';
+      else if (ejercicio === 'saltoL' || ejercicio === 'saltoV') unidad = ' cm';
+      ranking.push({nombre:u.nombre, pr:pr, detalle:pr+unidad+(prFecha?' · '+prFecha:''), activo:u.activo});
+    }
+  }
+  if (meta.modo === 'min') ranking.sort(function(a,b){return a.pr-b.pr;});
+  else ranking.sort(function(a,b){return b.pr-a.pr;});
+  if (!ranking.length) {
+    contenido.innerHTML = '<div style="text-align:center;padding:30px;color:var(--texto-secundario)">Sin registros para este ejercicio</div>';
+    return;
+  }
+  var medallas = ['🥇','🥈','🥉'];
+  var coloresPodio = ['#ffd700','#c0c0c0','#cd7f32'];
+  var colorTipo = {fuerza:'#ff6b35',resist:'#4a9eff',especif:'#ffd700'};
+  var top3 = ranking.slice(0,3);
+  var resto = ranking.slice(3);
+  var podioOrden = [top3[1],top3[0],top3[2]].filter(Boolean);
+  var alturas = [75,100,60];
+  var htmlPodio = '';
+  for (var p=0; p<podioOrden.length; p++) {
+    var pu = podioOrden[p];
+    var posReal = top3.indexOf(pu);
+    var col = coloresPodio[posReal];
+    var alt = alturas[p]||60;
+    var ini = pu.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlPodio +=
+      '<div style="display:flex;flex-direction:column;align-items:center;flex:1">' +
+        '<div style="font-size:11px;font-weight:700;color:'+(pu.activo?'#fff':'#888')+';margin-bottom:4px;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+pu.nombre.split(' ')[0]+(pu.activo?'':' 💤')+'</div>' +
+        '<div style="width:52px;height:52px;border-radius:50%;background:'+col+'22;border:2px solid '+col+';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:'+col+';margin-bottom:6px">'+ini+'</div>' +
+        '<div style="font-size:11px;color:var(--texto-medio);margin-bottom:6px;text-align:center">'+pu.detalle+'</div>' +
+        '<div style="width:100%;height:'+alt+'px;background:linear-gradient(180deg,'+col+'44,'+col+'22);border:1px solid '+col+'66;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center">' +
+          '<span style="font-size:24px">'+medallas[posReal]+'</span>' +
+        '</div>' +
+      '</div>';
+  }
+  var htmlResto = '';
+  for (var r=0; r<resto.length; r++) {
+    var ru = resto[r];
+    var rini = ru.nombre.split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+    htmlResto +=
+      '<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #111">' +
+        '<div style="font-size:16px;font-weight:700;color:var(--texto-secundario);width:24px;text-align:center">'+(r+4)+'</div>' +
+        '<div style="width:38px;height:38px;border-radius:50%;background:var(--gris);border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--texto-medio)">'+rini+'</div>' +
+        '<div style="flex:1">' +
+          '<div style="font-size:13px;font-weight:700;color:'+(ru.activo?'#fff':'#888')+'">'+ru.nombre+(ru.activo?'':' 💤')+'</div>' +
+          '<div style="font-size:11px;color:var(--texto-secundario)">'+ru.detalle+'</div>' +
+        '</div>' +
+        '<div style="font-size:14px;font-weight:700;color:'+colorTipo[tipo]+'">'+ru.pr+'</div>' +
+      '</div>';
+  }
+  contenido.innerHTML =
+    '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:14px;padding:20px 10px 10px;margin-bottom:14px">' +
+      '<div style="font-size:10px;color:var(--texto-secundario);text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">🏅 '+meta.label+' — Mejor de todos los tiempos</div>' +
+      '<div style="display:flex;align-items:flex-end;justify-content:center;gap:8px">'+htmlPodio+'</div>' +
+    '</div>' +
+    (resto.length ? '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:14px;overflow:hidden">'+htmlResto+'</div>' : '');
+}
+
+
+
+// ═══════════════════════════════
+// TEMPORIZADORES
+// ═══════════════════════════════
+let _timerTab='individual';
+let _timerInd={h:0,m:0,s:0,total:0,resto:0,running:false,interval:null};
+let _timerMulti=[];
+
+function fmtTimer(seg){
+  const h=Math.floor(seg/3600);
+  const m=Math.floor((seg%3600)/60);
+  const s=seg%60;
+  return (h>0?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function renderTemporizadores(c){
+  c.innerHTML=`
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button onclick="_timerTab='individual';renderTemporizadores(document.getElementById('herramienta-contenido'))" style="flex:1;background:${_timerTab==='individual'?'#e31e24':'#1a1a1a'};color:var(--texto);border:1px solid ${_timerTab==='individual'?'#e31e24':'#333'};border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">Individual</button>
+    <button onclick="_timerTab='multi';renderTemporizadores(document.getElementById('herramienta-contenido'))" style="flex:1;background:${_timerTab==='multi'?'#e31e24':'#1a1a1a'};color:var(--texto);border:1px solid ${_timerTab==='multi'?'#e31e24':'#333'};border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">Múltiple</button>
+  </div>
+  <div id="timer-individual-panel" style="display:${_timerTab==='individual'?'block':'none'}"></div>
+  <div id="timer-multi-panel" style="display:${_timerTab==='multi'?'block':'none'}"></div>`;
+  if(_timerTab==='individual') renderTimerIndividual();
+  else renderTimerMultiPanel();
+}
+
+function renderTimerIndividual(){
+  const p=document.getElementById('timer-individual-panel');
+  if(!p)return;
+  const running=_timerInd.running;
+  const resto=_timerInd.resto;
+  const pct=_timerInd.total>0?Math.round((resto/_timerInd.total)*100):0;
+  p.innerHTML=`
+  <div style="text-align:center;padding:20px 0 10px">
+    <div style="font-size:52px;font-weight:700;color:${resto===0&&_timerInd.total>0?'#e31e24':'#fff'};font-family:monospace;letter-spacing:2px;text-shadow:0 0 20px rgba(227,30,36,0.3)">${fmtTimer(resto)}</div>
+    <div style="margin:12px auto;width:80%;height:6px;background:var(--gris2);border-radius:3px">
+      <div style="width:${pct}%;height:100%;background:#e31e24;border-radius:3px;transition:width 1s linear"></div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:10px;margin:16px 0">
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">HH</div>
+        <input type="number" min="0" max="23" value="${_timerInd.h}" ${running?'disabled':''} onchange="_timerInd.h=Math.min(23,Math.max(0,parseInt(this.value)||0));_timerInd.resto=_timerInd.h*3600+_timerInd.m*60+_timerInd.s;_timerInd.total=_timerInd.resto;renderTimerIndividual()" style="width:56px;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:20px;text-align:center;font-family:monospace">
+      </div>
+      <div style="font-size:28px;color:var(--texto-tenue);padding-top:20px">:</div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">MM</div>
+        <input type="number" min="0" max="59" value="${_timerInd.m}" ${running?'disabled':''} onchange="_timerInd.m=Math.min(59,Math.max(0,parseInt(this.value)||0));_timerInd.resto=_timerInd.h*3600+_timerInd.m*60+_timerInd.s;_timerInd.total=_timerInd.resto;renderTimerIndividual()" style="width:56px;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:20px;text-align:center;font-family:monospace">
+      </div>
+      <div style="font-size:28px;color:var(--texto-tenue);padding-top:20px">:</div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">SS</div>
+        <input type="number" min="0" max="59" value="${_timerInd.s}" ${running?'disabled':''} onchange="_timerInd.s=Math.min(59,Math.max(0,parseInt(this.value)||0));_timerInd.resto=_timerInd.h*3600+_timerInd.m*60+_timerInd.s;_timerInd.total=_timerInd.resto;renderTimerIndividual()" style="width:56px;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:20px;text-align:center;font-family:monospace">
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:12px;margin-top:8px">
+      <button onclick="timerIndStart()" style="background:#e31e24;color:var(--texto);border:none;border-radius:50%;width:64px;height:64px;font-size:24px;cursor:pointer;box-shadow:0 0 15px rgba(227,30,36,0.4)">${running?'⏸️':'▶️'}</button>
+      <button onclick="timerIndReset()" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:50%;width:64px;height:64px;font-size:24px;cursor:pointer">🔄</button>
+    </div>
+  </div>`;
+}
+
+function timerIndStart(){
+  if(_timerInd.running){
+    clearInterval(_timerInd.interval);
+    _timerInd.running=false;
+    renderTimerIndividual();
+  } else {
+    if(_timerInd.resto<=0){
+      _timerInd.resto=_timerInd.h*3600+_timerInd.m*60+_timerInd.s;
+      _timerInd.total=_timerInd.resto;
+    }
+    if(_timerInd.resto<=0)return;
+    dtSonarEvento('timer','inicio');
+    _timerInd.running=true;
+    _timerInd.interval=setInterval(()=>{
+      _timerInd.resto--;
+      if(_timerInd.resto<=0){
+        _timerInd.resto=0;
+        clearInterval(_timerInd.interval);
+        _timerInd.running=false;
+        renderTimerIndividual();
+        dtSonarEvento('timer','fin');
+        dtNotificar('⏱️ Temporizador terminó','El tiempo se cumplió');
+        setTimeout(()=>toast('⏱️ ¡Tiempo cumplido!'),200);
+      } else {
+        renderTimerIndividual();
+      }
+    },1000);
+    renderTimerIndividual();
+  }
+}
+
+function timerIndReset(){
+  clearInterval(_timerInd.interval);
+  _timerInd.running=false;
+  _timerInd.resto=_timerInd.h*3600+_timerInd.m*60+_timerInd.s;
+  _timerInd.total=_timerInd.resto;
+  renderTimerIndividual();
+}
+
+function renderTimerMultiPanel(){
+  const p=document.getElementById('timer-multi-panel');
+  if(!p)return;
+  const grid=_timerMulti.map((t,i)=>{
+    const pct=t.total>0?Math.round((t.resto/t.total)*100):0;
+    return `<div style="background:var(--card);border:1px solid ${t.running?'#e31e24':t.resto===0&&t.total>0?'#ff9800':'#222'};border-radius:10px;padding:12px;position:relative">
+    <button onclick="timerMultiEliminar(${i})" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--texto-tenue);font-size:16px;cursor:pointer">✖</button>
+    <input value="${t.nombre}" onchange="_timerMulti[${i}].nombre=this.value" style="background:none;border:none;border-bottom:1px solid #333;color:#e31e24;font-size:11px;font-weight:700;text-transform:uppercase;width:80%;outline:none;margin-bottom:6px">
+    <div style="font-size:26px;font-weight:700;color:${t.resto===0&&t.total>0?'#ff9800':'#fff'};font-family:monospace;text-align:center;margin:6px 0">${fmtTimer(t.resto)}</div>
+    <div style="margin:4px 0 8px;height:4px;background:var(--gris2);border-radius:2px"><div style="width:${pct}%;height:100%;background:#e31e24;border-radius:2px"></div></div>
+    <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px">
+      <input type="number" min="0" max="23" value="${t.h}" ${t.running?'disabled':''} onchange="_timerMulti[${i}].h=Math.min(23,Math.max(0,parseInt(this.value)||0));_timerMulti[${i}].resto=_timerMulti[${i}].h*3600+_timerMulti[${i}].m*60+_timerMulti[${i}].s;_timerMulti[${i}].total=_timerMulti[${i}].resto;renderTimerMultiPanel()" style="width:44px;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:6px;padding:4px;font-size:14px;text-align:center;font-family:monospace">
+      <span style="color:var(--texto-tenue);padding-top:4px">:</span>
+      <input type="number" min="0" max="59" value="${t.m}" ${t.running?'disabled':''} onchange="_timerMulti[${i}].m=Math.min(59,Math.max(0,parseInt(this.value)||0));_timerMulti[${i}].resto=_timerMulti[${i}].h*3600+_timerMulti[${i}].m*60+_timerMulti[${i}].s;_timerMulti[${i}].total=_timerMulti[${i}].resto;renderTimerMultiPanel()" style="width:44px;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:6px;padding:4px;font-size:14px;text-align:center;font-family:monospace">
+      <span style="color:var(--texto-tenue);padding-top:4px">:</span>
+      <input type="number" min="0" max="59" value="${t.s}" ${t.running?'disabled':''} onchange="_timerMulti[${i}].s=Math.min(59,Math.max(0,parseInt(this.value)||0));_timerMulti[${i}].resto=_timerMulti[${i}].h*3600+_timerMulti[${i}].m*60+_timerMulti[${i}].s;_timerMulti[${i}].total=_timerMulti[${i}].resto;renderTimerMultiPanel()" style="width:44px;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:6px;padding:4px;font-size:14px;text-align:center;font-family:monospace">
+    </div>
+    <div style="display:flex;justify-content:center;gap:8px">
+      <button onclick="timerMultiToggle(${i})" style="background:${t.running?'#3a0000':'#1a1a1a'};color:${t.running?'#e31e24':'#fff'};border:1px solid ${t.running?'#e31e24':'#333'};border-radius:6px;padding:8px 14px;cursor:pointer;font-size:16px">${t.running?'⏸️':'▶️'}</button>
+      <button onclick="timerMultiReset(${i})" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:16px">🔄</button>
+    </div>
+  </div>`;
+  }).join('');
+  p.innerHTML=`
+  <div style="display:flex;gap:6px;margin-bottom:12px">
+    <button onclick="timerMultiTodos('start')" style="flex:1;background:var(--gris);color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">▶️ Todos</button>
+    <button onclick="timerMultiTodos('pause')" style="flex:1;background:var(--gris);color:#ff9800;border:1px solid #ff9800;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">⏸️ Todos</button>
+    <button onclick="timerMultiTodos('reset')" style="flex:1;background:var(--gris);color:var(--texto-secundario);border:1px solid #333;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">🔄 Todos</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px" id="timer-multi-grid">${grid}</div>
+  <button onclick="timerMultiAgregar()" style="width:100%;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:12px;font-weight:700;font-size:13px;cursor:pointer;margin-top:12px">➕ Añadir temporizador</button>`;
+}
+
+function timerMultiAgregar(){
+  _timerMulti.push({nombre:'Timer '+(_timerMulti.length+1),h:0,m:1,s:0,total:60,resto:60,running:false,interval:null});
+  renderTimerMultiPanel();
+}
+
+function timerMultiEliminar(i){
+  clearInterval(_timerMulti[i].interval);
+  _timerMulti.splice(i,1);
+  renderTimerMultiPanel();
+}
+
+function timerMultiToggle(i){
+  const t=_timerMulti[i];
+  if(t.running){
+    clearInterval(t.interval);
+    t.running=false;
+    renderTimerMultiPanel();
+  } else {
+    if(t.resto<=0){t.resto=t.h*3600+t.m*60+t.s;t.total=t.resto;}
+    if(t.resto<=0)return;
+    dtSonarEvento('timer','inicio');
+    t.running=true;
+    t.interval=setInterval(()=>{
+      t.resto--;
+      if(t.resto<=0){
+        t.resto=0;
+        clearInterval(t.interval);
+        t.running=false;
+        dtSonarEvento('timer','fin');
+      }
+      renderTimerMultiPanel();
+    },1000);
+    renderTimerMultiPanel();
+  }
+}
+
+function timerMultiTodos(accion){
+  _timerMulti.forEach((t,i)=>{
+    if(accion==='start'&&!t.running){
+      if(t.resto<=0){t.resto=t.h*3600+t.m*60+t.s;t.total=t.resto;}
+      if(t.resto<=0)return;
+      t.running=true;
+      t.interval=setInterval(()=>{
+        t.resto--;
+        if(t.resto<=0){
+          t.resto=0;
+          clearInterval(t.interval);
+          t.running=false;
+          dtSonarEvento('timer','fin');
+          dtNotificar('⏱️ '+t.nombre+' terminó','El tiempo se cumplió');
+          toast('⏱️ '+t.nombre+' terminó');
+          toast('⏱️ '+t.nombre+' terminó');
+        }
+        renderTimerMultiPanel();
+      },1000);
+    } else if(accion==='pause'&&t.running){
+      clearInterval(t.interval);
+      t.running=false;
+    } else if(accion==='reset'){
+      clearInterval(t.interval);
+      t.running=false;
+      t.resto=t.h*3600+t.m*60+t.s;
+      t.total=t.resto;
+    }
+  });
+  if(accion==='start')dtSonarEvento('timer','inicio');
+  renderTimerMultiPanel();
+}
+
+function timerMultiReset(i){
+  const t=_timerMulti[i];
+  clearInterval(t.interval);
+  t.running=false;
+  t.resto=t.h*3600+t.m*60+t.s;
+  t.total=t.resto;
+  renderTimerMultiPanel();
+}
+
+
+
+// ═══════════════════════════════
+// CALCULADORAS
+// ═══════════════════════════════
+let _calcTab='composicion';
+
+function renderCalculadoras(c){
+  var btnSt="flex:1;min-width:80px;color:var(--texto);border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer";
+  var actSt="background:#e31e24;border:1px solid #e31e24;";
+  var inaSt="background:var(--gris);border:1px solid #333;";
+  var tabs=[["composicion","composicion","Composicion"],["rendimiento","rendimiento","Rendimiento"],["energia","energia","Energia"],["conversores","conversores","Conversores"]];
+  var labels={"composicion":"Composición","rendimiento":"Rendimiento","energia":"Energía","conversores":"Conversores"};
+  var emojis={"composicion":"💪","rendimiento":"🏃","energia":"🔥","conversores":"⚖️"};
+  var html="<div style='display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap'>";
+  tabs.forEach(function(t){
+    var act=_calcTab===t[0];
+    html+="<button id='calc-btn-"+t[0]+"' onclick='calcTab("+'"'+t[0]+'"'+")' style='"+btnSt+";"+(act?actSt:inaSt)+"'>"+emojis[t[0]]+" "+labels[t[0]]+"</button>";
+  });
+  html+="</div>";
+  tabs.forEach(function(t){
+    html+="<div id='calc-tab-"+t[0]+"' style='display:"+(_calcTab===t[0]?"block":"none")+"'></div>";
+  });
+  c.innerHTML=html;
+  calcRenderComposicion(document.getElementById("calc-tab-composicion"));
+  calcRenderRendimiento(document.getElementById("calc-tab-rendimiento"));
+  calcRenderEnergia(document.getElementById("calc-tab-energia"));
+  calcRenderConversores(document.getElementById("calc-tab-conversores"));
+}
+
+function calcTab(tab){
+  _calcTab=tab;
+  ["composicion","rendimiento","energia","conversores"].forEach(function(t){
+    var panel=document.getElementById("calc-tab-"+t);
+    var btn=document.getElementById("calc-btn-"+t);
+    if(panel)panel.style.display=t===tab?"block":"none";
+    if(btn){btn.style.background=t===tab?"#e31e24":"var(--gris)";btn.style.borderColor=t===tab?"#e31e24":"#333";}
+  });
+}
+
+let _calcAbierto={};
+function calcToggle(key){
+  _calcAbierto[key]=!_calcAbierto[key];
+  var b=document.getElementById('cb-'+key);
+  var a=document.getElementById('ca-'+key);
+  if(b){b.style.maxHeight=_calcAbierto[key]?'2000px':'0';b.style.padding=_calcAbierto[key]?'0 14px 14px':'0';}
+  if(a)a.textContent=_calcAbierto[key]?'▲':'▼';
+}
+function calcCard(titulo,contenido){
+  var key=titulo.replace(/[^a-z0-9]/gi,'');
+  if(_calcAbierto[key]===undefined)_calcAbierto[key]=false;
+  var ab=_calcAbierto[key];
+  var h='<div style="background:var(--card);border:1px solid #1e1e1e;border-radius:12px;margin-bottom:10px;overflow:hidden">';
+  h+='<div onclick="calcToggle(\'' +key+ '\')" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer">';
+  h+='<div style="font-size:13px;font-weight:700;color:var(--acento)">'+titulo+'</div>';
+  h+='<div id="ca-'+key+'" style="color:var(--texto-secundario)">'+(ab?'▲':'▼')+'</div></div>';
+  h+='<div id="cb-'+key+'" style="max-height:'+(ab?'2000px':'0')+';overflow:hidden;transition:max-height 0.3s;padding:'+(ab?'0 14px 14px':'0')+'">'+contenido+'</div>';
+  h+='</div>';
+  return h;
+}
+
+function calcInput(label,id,val,tipo,min,max,step){
+  return '<div style="margin-bottom:10px">'+
+    '<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">'+label+'</div>'+
+    '<input type="'+(tipo||'number')+'" id="'+id+'" value="'+(val||'')+'" '+(min!==undefined?'min="'+min+'"':'')+' '+(max!==undefined?'max="'+max+'"':'')+' '+(step?'step="'+step+'"':'')+
+    ' style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;font-family:monospace;text-align:center"></div>';
+}
+
+function calcSelect(label,id,opciones){
+  return '<div style="margin-bottom:10px">'+
+    '<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">'+label+'</div>'+
+    '<select id="'+id+'" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:13px">'+
+    opciones.map(o=>'<option value="'+o.v+'">'+o.l+'</option>').join('')+'</select></div>';
+}
+
+function calcBtn(label,fn){
+  return '<button onclick="'+fn+'" style="width:100%;background:#e31e24;color:var(--texto);border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px">'+label+'</button>';
+}
+
+function calcResultado(id){
+  return '<div id="'+id+'" style="margin-top:10px;padding:12px;background:var(--fondo);border-radius:8px;font-size:14px;color:var(--texto);display:none;line-height:1.8"></div>';
+}
+
+function mostrarResultado(id,html){
+  const el=document.getElementById(id);
+  if(el){el.innerHTML=html;el.style.display='block';}
+}
+
+function calcRenderComposicion(c){
+  c.innerHTML=
+    calcCard('📏 IMC — Índice de Masa Corporal',
+      calcInput('Peso (kg)','imc-peso',70,'number',10,300)+
+      calcInput('Altura (cm)','imc-altura',170,'number',100,250)+
+      calcBtn('Calcular IMC','calcIMC()')+
+      calcResultado('imc-res'))+
+
+    calcCard('💪 FFMI — Índice de Masa Libre de Grasa',
+      calcInput('Peso (kg)','ffmi-peso',75,'number',30,200)+
+      calcInput('Altura (cm)','ffmi-altura',175,'number',100,250)+
+      calcInput('% Grasa corporal','ffmi-grasa',15,'number',3,60)+
+      calcBtn('Calcular FFMI','calcFFMI()')+
+      calcResultado('ffmi-res'))+
+
+    calcCard('⚖️ Peso ideal',
+      calcInput('Altura (cm)','pi-altura',170,'number',100,250)+
+      calcSelect('Sexo','pi-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcBtn('Calcular','calcPesoIdeal()')+
+      calcResultado('pi-res'))+
+
+    calcCard('📐 % Grasa — Jackson-Pollock 3 pliegues',
+      calcSelect('Sexo','jp3-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcInput('Edad (años)','jp3-edad',30,'number',10,100)+
+      calcInput('Pliegue pectoral / tríceps (mm)','jp3-p1',15,'number',1,100)+
+      calcInput('Pliegue abdominal / suprailíaco (mm)','jp3-p2',20,'number',1,100)+
+      calcInput('Pliegue muslo (mm)','jp3-p3',18,'number',1,100)+
+      calcBtn('Calcular % grasa','calcJP3()')+
+      calcResultado('jp3-res'))+
+
+    calcCard('📐 % Grasa — Jackson-Pollock 7 pliegues',
+      calcSelect('Sexo','jp7-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcInput('Edad (años)','jp7-edad',30,'number',10,100)+
+      calcInput('Pectoral (mm)','jp7-p1',15,'number',1,100)+
+      calcInput('Axilar medio (mm)','jp7-p2',12,'number',1,100)+
+      calcInput('Tríceps (mm)','jp7-p3',14,'number',1,100)+
+      calcInput('Subescapular (mm)','jp7-p4',16,'number',1,100)+
+      calcInput('Abdominal (mm)','jp7-p5',22,'number',1,100)+
+      calcInput('Suprailíaco (mm)','jp7-p6',18,'number',1,100)+
+      calcInput('Muslo (mm)','jp7-p7',20,'number',1,100)+
+      calcBtn('Calcular % grasa','calcJP7()')+
+      calcResultado('jp7-res'))+
+
+    calcCard('📐 % Grasa — Durnin-Womersley 4 pliegues',
+      calcSelect('Sexo','dw-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcInput('Edad (años)','dw-edad',30,'number',10,100)+
+      calcInput('Abdominal (mm)','dw-p1',15,'number',1,100)+
+      calcInput('Tríceps (mm)','dw-p2',14,'number',1,100)+
+      calcInput('Subescapular (mm)','dw-p3',16,'number',1,100)+
+      calcInput('Suprailíaco (mm)','dw-p4',18,'number',1,100)+
+      calcBtn('Calcular % grasa','calcDW()')+
+      calcResultado('dw-res'));
+}
+
+function calcIMC(){
+  const p=parseFloat(document.getElementById('imc-peso').value);
+  const h=parseFloat(document.getElementById('imc-altura').value)/100;
+  if(!p||!h)return;
+  const imc=(p/(h*h)).toFixed(1);
+  let cat='',col='#fff';
+  if(imc<18.5){cat='Bajo peso';col='#2196f3';}
+  else if(imc<25){cat='Normal ✅';col='#4caf50';}
+  else if(imc<30){cat='Sobrepeso';col='#ff9800';}
+  else if(imc<35){cat='Obesidad I';col='#e31e24';}
+  else if(imc<40){cat='Obesidad II';col='#e31e24';}
+  else{cat='Obesidad III';col='#e31e24';}
+  mostrarResultado('imc-res','IMC: <b style="color:'+col+';font-size:24px">'+imc+'</b><br>Categoría: <b style="color:'+col+'">'+cat+'</b>');
+}
+
+function calcFFMI(){
+  const p=parseFloat(document.getElementById('ffmi-peso').value);
+  const h=parseFloat(document.getElementById('ffmi-altura').value)/100;
+  const g=parseFloat(document.getElementById('ffmi-grasa').value)/100;
+  if(!p||!h||g===undefined)return;
+  const mml=p*(1-g);
+  const ffmi=(mml/(h*h)).toFixed(1);
+  const ffmiN=(parseFloat(ffmi)+(6.1*(1.8-h))).toFixed(1);
+  let cat='';
+  if(ffmi<18)cat='Por debajo del promedio';
+  else if(ffmi<20)cat='Promedio';
+  else if(ffmi<22)cat='Por encima del promedio';
+  else if(ffmi<24)cat='Excelente 💪';
+  else if(ffmi<26)cat='Superior — posible límite natural';
+  else cat='Excepcional — muy difícil natural';
+  mostrarResultado('ffmi-res','Masa magra: <b>'+mml.toFixed(1)+' kg</b><br>FFMI: <b style="color:#e31e24;font-size:22px">'+ffmi+'</b><br>FFMI normalizado: <b>'+ffmiN+'</b><br>'+cat);
+}
+
+function calcPesoIdeal(){
+  const h=parseFloat(document.getElementById('pi-altura').value);
+  const s=document.getElementById('pi-sexo').value;
+  if(!h)return;
+  const hIn=(h-152.4)/2.54;
+  const devine=s==='h'?50+2.3*hIn:45.5+2.3*hIn;
+  const robinson=s==='h'?52+1.9*hIn:49+1.7*hIn;
+  const miller=s==='h'?56.2+1.41*hIn:53.1+1.36*hIn;
+  mostrarResultado('pi-res',
+    'Fórmula Devine: <b>'+devine.toFixed(1)+' kg</b><br>'+
+    'Fórmula Robinson: <b>'+robinson.toFixed(1)+' kg</b><br>'+
+    'Fórmula Miller: <b>'+miller.toFixed(1)+' kg</b>');
+}
+
+function calcJP3(){
+  const s=document.getElementById('jp3-sexo').value;
+  const edad=parseFloat(document.getElementById('jp3-edad').value);
+  const p1=parseFloat(document.getElementById('jp3-p1').value);
+  const p2=parseFloat(document.getElementById('jp3-p2').value);
+  const p3=parseFloat(document.getElementById('jp3-p3').value);
+  if(!edad||!p1||!p2||!p3)return;
+  const sum=p1+p2+p3;
+  let dc;
+  if(s==='h') dc=1.10938-(0.0008267*sum)+(0.0000016*sum*sum)-(0.0002574*edad);
+  else dc=1.0994921-(0.0009929*sum)+(0.0000023*sum*sum)-(0.0001392*edad);
+  const grasa=((4.95/dc)-4.50)*100;
+  calcMostrarGrasa('jp3-res',grasa,parseFloat(document.getElementById('jp3-p1').closest('[id]')?0:0));
+}
+
+function calcJP7(){
+  const s=document.getElementById('jp7-sexo').value;
+  const edad=parseFloat(document.getElementById('jp7-edad').value);
+  const sum=[1,2,3,4,5,6,7].reduce((a,i)=>a+parseFloat(document.getElementById('jp7-p'+i).value||0),0);
+  if(!edad||!sum)return;
+  let dc;
+  if(s==='h') dc=1.112-(0.00043499*sum)+(0.00000055*sum*sum)-(0.00028826*edad);
+  else dc=1.097-(0.00046971*sum)+(0.00000056*sum*sum)-(0.00012828*edad);
+  const grasa=((4.95/dc)-4.50)*100;
+  calcMostrarGrasa('jp7-res',grasa,0);
+}
+
+function calcDW(){
+  const s=document.getElementById('dw-sexo').value;
+  const edad=parseFloat(document.getElementById('dw-edad').value);
+  const sum=[1,2,3,4].reduce((a,i)=>a+parseFloat(document.getElementById('dw-p'+i).value||0),0);
+  if(!edad||!sum)return;
+  const logSum=Math.log10(sum);
+  let dc;
+  if(s==='h'){
+    if(edad<17) dc=1.1533-(0.0643*logSum);
+    else if(edad<20) dc=1.1620-(0.0630*logSum);
+    else if(edad<30) dc=1.1631-(0.0632*logSum);
+    else if(edad<40) dc=1.1422-(0.0544*logSum);
+    else if(edad<50) dc=1.1620-(0.0700*logSum);
+    else dc=1.1715-(0.0779*logSum);
+  } else {
+    if(edad<17) dc=1.1369-(0.0598*logSum);
+    else if(edad<20) dc=1.1549-(0.0678*logSum);
+    else if(edad<30) dc=1.1599-(0.0717*logSum);
+    else if(edad<40) dc=1.1423-(0.0632*logSum);
+    else if(edad<50) dc=1.1333-(0.0612*logSum);
+    else dc=1.1339-(0.0645*logSum);
+  }
+  const grasa=((4.95/dc)-4.50)*100;
+  calcMostrarGrasa('dw-res',grasa,0);
+}
+
+function calcMostrarGrasa(id,grasa,extra){
+  const g=grasa.toFixed(1);
+  let cat='',col='#fff';
+  if(grasa<10){cat='Muy bajo (atleta extremo)';col='#2196f3';}
+  else if(grasa<15){cat='Atlético 💪';col='#4caf50';}
+  else if(grasa<20){cat='Buena forma';col='#4caf50';}
+  else if(grasa<25){cat='Normal';col='#ff9800';}
+  else if(grasa<30){cat='Sobrepeso';col='#ff9800';}
+  else{cat='Obesidad';col='#e31e24';}
+  mostrarResultado(id,'% Grasa: <b style="color:'+col+';font-size:24px">'+g+'%</b><br>Categoría: <b style="color:'+col+'">'+cat+'</b>');
+}
+
+function calcRenderRendimiento(c){
+  c.innerHTML=
+    calcCard('🏋️ RM — Repetición Máxima',
+      calcInput('Peso levantado (kg)','rm-peso',80,'number',1,500)+
+      calcInput('Repeticiones realizadas','rm-reps',8,'number',1,30)+
+      calcBtn('Calcular RM','calcRM()')+
+      calcResultado('rm-res'))+
+
+    calcCard('❤️ Zonas de frecuencia cardíaca',
+      calcInput('Edad (años)','fc-edad',30,'number',10,100)+
+      calcInput('FC reposo (ppm) — opcional','fc-reposo',60,'number',30,100)+
+      calcBtn('Calcular zonas','calcFC()')+
+      calcResultado('fc-res'))+
+
+    calcCard('🏃 Ritmo de carrera',
+      calcInput('Velocidad (km/h)','pace-vel',10,'number',1,50,0.1)+
+      calcBtn('Convertir a min/km','calcPace()')+
+      calcResultado('pace-res'))+
+
+    calcCard('🫁 VO2max estimado',
+      calcInput('Distancia recorrida en 12 min (m)','vo2-dist',2400,'number',500,5000)+
+      calcBtn('Calcular VO2max','calcVO2()')+
+      calcResultado('vo2-res'))+
+
+    calcCard('🏆 DOTS — Powerlifting',
+      '<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">Compara fuerza relativa entre distintos pesos corporales (powerlifting)</div>'+
+      calcSelect('Sexo','dots-sexo',[{v:'m',l:'Hombre'},{v:'f',l:'Mujer'}])+
+      calcInput('Peso corporal (kg)','dots-bw',80,'number',40,200,0.1)+
+      calcInput('Squat (kg)','dots-sq',100,'number',0,500,0.5)+
+      calcInput('Bench Press (kg)','dots-bp',80,'number',0,500,0.5)+
+      calcInput('Deadlift (kg)','dots-dl',140,'number',0,500,0.5)+
+      calcBtn('Calcular DOTS','calcDOTS()')+
+      calcResultado('dots-res'))+
+
+    calcCard('⚖️ Wilks — Powerlifting',
+      '<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">Fórmula clásica de comparación entre categorías de peso (powerlifting)</div>'+
+      calcSelect('Sexo','wilks-sexo',[{v:'m',l:'Hombre'},{v:'f',l:'Mujer'}])+
+      calcInput('Peso corporal (kg)','wilks-bw',80,'number',40,200,0.1)+
+      calcInput('Squat (kg)','wilks-sq',100,'number',0,500,0.5)+
+      calcInput('Bench Press (kg)','wilks-bp',80,'number',0,500,0.5)+
+      calcInput('Deadlift (kg)','wilks-dl',140,'number',0,500,0.5)+
+      calcBtn('Calcular Wilks','calcWilks()')+
+      calcResultado('wilks-res'))+
+
+    calcCard('🥇 IPF GL Points — Powerlifting',
+      '<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">Fórmula oficial actual de la IPF (International Powerlifting Federation)</div>'+
+      calcSelect('Sexo','ipf-sexo',[{v:'m',l:'Hombre'},{v:'f',l:'Mujer'}])+
+      calcSelect('Modalidad','ipf-mod',[{v:'classic',l:'Clásico (sin equipamiento)'},{v:'equipped',l:'Equipado'}])+
+      calcInput('Peso corporal (kg)','ipf-bw',80,'number',40,200,0.1)+
+      calcInput('Squat (kg)','ipf-sq',100,'number',0,500,0.5)+
+      calcInput('Bench Press (kg)','ipf-bp',80,'number',0,500,0.5)+
+      calcInput('Deadlift (kg)','ipf-dl',140,'number',0,500,0.5)+
+      calcBtn('Calcular IPF GL','calcIPFGL()')+
+      calcResultado('ipf-res'))+
+
+    calcCard('🏋️ Robi Points — Halterofilia',
+      '<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">Sistema oficial IWF para comparar totales entre categorías de peso (halterofilia)</div>'+
+      calcSelect('Sexo','robi-sexo',[{v:'m',l:'Hombre'},{v:'f',l:'Mujer'}])+
+      calcSelect('Categoría (kg)','robi-cat',[
+        {v:'m_55',l:'Hombre -55 kg (WR: 293 kg)'},{v:'m_61',l:'Hombre -61 kg (WR: 318 kg)'},
+        {v:'m_67',l:'Hombre -67 kg (WR: 346 kg)'},{v:'m_73',l:'Hombre -73 kg (WR: 379 kg)'},
+        {v:'m_81',l:'Hombre -81 kg (WR: 396 kg)'},{v:'m_89',l:'Hombre -89 kg (WR: 412 kg)'},
+        {v:'m_96',l:'Hombre -96 kg (WR: 425 kg)'},{v:'m_102',l:'Hombre -102 kg (WR: 430 kg)'},
+        {v:'m_109',l:'Hombre -109 kg (WR: 437 kg)'},{v:'m_109p',l:'Hombre +109 kg (WR: 477 kg)'},
+        {v:'f_45',l:'Mujer -45 kg (WR: 194 kg)'},{v:'f_49',l:'Mujer -49 kg (WR: 213 kg)'},
+        {v:'f_55',l:'Mujer -55 kg (WR: 232 kg)'},{v:'f_59',l:'Mujer -59 kg (WR: 242 kg)'},
+        {v:'f_64',l:'Mujer -64 kg (WR: 253 kg)'},{v:'f_71',l:'Mujer -71 kg (WR: 263 kg)'},
+        {v:'f_76',l:'Mujer -76 kg (WR: 270 kg)'},{v:'f_81',l:'Mujer -81 kg (WR: 276 kg)'},
+        {v:'f_87',l:'Mujer -87 kg (WR: 283 kg)'},{v:'f_87p',l:'Mujer +87 kg (WR: 310 kg)'}
+      ])+
+      calcInput('Total (Arranque + Envión) kg','robi-total',200,'number',50,500,0.5)+
+      calcBtn('Calcular Robi Points','calcRobi()')+
+      calcResultado('robi-res'));
+}
+
+var _rendStorage={};
+function _rendSave(key,val){try{var d=JSON.parse(localStorage.getItem('dt_rendimiento')||'{}');d[key]=val;localStorage.setItem('dt_rendimiento',JSON.stringify(d));}catch(e){}}
+function _rendLoad(){try{return JSON.parse(localStorage.getItem('dt_rendimiento')||'{}')||{};}catch(e){return{};}}
+function _rendRestoreAll(){
+  var d=_rendLoad();
+  var ids=['dots-sexo','dots-bw','dots-sq','dots-bp','dots-dl',
+           'wilks-sexo','wilks-bw','wilks-sq','wilks-bp','wilks-dl',
+           'ipf-sexo','ipf-mod','ipf-bw','ipf-sq','ipf-bp','ipf-dl',
+           'robi-sexo','robi-cat','robi-total'];
+  ids.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&d[id]!==undefined)el.value=d[id];
+  });
+}
+setTimeout(function(){_rendRestoreAll();},300);
+
+function calcDOTS(){
+  var sexo=document.getElementById('dots-sexo').value;
+  var bw=parseFloat(document.getElementById('dots-bw').value);
+  var total=parseFloat(document.getElementById('dots-sq').value)+parseFloat(document.getElementById('dots-bp').value)+parseFloat(document.getElementById('dots-dl').value);
+  _rendSave('dots-sexo',sexo);_rendSave('dots-bw',bw);
+  _rendSave('dots-sq',document.getElementById('dots-sq').value);
+  _rendSave('dots-bp',document.getElementById('dots-bp').value);
+  _rendSave('dots-dl',document.getElementById('dots-dl').value);
+  if(!bw||!total)return;
+  var A,B,C,D,E;
+  if(sexo==='m'){A=0.000001093;B=-0.0007391293;C=0.1918759221;D=-24.0900756;E=307.75076;}
+  else{A=-0.0000010706;B=0.0005158568;C=-0.1126655495;D=13.6175032;E=-57.96288;}
+  var denom=A*Math.pow(bw,4)+B*Math.pow(bw,3)+C*Math.pow(bw,2)+D*bw+E;
+  var pts=(500/denom*total).toFixed(2);
+  var nivel=parseFloat(pts)<150?'Principiante':parseFloat(pts)<200?'Intermedio':parseFloat(pts)<250?'Avanzado':parseFloat(pts)<300?'Elite':'Elite mundial 🌍';
+  mostrarResultado('dots-res',
+    'DOTS: <b style="color:#e31e24;font-size:28px">'+pts+'</b> pts<br>'+
+    'Total: <b>'+total+' kg</b> | Nivel: <b>'+nivel+'</b><br>'+
+    '<div style="font-size:10px;color:var(--texto-secundario);margin-top:6px">Fórmula IPF 2020 — neutral entre categorías de peso</div>');
+}
+
+function calcWilks(){
+  var sexo=document.getElementById('wilks-sexo').value;
+  var bw=parseFloat(document.getElementById('wilks-bw').value);
+  var total=parseFloat(document.getElementById('wilks-sq').value)+parseFloat(document.getElementById('wilks-bp').value)+parseFloat(document.getElementById('wilks-dl').value);
+  _rendSave('wilks-sexo',sexo);_rendSave('wilks-bw',bw);
+  _rendSave('wilks-sq',document.getElementById('wilks-sq').value);
+  _rendSave('wilks-bp',document.getElementById('wilks-bp').value);
+  _rendSave('wilks-dl',document.getElementById('wilks-dl').value);
+  if(!bw||!total)return;
+  var a,b,cc,d,e,f;
+  if(sexo==='m'){a=-0.00000001291;b=0.00000701863;cc=-0.00113732;d=-0.002388645;e=16.2606339;f=-216.0475144;}
+  else{a=-0.0000009054;b=0.00004731582;cc=-0.00930733913;d=0.82112226871;e=-27.23842536447;f=594.31747775582;}
+  var coef=500/(a*Math.pow(bw,5)+b*Math.pow(bw,4)+cc*Math.pow(bw,3)+d*Math.pow(bw,2)+e*bw+f);
+  var pts=(coef*total).toFixed(2);
+  var nivel=parseFloat(pts)<150?'Principiante':parseFloat(pts)<200?'Intermedio':parseFloat(pts)<250?'Avanzado':parseFloat(pts)<300?'Elite':'Elite mundial 🌍';
+  mostrarResultado('wilks-res',
+    'Wilks: <b style="color:#e31e24;font-size:28px">'+pts+'</b> pts<br>'+
+    'Total: <b>'+total+' kg</b> | Nivel: <b>'+nivel+'</b><br>'+
+    '<div style="font-size:10px;color:var(--texto-secundario);margin-top:6px">Fórmula clásica — usada históricamente en competencias</div>');
+}
+
+function calcIPFGL(){
+  var sexo=document.getElementById('ipf-sexo').value;
+  var mod=document.getElementById('ipf-mod').value;
+  var bw=parseFloat(document.getElementById('ipf-bw').value);
+  var total=parseFloat(document.getElementById('ipf-sq').value)+parseFloat(document.getElementById('ipf-bp').value)+parseFloat(document.getElementById('ipf-dl').value);
+  _rendSave('ipf-sexo',sexo);_rendSave('ipf-mod',mod);_rendSave('ipf-bw',bw);
+  _rendSave('ipf-sq',document.getElementById('ipf-sq').value);
+  _rendSave('ipf-bp',document.getElementById('ipf-bp').value);
+  _rendSave('ipf-dl',document.getElementById('ipf-dl').value);
+  if(!bw||!total)return;
+  var coefs={
+    'm_classic':{A:310.67,B:857.785,C:53.216,D:147.0835},
+    'm_equipped':{A:387.265,B:1121.28,C:80.6324,D:222.4896},
+    'f_classic':{A:125.1435,B:228.03,C:34.5246,D:86.8301},
+    'f_equipped':{A:176.58,B:373.315,C:48.4534,D:110.0103}
+  };
+  var key=sexo+'_'+mod;
+  var co=coefs[key];
+  if(!co)return;
+  var pts=(100/co.D*(total-co.A*Math.log(co.C*bw)-co.B)*-1+100).toFixed(2);
+  var gl=(100/co.D*(total-(co.A*Math.log(co.C*bw)+co.B))+100).toFixed(2);
+  mostrarResultado('ipf-res',
+    'IPF GL Points: <b style="color:#e31e24;font-size:28px">'+gl+'</b> pts<br>'+
+    'Total: <b>'+total+' kg</b><br>'+
+    '<div style="font-size:10px;color:var(--texto-secundario);margin-top:6px">Fórmula oficial IPF desde 2020 — '+( sexo==='m'?'Hombre':'Mujer')+' '+mod+'</div>');
+}
+
+function calcRobi(){
+  var cat=document.getElementById('robi-cat').value;
+  var total=parseFloat(document.getElementById('robi-total').value);
+  _rendSave('robi-cat',cat);_rendSave('robi-total',total);
+  if(!total)return;
+  var wr={
+    m_55:293,m_61:318,m_67:346,m_73:379,m_81:396,m_89:412,m_96:425,m_102:430,m_109:437,m_109p:477,
+    f_45:194,f_49:213,f_55:232,f_59:242,f_64:253,f_71:263,f_76:270,f_81:276,f_87:283,f_87p:310
+  };
+  var wrVal=wr[cat];
+  if(!wrVal)return;
+  var pts=(1000*Math.pow(wrVal/total,0.85)).toFixed(2);
+  var nivel=parseFloat(pts)<600?'Recreacional':parseFloat(pts)<750?'Competidor':parseFloat(pts)<900?'Nacional':parseFloat(pts)<1000?'Elite':'Récord mundial 🌍';
+  mostrarResultado('robi-res',
+    'Robi Points: <b style="color:#e31e24;font-size:28px">'+pts+'</b> pts<br>'+
+    'WR categoría: <b>'+wrVal+' kg</b> | Nivel: <b>'+nivel+'</b><br>'+
+    '<div style="font-size:10px;color:var(--texto-secundario);margin-top:6px">Sistema oficial IWF — 1000 pts = récord mundial</div>');
+}
+
+function calcRM(){
+  const p=parseFloat(document.getElementById('rm-peso').value);
+  const r=parseFloat(document.getElementById('rm-reps').value);
+  if(!p||!r)return;
+  const epley=p*(1+r/30);
+  const brzycki=p*(36/(37-r));
+  const lander=p*100/(101.3-2.67123*r);
+  const prom=((epley+brzycki+lander)/3).toFixed(1);
+  mostrarResultado('rm-res',
+    'RM estimado: <b style="color:#e31e24;font-size:24px">'+prom+' kg</b><br>'+
+    '<br>Por fórmula:<br>'+
+    'Epley: <b>'+epley.toFixed(1)+' kg</b><br>'+
+    'Brzycki: <b>'+brzycki.toFixed(1)+' kg</b><br>'+
+    'Lander: <b>'+lander.toFixed(1)+' kg</b><br>'+
+    '<br>Porcentajes del RM:<br>'+
+    [100,95,90,85,80,75,70,65,60].map(p=>'<b>'+p+'%</b>: '+(parseFloat(prom)*p/100).toFixed(1)+' kg').join(' · '));
+}
+
+function calcFC(){
+  const edad=parseFloat(document.getElementById('fc-edad').value);
+  const reposo=parseFloat(document.getElementById('fc-reposo').value)||0;
+  if(!edad)return;
+  const max=220-edad;
+  const res=reposo>0?'(Karvonen)':'(% FC máx)';
+  const zonas=[
+    {n:'Z1 Recuperación',min:50,max:60,c:'#2196f3'},
+    {n:'Z2 Base aeróbica',min:60,max:70,c:'#4caf50'},
+    {n:'Z3 Aeróbico',min:70,max:80,c:'#ff9800'},
+    {n:'Z4 Umbral',min:80,max:90,c:'#ff5722'},
+    {n:'Z5 Máximo',min:90,max:100,c:'#e31e24'}
+  ];
+  let html='FC máxima: <b style="color:#e31e24">'+max+' ppm</b><br><br>';
+  zonas.forEach(z=>{
+    let fmin,fmax;
+    if(reposo>0){
+      fmin=Math.round(reposo+(max-reposo)*z.min/100);
+      fmax=Math.round(reposo+(max-reposo)*z.max/100);
+    } else {
+      fmin=Math.round(max*z.min/100);
+      fmax=Math.round(max*z.max/100);
+    }
+    html+='<span style="color:'+z.c+'">■</span> <b>'+z.n+'</b>: '+fmin+'-'+fmax+' ppm<br>';
+  });
+  mostrarResultado('fc-res',html);
+}
+
+function calcPace(){
+  const v=parseFloat(document.getElementById('pace-vel').value);
+  if(!v)return;
+  const minKm=60/v;
+  const min=Math.floor(minKm);
+  const seg=Math.round((minKm-min)*60);
+  mostrarResultado('pace-res',
+    'Ritmo: <b style="color:#e31e24;font-size:24px">'+min+"'"+String(seg).padStart(2,'0')+'" /km</b><br>'+
+    'Velocidad: <b>'+v+' km/h</b>');
+}
+
+function calcVO2(){
+  const d=parseFloat(document.getElementById('vo2-dist').value);
+  if(!d)return;
+  const vo2=((d-504.9)/44.73).toFixed(1);
+  let cat='';
+  if(vo2<35)cat='Muy bajo';
+  else if(vo2<42)cat='Bajo';
+  else if(vo2<46)cat='Regular';
+  else if(vo2<52)cat='Bueno';
+  else if(vo2<60)cat='Excelente';
+  else cat='Superior 🏆';
+  mostrarResultado('vo2-res','VO2max: <b style="color:#e31e24;font-size:24px">'+vo2+' ml/kg/min</b><br>Categoría: <b>'+cat+'</b>');
+}
+
+function calcRenderEnergia(c){
+  c.innerHTML=
+    calcCard('🔥 TMB y TDEE — Gasto calórico',
+      calcSelect('Sexo','tmb-sexo',[{v:'h',l:'Hombre'},{v:'m',l:'Mujer'}])+
+      calcInput('Edad (años)','tmb-edad',30,'number',10,100)+
+      calcInput('Peso (kg)','tmb-peso',75,'number',20,300)+
+      calcInput('Altura (cm)','tmb-altura',175,'number',100,250)+
+      calcSelect('Nivel de actividad','tmb-act',[
+        {v:'1.2',l:'Sedentario (sin ejercicio)'},
+        {v:'1.375',l:'Ligero (1-3 días/semana)'},
+        {v:'1.55',l:'Moderado (3-5 días/semana)'},
+        {v:'1.725',l:'Activo (6-7 días/semana)'},
+        {v:'1.9',l:'Muy activo (2x día / trabajo físico)'}
+      ])+
+      calcBtn('Calcular','calcTMB()')+
+      calcResultado('tmb-res'))+
+
+    calcCard('⚡ Calorías por ejercicio (MET)',
+      calcInput('Peso (kg)','met-peso',75,'number',20,300)+
+      calcInput('Duración (minutos)','met-min',45,'number',1,300)+
+      calcSelect('Actividad','met-act',[
+        {v:'3.5',l:'Caminar lento (3.5)'},
+        {v:'4.3',l:'Caminar rápido (4.3)'},
+        {v:'6',l:'Trotar suave (6.0)'},
+        {v:'8',l:'Correr moderado (8.0)'},
+        {v:'10',l:'Correr rápido (10.0)'},
+        {v:'4',l:'Ciclismo suave (4.0)'},
+        {v:'8',l:'Ciclismo moderado (8.0)'},
+        {v:'5',l:'Natación recreativa (5.0)'},
+        {v:'6',l:'Entrenamiento con pesas (6.0)'},
+        {v:'8',l:'HIIT / Circuitos (8.0)'},
+        {v:'10',l:'CrossFit (10.0)'},
+        {v:'4.5',l:'Yoga / Pilates (4.5)'},
+        {v:'7',l:'Fútbol (7.0)'},
+        {v:'8',l:'Baloncesto (8.0)'}
+      ])+
+      calcBtn('Calcular calorías','calcMET()')+
+      calcResultado('met-res'));
+}
+
+function calcTMB(){
+  const s=document.getElementById('tmb-sexo').value;
+  const edad=parseFloat(document.getElementById('tmb-edad').value);
+  const p=parseFloat(document.getElementById('tmb-peso').value);
+  const h=parseFloat(document.getElementById('tmb-altura').value);
+  const act=parseFloat(document.getElementById('tmb-act').value);
+  if(!edad||!p||!h)return;
+  let hb,ms;
+  if(s==='h'){hb=66.5+(13.75*p)+(5.003*h)-(6.75*edad);ms=10*p+6.25*h-5*edad+5;}
+  else{hb=655.1+(9.563*p)+(1.850*h)-(4.676*edad);ms=10*p+6.25*h-5*edad-161;}
+  mostrarResultado('tmb-res',
+    '<b>Harris-Benedict:</b><br>TMB: <b>'+Math.round(hb)+' kcal/día</b><br>TDEE: <b style="color:#e31e24;font-size:20px">'+Math.round(hb*act)+' kcal/día</b><br><br>'+
+    '<b>Mifflin-St Jeor:</b><br>TMB: <b>'+Math.round(ms)+' kcal/día</b><br>TDEE: <b style="color:#e31e24;font-size:20px">'+Math.round(ms*act)+' kcal/día</b><br><br>'+
+    'Déficit (-500): <b>'+Math.round(ms*act-500)+' kcal</b><br>'+
+    'Superávit (+500): <b>'+Math.round(ms*act+500)+' kcal</b>');
+}
+
+function calcMET(){
+  const p=parseFloat(document.getElementById('met-peso').value);
+  const min=parseFloat(document.getElementById('met-min').value);
+  const met=parseFloat(document.getElementById('met-act').value);
+  if(!p||!min||!met)return;
+  const cal=(met*p*3.5/200)*min;
+  mostrarResultado('met-res','Calorías quemadas: <b style="color:#e31e24;font-size:24px">'+Math.round(cal)+' kcal</b>');
+}
+
+function convConvert(fromId,toId,factor){
+  var v=parseFloat(document.getElementById(fromId).value);
+  document.getElementById(toId).value=isNaN(v)?'':(v*factor).toFixed(2);
+}
+function convConvertTemp(fromId,toId,inv){
+  var v=parseFloat(document.getElementById(fromId).value);
+  if(isNaN(v)){document.getElementById(toId).value='';return;}
+  document.getElementById(toId).value=inv?((v-32)*5/9).toFixed(1):(v*9/5+32).toFixed(1);
+}
+function convRow(id1,label1,id2,label2,factor1,factor2,tipo){
+  var st='width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:22px;text-align:center;font-family:monospace';
+  var fn1=tipo==='temp'?'convConvertTemp(\''+id1+'\',\''+id2+'\',false)':'convConvert(\''+id1+'\',\''+id2+'\','+factor1+')';
+  var fn2=tipo==='temp'?'convConvertTemp(\''+id2+'\',\''+id1+'\',true)':'convConvert(\''+id2+'\',\''+id1+'\','+factor2+')';
+  return '<div style="display:grid;grid-template-columns:1fr 30px 1fr;gap:8px;align-items:end;margin-bottom:4px">'
+    +'<div><div style="font-size:11px;color:var(--texto-secundario);text-align:center;margin-bottom:4px">'+label1+'</div>'
+    +'<input type="number" id="'+id1+'" placeholder="0" oninput="'+fn1+'" style="'+st+'"></div>'
+    +'<div style="color:#e31e24;font-size:22px;font-weight:700;text-align:center;padding-bottom:8px">⇄</div>'
+    +'<div><div style="font-size:11px;color:var(--texto-secundario);text-align:center;margin-bottom:4px">'+label2+'</div>'
+    +'<input type="number" id="'+id2+'" placeholder="0" oninput="'+fn2+'" style="'+st+'"></div>'
+    +'</div>';
+}
+
+function calcRenderConversores(c){
+  c.innerHTML=
+    calcCard('⚖️ Peso',
+      convRow('conv-kg','kg','conv-lb','lb',2.20462,1/2.20462))+
+
+    calcCard('📏 Altura',
+      convRow('conv-cm','cm','conv-in','in',1/2.54,2.54)+
+      '<div id="conv-ft" style="text-align:center;color:var(--texto-secundario);font-size:13px;margin-top:4px"></div>')+
+
+    calcCard('🏃 Distancia',
+      convRow('conv-km','km','conv-mi','mi',0.621371,1/0.621371))+
+
+    calcCard('🌡️ Temperatura',
+      convRow('conv-c','°C','conv-f','°F',null,null,'temp'));
+}
+
+// ═══════════════════════════════
+// HIIT / CIRCUITOS
+// ═══════════════════════════════
+let _hiitCircuitos=[];
+async function hiitCargar(){
+  try{
+    const r=await fetch('/api/hiit');
+    const todos=await r.json();
+    _hiitCircuitos=todos.filter(x=>x.tipo!=='intervalo');
+    _intervCircuitos=todos.filter(x=>x.tipo==='intervalo');
+  }catch(e){}
+}
+hiitCargar();
+let _hiitActual=null;
+let _hiitEjecutando=null;
+
+// ── estado intervalos simples ────────────────────────────────────────────────
+let _intervTab = 'lista'; // lista | nuevo | ejecutar
+let _intervActual = null;
+let _intervEjecutando = null;
+let _intervCircuitos = [];
+let _intervViendoEjecucion = false;
+
+// ── TAB ACTIVO Y VISTAS INDEPENDIENTES ──────────────────────────────────────
+let _hiitTab = 'circuitos';          // 'circuitos' | 'intervalos'
+let _hiitVistaCircuito = 'lista';    // vista actual del módulo circuitos
+let _hiitVistaIntervalo = 'lista';   // vista actual del módulo intervalos
+
+function renderHiit(c){
+  c.innerHTML=`
+  <div id="hiit-panel">
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="btn-tab-circuitos" onclick="_hiitCambiarTab('circuitos')" style="flex:1;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">🔥 Circuitos</button>
+      <button id="btn-tab-intervalos" onclick="_hiitCambiarTab('intervalos')" style="flex:1;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">⏱️ Intervalos</button>
+    </div>
+    <div id="hiit-contenido"></div>
+  </div>`;
+  _hiitCambiarTab(_hiitTab);
+}
+
+function _hiitCambiarTab(tab) {
+  _hiitTab = tab;
+  // Estilos tabs
+  var btnC = document.getElementById('btn-tab-circuitos');
+  var btnI = document.getElementById('btn-tab-intervalos');
+  if (btnC) {
+    btnC.style.background = tab==='circuitos' ? '#e31e24' : '#1a1a1a';
+    btnC.style.color = '#fff';
+    btnC.style.border = tab==='circuitos' ? '1px solid #e31e24' : '1px solid #333';
+  }
+  if (btnI) {
+    btnI.style.background = tab==='intervalos' ? '#4a9eff' : '#1a1a1a';
+    btnI.style.color = tab==='intervalos' ? '#fff' : '#4a9eff';
+    btnI.style.border = tab==='intervalos' ? '1px solid #4a9eff' : '1px solid #4a9eff';
+  }
+  var c = document.getElementById('hiit-contenido');
+  if (!c) return;
+  if (tab === 'circuitos') {
+    hiitMostrar(_hiitVistaCircuito);
+  } else {
+    intervMostrar(_hiitVistaIntervalo);
+  }
+}
+
+function hiitMostrar(vista){
+  _hiitVistaCircuito = vista;
+  const c=document.getElementById('hiit-contenido');
+  if(!c)return;
+  if(vista==='lista') hiitRenderLista(c);
+  else if(vista==='nuevo'){_hiitActual=hiitNuevoCircuito();hiitRenderEditor(c);}
+  else if(vista==='editor') hiitRenderEditor(c);
+  else if(vista==='ejecutar') hiitRenderEjecucion(c);
+}
+
+// ── INTERVALOS SIMPLES ───────────────────────────────────────────────────────
+function intervMostrar(vista) {
+  _hiitVistaIntervalo = vista;
+  const c = document.getElementById('hiit-contenido');
+  if (!c) return;
+  if (vista==='lista')     intervRenderLista(c);
+  else if (vista==='nuevo')   { _intervActual = intervNuevo(); intervRenderEditor(c); }
+  else if (vista==='editor')  intervRenderEditor(c);
+  else if (vista==='ejecutar') intervRenderEjecucion(c);
+}
+
+function intervNuevo() {
+  return {
+    id: Date.now(),
+    nombre: 'Intervalos',
+    preparacion: 10,
+    trabajo: 30,
+    descanso: 15,
+    rondas: 8,
+    sets: 1,
+    descEntreSets: 60,
+    finalizacion: 5
+  };
+}
+
+function intervRenderLista(c) {
+  var html = '';
+  if (!_intervCircuitos.length) {
+    html = '<div style="text-align:center;padding:40px;color:var(--texto-secundario)">Sin intervalos aún.<br>Crea el primero 👆</div>';
+  } else {
+    html = _intervCircuitos.map(function(iv, i) {
+      var total = iv.preparacion + (iv.trabajo + iv.descanso) * iv.rondas + iv.finalizacion;
+      return '<div style="background:var(--fondo);border:1px solid #2a0000;border-radius:12px;padding:14px;margin-bottom:8px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+        '<div style="font-size:14px;font-weight:700;color:var(--texto)">' + iv.nombre + '</div>' +
+        '<div style="font-size:11px;color:var(--texto-secundario)">~' + Math.ceil(total/60) + ' min</div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">' +
+        '⚡ ' + iv.trabajo + 's · 😮 ' + iv.descanso + 's · ' + iv.rondas + ' rondas' +
+        ((iv.sets&&iv.sets>1) ? ' · ' + iv.sets + ' sets' : '') +
+        '</div>' +
+        '<div style="display:flex;gap:6px">' +
+        '<button onclick="_intervActual=JSON.parse(JSON.stringify(_intervCircuitos[' + i + ']));intervMostrar(\'ejecutar\')" style="flex:2;background:#e31e24;color:var(--texto);border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">▶️ Iniciar</button>' +
+        '<button onclick="_intervActual=JSON.parse(JSON.stringify(_intervCircuitos[' + i + ']));intervMostrar(\'editor\')" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>' +
+        '<button onclick="intervEliminar(' + i + ')" style="flex:1;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+  }
+  c.innerHTML =
+    '<button onclick="intervMostrar(\'nuevo\')" style="width:100%;background:#0a0a1a;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px">➕ Nuevo intervalo</button>' +
+    html;
+}
+
+function intervRenderEditor(c) {
+  var iv = _intervActual;
+  c.innerHTML =
+    '<button onclick="intervMostrar(\'lista\')" style="background:var(--gris2);border:1px solid #333;border-radius:8px;color:var(--texto-medio);font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;margin-bottom:10px">← Volver</button>' +
+    '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px">' +
+    '<div>' +
+    '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Nombre</div>' +
+    '<input value="' + iv.nombre + '" onchange="_intervActual.nombre=this.value" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:14px;font-weight:700;box-sizing:border-box">' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+    _intervCampo('Preparación (seg)', iv.preparacion, '_intervActual.preparacion=parseInt(this.value)||0') +
+    _intervCampo('Trabajo (seg) ⚡', iv.trabajo, '_intervActual.trabajo=parseInt(this.value)||1') +
+    _intervCampo('Descanso (seg) 😮', iv.descanso, '_intervActual.descanso=parseInt(this.value)||0') +
+    _intervCampo('Rondas 🔁', iv.rondas, '_intervActual.rondas=parseInt(this.value)||1') +
+    _intervCampo('Sets 🔄', iv.sets||1, '_intervActual.sets=parseInt(this.value)||1') +
+    _intervCampo('Desc. entre sets (seg)', iv.descEntreSets||0, '_intervActual.descEntreSets=parseInt(this.value)||0') +
+    _intervCampo('Finalización (seg)', iv.finalizacion, '_intervActual.finalizacion=parseInt(this.value)||0') +
+    '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;margin-top:12px">' +
+    '' +
+    '<button onclick="intervGuardar()" style="flex:2;background:#4a9eff;color:var(--texto);border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">💾 Guardar</button>' +
+    '<button onclick="intervMostrar(\'ejecutar\')" style="flex:2;background:#e31e24;color:var(--texto);border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">▶️ Iniciar</button>' +
+    '</div>';
+}
+
+function _intervCampo(label, val, onchange) {
+  return '<div>' +
+    '<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">' + label + '</div>' +
+    '<input type="number" min="0" value="' + val + '" onchange="' + onchange + '" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:20px;text-align:center;font-family:monospace;box-sizing:border-box">' +
+    '</div>';
+}
+
+async function intervGuardar() {
+  var iv = _intervActual;
+  if (!iv.nombre.trim()) { toast('⚠️ Ponle un nombre',false); return; }
+  iv.tipo = 'intervalo';
+  if (!iv.id) iv.id = Date.now();
+  if(!entEsPremium()){mostrarCandadoPremium('Guardar intervalos requiere Plan Premium.');return;}
+  await fetch('/api/hiit', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(iv)});
+  var idx = _intervCircuitos.findIndex(function(x){return x.id===iv.id;});
+  if (idx >= 0) _intervCircuitos[idx] = iv;
+  else _intervCircuitos.push(iv);
+  toast('💾 Intervalo guardado');
+  intervMostrar('lista');
+}
+
+async function intervEliminar(i) {
+  var iv = _intervCircuitos[i];
+  if (!iv) return;
+  await fetch('/api/hiit/' + iv.id, {method:'DELETE'});
+  _intervCircuitos.splice(i, 1);
+  toast('🗑️ Eliminado');
+  intervMostrar('lista');
+}
+
+// ── EJECUCIÓN INTERVALOS ─────────────────────────────────────────────────────
+function intervRenderEjecucion(c) {
+  _intervViendoEjecucion = true;
+  if (_intervEjecutando) {
+    clearInterval(_intervEjecutando.interval);
+    _intervEjecutando = null;
+  }
+  var iv = _intervActual;
+  _intervEjecutando = {
+    iv: iv,
+    fase: 'preparacion',  // preparacion | trabajo | descanso | desc_sets | finalizacion | fin
+    rondaActual: 1,
+    setActual: 1,
+    resto: iv.preparacion || iv.trabajo,
+    total: iv.preparacion || iv.trabajo,
+    running: false,
+    interval: null
+  };
+  if (!_intervEjecutando.resto) {
+    _intervEjecutando.fase = 'trabajo';
+    _intervEjecutando.resto = iv.trabajo;
+    _intervEjecutando.total = iv.trabajo;
+  }
+  intervRenderFrame(c);
+}
+
+function intervRenderFrame(c) {
+  var ej = _intervEjecutando;
+  if (!ej) return;
+  var iv = ej.iv;
+  var colores = {preparacion:'#ffd700', trabajo:'#e31e24', descanso:'#4caf50', finalizacion:'#4a9eff', fin:'#555'};
+  var labels  = {preparacion:'⏳ Preparación', trabajo:'⚡ Trabajo', descanso:'😮‍💨 Descanso', finalizacion:'🏁 Finalización', fin:'✅ ¡Listo!'};
+  var col = colores[ej.fase] || '#fff';
+  var lbl = labels[ej.fase]  || '';
+  var pct = ej.total > 0 ? Math.round((ej.resto / ej.total) * 100) : 0;
+  var mins = Math.floor(ej.resto/60);
+  var secs = ej.resto % 60;
+  var display = (mins>0?mins+'m ':'') + secs + 's';
+
+  c.innerHTML =
+    '<div style="text-align:center;padding:10px 0">' +
+    '<button onclick="intervMostrar(\'lista\')" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;margin-bottom:16px">← Salir</button>' +
+    '<div style="font-size:13px;font-weight:700;color:' + col + ';margin-bottom:8px;letter-spacing:1px">' + lbl + '</div>' +
+    '<div style="font-size:70px;font-weight:700;color:var(--texto);font-family:monospace;line-height:1;margin-bottom:8px;text-shadow:0 0 30px ' + col + '66">' + display + '</div>' +
+    (ej.fase==='trabajo'||ej.fase==='descanso' ?
+      '<div style="font-size:14px;color:var(--texto-secundario);margin-bottom:12px">Ronda ' + ej.rondaActual + '/' + iv.rondas +
+      ((iv.sets&&iv.sets>1) ? ' · Set ' + ej.setActual + '/' + iv.sets : '') + '</div>'
+    : ej.fase==='desc_sets' ?
+      '<div style="font-size:14px;color:#e31e24;margin-bottom:12px">Descanso entre sets · Set ' + ej.setActual + '/' + iv.sets + '</div>'
+    : '<div style="margin-bottom:12px"></div>') +
+    '<div style="background:var(--card);border-radius:8px;height:8px;margin:0 20px 20px;overflow:hidden">' +
+    '<div style="height:100%;width:' + pct + '%;background:' + col + ';border-radius:8px;transition:width 0.9s linear"></div>' +
+    '</div>' +
+    (ej.fase !== 'fin' ?
+      '<button onclick="intervToggle()" style="background:' + (ej.running?'#333':'#e31e24') + ';color:var(--texto);border:none;border-radius:50%;width:72px;height:72px;font-size:28px;cursor:pointer;box-shadow:0 0 20px ' + col + '44">' + (ej.running?'⏸️':'▶️') + '</button>'
+    : '<button onclick="intervMostrar(\'lista\')" style="background:#4a9eff;color:var(--texto);border:none;border-radius:12px;padding:16px 32px;font-size:16px;font-weight:700;cursor:pointer">👊 Volver</button>') +
+    '</div>';
+}
+
+function intervToggle() {
+  var ej = _intervEjecutando;
+  if (!ej) return;
+  if (!ej.running && _hiitEjecutando) {
+    if (!confirm('Hay un circuito en curso. ¿Detenerlo y continuar?')) return;
+    clearInterval(_hiitEjecutando.interval);
+    _hiitEjecutando = null;
+  }
+  var c = document.getElementById('hiit-contenido');
+  if (ej.running) {
+    clearInterval(ej.interval);
+    ej.running = false;
+    intervRenderFrame(c);
+    return;
+  }
+  ej.running = true;
+  dtSonarEvento('hiit', ej.fase==='trabajo'?'inicio':ej.fase==='descanso'?'descanso':'preparacion');
+  intervRenderFrame(c);
+  ej.interval = setInterval(function(){
+    ej.resto--;
+    if (ej.resto <= 0) {
+      var iv2 = ej.iv;
+      var totalSets = iv2.sets || 1;
+      if (ej.fase === 'preparacion') {
+        ej.fase = 'trabajo';
+        ej.resto = iv2.trabajo;
+        ej.total = iv2.trabajo;
+        dtSonarEvento('hiit','inicio');
+      } else if (ej.fase === 'trabajo') {
+        if (iv2.descanso > 0 && ej.rondaActual < iv2.rondas) {
+          ej.fase = 'descanso';
+          ej.resto = iv2.descanso;
+          ej.total = iv2.descanso;
+          dtSonarEvento('hiit','descanso');
+        } else if (ej.rondaActual < iv2.rondas) {
+          ej.rondaActual++;
+          ej.fase = 'trabajo';
+          ej.resto = iv2.trabajo;
+          ej.total = iv2.trabajo;
+          dtSonarEvento('hiit','inicio');
+        } else {
+          if (ej.setActual < totalSets) {
+            if (iv2.descEntreSets > 0) {
+              ej.fase = 'desc_sets';
+              ej.resto = iv2.descEntreSets;
+              ej.total = iv2.descEntreSets;
+              dtSonarEvento('hiit','descanso');
+            } else {
+              ej.setActual++;
+              ej.rondaActual = 1;
+              ej.fase = 'trabajo';
+              ej.resto = iv2.trabajo;
+              ej.total = iv2.trabajo;
+              dtSonarEvento('hiit','inicio');
+            }
+          } else {
+            if (iv2.finalizacion > 0) {
+              ej.fase = 'finalizacion';
+              ej.resto = iv2.finalizacion;
+              ej.total = iv2.finalizacion;
+              dtSonarEvento('hiit','final');
+            } else {
+              ej.fase = 'fin';
+              ej.resto = 0;
+              clearInterval(ej.interval);
+              ej.running = false;
+              dtSonarEvento('hiit','final');
+            }
+          }
+        }
+      } else if (ej.fase === 'descanso') {
+        ej.rondaActual++;
+        ej.fase = 'trabajo';
+        ej.resto = iv2.trabajo;
+        ej.total = iv2.trabajo;
+        dtSonarEvento('hiit','inicio');
+      } else if (ej.fase === 'desc_sets') {
+        ej.setActual++;
+        ej.rondaActual = 1;
+        ej.fase = 'trabajo';
+        ej.resto = iv2.trabajo;
+        ej.total = iv2.trabajo;
+        dtSonarEvento('hiit','inicio');
+      } else if (ej.fase === 'finalizacion') {
+        ej.fase = 'fin';
+        ej.resto = 0;
+        clearInterval(ej.interval);
+        ej.running = false;
+        dtSonarEvento('hiit','final');
+      }
+    }
+    if (_hiitTab === 'intervalos' && _hiitVistaIntervalo === 'ejecutar') {
+      var c2 = document.getElementById('hiit-contenido');
+      if (c2) intervRenderFrame(c2);
+    }
+  }, 1000);
+}
+
+function hiitNuevoCircuito(){
+  return {
+    id:Date.now(),
+    nombre:'Nuevo circuito',
+    series:3,
+    preparacion:5,
+    bloques:[
+      {tipo:'ejercicio',nombre:'Ejercicio 1',tiempo:60},
+      {tipo:'descanso',nombre:'Descanso',tiempo:15}
+    ],
+    descFinSerie:60,
+    descFinCircuito:600
+  };
+}
+
+function hiitRenderLista(c){
+  var btnNuevo = '<button onclick="hiitMostrar(\'nuevo\')" style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px">➕ Nuevo circuito</button>';
+  if(_hiitCircuitos.length===0){
+    c.innerHTML=btnNuevo+`<div style="text-align:center;padding:40px 0;color:var(--texto-tenue)">
+      <div style="font-size:40px;margin-bottom:12px">🔥</div>
+      <div style="font-size:14px">No tienes circuitos guardados</div>
+      <div style="font-size:12px;margin-top:6px">Toca ➕ para crear uno</div>
+    </div>`;
+    return;
+  }
+  c.innerHTML=btnNuevo+_hiitCircuitos.map((ci,i)=>`
+  <div style="background:var(--card);border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
+    <div style="font-size:15px;font-weight:700;color:var(--texto);margin-bottom:4px">${ci.nombre}</div>
+    <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">${ci.series} series · ${ci.bloques.length} bloques · Prep: ${ci.preparacion}s</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="_hiitActual=JSON.parse(JSON.stringify(_hiitCircuitos[${i}]));hiitMostrar('editor')" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>
+      <button onclick="hiitIniciar(${i})" style="flex:1;background:#e31e24;color:var(--texto);border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">▶️ Iniciar</button>
+      <button onclick="hiitEliminar(${i})" style="background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>
+    </div>
+  </div>`).join('');
+}
+
+function hiitRenderEditor(c){
+  const ci=_hiitActual;
+  let html=`
+  <button onclick="hiitMostrar('lista')" style="background:var(--gris2);border:1px solid #333;border-radius:8px;color:var(--texto-medio);font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;margin-bottom:10px">← Volver</button>
+  <div style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">Nombre del circuito</div>
+    <input value="${ci.nombre}" onchange="_hiitActual.nombre=this.value" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:14px;font-weight:700">
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    <div>
+      <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">Series</div>
+      <input type="number" min="1" value="${ci.series}" onchange="_hiitActual.series=parseInt(this.value)||1" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">Preparación (s)</div>
+      <input type="number" min="0" value="${ci.preparacion}" onchange="_hiitActual.preparacion=parseInt(this.value)||0" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+    </div>
+  </div>
+  <div style="background:var(--card);border:1px solid #1e1e1e;border-radius:12px;padding:12px;margin-bottom:12px">
+    <div style="font-size:13px;font-weight:700;color:#e31e24;margin-bottom:10px">📋 Bloques</div>
+    ${ci.bloques.map((b,i)=>`
+    <div draggable="true" ondragstart="hiitDragStart(event,${i})" ondragover="hiitDragOver(event,${i})" ondrop="hiitDrop(event,${i})" ondragend="hiitDragEnd()" id="hiit-bloque-${i}" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:var(--gris);border-radius:8px;padding:8px;cursor:grab">
+      <div style="font-size:16px;color:var(--texto-tenue);cursor:grab">☰</div>
+      <div style="font-size:18px">${b.tipo==='ejercicio'?'💪':'😮‍💨'}</div>
+      <input value="${b.nombre}" onchange="_hiitActual.bloques[${i}].nombre=this.value" style="flex:1;background:none;border:none;border-bottom:1px solid #333;color:var(--texto);font-size:12px;outline:none;padding:2px">
+      <input type="number" min="1" value="${b.tiempo}" onchange="_hiitActual.bloques[${i}].tiempo=parseInt(this.value)||1" style="width:52px;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:6px;padding:4px;font-size:13px;text-align:center;font-family:monospace">
+      <span style="font-size:10px;color:var(--texto-tenue)">s</span>
+      <button onclick="_hiitActual.bloques.splice(${i},1);hiitMostrar('editor')" style="background:none;border:none;color:var(--texto-tenue);font-size:16px;cursor:pointer">✖</button>
+    </div>`).join('')}
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button onclick="_hiitActual.bloques.push({tipo:'ejercicio',nombre:'Ejercicio',tiempo:60});hiitMostrar('editor')" style="flex:1;background:var(--gris);color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">➕ 💪 Ejercicio</button>
+      <button onclick="_hiitActual.bloques.push({tipo:'descanso',nombre:'Descanso',tiempo:15});hiitMostrar('editor')" style="flex:1;background:var(--gris);color:#ff9800;border:1px solid #ff9800;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">➕ 😮‍💨 Descanso</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div>
+      <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">🔚 Desc. fin de serie (s)</div>
+      <input type="number" min="0" value="${ci.descFinSerie}" onchange="_hiitActual.descFinSerie=parseInt(this.value)||0" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">🏁 Desc. fin circuito (s)</div>
+      <input type="number" min="0" value="${ci.descFinCircuito}" onchange="_hiitActual.descFinCircuito=parseInt(this.value)||0" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button onclick="hiitGuardar()" style="flex:1;background:#e31e24;color:var(--texto);border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">💾 Guardar</button>
+    <button onclick="hiitIniciarActual()" style="flex:1;background:#4caf50;color:var(--texto);border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">▶️ Iniciar</button>
+
+  </div>`;
+  c.innerHTML=html;
+}
+
+let _hiitDragIdx=null;
+function hiitDragStart(e,i){
+  _hiitDragIdx=i;
+  e.target.style.opacity='0.4';
+}
+function hiitDragOver(e,i){
+  e.preventDefault();
+  document.querySelectorAll('[id^="hiit-bloque-"]').forEach(el=>el.style.borderTop='');
+  const el=document.getElementById('hiit-bloque-'+i);
+  if(el)el.style.borderTop='2px solid #e31e24';
+}
+function hiitDrop(e,i){
+  e.preventDefault();
+  if(_hiitDragIdx===null||_hiitDragIdx===i)return;
+  const bloques=_hiitActual.bloques;
+  const item=bloques.splice(_hiitDragIdx,1)[0];
+  bloques.splice(i,0,item);
+  _hiitDragIdx=null;
+  hiitMostrar('editor');
+}
+function hiitDragEnd(){
+  _hiitDragIdx=null;
+  document.querySelectorAll('[id^="hiit-bloque-"]').forEach(el=>{
+    el.style.opacity='1';
+    el.style.borderTop='';
+  });
+}
+
+async function hiitGuardar(){
+  if(!entEsPremium()){mostrarCandadoPremium('Guardar circuitos requiere Plan Premium.');return;}
+  const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+  _hiitActual.entrenador_id = _eid;
+  await fetch('/api/hiit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_hiitActual)});
+  await hiitCargar();
+  toast('💾 Circuito guardado');
+  hiitMostrar('lista');
+}
+
+async function hiitEliminar(i){
+  const id=_hiitCircuitos[i].id;
+  await fetch('/api/hiit/'+id,{method:'DELETE'});
+  await hiitCargar();
+  hiitRenderLista(document.getElementById('hiit-contenido'));
+  toast('🗑️ Eliminado');
+}
+
+function hiitIniciar(i){
+  if (_intervEjecutando && _intervEjecutando.fase !== 'fin') {
+    if (!confirm('Hay un intervalo en curso. ¿Detenerlo y continuar?')) return;
+    clearInterval(_intervEjecutando.interval);
+    _intervEjecutando = null;
+  }
+  _hiitActual=JSON.parse(JSON.stringify(_hiitCircuitos[i]));
+  hiitIniciarActual();
+}
+
+function hiitIniciarActual(){
+  // Construir secuencia de bloques
+  const ci=_hiitActual;
+  const seq=[];
+  for(let s=0;s<ci.series;s++){
+    if(ci.preparacion>0) seq.push({tipo:'preparacion',nombre:'⚡ Preparación',tiempo:ci.preparacion,serie:s+1});
+    ci.bloques.forEach(b=>seq.push({...b,serie:s+1}));
+    if(s<ci.series-1&&ci.descFinSerie>0) seq.push({tipo:'descFinSerie',nombre:'🔚 Descanso fin de serie',tiempo:ci.descFinSerie,serie:s+1});
+  }
+  if(ci.descFinCircuito>0) seq.push({tipo:'descFinCircuito',nombre:'🏁 Descanso final',tiempo:ci.descFinCircuito,serie:ci.series});
+  _hiitEjecutando={ci,seq,idx:0,resto:seq[0].tiempo,total:seq[0].tiempo,running:false,interval:null};
+  hiitMostrar('ejecutar');
+}
+
+function hiitRenderEjecucion(c){
+  if(!_hiitEjecutando){hiitMostrar('lista');return;}
+  const e=_hiitEjecutando;
+  const bloque=e.seq[e.idx];
+  const siguiente=e.seq[e.idx+1];
+  const pct=e.total>0?Math.round((e.resto/e.total)*100):0;
+  const colores={ejercicio:'#e31e24',descanso:'#ff9800',preparacion:'#2196f3',descFinSerie:'#9c27b0',descFinCircuito:'#4caf50'};
+  const color=colores[bloque.tipo]||'#fff';
+  c.innerHTML=`
+  <div style="text-align:center;padding:10px 0">
+    <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">Serie ${bloque.serie} de ${e.ci.series} · Bloque ${e.idx+1} de ${e.seq.length}</div>
+    <div style="font-size:22px;font-weight:700;color:${color};margin-bottom:8px;letter-spacing:1px">${bloque.nombre}</div>
+    <div style="font-size:80px;font-weight:700;color:var(--texto);font-family:monospace;text-shadow:0 0 30px ${color}66;line-height:1">${fmtTimer(e.resto)}</div>
+    <div style="margin:12px auto;width:90%;height:8px;background:var(--gris2);border-radius:4px">
+      <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;transition:width 1s linear"></div>
+    </div>
+    ${siguiente?`<div style="font-size:22px;font-weight:700;margin-bottom:16px;padding:12px;background:var(--card);border-radius:10px;border-left:4px solid ${colores[siguiente.tipo]||'#444'};color:${colores[siguiente.tipo]||'#aaa'}">➡️ ${siguiente.nombre}<br><span style="font-size:16px;opacity:0.8">${fmtTimer(siguiente.tiempo)}</span></div>`:'<div style="font-size:22px;font-weight:700;color:#4caf50;margin-bottom:16px;padding:12px;background:var(--card);border-radius:10px">🏁 Último bloque</div>'}
+    <div style="display:flex;justify-content:center;gap:12px">
+      <button onclick="hiitToggle()" style="background:${e.running?'#333':'#e31e24'};color:var(--texto);border:none;border-radius:50%;width:64px;height:64px;font-size:24px;cursor:pointer">${e.running?'⏸️':'▶️'}</button>
+      <button onclick="hiitDetener()" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:50%;width:64px;height:64px;font-size:20px;cursor:pointer">⏹️</button>
+    </div>
+  </div>`;
+}
+
+function hiitToggle(){
+  const e=_hiitEjecutando;
+  if(!e)return;
+  if(e.running){
+    clearInterval(e.interval);
+    e.running=false;
+    hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+  } else {
+    e.running=true;
+    hiitSonarBloque(e.seq[e.idx].tipo);
+    e.interval=setInterval(()=>{
+      e.resto--;
+      if(e.resto<=0){
+        e.idx++;
+        if(e.idx>=e.seq.length){
+          clearInterval(e.interval);
+          e.running=false;
+          _hiitEjecutando=null;
+          dtSonarEvento('hiit','final');
+          toast('🏁 ¡Circuito completado!');
+          hiitMostrar('lista');
+          return;
+        }
+        const sig=e.seq[e.idx];
+        e.resto=sig.tiempo;
+        e.total=sig.tiempo;
+        hiitSonarBloque(sig.tipo);
+      }
+      hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+    },1000);
+    hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+  }
+}
+
+function hiitSonarBloque(tipo){
+  if(tipo==='preparacion') dtSonarEvento('hiit','preparacion');
+  else if(tipo==='ejercicio') dtSonarEvento('hiit','inicio');
+  else if(tipo==='descanso'||tipo==='descFinSerie') dtSonarEvento('hiit','descanso');
+  else if(tipo==='descFinCircuito') dtSonarEvento('hiit','final');
+}
+
+function hiitDetener(){
+  if(_hiitEjecutando){
+    clearInterval(_hiitEjecutando.interval);
+    _hiitEjecutando=null;
+  }
+  hiitMostrar('lista');
+}
+
+// ═══════════════════════════════
+// CONFIGURADOR DE SONIDOS
+// ═══════════════════════════════
+const _dtSonidosDisponibles={
+  'pip':        {label:'1 Pip',        fn:()=>{dtSonidoRaw([{f:880,t:0,d:0.08}])}},
+  'doble_pip':  {label:'2 Pips',       fn:()=>{dtSonidoRaw([{f:660,t:0,d:0.08},{f:660,t:0.12,d:0.08}])}},
+  'triple_pip': {label:'3 Pips',       fn:()=>{dtSonidoRaw([{f:880,t:0,d:0.08},{f:880,t:0.12,d:0.08},{f:1100,t:0.24,d:0.12}])}},
+  'campana':    {label:'Campana',      fn:()=>{dtSonidoRaw([{f:880,t:0,d:0.8,v:1.2},{f:1760,t:0,d:0.4,v:0.4}])}},
+  'alarma':     {label:'Alarma',       fn:()=>{dtSonidoRawAlt()}},
+  'triple_campana':{label:'3 Pips + Campana', fn:()=>{dtSonidoRaw([{f:880,t:0,d:0.08},{f:880,t:0.12,d:0.08},{f:1100,t:0.24,d:0.08},{f:1320,t:0.4,d:0.7,v:0.8}])}},
+  'descenso':   {label:'Descenso',     fn:()=>{dtSonidoSlide(1200,300,0,0.6)}},
+  'silbato':    {label:'Silbato',      fn:()=>{dtSonidoSilbato()}},
+  'gym':        {label:'Potente Gym',  fn:()=>{dtSonidoRaw([{f:80,t:0,d:0.3,tipo:'sawtooth',v:1.0},{f:1200,t:0.05,d:0.15,v:1.5},{f:1400,t:0.2,d:0.1,v:0.8}])}}
+};
+
+async function dtSonidoRaw(pips){
+  if(_dtSonando)return;
+  _dtSonando=true;
+  setTimeout(()=>{_dtSonando=false;},400);
+  const c=await _dtGetCtx();
+  pips.forEach(p=>{
+    const o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.frequency.value=p.f;o.type=p.tipo||'sine';
+    g.gain.setValueAtTime(p.v||1.5,c.currentTime+p.t);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+p.t+p.d);
+    o.start(c.currentTime+p.t);o.stop(c.currentTime+p.t+p.d+0.05);
+  });
+}
+async function dtSonidoRawAlt(){
+  const c=await _dtGetCtx();
+  for(let i=0;i<4;i++){
+    const o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.frequency.value=i%2===0?880:660;o.type='square';
+    g.gain.setValueAtTime(0.6,c.currentTime+i*0.18);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+i*0.18+0.14);
+    o.start(c.currentTime+i*0.18);o.stop(c.currentTime+i*0.18+0.19);
+  }
+}
+async function dtSonidoSlide(f1,f2,inicio,dur){
+  const c=await _dtGetCtx();
+  const o=c.createOscillator(),g=c.createGain();
+  o.connect(g);g.connect(c.destination);o.type='sine';
+  o.frequency.setValueAtTime(f1,c.currentTime+inicio);
+  o.frequency.linearRampToValueAtTime(f2,c.currentTime+inicio+dur);
+  g.gain.setValueAtTime(1.3,c.currentTime+inicio);
+  g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+inicio+dur);
+  o.start(c.currentTime+inicio);o.stop(c.currentTime+inicio+dur+0.05);
+}
+async function dtSonidoSilbato(){
+  const c=await _dtGetCtx();
+  [0,0.35].forEach(t=>{
+    const o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);o.type='sine';
+    o.frequency.setValueAtTime(2800,c.currentTime+t);
+    o.frequency.linearRampToValueAtTime(3200,c.currentTime+t+0.05);
+    o.frequency.linearRampToValueAtTime(2800,c.currentTime+t+0.25);
+    g.gain.setValueAtTime(1.4,c.currentTime+t);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+t+0.28);
+    o.start(c.currentTime+t);o.stop(c.currentTime+t+0.3);
+  });
+}
+
+async function dtSonido(tipo){
+  await _dtGetCtx();
+  const key=tipo==='inicio'?'pip':tipo==='descanso'?'doble_pip':'triple_pip';
+  if(_dtSonidosDisponibles[key])_dtSonidosDisponibles[key].fn();
+}
+
+function dtSonarEvento(seccion,evento){
+  const key=_dtSonidoConfig[seccion]&&_dtSonidoConfig[seccion][evento];
+  if(key&&_dtSonidosDisponibles[key])_dtSonidosDisponibles[key].fn();
+}
+
+function renderSonidos(c){
+  const secs=[
+    {id:'crono',label:'⏱️ Cronómetro',eventos:[{id:'inicio',label:'Inicio'}]},
+    {id:'timer',label:'⏳ Temporizador',eventos:[{id:'inicio',label:'Inicio'},{id:'fin',label:'Fin / Tiempo cumplido'}]},
+    {id:'hiit',label:'🔥 HIIT',eventos:[{id:'inicio',label:'Inicio de serie'},{id:'descanso',label:'Inicio de descanso'},{id:'preparacion',label:'Preparación (cuenta regresiva)'},{id:'final',label:'Final de rutina'}]}
+  ];
+  let html='<div style="padding-bottom:20px"><p style="color:var(--texto-secundario);font-size:12px;margin-bottom:16px">Elige el sonido para cada momento. Toca 🔊 para escucharlo.</p>';
+  secs.forEach(function(s){
+    html+='<div style="background:var(--card);border:1px solid #1e1e1e;border-radius:12px;padding:14px;margin-bottom:12px">';
+    html+='<div style="font-size:14px;font-weight:700;color:#e31e24;margin-bottom:12px">'+s.label+'</div>';
+    s.eventos.forEach(function(e){
+      const cur=(_dtSonidoConfig[s.id]&&_dtSonidoConfig[s.id][e.id])||'pip';
+      let opts='';
+      Object.keys(_dtSonidosDisponibles).forEach(function(k){
+        opts+='<option value="'+k+'"'+(cur===k?' selected':'')+'>'+_dtSonidosDisponibles[k].label+'</option>';
+      });
+      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">';
+      html+='<div style="font-size:11px;color:var(--texto-medio);width:110px;flex-shrink:0">'+e.label+'</div>';
+      html+='<select data-sec="'+s.id+'" data-evt="'+e.id+'" onchange="_dtSonidoConfig[this.dataset.sec][this.dataset.evt]=this.value" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px;font-size:12px">'+opts+'</select>';
+      html+='<button data-sec="'+s.id+'" data-evt="'+e.id+'" onclick="_dtSonidosDisponibles[_dtSonidoConfig[this.dataset.sec][this.dataset.evt]].fn()" style="background:var(--gris);border:1px solid #333;border-radius:8px;padding:8px;font-size:16px;cursor:pointer">🔊</button>';
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  html+='<div style="margin-top:16px;background:var(--card);border:1px solid #1e1e1e;border-radius:12px;padding:14px">';
+  html+='<div style="font-size:14px;font-weight:700;color:#e31e24;margin-bottom:10px">🔔 Notificaciones del sistema</div>';
+  html+='<p style="font-size:12px;color:var(--texto-secundario);margin-bottom:12px">Permite recibir avisos cuando un temporizador termina, incluso si la app está en segundo plano.</p>';
+  html+='<button onclick="dtPedirNotificaciones()" id="btn-notif" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">🔔 Activar notificaciones</button>';
+  html+='</div>';
+  c.innerHTML=html;
+  dtActualizarBtnNotif();
+}
+
+function dtActualizarBtnNotif(){
+  const btn=document.getElementById('btn-notif');
+  if(!btn)return;
+  if(!('Notification' in window)){btn.textContent='❌ No soportado en este navegador';btn.disabled=true;return;}
+  if(Notification.permission==='granted'){btn.textContent='✅ Notificaciones activadas';btn.style.borderColor='#4caf50';btn.style.color='#4caf50';btn.disabled=true;}
+  else if(Notification.permission==='denied'){btn.textContent='❌ Bloqueadas — actívalas en ajustes del navegador';btn.style.color='#e31e24';btn.disabled=true;}
+}
+
+function dtPedirNotificaciones(){
+  if(!('Notification' in window)){toast('❌ Tu navegador no soporta notificaciones');return;}
+  Notification.requestPermission().then(p=>{
+    if(p==='granted')toast('✅ Notificaciones activadas');
+    else if(p==='denied')toast('❌ Notificaciones bloqueadas');
+    else toast('⚠️ Permiso no concedido');
+    dtActualizarBtnNotif();
+  });
+}
+
+function dtNotificar(titulo,cuerpo){
+  if(Notification.permission==='granted'){
+    new Notification(titulo,{body:cuerpo,icon:'/icon.png',badge:'/icon.png'});
+  }
+}
+
+
+
+// ═══════════════════════════════
+// SWIPE ENTRE PESTAÑAS
+// ═══════════════════════════════
+const _pages=['clientes','rutinas','logs','enviar'];
+let _swipeStartX=0;
+let _swipeStartY=0;
+let _swipeActivo=false;
+
+// swipe entre pestañas desactivado
+// ═══════════════════════════════
+// DRAG & DROP TÁCTIL RUTINAS
+// ═══════════════════════════════
+let _touchDragEl=null;
+let _touchDragIdx=null;
+let _touchDragTipo=null;
+let _touchClone=null;
+let _touchOffsetX=0;
+let _touchOffsetY=0;
+
+function rutTouchStart(e,i,tipo){
+  guardarEjsActuales();
+  _touchDragIdx=i;
+  _touchDragTipo=tipo;
+  _touchDragEl=e.currentTarget;
+  const rect=_touchDragEl.getBoundingClientRect();
+  _touchOffsetX=e.touches[0].clientX-rect.left;
+  _touchOffsetY=e.touches[0].clientY-rect.top;
+  _touchClone=_touchDragEl.cloneNode(true);
+  _touchClone.style.position='fixed';
+  _touchClone.style.width=rect.width+'px';
+  _touchClone.style.opacity='0.7';
+  _touchClone.style.zIndex='9999';
+  _touchClone.style.pointerEvents='none';
+  _touchClone.style.left=(e.touches[0].clientX-_touchOffsetX)+'px';
+  _touchClone.style.top=(e.touches[0].clientY-_touchOffsetY)+'px';
+  document.body.appendChild(_touchClone);
+  _touchDragEl.style.opacity='0.3';
+  e.preventDefault();
+}
+
+function rutTouchMove(e){
+  if(!_touchClone)return;
+  _touchClone.style.left=(e.touches[0].clientX-_touchOffsetX)+'px';
+  _touchClone.style.top=(e.touches[0].clientY-_touchOffsetY)+'px';
+  e.preventDefault();
+}
+
+function rutTouchEnd(e){
+  if(!_touchClone)return;
+  const x=e.changedTouches[0].clientX;
+  const y=e.changedTouches[0].clientY;
+  _touchClone.remove();
+  _touchClone=null;
+  if(_touchDragEl)_touchDragEl.style.opacity='1';
+  const selector='[id^="rut-drag-'+_touchDragTipo+'-"]';
+  const els=document.querySelectorAll(selector);
+  let targetIdx=null;
+  els.forEach(el=>{
+    const rect=el.getBoundingClientRect();
+    if(x>=rect.left&&x<=rect.right&&y>=rect.top&&y<=rect.bottom){
+      const id=el.id;
+      targetIdx=parseInt(id.split('-').pop());
+    }
+  });
+  if(targetIdx!==null&&targetIdx!==_touchDragIdx){
+    const dia=diaSeleccionado;
+    if(_touchDragTipo==='ej'){
+      const arr=rutinaActual[dia].ejercicios||[];
+      const item=arr.splice(_touchDragIdx,1)[0];
+      arr.splice(targetIdx,0,item);
+      rutinaActual[dia].ejercicios=arr;
+    } else {
+      const arr=rutinaActual[dia].cardio||[];
+      const item=arr.splice(_touchDragIdx,1)[0];
+      arr.splice(targetIdx,0,item);
+      rutinaActual[dia].cardio=arr;
+    }
+    renderRutinaForm();
+  }
+  _touchDragIdx=null;
+  _touchDragTipo=null;
+  _touchDragEl=null;
+}
+// ═══════════════════════════════
+// DRAG & DROP RUTINAS
+// ═══════════════════════════════
+let _rutDragIdx=null;
+let _rutDragTipo=null;
+
+function rutDragStart(e,i,tipo){
+  guardarEjsActuales();
+  _rutDragIdx=i;
+  _rutDragTipo=tipo;
+  e.target.style.opacity='0.4';
+}
+function rutDragOver(e,i,tipo){
+  e.preventDefault();
+  if(tipo!==_rutDragTipo)return;
+  document.querySelectorAll('[id^="rut-drag-"]').forEach(el=>el.style.borderTop='');
+  var el=document.getElementById('rut-drag-'+tipo+'-'+i);
+  if(el)el.style.borderTop='2px solid #e31e24';
+}
+function rutDrop(e,i,tipo){
+  e.preventDefault();
+  if(_rutDragIdx===null||_rutDragIdx===i||tipo!==_rutDragTipo)return;
+  var dia=diaSeleccionado;
+  if(tipo==='ej'){
+    var arr=rutinaActual[dia].ejercicios||[];
+    var item=arr.splice(_rutDragIdx,1)[0];
+    arr.splice(i,0,item);
+    rutinaActual[dia].ejercicios=arr;
+  } else {
+    var arr=rutinaActual[dia].cardio||[];
+    var item=arr.splice(_rutDragIdx,1)[0];
+    arr.splice(i,0,item);
+    rutinaActual[dia].cardio=arr;
+  }
+  _rutDragIdx=null;
+  renderRutinaForm();
+}
+function rutDragEnd(e){
+  _rutDragIdx=null;
+  e.target.style.opacity='1';
+  document.querySelectorAll('[id^="rut-drag-"]').forEach(el=>el.style.borderTop='');
+}
+// ═══════════════════════════════
+// CRONÓMETROS
+// ═══════════════════════════════
+// SISTEMA DE SONIDO GLOBAL
+// ═══════════════════════════════
+let _dtAudioCtx=null;
+let _dtSonando=false;
+async function _dtGetCtx(){
+  if(!_dtAudioCtx)_dtAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(_dtAudioCtx.state==='suspended')await _dtAudioCtx.resume();
+  return _dtAudioCtx;
+}
+function dtSonido(tipo){
+  if(!_dtAudioCtx)_dtAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const ctx=_dtAudioCtx;
+  if(ctx.state==='suspended')ctx.resume();
+  const pips={inicio:[{f:880,t:0,d:0.08}],descanso:[{f:660,t:0,d:0.08},{f:660,t:0.12,d:0.08}],fin:[{f:880,t:0,d:0.08},{f:880,t:0.12,d:0.08},{f:1100,t:0.24,d:0.12}]};
+  (pips[tipo]||pips.inicio).forEach(p=>{
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=p.f;o.type='sine';
+    g.gain.setValueAtTime(1.5,ctx.currentTime+p.t);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+p.t+p.d);
+    o.start(ctx.currentTime+p.t);o.stop(ctx.currentTime+p.t+p.d+0.05);
+  });
+}
+
+let _dtSonidoConfig={
+  crono:{inicio:'campana'},
+  timer:{inicio:'alarma',fin:'doble_pip'},
+  hiit:{inicio:'silbato',descanso:'doble_pip',preparacion:'pip',final:'descenso'}
+};
+let _cronoTab='individual';
+let _cronoIndividual={ms:0,running:false,interval:null,sonido:false};
+let _cronoMulti=[];
+
+function renderCronometros(c){
+  c.innerHTML=`
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button id="ctab-individual" onclick="switchCronoTab('individual')" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e31e24;background:#e31e24;color:var(--texto);font-weight:700;font-size:13px;cursor:pointer">⏱️ Individual</button>
+    <button id="ctab-multi" onclick="switchCronoTab('multi')" style="flex:1;padding:10px;border-radius:8px;border:1px solid #333;background:var(--card);color:var(--texto-secundario);font-weight:700;font-size:13px;cursor:pointer">👥 Múltiple</button>
+  </div>
+  <div id="crono-individual-panel"></div>
+  <div id="crono-multi-panel" style="display:none"></div>`;
+  renderCronoIndividual();
+  renderCronoMultiPanel();
+}
+
+function switchCronoTab(tab){
+  _cronoTab=tab;
+  document.getElementById('ctab-individual').style.background=tab==='individual'?'#e31e24':'#111';
+  document.getElementById('ctab-individual').style.color=tab==='individual'?'#fff':'#666';
+  document.getElementById('ctab-individual').style.borderColor=tab==='individual'?'#e31e24':'#333';
+  document.getElementById('ctab-multi').style.background=tab==='multi'?'#e31e24':'#111';
+  document.getElementById('ctab-multi').style.color=tab==='multi'?'#fff':'#666';
+  document.getElementById('ctab-multi').style.borderColor=tab==='multi'?'#e31e24':'#333';
+  document.getElementById('crono-individual-panel').style.display=tab==='individual'?'block':'none';
+  document.getElementById('crono-multi-panel').style.display=tab==='multi'?'block':'none';
+}
+
+function fmtCrono(ms){
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  const s=Math.floor((ms%60000)/1000);
+  const cs=Math.floor((ms%1000)/10);
+  return (h>0?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(cs).padStart(2,'0');
+}
+
+function renderCronoIndividual(){
+  const p=document.getElementById('crono-individual-panel');
+  if(!p)return;
+  p.innerHTML=`
+  <div style="text-align:center;padding:30px 0 20px">
+    <div id="crono-display" style="font-size:52px;font-weight:700;color:var(--texto);font-family:monospace;letter-spacing:2px;text-shadow:0 0 20px rgba(227,30,36,0.3)">${fmtCrono(_cronoIndividual.ms)}</div>
+    <div style="display:flex;justify-content:center;gap:12px;margin-top:24px">
+      <button id="crono-btn-start" onclick="cronoStart()" style="background:#e31e24;color:var(--texto);border:none;border-radius:50%;width:64px;height:64px;font-size:24px;cursor:pointer;box-shadow:0 0 15px rgba(227,30,36,0.4)">▶️</button>
+      <button onclick="cronoReset()" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:50%;width:64px;height:64px;font-size:24px;cursor:pointer">🔄</button>
+    </div>
+    <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:8px">
+      <span style="font-size:12px;color:var(--texto-secundario)">Sonido</span>
+      <div onclick="cronoToggleSonido()" id="crono-sonido-btn" style="width:44px;height:24px;background:${_cronoIndividual.sonido?'#e31e24':'#333'};border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s">
+        <div style="position:absolute;top:2px;left:${_cronoIndividual.sonido?'22':'2'}px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left 0.2s"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function cronoStart(){
+  if(_cronoIndividual.running){
+    clearInterval(_cronoIndividual.interval);
+    _cronoIndividual.running=false;
+    document.getElementById('crono-btn-start').textContent='▶️';
+    document.getElementById('crono-btn-start').style.boxShadow='none';
+  } else {
+    const start=Date.now()-_cronoIndividual.ms;
+    _cronoIndividual.interval=setInterval(()=>{
+      _cronoIndividual.ms=Date.now()-start;
+      const d=document.getElementById('crono-display');
+      if(d)d.textContent=fmtCrono(_cronoIndividual.ms);
+    },50);
+    if(_cronoIndividual.sonido)dtSonarEvento('crono','inicio');
+    _cronoIndividual.running=true;
+    document.getElementById('crono-btn-start').textContent='⏸️';
+    document.getElementById('crono-btn-start').style.boxShadow='0 0 15px rgba(227,30,36,0.4)';
+  }
+}
+
+function cronoReset(){
+  clearInterval(_cronoIndividual.interval);
+  _cronoIndividual.ms=0;
+  _cronoIndividual.running=false;
+  const d=document.getElementById('crono-display');
+  if(d)d.textContent=fmtCrono(0);
+  const b=document.getElementById('crono-btn-start');
+  if(b){b.textContent='▶️';b.style.boxShadow='none';}
+}
+
+function cronoToggleSonido(){
+  _cronoIndividual.sonido=!_cronoIndividual.sonido;
+  renderCronoIndividual();
+}
+
+// MULTI CRONÓMETRO
+function renderCronoMultiPanel(){
+  const p=document.getElementById('crono-multi-panel');
+  if(!p)return;
+  const grid=_cronoMulti.map((c,i)=>`
+  <div style="background:var(--card);border:1px solid ${c.running?'#e31e24':'#222'};border-radius:10px;padding:12px;position:relative;transition:border-color 0.3s">
+    <button onclick="cronoMultiEliminar(${i})" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--texto-tenue);font-size:16px;cursor:pointer">✖</button>
+    <input value="${c.nombre}" onchange="_cronoMulti[${i}].nombre=this.value" style="background:none;border:none;border-bottom:1px solid #333;color:#e31e24;font-size:11px;font-weight:700;text-transform:uppercase;width:80%;outline:none;margin-bottom:8px">
+    <div style="font-size:28px;font-weight:700;color:var(--texto);font-family:monospace;text-align:center;margin:8px 0" id="cm-display-${i}">${fmtCrono(c.ms)}</div>
+    <div style="display:flex;justify-content:center;gap:8px">
+      <button onclick="cronoMultiToggle(${i})" style="background:${c.running?'#3a0000':'#1a1a1a'};color:${c.running?'#e31e24':'#fff'};border:1px solid ${c.running?'#e31e24':'#333'};border-radius:6px;padding:8px 14px;cursor:pointer;font-size:16px">${c.running?'⏸️':'▶️'}</button>
+      <button onclick="cronoMultiReset(${i})" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:16px">🔄</button>
+    </div>
+  </div>`).join('');
+  p.innerHTML=`
+  <div style="display:flex;gap:6px;margin-bottom:12px">
+    <button onclick="cronoMultiTodos('start')" style="flex:1;background:var(--gris);color:#4caf50;border:1px solid #4caf50;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">▶️ Todos</button>
+    <button onclick="cronoMultiTodos('pause')" style="flex:1;background:var(--gris);color:#ff9800;border:1px solid #ff9800;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">⏸️ Todos</button>
+    <button onclick="cronoMultiTodos('reset')" style="flex:1;background:var(--gris);color:var(--texto-secundario);border:1px solid #333;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">🔄 Todos</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px" id="crono-multi-grid">${grid}</div>
+  <button onclick="cronoMultiAgregar()" style="width:100%;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:12px;font-weight:700;font-size:13px;cursor:pointer;margin-top:12px">➕ Añadir cronómetro</button>`;
+}
+
+function cronoMultiAgregar(){
+  _cronoMulti.push({nombre:'Cronómetro '+(+_cronoMulti.length+1),ms:0,running:false,interval:null});
+  renderCronoMultiPanel();
+}
+
+function cronoMultiEliminar(i){
+  clearInterval(_cronoMulti[i].interval);
+  _cronoMulti.splice(i,1);
+  renderCronoMultiPanel();
+}
+
+function cronoMultiToggle(i){
+  const c=_cronoMulti[i];
+  if(c.running){
+    clearInterval(c.interval);
+    c.running=false;
+  } else {
+    const start=Date.now()-c.ms;
+    c.interval=setInterval(()=>{
+      c.ms=Date.now()-start;
+      const d=document.getElementById('cm-display-'+i);
+      if(d)d.textContent=fmtCrono(c.ms);
+    },50);
+    dtSonarEvento('crono','inicio');
+    c.running=true;
+  }
+  renderCronoMultiPanel();
+}
+
+function cronoMultiReset(i){
+  clearInterval(_cronoMulti[i].interval);
+  _cronoMulti[i].ms=0;
+  _cronoMulti[i].running=false;
+  renderCronoMultiPanel();
+}
+
+function cronoMultiTodos(accion){
+  _cronoMulti.forEach((c,i)=>{
+    if(accion==='start'&&!c.running){
+      dtSonarEvento('crono','inicio');
+      const start=Date.now()-c.ms;
+      c.interval=setInterval(()=>{
+        c.ms=Date.now()-start;
+        const d=document.getElementById('cm-display-'+i);
+        if(d)d.textContent=fmtCrono(c.ms);
+      },50);
+      c.running=true;
+    } else if(accion==='pause'&&c.running){
+      clearInterval(c.interval);
+      c.running=false;
+    } else if(accion==='reset'){
+      clearInterval(c.interval);
+      c.ms=0;c.running=false;
+    }
+  });
+  renderCronoMultiPanel();
+}
+function volverHerramientas(){
+  if (window._encDesdeRutina) {
+    window._encDesdeRutina = false;
+    tcTab('rutina');
+    return;
+  }
+  if (window._sonidosDesdeConfig) {
+    window._sonidosDesdeConfig = false;
+    document.getElementById('herramienta-panel').style.display='none';
+    const paginaAntes = window._paginaAntesSonidos || 'inicio';
+    showPage(paginaAntes);
+    setTimeout(()=>abrirConfig(), 100);
+    return;
+  }
+  document.getElementById('herramienta-panel').style.display='none';
+  document.querySelector('#page-logs .st').style.display='block';
+  document.querySelector('#page-logs .st').nextElementSibling.style.display='grid';
+}
+async function cargarLogs(){
+const res=await fetch('/api/logs');
+const logs=await res.json();
+const fechas=Object.keys(logs).sort().reverse();
+document.getElementById('lista-logs').innerHTML=fechas.length?fechas.map(f=>`
+<div class="card">
+<div style="font-weight:700;color:var(--rojo);margin-bottom:8px">📅 ${f}</div>
+${Object.entries(logs[f]).map(([n,e])=>`
+<div class="li"><span>${n}</span>
+<span class="${e==='enviado'?'lok':'ler'}">${e==='enviado'?'✅ Enviado':'❌ Error'}</span>
+</div>`).join('')}
+</div>`).join(''):'<p style="color:var(--texto-secundario);text-align:center;padding:20px">Sin historial</p>';
+}
+
+let _usuariosEnviar=[];
+function toggleMenu(id){
+  const menu = document.getElementById(id);
+  const arrow = document.getElementById(id+'-arrow');
+  const abierto = menu.style.display === 'block';
+  // Cerrar todos los menús abiertos
+  document.querySelectorAll('[id^="menu-"]').forEach(m => {
+    if(m.tagName === 'DIV') m.style.display = 'none';
+  });
+  document.querySelectorAll('[id$="-arrow"]').forEach(a => a.style.transform = '');
+  // Abrir o cerrar el actual
+  if(!abierto){
+    menu.style.display = 'block';
+    if(arrow) arrow.style.transform = 'rotate(180deg)';
+  }
+  // Cerrar al tocar fuera
+  setTimeout(()=>{
+    document.addEventListener('click', function cerrar(e){
+      if(!menu.contains(e.target) && !e.target.closest('[onclick*="toggleMenu"]')){
+        menu.style.display = 'none';
+        if(arrow) arrow.style.transform = '';
+        document.removeEventListener('click', cerrar);
+      }
+    });
+  }, 100);
+}
+
+async function descargarHTMLRutina(){
+  const id = document.getElementById('enviar-cliente').value;
+  if(!id){ toast('Selecciona un cliente primero'); return; }
+  try{
+    const r = await fetch('/api/rutinas/'+id);
+    const rutina = await r.json();
+    const usuario = _usuariosEnviar.find(u=>u.id===id||u.id==='cli_'+id);
+    const nombre = usuario ? usuario.nombre : 'Cliente';
+    const dias = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+    const nombDias = {'lunes':'Lunes','martes':'Martes','miercoles':'Miércoles','jueves':'Jueves','viernes':'Viernes','sabado':'Sábado','domingo':'Domingo'};
+    let bloques = '';
+    dias.forEach(d=>{
+      const ejs = rutina[d];
+      if(!ejs||!ejs.length) return;
+      bloques += '<div style="margin-bottom:20px"><h3 style="color:#e31e24;border-bottom:2px solid #e31e24;padding-bottom:6px">'+nombDias[d]+'</h3>';
+      ejs.forEach(e=>{
+        bloques += '<div style="background:#1a1a1a;border-radius:8px;padding:12px;margin-bottom:8px">';
+        bloques += '<div style="font-weight:700;color:#fff;font-size:15px">'+e.nombre+'</div>';
+        if(e.series||e.reps) bloques += '<div style="color:#aaa;font-size:13px;margin-top:4px">'+[e.series?e.series+' series':'',e.reps?e.reps+' reps':''].filter(Boolean).join(' × ')+'</div>';
+        if(e.peso) bloques += '<div style="color:#ffd700;font-size:13px">Peso: '+e.peso+'</div>';
+        if(e.notas) bloques += '<div style="color:#888;font-size:12px;margin-top:4px;font-style:italic">'+e.notas+'</div>';
+        bloques += '</div>';
+      });
+      bloques += '</div>';
+    });
+    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rutina '+nombre+'</title></head><body style="background:#111;color:#fff;font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px"><h2 style="color:#e31e24">💪 Rutina de '+nombre+'</h2>'+bloques+'<p style="color:#555;font-size:11px;text-align:center;margin-top:30px">Generado por DT-APP</p></body></html>';
+    const blob = new Blob([html], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'rutina_'+nombre.replace(/\s+/g,'_')+'.html';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('✅ HTML descargado');
+  } catch(e){
+    toast('Error al generar HTML');
+  }
+}
+
+function cargarSelectEnviar(){
+  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(u=>{
+    _usuariosEnviar=u.filter(x=>x.activo);
+    _difusionSeleccionados=new Set();
+    _difusionIniciado=false;
+    cargarDifusion();
+  });
+}
+function _renderDrop(dropId,hiddenId,inputId,q){
+  const drop=document.getElementById(dropId);
+  const f=_usuariosEnviar.filter(u=>u.nombre.toLowerCase().includes(q.toLowerCase()));
+  drop.innerHTML=f.map(u=>`<div onclick="seleccionarEnviar('${dropId}','${hiddenId}','${inputId}','${u.nombre}','${u.id}')" style="padding:10px 12px;font-size:13px;color:var(--texto);cursor:pointer;border-bottom:1px solid #222">${u.nombre}</div>`).join('');
+  drop.style.display=f.length?'block':'none';
+}
+function seleccionarEnviar(dropId,hiddenId,inputId,nombre,id){
+  document.getElementById(hiddenId).value=id;
+  document.getElementById(inputId).value=nombre;
+  document.getElementById(dropId).style.display='none';
+}
+function mostrarDrop1(){_renderDrop('drop-enviar1','enviar-cliente','buscar-enviar1',document.getElementById('buscar-enviar1').value);}
+function filtrarEnviar1(){mostrarDrop1();}
+function mostrarDrop2(){_renderDrop('drop-enviar2','enviar-cliente-dia','buscar-enviar2',document.getElementById('buscar-enviar2').value);}
+function filtrarEnviar2(){mostrarDrop2();}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#buscar-enviar1')&&!e.target.closest('#drop-enviar1'))document.getElementById('drop-enviar1').style.display='none';
+  if(!e.target.closest('#buscar-enviar2')&&!e.target.closest('#drop-enviar2'))document.getElementById('drop-enviar2').style.display='none';
+});
+
+async function desbloquearDiaEntrenamiento() {
+  const id = document.getElementById('enviar-cliente-dia').value;
+  const dia = document.getElementById('enviar-dia-select').value;
+  if (!id) { toast('Selecciona un cliente', false); return; }
+  if (!dia) { toast('Selecciona un día', false); return; }
+  const res = await fetch('/api/usuarios/' + id + '/desbloquear-dia', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({dia})
+  });
+  const data = await res.json();
+  if (data.ok) {
+    toast('🔓 Día ' + dia + ' desbloqueado para el cliente');
+  } else {
+    toast('❌ Error al desbloquear', false);
+  }
+}
+
+async function compartirTextoNativo(texto, titulo){
+  if (!texto || !texto.trim()) { toast('No hay contenido para compartir', false); return; }
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: titulo || 'DT-APP', text: texto });
+    } catch(e) {
+      // Usuario canceló o no soportado, no mostrar error
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(texto);
+      toast('📋 Copiado (compartir no disponible en este navegador)');
+    } catch(e) {
+      toast('Error al compartir', false);
+    }
+  }
+}
+
+async function copiarDiaRutina(){
+  const id = document.getElementById('enviar-cliente-dia').value;
+  const dia = document.getElementById('enviar-dia-select').value;
+  if(!id){ toast('Selecciona un cliente', false); return; }
+  try {
+    const res = await fetch('/api/enviar-dia/'+id+'/'+dia+'/texto');
+    const data = await res.json();
+    if(!data.texto){ toast('No hay rutina para ese día', false); return; }
+    await navigator.clipboard.writeText(data.texto);
+    toast('📋 Rutina copiada al portapapeles');
+  } catch(e){
+    toast('Error al copiar', false);
+    logFrontend('copiarDiaRutina', e.message || 'Error al copiar rutina', e.stack || '');
+  }
+}
+
+async function compartirDiaRutina(){
+  const id = document.getElementById('enviar-cliente-dia').value;
+  const dia = document.getElementById('enviar-dia-select').value;
+  if(!id){ toast('Selecciona un cliente', false); return; }
+  try {
+    const res = await fetch('/api/enviar-dia/'+id+'/'+dia+'/texto');
+    const data = await res.json();
+    if(!data.texto){ toast('No hay rutina para ese día', false); return; }
+    await compartirTextoNativo(data.texto, 'Rutina del día');
+  } catch(e){
+    toast('Error al compartir', false);
+  }
+}
+
+async function enviarDiaRutina(){
+const id=document.getElementById('enviar-cliente-dia').value;
+const dia=document.getElementById('enviar-dia-select').value;
+if(!id){toast('Selecciona un cliente',false);return;}
+const res=await fetch('/api/enviar-dia/'+id+'/'+dia,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+const data=await res.json();
+toast(data.ok?'✅ Día enviado':'❌ Error',data.ok);
+}
+
+async function enviarRutinaCompleta(){
+const id=document.getElementById('enviar-cliente').value;
+if(!id){toast('Selecciona un cliente',false);return;}
+const res=await fetch('/api/enviar-rutina/'+id,{method:'POST'});
+const data=await res.json();
+toast(data.ok?'✅ Rutina enviada':'❌ Error',data.ok);
+}
+
+async function mostrarTarjetaPremium(){
+  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
+  const id = document.getElementById("enviar-cliente").value;
+  if(!id){toast("Selecciona un cliente",false);return;}
+  const u = await fetch('/api/usuarios/'+id).then(r=>r.json()).catch(()=>null);
+  const nombre = u && u.nombre ? u.nombre : 'Cliente';
+  const link = 'https://dt-app.net/api/informe/'+id+'/html';
+
+  const modal = document.createElement('div');
+  modal.id = 'modal-tarjeta-premium';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;animation:fadeInModal 0.3s ease';
+  modal.innerHTML = `
+    <style>
+      @keyframes fadeInModal { from{opacity:0} to{opacity:1} }
+      @keyframes cardPop { from{opacity:0;transform:scale(0.92) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
+      @keyframes shine { 0%{transform:translateX(-100%) rotate(25deg)} 100%{transform:translateX(250%) rotate(25deg)} }
+    </style>
+    <div style="max-width:420px;width:100%;animation:cardPop 0.4s ease">
+      <div style="position:relative;width:100%;aspect-ratio:1.6;border-radius:18px;overflow:hidden;aspect-ratio:1586/992;background:url('/img/tarjeta-premium.png') center/100% 100% no-repeat;box-shadow:0 12px 40px rgba(255,215,0,0.25)">
+        <div style="position:absolute;top:0;left:-30%;width:35%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);animation:shine 1.8s ease-in-out 0.3s 1"></div>
+        <div style="position:absolute;left:10%;top:46%;width:48%;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(13px,3.6vw,19px);letter-spacing:1px;color:#3d2e0a;text-shadow:1px 1px 1px rgba(255,255,255,0.35),-1px -1px 1px rgba(0,0,0,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nombre.toUpperCase()}</div>
+        </div>
+        <div style="position:absolute;left:8.5%;bottom:14.5%;width:83%;">
+          <div style="font-family:'DM Mono',monospace,monospace;font-size:clamp(7px,2vw,10px);letter-spacing:0.3px;color:#3d2e0a;text-shadow:1px 1px 1px rgba(255,255,255,0.3),-1px -1px 1px rgba(0,0,0,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${link}</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:14px;font-size:12px;color:#ccc;line-height:1.5">
+        Cada vez que actualices su rutina o medidas, ${nombre.split(' ')[0]} podrá verlo desde este mismo link, en cualquier momento.
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="navigator.clipboard.writeText('${link}');toast('📋 Link copiado')" style="flex:1;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);color:#000;font-size:13px;font-weight:800;cursor:pointer">📋 Copiar link</button>
+        <button onclick="window.open('${link}','_blank')" style="flex:1;padding:13px;border-radius:10px;border:1px solid rgba(255,215,0,0.4);background:rgba(255,215,0,0.08);color:#ffd700;font-size:13px;font-weight:700;cursor:pointer">👁️ Ver</button>
+      </div>
+      <button onclick="document.getElementById('modal-tarjeta-premium').remove()" style="display:block;margin:16px auto 0;background:transparent;border:none;color:#888;font-size:12px;cursor:pointer">Cerrar</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.remove(); });
+}
+
+async function enviarInformePremium(){
+  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
+  const id=document.getElementById("enviar-cliente").value;
+  if(!id){toast("Selecciona un cliente",false);return;}
+  if(!confirm("Enviar informe premium por WhatsApp?")){return;}
+  const res=await fetch("/api/informe/"+id+"/enviar",{method:"POST"});
+  const data=await res.json();
+  toast(data.ok?"Informe enviado":"Error: "+data.error,data.ok);
+}
+async function descargarInformeArchivo(){
+  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
+  const id=document.getElementById("enviar-cliente").value;
+  if(!id){toast("Selecciona un cliente",false);return;}
+  window.location.href="/api/informe/"+id+"/descargar";
+}
+
+async function descargarInformePremium(){
+  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
+  const id=document.getElementById("enviar-cliente").value;
+  if(!id){toast("Selecciona un cliente",false);return;}
+  window.open("/api/informe/"+id+"/html","_blank");
+}
+let _difusionSeleccionados=new Set();
+let _difusionIniciado=false;
+function cargarDifusion(){
+  const lista=document.getElementById('difusion-lista');
+  const buscar=document.getElementById('buscar-difusion');
+  if(!lista)return;
+  if(!_difusionIniciado && _usuariosEnviar.length>0){
+    _usuariosEnviar.forEach(u=>_difusionSeleccionados.add(u.telefono));
+    _difusionIniciado=true;
+  }
+  const q=buscar?buscar.value.toLowerCase():'';
+  const filtrados=_usuariosEnviar.filter(u=>u.nombre.toLowerCase().includes(q));
+  lista.innerHTML=filtrados.map(u=>{
+    const sel=_difusionSeleccionados.has(u.telefono)?'checked':'';
+    return `<label style="display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid #222;border-radius:8px;padding:8px;cursor:pointer"><input type="checkbox" class="difusion-check" data-tel="${u.telefono}" data-nombre="${u.nombre}" ${sel} onchange="toggleDifusion(this)" style="accent-color:#e31e24;width:16px;height:16px"><span style="font-size:13px;color:var(--texto)">${u.nombre}</span></label>`;
+  }).join('');
+}
+function toggleDifusion(el){
+  if(el.checked) _difusionSeleccionados.add(el.getAttribute('data-tel'));
+  else _difusionSeleccionados.delete(el.getAttribute('data-tel'));
+}
+function difusionSelTodos(){
+  _usuariosEnviar.forEach(u=>_difusionSeleccionados.add(u.telefono));
+  cargarDifusion();
+}
+function difusionDeselTodos(){
+  _difusionSeleccionados.clear();
+  cargarDifusion();
+}
+async function enviarDifusion(){
+  const mensaje = document.getElementById('mensaje-custom').value.trim();
+  if(!mensaje){toast('Escribe un mensaje',false);return;}
+  const seleccionados = [...document.querySelectorAll('.difusion-check:checked')];
+  if(!seleccionados.length){toast('Selecciona al menos un cliente',false);return;}
+  let ok=0, fail=0;
+  for(const ch of seleccionados){
+    const telefono = ch.getAttribute('data-tel');
+    const nombre = ch.getAttribute('data-nombre');
+    try{
+      const res = await fetch('/api/enviar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telefono,mensaje,entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+      const data = await res.json();
+      if(data.ok) ok++; else fail++;
+    }catch(e){ fail++; }
+  }
+  toast('✅ Enviados: '+ok+(fail?' | ❌ Fallidos: '+fail:''), ok>0);
+  if(ok>0) document.getElementById('mensaje-custom').value='';
+}
+cargarClientes();
+cargarDifusion();
+setInterval(async()=>{
+try{
+const r=await fetch('/api/status');
+const d=await r.json();
+const s=document.getElementById('statusWA');
+if(d.conectado){s.textContent='🟢 Online';s.className='sdot son';}
+else{s.textContent='⚫ Offline';s.className='sdot soff';}
+}catch(e){}
+},3000);
+function abrirModalPausa(){
+  document.getElementById('modal-pausa').style.display='flex';
+}
+function cerrarModalPausa(){
+  document.getElementById('modal-pausa').style.display='none';
+}
+async function ejecutarPausaGlobal(dias){
+  let hasta = dias === -1 ? 'indefinido' : new Date(Date.now() + dias*86400000).toISOString().split('T')[0];
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: hasta, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  cerrarModalPausa();
+  actualizarBtnPausaGlobal(hasta);
+}
+async function reactivarEnviosGlobal(){
+  await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envios_pausados_hasta: null, entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)})});
+  actualizarBtnPausaGlobal(null);
+}
+function actualizarBtnPausaGlobal(hasta){
+  const btn = document.getElementById('btn-pausa-global');
+  const icono = document.getElementById('icono-pausa-global');
+  const lbl = document.getElementById('lbl-pausa-global');
+  if(!hasta || hasta === null){
+    btn.style.borderColor='#333';
+    btn.style.color='#aaa';
+    btn.style.background='#1a1a1a';
+    icono.textContent='⏸️';
+    lbl.textContent='Pausar envíos globalmente';
+    btn.onclick = abrirModalPausa;
+  } else {
+    btn.style.borderColor='#e31e24';
+    btn.style.color='#e31e24';
+    btn.style.background='#2a0000';
+    icono.textContent='🔴';
+    lbl.textContent = hasta === 'indefinido' ? 'Envíos pausados — Toca para reactivar' : 'Pausado hasta '+hasta+' — Toca para reactivar';
+    btn.onclick = reactivarEnviosGlobal;
+  }
+}
+async function cargarEstadoPausaGlobal(){
+  const r = await fetch('/api/config');
+  const cfg = await r.json();
+  const hasta = cfg.envios_pausados_hasta || null;
+  actualizarBtnPausaGlobal(hasta);
+}
+function filtrarClientes(){
+  const q=document.getElementById('buscador-clientes').value.toLowerCase();
+  document.querySelectorAll('#lista-clientes>div').forEach(d=>{
+    d.style.display=d.innerText.toLowerCase().includes(q)?'block':'none';
+  });
+}
+function filtrarRutinas(){
+  const q=document.getElementById('buscador-rutinas').value.toLowerCase();
+  document.querySelectorAll('#lista-rutinas-clientes>div').forEach(d=>{
+    d.style.display=d.innerText.toLowerCase().includes(q)?'block':'none';
+  });
+}
