@@ -149,4 +149,3 @@ async function guardarAlimentacion() {
     toast('❌ No se pudo conectar con el servidor',false);
   }
 }
-</script>
