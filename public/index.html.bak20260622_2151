@@ -1203,7 +1203,8 @@ async function gestionarPushAdmin() {
 <div id="herramienta-contenido"></div>
 </div>
 <div id="lista-logs" style="display:none"></div>
-<div id="page-enviar" class="page" style="max-width:480px;margin:0 auto;width:100%">
+</div>
+<div id="page-enviar" class="page">
 <p class="st">Envío manual</p>
 <div class="card">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar1" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar1()" onfocus="mostrarDrop1()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar1" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente"></div>
@@ -1268,10 +1269,9 @@ async function gestionarPushAdmin() {
   <button class="btn br" style="width:100%" onclick="enviarDifusion()">📤 Enviar difusión</button>
 </div>
 </div>
-</div>
-<button class="fab" onclick="abrirModalCliente()" id="fab-btn" style="display:none">+</button>
+<button class="fab" onclick="abrirModalCliente()" id="fab-btn">+</button>
 <button onclick="abrirChatEntrenador()" id="chat-ent-fab" style="position:fixed;top:10px;right:62px;width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.75);border:none;color:#fff;font-size:16px;cursor:pointer;z-index:9000;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center">💬</button>
-<div id="chat-ent-badge" style="display:none;position:fixed;top:4px;right:50px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div>
+<div id="chat-ent-badge" style="display:none;position:fixed;top:4px;right:56px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div>
 <div id="chat-ent-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:999999;flex-direction:column">
   <div style="background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:2px solid var(--rojo);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
     <button onclick="cerrarChatEntrenador()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">←</button>
@@ -10480,7 +10480,7 @@ async function compartirPlanNativo() {
 
   <!-- CHAT FLOTANTE -->
   <button id="tc-chat-fab" onclick="tcToggleChat()" style="position:fixed;top:14px;right:128px;width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.55);border:none;color:rgba(255,255,255,0.85);font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:9000;display:flex;align-items:center;justify-content:center">💬</button>
-  <div id="tc-chat-badge" style="display:none;position:fixed;top:4px;right:158px;background:rgba(255,152,0,0.9);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
+  <div id="tc-chat-badge" style="display:none;position:fixed;top:8px;right:122px;background:rgba(255,152,0,0.9);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
 
   <!-- PANEL CHAT -->
   <div id="tc-chat-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:9999;flex-direction:column">
@@ -10823,10 +10823,6 @@ function volverRol() {
 }
 
 function salirARol() {
-  const _b1 = document.getElementById('tc-chat-badge'); if (_b1) _b1.style.display = 'none';
-  const _b2 = document.getElementById('chat-ent-badge'); if (_b2) _b2.style.display = 'none';
-  if (typeof _tcPollingBadge !== 'undefined' && _tcPollingBadge) { clearInterval(_tcPollingBadge); _tcPollingBadge = null; }
-  if (typeof _entPollingBadge !== 'undefined' && _entPollingBadge) { clearInterval(_entPollingBadge); _entPollingBadge = null; }
   // Ocultar todos los terminales
   ['app-entrenador','tc-main','terminal-cliente','terminal-cliente-app'].forEach(id => {
     const el = document.getElementById(id);
@@ -14103,7 +14099,7 @@ async function actualizarBadgeEntrenador() {
   if (badge) { badge.textContent = data.total; badge.style.display = data.total > 0 ? 'block' : 'none'; }
 }
 
-var _entPollingBadge = setInterval(actualizarBadgeEntrenador, 30000);
+setInterval(actualizarBadgeEntrenador, 30000);
 </script>
 <script>
 // ======== VOZ MEJORADA ========

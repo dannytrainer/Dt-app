@@ -1203,6 +1203,7 @@ async function gestionarPushAdmin() {
 <div id="herramienta-contenido"></div>
 </div>
 <div id="lista-logs" style="display:none"></div>
+</div>
 <div id="page-enviar" class="page" style="max-width:480px;margin:0 auto;width:100%">
 <p class="st">Envío manual</p>
 <div class="card">
@@ -1266,7 +1267,6 @@ async function gestionarPushAdmin() {
   <div id="difusion-lista" style="max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:6px"></div>
   <div class="ig"><label>Mensaje</label><textarea id="mensaje-custom" placeholder="Escribe el mensaje para enviar..."></textarea></div>
   <button class="btn br" style="width:100%" onclick="enviarDifusion()">📤 Enviar difusión</button>
-</div>
 </div>
 </div>
 <button class="fab" onclick="abrirModalCliente()" id="fab-btn" style="display:none">+</button>

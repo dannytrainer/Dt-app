@@ -1561,7 +1561,7 @@ app.get('/api/enciclopedia/personalizados', (req, res) => {
 
 app.post('/api/enciclopedia/personalizados', (req, res) => {
   const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
-  const config = cargarJSON('config_' + eid + '.json', {});
+  const config = cargarJSON('config.json', {});
   const plan = config.plan || 'free';
   const data = cargarPersonalizados(eid);
   if (!data.ejercicios) data.ejercicios = [];
@@ -1942,7 +1942,7 @@ app.post('/api/foto-comparativa/:id/:tipo', uploadFotoComp.single('foto'), (req,
 app.post('/api/vincular', (req, res) => {
   const { id, codigo } = req.body;
   const eid_vinc = req.body.entrenador_id || 'ent_001';
-  const cfg = cargarJSON('config_' + eid_vinc + '.json', {});
+  const cfg = cargarJSON('config_' + eid_vinc + '.json', cargarJSON('config.json', {}));
   const usuarios = cargarJSON('usuarios.json');
   const u = usuarios.find(u => u.id === id);
   if (!u) return res.json({ ok: false, error: 'Usuario no encontrado' });
@@ -1953,7 +1953,7 @@ app.post('/api/vincular', (req, res) => {
 
 app.get('/api/codigo-entrenador', (req, res) => {
   const eid_cod = req.query.entrenador_id || 'ent_001';
-  const cfg = cargarJSON('config_' + eid_cod + '.json', {});
+  const cfg = cargarJSON('config_' + eid_cod + '.json', cargarJSON('config.json', {}));
   res.json({ codigo: cfg.codigo_vinculacion });
 });
 

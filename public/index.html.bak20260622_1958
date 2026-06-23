@@ -1203,7 +1203,8 @@ async function gestionarPushAdmin() {
 <div id="herramienta-contenido"></div>
 </div>
 <div id="lista-logs" style="display:none"></div>
-<div id="page-enviar" class="page" style="max-width:480px;margin:0 auto;width:100%">
+</div>
+<div id="page-enviar" class="page">
 <p class="st">Envío manual</p>
 <div class="card">
 <div style="position:relative;margin-bottom:10px"><input type="text" id="buscar-enviar1" placeholder="🔍 Buscar cliente..." oninput="filtrarEnviar1()" onfocus="mostrarDrop1()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box"><div id="drop-enviar1" style="display:none;position:absolute;top:40px;left:0;right:0;background:var(--gris);border:1px solid #333;border-radius:8px;max-height:150px;overflow-y:auto;z-index:99"></div><input type="hidden" id="enviar-cliente"></div>
@@ -1268,10 +1269,9 @@ async function gestionarPushAdmin() {
   <button class="btn br" style="width:100%" onclick="enviarDifusion()">📤 Enviar difusión</button>
 </div>
 </div>
-</div>
-<button class="fab" onclick="abrirModalCliente()" id="fab-btn" style="display:none">+</button>
+<button class="fab" onclick="abrirModalCliente()" id="fab-btn">+</button>
 <button onclick="abrirChatEntrenador()" id="chat-ent-fab" style="position:fixed;top:10px;right:62px;width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.75);border:none;color:#fff;font-size:16px;cursor:pointer;z-index:9000;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center">💬</button>
-<div id="chat-ent-badge" style="display:none;position:fixed;top:4px;right:50px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div>
+<div id="chat-ent-badge" style="display:none;position:fixed;top:4px;right:56px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div>
 <div id="chat-ent-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:999999;flex-direction:column">
   <div style="background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:2px solid var(--rojo);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
     <button onclick="cerrarChatEntrenador()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">←</button>
@@ -10480,7 +10480,7 @@ async function compartirPlanNativo() {
 
   <!-- CHAT FLOTANTE -->
   <button id="tc-chat-fab" onclick="tcToggleChat()" style="position:fixed;top:14px;right:128px;width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.55);border:none;color:rgba(255,255,255,0.85);font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:9000;display:flex;align-items:center;justify-content:center">💬</button>
-  <div id="tc-chat-badge" style="display:none;position:fixed;top:4px;right:158px;background:rgba(255,152,0,0.9);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
+  <div id="tc-chat-badge" style="display:none;position:fixed;top:8px;right:122px;background:rgba(255,152,0,0.9);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:10001">0</div>
 
   <!-- PANEL CHAT -->
   <div id="tc-chat-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:9999;flex-direction:column">
@@ -10823,10 +10823,6 @@ function volverRol() {
 }
 
 function salirARol() {
-  const _b1 = document.getElementById('tc-chat-badge'); if (_b1) _b1.style.display = 'none';
-  const _b2 = document.getElementById('chat-ent-badge'); if (_b2) _b2.style.display = 'none';
-  if (typeof _tcPollingBadge !== 'undefined' && _tcPollingBadge) { clearInterval(_tcPollingBadge); _tcPollingBadge = null; }
-  if (typeof _entPollingBadge !== 'undefined' && _entPollingBadge) { clearInterval(_entPollingBadge); _entPollingBadge = null; }
   // Ocultar todos los terminales
   ['app-entrenador','tc-main','terminal-cliente','terminal-cliente-app'].forEach(id => {
     const el = document.getElementById(id);
@@ -10920,46 +10916,16 @@ async function iniciarTerminalCliente() {
   tc.style.display = 'flex';
   tc.style.flexDirection = 'column';
 
-  // Cargar datos con soporte offline
-  const _offlineKey = 'tc-offline-' + id;
-  if (navigator.onLine) {
-    const [usuRes, rutRes, aliRes] = await Promise.all([
-      fetch('/api/usuarios/' + id).then(r=>r.json()).catch(()=>null),
-      fetch('/api/rutinas/' + id).then(r=>r.json()).catch(()=>null),
-      fetch('/api/alimentacion/' + id).then(r=>r.json()).catch(()=>null)
-    ]);
-    _tcUsuario = usuRes;
-    _tcRutina = rutRes;
-    _tcAlim = aliRes;
-    if (_tcUsuario && _tcRutina) {
-      localStorage.setItem(_offlineKey, JSON.stringify({ usuario: _tcUsuario, rutina: _tcRutina, alim: _tcAlim, ts: Date.now() }));
-      const t = document.createElement('div');
-      t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a3a1a;border:1px solid #4caf50;color:#4caf50;font-size:11px;font-weight:700;padding:8px 16px;border-radius:20px;z-index:99999;transition:opacity 1s';
-      t.textContent = 'Rutina guardada para uso sin internet';
-      document.body.appendChild(t);
-      setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 1000); }, 3000);
-    }
-  } else {
-    const cached = localStorage.getItem(_offlineKey);
-    if (cached) {
-      try {
-        const d = JSON.parse(cached);
-        _tcUsuario = d.usuario; _tcRutina = d.rutina; _tcAlim = d.alim;
-        if (!document.getElementById('tc-offline-banner')) {
-          const b = document.createElement('div');
-          b.id = 'tc-offline-banner';
-          b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7a4a00;color:#ffb74d;font-size:11px;font-weight:700;text-align:center;padding:6px;z-index:99999';
-          b.textContent = 'Sin internet - Rutina cargada desde cache';
-          document.body.appendChild(b);
-        }
-      } catch(e) { _tcUsuario = null; _tcRutina = null; _tcAlim = null; }
-    } else {
-      const b = document.createElement('div');
-      b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#3a0000;color:#e31e24;font-size:11px;font-weight:700;text-align:center;padding:6px;z-index:99999';
-      b.textContent = 'Sin internet y sin datos guardados. Conectate una vez primero.';
-      document.body.appendChild(b);
-    }
-  }
+  // Cargar datos
+  const [usuRes, rutRes, aliRes] = await Promise.all([
+    fetch('/api/usuarios/' + id).then(r=>r.json()).catch(()=>null),
+    fetch('/api/rutinas/' + id).then(r=>r.json()).catch(()=>null),
+    fetch('/api/alimentacion/' + id).then(r=>r.json()).catch(()=>null)
+  ]);
+
+  _tcUsuario = usuRes;
+  _tcRutina = rutRes;
+  _tcAlim = aliRes;
 
   // Verificar vencimiento premium
   if (_tcUsuario && _tcUsuario.premium && _tcUsuario.premium_hasta) {
@@ -11628,27 +11594,11 @@ function tcConfirmarFinalizar() {
       + '<div style="font-size:10px;color:#999;text-align:right;padding:2px 4px">📅 ' + tcFechaHoy() + '</div>'
       + '</div>';
 
-    const _payload = JSON.stringify({autor: 'cliente', tipo: 'reporte', contenido: html});
-    if (navigator.onLine) {
-      fetch('/api/chat/' + uid2, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: _payload
-      }).catch(() => {
-        const _cola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
-        _cola.push({ url: '/api/chat/' + uid2, payload: _payload, ts: Date.now() });
-        localStorage.setItem('tc-sync-cola', JSON.stringify(_cola));
-      });
-    } else {
-      const _cola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
-      _cola.push({ url: '/api/chat/' + uid2, payload: _payload, ts: Date.now() });
-      localStorage.setItem('tc-sync-cola', JSON.stringify(_cola));
-      const t = document.createElement('div');
-      t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a2a3a;border:1px solid #2196f3;color:#2196f3;font-size:11px;font-weight:700;padding:8px 16px;border-radius:20px;z-index:99999';
-      t.textContent = 'Informe guardado. Se enviara cuando vuelva el internet.';
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), 4000);
-    }
+    fetch('/api/chat/' + uid2, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({autor: 'cliente', tipo: 'reporte', contenido: html})
+    }).catch(() => {});
   }
 
   // Registrar sesión si completó al menos algo
@@ -11759,36 +11709,6 @@ function tcMostrarBannerTimer() {
 
 // Polling mensajes nuevos cada 15 segundos
 let _tcPollingBadge = null;
-function tcSyncCola() {
-  const cola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
-  if (cola.length === 0) return;
-  const pendiente = cola[0];
-  fetch(pendiente.url, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: pendiente.payload
-  }).then(r => {
-    if (r.ok) {
-      const nuevaCola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
-      nuevaCola.shift();
-      localStorage.setItem('tc-sync-cola', JSON.stringify(nuevaCola));
-      if (nuevaCola.length > 0) setTimeout(tcSyncCola, 2000);
-      else {
-        const t = document.createElement('div');
-        t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a3a1a;border:1px solid #4caf50;color:#4caf50;font-size:11px;font-weight:700;padding:8px 16px;border-radius:20px;z-index:99999';
-        t.textContent = 'Informe enviado al entrenador';
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 3000);
-      }
-    }
-  }).catch(() => {});
-}
-window.addEventListener('online', () => {
-  setTimeout(tcSyncCola, 1500);
-  const banner = document.getElementById('tc-offline-banner');
-  if (banner) banner.remove();
-});
-
 function tcIniciarPollingBadge() {
   if (_tcPollingBadge) clearInterval(_tcPollingBadge);
   _tcPollingBadge = setInterval(() => {
@@ -14103,7 +14023,7 @@ async function actualizarBadgeEntrenador() {
   if (badge) { badge.textContent = data.total; badge.style.display = data.total > 0 ? 'block' : 'none'; }
 }
 
-var _entPollingBadge = setInterval(actualizarBadgeEntrenador, 30000);
+setInterval(actualizarBadgeEntrenador, 30000);
 </script>
 <script>
 // ======== VOZ MEJORADA ========
