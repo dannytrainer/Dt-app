@@ -10916,16 +10916,46 @@ async function iniciarTerminalCliente() {
   tc.style.display = 'flex';
   tc.style.flexDirection = 'column';
 
-  // Cargar datos
-  const [usuRes, rutRes, aliRes] = await Promise.all([
-    fetch('/api/usuarios/' + id).then(r=>r.json()).catch(()=>null),
-    fetch('/api/rutinas/' + id).then(r=>r.json()).catch(()=>null),
-    fetch('/api/alimentacion/' + id).then(r=>r.json()).catch(()=>null)
-  ]);
-
-  _tcUsuario = usuRes;
-  _tcRutina = rutRes;
-  _tcAlim = aliRes;
+  // Cargar datos con soporte offline
+  const _offlineKey = 'tc-offline-' + id;
+  if (navigator.onLine) {
+    const [usuRes, rutRes, aliRes] = await Promise.all([
+      fetch('/api/usuarios/' + id).then(r=>r.json()).catch(()=>null),
+      fetch('/api/rutinas/' + id).then(r=>r.json()).catch(()=>null),
+      fetch('/api/alimentacion/' + id).then(r=>r.json()).catch(()=>null)
+    ]);
+    _tcUsuario = usuRes;
+    _tcRutina = rutRes;
+    _tcAlim = aliRes;
+    if (_tcUsuario && _tcRutina) {
+      localStorage.setItem(_offlineKey, JSON.stringify({ usuario: _tcUsuario, rutina: _tcRutina, alim: _tcAlim, ts: Date.now() }));
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a3a1a;border:1px solid #4caf50;color:#4caf50;font-size:11px;font-weight:700;padding:8px 16px;border-radius:20px;z-index:99999;transition:opacity 1s';
+      t.textContent = 'Rutina guardada para uso sin internet';
+      document.body.appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 1000); }, 3000);
+    }
+  } else {
+    const cached = localStorage.getItem(_offlineKey);
+    if (cached) {
+      try {
+        const d = JSON.parse(cached);
+        _tcUsuario = d.usuario; _tcRutina = d.rutina; _tcAlim = d.alim;
+        if (!document.getElementById('tc-offline-banner')) {
+          const b = document.createElement('div');
+          b.id = 'tc-offline-banner';
+          b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7a4a00;color:#ffb74d;font-size:11px;font-weight:700;text-align:center;padding:6px;z-index:99999';
+          b.textContent = 'Sin internet - Rutina cargada desde cache';
+          document.body.appendChild(b);
+        }
+      } catch(e) { _tcUsuario = null; _tcRutina = null; _tcAlim = null; }
+    } else {
+      const b = document.createElement('div');
+      b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#3a0000;color:#e31e24;font-size:11px;font-weight:700;text-align:center;padding:6px;z-index:99999';
+      b.textContent = 'Sin internet y sin datos guardados. Conectate una vez primero.';
+      document.body.appendChild(b);
+    }
+  }
 
   // Verificar vencimiento premium
   if (_tcUsuario && _tcUsuario.premium && _tcUsuario.premium_hasta) {
@@ -11594,11 +11624,27 @@ function tcConfirmarFinalizar() {
       + '<div style="font-size:10px;color:#999;text-align:right;padding:2px 4px">📅 ' + tcFechaHoy() + '</div>'
       + '</div>';
 
-    fetch('/api/chat/' + uid2, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({autor: 'cliente', tipo: 'reporte', contenido: html})
-    }).catch(() => {});
+    const _payload = JSON.stringify({autor: 'cliente', tipo: 'reporte', contenido: html});
+    if (navigator.onLine) {
+      fetch('/api/chat/' + uid2, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: _payload
+      }).catch(() => {
+        const _cola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
+        _cola.push({ url: '/api/chat/' + uid2, payload: _payload, ts: Date.now() });
+        localStorage.setItem('tc-sync-cola', JSON.stringify(_cola));
+      });
+    } else {
+      const _cola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
+      _cola.push({ url: '/api/chat/' + uid2, payload: _payload, ts: Date.now() });
+      localStorage.setItem('tc-sync-cola', JSON.stringify(_cola));
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a2a3a;border:1px solid #2196f3;color:#2196f3;font-size:11px;font-weight:700;padding:8px 16px;border-radius:20px;z-index:99999';
+      t.textContent = 'Informe guardado. Se enviara cuando vuelva el internet.';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
   }
 
   // Registrar sesión si completó al menos algo
@@ -11709,6 +11755,36 @@ function tcMostrarBannerTimer() {
 
 // Polling mensajes nuevos cada 15 segundos
 let _tcPollingBadge = null;
+function tcSyncCola() {
+  const cola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
+  if (cola.length === 0) return;
+  const pendiente = cola[0];
+  fetch(pendiente.url, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: pendiente.payload
+  }).then(r => {
+    if (r.ok) {
+      const nuevaCola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
+      nuevaCola.shift();
+      localStorage.setItem('tc-sync-cola', JSON.stringify(nuevaCola));
+      if (nuevaCola.length > 0) setTimeout(tcSyncCola, 2000);
+      else {
+        const t = document.createElement('div');
+        t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a3a1a;border:1px solid #4caf50;color:#4caf50;font-size:11px;font-weight:700;padding:8px 16px;border-radius:20px;z-index:99999';
+        t.textContent = 'Informe enviado al entrenador';
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+      }
+    }
+  }).catch(() => {});
+}
+window.addEventListener('online', () => {
+  setTimeout(tcSyncCola, 1500);
+  const banner = document.getElementById('tc-offline-banner');
+  if (banner) banner.remove();
+});
+
 function tcIniciarPollingBadge() {
   if (_tcPollingBadge) clearInterval(_tcPollingBadge);
   _tcPollingBadge = setInterval(() => {
