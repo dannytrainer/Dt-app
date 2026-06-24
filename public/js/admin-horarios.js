@@ -14,8 +14,8 @@ function renderMiniCal() {
   lun.setDate(hoy.getDate() - (dow === 0 ? 6 : dow - 1));
 
   const dias = [];
-  const nombDia = ['LUN','MAR','MIÉ','JUE','VIE'];
-  for (let i = 0; i < 5; i++) {
+  const nombDia = ['LUN','MAR','MIÉ','JUE','VIE','SAB','DOM'];
+  for (let i = 0; i < 7; i++) {
     const d = new Date(lun);
     d.setDate(lun.getDate() + i);
     dias.push(d);

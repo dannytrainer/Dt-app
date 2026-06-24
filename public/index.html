@@ -958,10 +958,10 @@ async function gestionarPushAdmin() {
     <span style="font-size:9px;background:#1e1e1e;color:#444;padding:2px 8px;border-radius:20px;font-weight:600">Solo lectura</span>
   </div>
   <div style="background:var(--card);border:1px solid #1e1e1e;border-radius:14px;overflow:hidden;margin-bottom:18px">
-    <div id="mini-cal-header" style="display:grid;grid-template-columns:32px repeat(5,1fr);border-bottom:1px solid #1a1a1a">
+    <div id="mini-cal-header" style="display:grid;grid-template-columns:32px repeat(7,1fr);border-bottom:1px solid #1a1a1a">
       <div></div>
     </div>
-    <div id="mini-cal-body" style="display:grid;grid-template-columns:32px repeat(5,1fr);max-height:260px;overflow-y:auto;scrollbar-width:thin"></div>
+    <div id="mini-cal-body" style="display:grid;grid-template-columns:32px repeat(7,1fr);max-height:360px;overflow-y:auto;scrollbar-width:thin"></div>
   </div>
   <!-- RESUMEN COBROS -->
   <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px">
@@ -1746,11 +1746,112 @@ async function gestionarPushAdmin() {
       <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">© 2026 Danny Trainer</div>
     </div>
 
-    <div style="height:30px"></div>
+    <div style="height:80px"></div>
+
   </div></div>
 </div>
 
+<div id="nav-bottom" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#111;border-top:1px solid #1e1e1e;display:flex;z-index:999;padding:8px 0 12px">
+    <div onclick="showPage('inicio')" id="nb-inicio" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px">
+      <div style="font-size:20px">🏠</div>
+      <div class="nb-label" style="font-size:9px;color:#e31e24;font-weight:700">Inicio</div>
+    </div>
+    <div onclick="showPage('clientes')" id="nb-clientes" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px">
+      <div style="font-size:20px">👥</div>
+      <div class="nb-label" style="font-size:9px;color:#666;font-weight:700">Clientes</div>
+    </div>
+    <div onclick="toggleNavMenu('funciones')" id="nb-funciones" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px">
+      <div style="font-size:20px">⚡</div>
+      <div class="nb-label" style="font-size:9px;color:#666;font-weight:700">Funciones</div>
+    </div>
+    <div onclick="toggleNavMenu('herramientas')" id="nb-herramientas" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px">
+      <div style="font-size:20px">🔧</div>
+      <div class="nb-label" style="font-size:9px;color:#666;font-weight:700">Herramientas</div>
+    </div>
+  </div>
+
+  <div id="nav-menu-funciones" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#181818;border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div onclick="closeNavMenus();showPage('clientes')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-clientes.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Clientes</div>
+      </div>
+      <div onclick="closeNavMenus();showPage('rutinas')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-rutinas.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Rutinas</div>
+      </div>
+      <div onclick="closeNavMenus();showPage('enviar')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-comunicacion.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Enviar</div>
+      </div>
+      <div onclick="closeNavMenus();showPage('admin')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-administrativo.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Administrativo</div>
+      </div>
+      <div onclick="closeNavMenus();showPage('horarios')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-horarios.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Horarios</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="nav-menu-herramientas" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#181818;border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div onclick="closeNavMenus();showHerramienta('cronometro')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-cronometro.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Cronos</div>
+      </div>
+      <div onclick="closeNavMenus();showHerramienta('hiit')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-hiit.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">HIIT</div>
+      </div>
+      <div onclick="closeNavMenus();showHerramienta('temporizador')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-temporizador.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Timer</div>
+      </div>
+      <div onclick="closeNavMenus();showHerramienta('calculadora')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-calculadoras.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Calculadoras</div>
+      </div>
+      <div onclick="closeNavMenus();showHerramienta('competencias')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-competencias.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Competencias</div>
+      </div>
+      <div onclick="closeNavMenus();showHerramienta('ruleta')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-ruleta.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Ruleta</div>
+      </div>
+      <div onclick="closeNavMenus();showHerramienta('juegos')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-juegos.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Juegos</div>
+      </div>
+      <div onclick="closeNavMenus();showHerramienta('enciclopedia')" style="text-align:center;cursor:pointer">
+        <img src="/images/Enciclopedialogo.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Enciclopedia</div>
+      </div>
+    </div>
+  </div>
+
 <script>
+// ── NAV BOTTOM ──────────────────────────────────────────
+function toggleNavMenu(menu) {
+  const funciones = document.getElementById('nav-menu-funciones');
+  const herramientas = document.getElementById('nav-menu-herramientas');
+  if (menu === 'funciones') {
+    const visible = funciones.style.display !== 'none';
+    funciones.style.display = visible ? 'none' : 'block';
+    herramientas.style.display = 'none';
+  } else {
+    const visible = herramientas.style.display !== 'none';
+    herramientas.style.display = visible ? 'none' : 'block';
+    funciones.style.display = 'none';
+  }
+}
+function closeNavMenus() {
+  document.getElementById('nav-menu-funciones').style.display = 'none';
+  document.getElementById('nav-menu-herramientas').style.display = 'none';
+}
+
 // ── ALIMENTACIÓN ──────────────────────────────────────────
 
 const FILTROS = {
