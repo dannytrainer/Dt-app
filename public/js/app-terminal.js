@@ -1,6 +1,4 @@
-// ═══════════════════════════════
-// TERMINAL CLIENTE
-// ═══════════════════════════════
+
 // ── TERMINAL CLIENTE ─────────────────────────────────────
 
 let _tcDia = '';
@@ -925,6 +923,3 @@ function tcIniciarPollingBadge() {
   }, 15000);
 }
 tcIniciarPollingBadge();
-// ---- FIN TIMER RUTINA ----
-
-
