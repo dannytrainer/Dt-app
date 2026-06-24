@@ -62,6 +62,7 @@ function entPagarPremiumModal() {
   }).catch(e => alert('Error: ' + e.message));
 }
 function mostrarApp() {
+  const navp = document.getElementById("nav-principal"); if(navp) navp.style.display="flex";
   cargarConfigEntrenador();
   actualizarNombreEntrenador();
   ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente'].forEach(p => {
@@ -74,6 +75,7 @@ function mostrarApp() {
 }
 
 function mostrarTerminalCliente(tel) {
+  const nb = document.getElementById("nav-bottom"); if(nb) nb.style.display="none";
   window._tcCargando = false;
   ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente','pantalla-seleccion-rol','app-entrenador'].forEach(p => {
     const el = document.getElementById(p);
@@ -198,6 +200,7 @@ function volverRol() {
 }
 
 function salirARol() {
+  const nb = document.getElementById("nav-bottom"); if(nb) nb.style.display="none";
   const _b1 = document.getElementById('tc-chat-badge'); if (_b1) _b1.style.display = 'none';
   const _b2 = document.getElementById('chat-ent-badge'); if (_b2) _b2.style.display = 'none';
   if (typeof _tcPollingBadge !== 'undefined' && _tcPollingBadge) { clearInterval(_tcPollingBadge); _tcPollingBadge = null; }

@@ -44,6 +44,7 @@ function checkGoogleLogin() {
 }
 
 function mostrarSeleccionRol(d) {
+  const nb = document.getElementById("nav-bottom"); if(nb) nb.style.display="none";
   const panel = document.getElementById('pantalla-seleccion-rol');
   if (!panel) return;
   // Ocultar todo lo demás

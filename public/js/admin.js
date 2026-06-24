@@ -17,7 +17,7 @@ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
 document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
 document.getElementById('page-'+p).classList.add('active');
 const nav=document.getElementById('nav-principal');
-if(p==='inicio'){nav.style.display='none';}
+if(p==='inicio'){nav.style.display='flex';}
 else{nav.style.display='flex';const navIdx=['inicio','clientes','rutinas','logs','enviar'].indexOf(p);if(navIdx>=0)document.querySelectorAll('.nav button')[navIdx].classList.add('active');}
 document.getElementById('fab-btn').style.display=p==='clientes'?'flex':'none';
 if(p==='inicio'){cargarInicio();cargarHorarios().then(()=>setTimeout(renderMiniCal,300));}
