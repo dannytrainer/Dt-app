@@ -915,113 +915,73 @@ async function gestionarPushAdmin() {
 <button onclick="showPage('enviar')">Enviar</button>
 </div>
 <div id="page-inicio" class="page active">
-
-  <!-- TICKER -->
-  <div style="background:var(--fondo);border-bottom:1px solid #1a1a1a;overflow:hidden;height:30px;display:flex;align-items:center;margin:-12px -12px 16px -12px">
-    <div style="background:#e31e24;color:#fff;font-size:9px;font-weight:800;padding:0 10px;height:100%;display:flex;align-items:center;white-space:nowrap;letter-spacing:1px;flex-shrink:0">DT-APP</div>
-    <div style="overflow:hidden;flex:1;height:100%;position:relative">
-      <div style="display:flex;align-items:center;height:100%;white-space:nowrap;animation:tickerMove 28s linear infinite;font-size:11px;color:#888;padding-left:20px">
-        💪 Recuerda: tu mente y tu cuerpo son tu castillo &nbsp;·&nbsp;
-        🔥 Consistencia es la clave del éxito &nbsp;·&nbsp;
-        ⚡ Un buen entrenador transforma vidas &nbsp;·&nbsp;
-        🏆 Cada cliente es un logro más &nbsp;·&nbsp;
-        💡 DT-APP: todo lo que necesitas en un solo lugar &nbsp;·&nbsp;
-      </div>
-    </div>
-  </div>
-
-  <!-- STATS -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:18px">
-    <div style="background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.25);border-radius:12px;padding:10px 6px;text-align:center">
-      <div id="hi-stat-activos" style="font-size:20px;font-weight:900;color:#3dba5f;font-variant-numeric:tabular-nums">0</div>
-      <div style="font-size:9px;color:#3dba5f;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Activos</div>
-    </div>
-    <div style="background:rgba(227,30,36,0.10);border:1px solid rgba(227,30,36,0.25);border-radius:12px;padding:10px 6px;text-align:center">
-      <div id="hi-stat-person" style="font-size:20px;font-weight:900;color:#e31e24;font-variant-numeric:tabular-nums">0</div>
-      <div style="font-size:9px;color:#e31e24;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Person.</div>
-    </div>
-    <div style="background:rgba(74,158,255,0.10);border:1px solid rgba(74,158,255,0.25);border-radius:12px;padding:10px 6px;text-align:center">
-      <div id="hi-stat-asesor" style="font-size:20px;font-weight:900;color:#4a9eff;font-variant-numeric:tabular-nums">0</div>
-      <div style="font-size:9px;color:#4a9eff;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Asesor.</div>
-    </div>
-    <div style="background:var(--card);border:1px solid #2a2a2a;border-radius:12px;padding:10px 6px;text-align:center">
-      <div id="hi-stat-pausados" style="font-size:20px;font-weight:900;color:#666;font-variant-numeric:tabular-nums">0</div>
-      <div style="font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Pausados</div>
-    </div>
-  </div>
-
-
-  <!-- MINI CALENDARIO -->
-  <div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-    📅 Esta semana
-    <div style="flex:1;height:1px;background:#1a1a1a"></div>
-    <span style="font-size:9px;background:#1e1e1e;color:#444;padding:2px 8px;border-radius:20px;font-weight:600">Solo lectura</span>
-  </div>
-  <div style="background:var(--card);border:1px solid #1e1e1e;border-radius:14px;overflow:hidden;margin-bottom:18px">
-    <div id="mini-cal-header" style="display:grid;grid-template-columns:32px repeat(5,1fr);border-bottom:1px solid #1a1a1a">
-      <div></div>
-    </div>
-    <div id="mini-cal-body" style="display:grid;grid-template-columns:32px repeat(5,1fr);max-height:180px;overflow-y:auto;scrollbar-width:none"></div>
-  </div>
-  <!-- RESUMEN COBROS -->
-  <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-    ⚡ Resumen del día
-    <div style="flex:1;height:1px;background:#1a1a1a"></div>
-  </div>
-  <div id="hi-cobros" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px;scrollbar-width:none"></div>
-
-  <!-- ACCESOS RÁPIDOS -->
-  <div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-    🚀 Accesos rápidos
-    <div style="flex:1;height:1px;background:#1a1a1a"></div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:80px">
-
-    <div onclick="showPage('clientes')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e31e24,#ff6b6b)"></div>
-      <div style="margin-bottom:6px"><img src="/images/icon-clientes.png" style="width:64px;height:64px;object-fit:contain;border-radius:10px"></div>
-      <div style="font-size:14px;font-weight:700;color:var(--texto)">Clientes</div>
-      <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">Ver todos</div>
-    </div>
-
-    <div onclick="showPage('rutinas')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4a9eff,#7bc8ff)"></div>
-      <div style="margin-bottom:6px"><img src="/images/icon-rutinas.png" style="width:64px;height:64px;object-fit:contain;border-radius:10px"></div>
-      <div style="font-size:14px;font-weight:700;color:var(--texto)">Rutinas</div>
-      <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">Editar rutinas</div>
-    </div>
-
-    <div onclick="showPage('logs')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff9800,#ffd54f)"></div>
-      <div style="margin-bottom:6px"><img src="/images/icon-herramientas.png" style="width:64px;height:64px;object-fit:contain;border-radius:10px"></div>
-      <div style="font-size:14px;font-weight:700;color:var(--texto)">Herramientas</div>
-      <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">Cronos · HIIT · Calc</div>
-    </div>
-
-    <div onclick="showPage('enviar')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4caf50,#a5d6a7)"></div>
-      <div style="margin-bottom:6px"><img src="/images/icon-comunicacion.png" style="width:64px;height:64px;object-fit:contain;border-radius:10px"></div>
-      <div style="font-size:14px;font-weight:700;color:var(--texto)">Enviar</div>
-      <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">WhatsApp rutinas</div>
-    </div>
-
-    <div onclick="showPage('admin')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff9800,#ffe082)"></div>
-      <div style="margin-bottom:6px"><img src="/images/icon-administrativo.png" style="width:64px;height:64px;object-fit:contain;border-radius:10px"></div>
-      <div style="font-size:14px;font-weight:700;color:var(--texto)">Administrativo</div>
-      <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">Cobros y finanzas</div>
-    </div>
-
-    <div onclick="showPage('horarios')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e31e24,#ff6b6b)"></div>
-      <div style="margin-bottom:6px"><img src="/images/icon-horarios.png" style="width:64px;height:64px;object-fit:contain;border-radius:10px"></div>
-      <div style="font-size:14px;font-weight:700;color:var(--texto)">Horarios</div>
-      <div style="font-size:10px;color:var(--texto-secundario);margin-top:2px">Gestiona tu tiempo</div>
-    </div>
-
+<div id="ticker-wrap" style="background:var(--fondo);border-bottom:1px solid #1a1a1a;overflow:hidden;height:32px;display:flex;align-items:center;margin:-12px -12px 16px -12px">
+  <div style="background:#e31e24;color:var(--texto);font-size:10px;font-weight:800;padding:0 10px;height:100%;display:flex;align-items:center;white-space:nowrap;letter-spacing:1px;flex-shrink:0">EN VIVO</div>
+  <div style="overflow:hidden;flex:1;height:100%;position:relative">
+    <div id="ticker-inner" style="display:flex;align-items:center;height:100%;white-space:nowrap;animation:tickerMove 30s linear infinite;font-size:12px;color:var(--texto-suave);padding-left:20px"></div>
   </div>
 </div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px">
+  <div style="background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.25);border-radius:12px;padding:12px 6px;text-align:center">
+    <div id="hi-stat-activos" style="font-size:22px;font-weight:800;color:#388e3c;font-family:monospace">0</div>
+    <div style="font-size:9px;color:#388e3c;opacity:.9;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Activos</div>
+  </div>
+  <div style="background:rgba(227,30,36,0.10);border:1px solid rgba(227,30,36,0.25);border-radius:12px;padding:12px 6px;text-align:center">
+    <div id="hi-stat-person" style="font-size:22px;font-weight:800;color:#e53935;font-family:monospace">0</div>
+    <div style="font-size:9px;color:#e53935;opacity:.9;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Person.</div>
+  </div>
+  <div style="background:rgba(74,158,255,0.10);border:1px solid rgba(74,158,255,0.25);border-radius:12px;padding:12px 6px;text-align:center">
+    <div id="hi-stat-asesor" style="font-size:22px;font-weight:800;color:var(--chip-asesor);font-family:monospace">0</div>
+    <div style="font-size:9px;color:var(--chip-asesor);opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Asesor.</div>
+  </div>
+  <div style="background:var(--card);border:1px solid #2a2a2a;border-radius:12px;padding:12px 6px;text-align:center">
+    <div id="hi-stat-pausados" style="font-size:22px;font-weight:800;color:var(--chip-pausados);font-family:monospace">0</div>
+    <div style="font-size:9px;color:var(--chip-pausados);opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Pausados</div>
+  </div>
+</div>
+<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px">⚡ Resumen del día</div>
+<div id="hi-cobros" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:20px;scrollbar-width:none"></div>
 
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:80px">
+  <div onclick="showPage('clientes')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e31e24,#ff6b6b)"></div>
+
+    <div style="margin-bottom:8px"><img src="/images/icon-clientes.png" style="width:100px;height:100px;object-fit:contain;border-radius:12px"></div>
+    <div style="font-size:15px;font-weight:700;color:var(--texto)">Clientes</div>
+    <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Ver todos</div>
+  </div>
+  <div onclick="showPage('rutinas')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4a9eff,#7bc8ff)"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-rutinas.png" style="width:100px;height:100px;object-fit:contain;border-radius:12px"></div>
+    <div style="font-size:15px;font-weight:700;color:var(--texto)">Rutinas</div>
+    <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Editar rutinas</div>
+  </div>
+  <div onclick="showPage('logs')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff9800,#ffd54f)"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-herramientas.png" style="width:100px;height:100px;object-fit:contain;border-radius:12px"></div>
+    <div style="font-size:15px;font-weight:700;color:var(--texto)">Herramientas</div>
+    <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Cronos · HIIT · Calc</div>
+  </div>
+  <div onclick="showPage('enviar')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4caf50,#a5d6a7)"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-comunicacion.png" style="width:100px;height:100px;object-fit:contain;border-radius:12px"></div>
+    <div style="font-size:15px;font-weight:700;color:var(--texto)">Enviar</div>
+    <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">WhatsApp rutinas</div>
+  </div>
+  <div onclick="showPage('admin')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff9800,#ffe082)"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-administrativo.png" style="width:100px;height:100px;object-fit:contain;border-radius:12px"></div>
+    <div style="font-size:15px;font-weight:700;color:var(--texto)">Administrativo</div>
+    <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Cobros y finanzas</div>
+  </div>
+  <div onclick="showPage('horarios')" style="background:var(--card);border:1px solid #1e1e1e;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;overflow:hidden" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--rojo),#ff6b6b)"></div>
+    <div style="margin-bottom:8px"><img src="/images/icon-horarios.png" style="width:100px;height:100px;object-fit:contain;border-radius:12px"></div>
+    <div style="font-size:15px;font-weight:700;color:var(--texto)">Horarios</div>
+    <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Gestiona tu tiempo</div>
+  </div>
+</div>
+</div>
 <div id="page-admin" class="page">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
   <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800">💰 Módulo Administrativo</div>
