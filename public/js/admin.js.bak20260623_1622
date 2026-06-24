@@ -1085,13 +1085,12 @@ function generarRecibo(){
   const id = window._reciboClienteId;
   if(!id) return;
   const u = (window._adminUsuarios||[]).find(x=>String(x.id)===String(id));
-  const _rid = (id+'').replace('cli_','');
-  const d = (window._adminData||{clientes:{}}).clientes[id]||(window._adminData||{clientes:{}}).clientes[_rid]||{};
+  const d = (window._adminData||{clientes:{}}).clientes[id]||{};
   const pagos = d.pagos||[];
   const ridx = window._reciboIdx !== undefined ? window._reciboIdx : pagos.length-1;
   const p = pagos.length ? [...pagos].reverse()[ridx] : {};
   const nombreEntrenador = (window._configApp&&window._configApp.nombre_entrenador)||(window._config&&window._config.nombre_entrenador)||(window._adminData&&window._adminData.config&&window._adminData.config.nombre_entrenador)||'DT-APP';
-  const logoSrc = (window._configApp&&window._configApp.logo_entrenador)||(window._config&&window._config.logo_entrenador)||(window._adminData&&window._adminData.config&&window._adminData.config.logo_entrenador)||'/logo_trainer.png';
+  const logoSrc = (window._configApp&&window._configApp.logo_entrenador)||(window._config&&window._config.logo_entrenador)||'/logo_trainer.png';
 
   const W = 420, H = 820;
   const canvas = document.createElement('canvas');
@@ -1243,14 +1242,10 @@ function generarRecibo(){
     dibujar();
     // Logo en banda superior
     ctx.drawImage(img, 8, 8, 85, 85);
-    // Marca de agua centro (siempre logo DT-APP)
-    const marcaAgua = new Image();
-    marcaAgua.onload = function(){
-      ctx.globalAlpha = 0.07;
-      ctx.drawImage(marcaAgua, W/2-90, 320, 180, 180);
-      ctx.globalAlpha = 1.0;
-    };
-    marcaAgua.src = '/icon.png';
+    // Marca de agua centro
+    ctx.globalAlpha = 0.07;
+    ctx.drawImage(img, W/2-90, 320, 180, 180);
+    ctx.globalAlpha = 1.0;
     // Icono DT-APP en pie (solo el icono, centrado, encima del texto)
     const iconApp = new Image();
     iconApp.onload = function(){
@@ -1266,7 +1261,7 @@ function generarRecibo(){
     dibujar();
     mostrarModalRecibo(canvas, u, p, d, nombreEntrenador);
   };
-  img.src = logoSrc + '?t=' + Date.now();
+  img.src = logoSrc;
 }
 
 function mostrarModalRecibo(canvas, u, p, d, nombreEntrenador){

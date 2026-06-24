@@ -84,7 +84,7 @@ module.exports = function(app, fs) {
       const encTodos = [...enciclopedia, ...(encCustom.ejercicios||[])];
       const usuario = usuarios.find(u => u.id == id || u.telefono == id);
       const entId = usuario ? (usuario.entrenador_id || 'ent_001') : 'ent_001';
-      const archivoConfig = entId === 'ent_001' ? 'config.json' : 'config_' + entId + '.json';
+      const archivoConfig = 'config_' + entId + '.json';
       const cfg = cargarJSON(archivoConfig, cargarJSON('config.json', {}));
       const nombreEntrenador = (cfg.nombre_entrenador || 'Entrenador').toUpperCase();
       if (!usuario) return res.status(404).send('<h2>Cliente no encontrado</h2>');
@@ -444,7 +444,10 @@ module.exports = function(app, fs) {
       try { if (fs.existsSync(fotoDespues)) fotoDespuesB64 = fs.readFileSync(fotoDespues).toString('base64'); } catch{}
       let iconB64 = null, logoTrainerB64 = null;
       try { iconB64 = fs.readFileSync(path.join(__dirname,'public','icon.png')).toString('base64'); } catch{}
-      try { logoTrainerB64 = fs.readFileSync(path.join(__dirname,'public','logo_trainer.png')).toString('base64'); } catch{}
+      try {
+  const logoFile = (cfg.logo_entrenador || '/logo_trainer.png').replace(/^\//,'');
+  logoTrainerB64 = fs.readFileSync(path.join(__dirname,'public',logoFile)).toString('base64');
+} catch{}
 
       // Leer plantilla HTML base y reemplazar sección de rutina y alimentación
       // Por ahora generamos el HTML completo inline

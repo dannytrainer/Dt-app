@@ -1,10 +1,7 @@
 const multer = require('multer');
 const storage = multer.diskStorage({
   destination:(req,file,cb)=>cb(null,'./public/'),
-  filename:(req,file,cb)=>{
-    const eid=req.body&&req.body.entrenador_id?req.body.entrenador_id:'ent_001';
-    cb(null,'logo_'+eid+'.png');
-  }
+  filename:(req,file,cb)=>cb(null,'logo_trainer.png')
 });
 const upload = multer({storage,limits:{fileSize:5*1024*1024}});
 const storageFoto = multer.diskStorage({
@@ -884,10 +881,9 @@ app.post('/api/config/logo', upload.single('logo'), (req, res) => {
   const eid_logo = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
   const archivoLogo = 'config_' + eid_logo + '.json';
   const cfg = cargarJSON(archivoLogo, {});
-  const rutaLogo = '/logo_'+eid_logo+'.png';
-  cfg.logo_entrenador = rutaLogo;
+  cfg.logo_entrenador = '/logo_trainer.png';
   guardarJSON(archivoLogo, cfg);
-  res.json({ok:true, path:rutaLogo});
+  res.json({ok:true, path:'/logo_trainer.png'});
 });
 
 // ADMINISTRATIVO
