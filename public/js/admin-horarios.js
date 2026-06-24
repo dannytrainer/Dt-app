@@ -1,3 +1,51 @@
+
+// ── MINI CALENDARIO INICIO ──────────────────────────────
+function renderMiniCal() {
+  const header = document.getElementById('mini-cal-header');
+  const body = document.getElementById('mini-cal-body');
+  if (!header || !body) return;
+
+  const recurrentes = _horariosData.recurrentes || [];
+  const unicos = _horariosData.unicos || [];
+
+  const hoy = new Date();
+  const dow = hoy.getDay();
+  const lun = new Date(hoy);
+  lun.setDate(hoy.getDate() - (dow === 0 ? 6 : dow - 1));
+
+  const dias = [];
+  const nombDia = ['LUN','MAR','MIÉ','JUE','VIE'];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(lun);
+    d.setDate(lun.getDate() + i);
+    dias.push(d);
+  }
+
+  header.innerHTML = '<div></div>' + dias.map((d,i) => {
+    const esHoy = d.toDateString() === hoy.toDateString();
+    return '<div style="text-align:center;font-size:9px;font-weight:700;padding:5px 2px;color:'+(esHoy?'#e31e24':'#555')+';text-transform:uppercase">'+nombDia[i]+'<br>'+d.getDate()+'</div>';
+  }).join('');
+
+  const horas = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+  let html = '';
+  horas.forEach(h => {
+    const label = h < 12 ? h+'am' : h===12 ? '12pm' : (h-12)+'pm';
+    html += '<div style="font-size:8px;color:#444;padding:2px 4px;height:36px;display:flex;align-items:flex-start;padding-top:3px;border-right:1px solid #1a1a1a;border-bottom:1px solid #111">'+label+'</div>';
+    dias.forEach((d,di) => {
+      const ev = recurrentes.find(e => e.dias && e.dias.includes(di) && parseInt((e.inicio||'0').split(':')[0]) === h)
+              || unicos.find(e => e.fecha === d.toISOString().split('T')[0] && parseInt((e.inicio||'0').split(':')[0]) === h);
+      if (ev) {
+        const color = ev.color || '#9c27b0';
+        const nombre = ev.nombreCliente || ev.desc || 'Clase';
+        html += '<div style="border-left:1px solid #1a1a1a;border-bottom:1px solid #111;height:36px;padding:2px"><div style="background:'+color+'22;border-left:2px solid '+color+';border-radius:4px;height:100%;padding:2px 3px;font-size:8px;font-weight:700;color:'+color+';overflow:hidden;line-height:1.2">'+nombre+'</div></div>';
+      } else {
+        html += '<div style="border-left:1px solid #1a1a1a;border-bottom:1px solid #111;height:36px"></div>';
+      }
+    });
+  });
+  body.innerHTML = html;
+}
+// ────────────────────────────────────────────────────────
 // ===== HORARIOS =====
 let _horariosData = {recurrentes:[], unicos:[]};
 let _horariosVista = 'semana';
@@ -22,6 +70,7 @@ async function initHorarios(){
   _horariosVista = 'semana';
   horariosVista('semana');
   cargarClientesSelectH();
+  setTimeout(renderMiniCal, 500);
 }
 
 function cargarClientesSelectH(){

@@ -20,7 +20,7 @@ const nav=document.getElementById('nav-principal');
 if(p==='inicio'){nav.style.display='none';}
 else{nav.style.display='flex';const navIdx=['inicio','clientes','rutinas','logs','enviar'].indexOf(p);if(navIdx>=0)document.querySelectorAll('.nav button')[navIdx].classList.add('active');}
 document.getElementById('fab-btn').style.display=p==='clientes'?'flex':'none';
-if(p==='inicio')cargarInicio();
+if(p==='inicio'){cargarInicio();cargarHorarios().then(()=>setTimeout(renderMiniCal,300));}
 if(p==='clientes'){cargarClientes();cargarEstadoPausaGlobal();}
 if(p==='rutinas')cargarRutinasClientes();
 if(p==='festivos')cargarFestivos();
