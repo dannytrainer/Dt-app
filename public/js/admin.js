@@ -28,6 +28,7 @@ if(p==='clientes'){cargarClientes();cargarEstadoPausaGlobal();}
 if(p==='rutinas')cargarRutinasClientes();
 if(p==='festivos')cargarFestivos();
 if(p==='logs')cargarLogs();
+if(p==='cronometros'){const c=document.getElementById('cronometros-contenido');if(c)renderCronometros(c);}
 if(p==='enviar'){cargarSelectEnviar();cargarDifusion();}
 if(p==='admin'){cargarAdmin();setTimeout(cargarCobroAutoEstado,500);}
 if(p==='horarios')initHorarios();
