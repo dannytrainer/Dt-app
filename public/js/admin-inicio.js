@@ -176,17 +176,31 @@ function perfilTab(tab){
   });
   const u=window._perfilClienteActual;
   if(!u)return;
+  // Cerrar modales anteriores y quitarles modo-perfil
+  ['modal-cliente','modal-medidas','modal-tests','modal-rutina'].forEach(id=>{
+    const m=document.getElementById(id);
+    if(m){m.classList.remove('open');m.classList.remove('modo-perfil');}
+  });
+  window._modoPerfil=true;
   if(tab==='datos'){
     editarCliente(u.id);
+    setTimeout(()=>{const m=document.getElementById('modal-cliente');if(m)m.classList.add('modo-perfil');},50);
   } else if(tab==='medidas'){
     abrirMedidasYSubir(u.id,u.nombre);
+    setTimeout(()=>{const m=document.getElementById('modal-medidas');if(m)m.classList.add('modo-perfil');},50);
   } else if(tab==='tests'){
     abrirTestsYSubir(u.id,u.nombre);
+    setTimeout(()=>{const m=document.getElementById('modal-tests');if(m)m.classList.add('modo-perfil');},50);
   } else if(tab==='rutina'){
     abrirRutina(u.id,u.nombre);
+    setTimeout(()=>{const m=document.getElementById('modal-rutina');if(m)m.classList.add('modo-perfil');},50);
   } else if(tab==='nutricion'){
     abrirRutina(u.id,u.nombre);
-    setTimeout(()=>switchRutinaTab('alimentacion'),400);
+    setTimeout(()=>{
+      const m=document.getElementById('modal-rutina');
+      if(m)m.classList.add('modo-perfil');
+      switchRutinaTab('alimentacion');
+    },400);
   }
 }
 
