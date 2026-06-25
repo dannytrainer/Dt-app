@@ -176,7 +176,6 @@ function perfilTab(tab){
   });
   const u=window._perfilClienteActual;
   if(!u)return;
-  const c=document.getElementById('perfil-contenido');
   if(tab==='datos'){
     editarCliente(u.id);
   } else if(tab==='medidas'){
@@ -187,8 +186,54 @@ function perfilTab(tab){
     abrirRutina(u.id,u.nombre);
   } else if(tab==='nutricion'){
     abrirRutina(u.id,u.nombre);
-    setTimeout(()=>switchRutinaTab('alimentacion'),300);
+    setTimeout(()=>switchRutinaTab('alimentacion'),400);
   }
+}
+
+function _perfilCargarDatos(u){
+  const c=document.getElementById('perfil-contenido');
+  c.innerHTML='';
+  // Mover el mc del modal-cliente al perfil-contenido temporalmente
+  const m=document.getElementById('modal-cliente');
+  const mc=m?m.querySelector('.mc'):null;
+  if(mc){
+    mc.style.maxHeight='none';
+    mc.style.overflowY='visible';
+    c.appendChild(mc);
+    editarCliente(u.id);
+    // Ocultar botón cancelar y cambiar guardar para que cierre bien
+    const btns=mc.querySelectorAll('button');
+    btns.forEach(b=>{
+      if(b.textContent.includes('Cancelar')) b.style.display='none';
+    });
+  }
+}
+
+function _perfilMostrarSeccion(modalId, fn){
+  const m=document.getElementById(modalId);
+  const c=document.getElementById('perfil-contenido');
+  if(!m||!c)return;
+  // Hacer modal invisible pero funcional
+  m.style.opacity='0';
+  m.style.pointerEvents='none';
+  m.classList.add('open');
+  fn();
+  setTimeout(()=>{
+    m.classList.remove('open');
+    m.style.opacity='';
+    m.style.pointerEvents='';
+    const mc=m.querySelector('.mc');
+    if(mc){
+      c.innerHTML='';
+      const clone=mc.cloneNode(true);
+      clone.style.padding='0';
+      clone.style.background='transparent';
+      clone.style.maxHeight='none';
+      clone.style.overflowY='visible';
+      clone.style.borderRadius='0';
+      c.appendChild(clone);
+    }
+  },500);
 }
 
 function selEstado(e){
@@ -244,27 +289,20 @@ function _renderListaLocal(){
   if(!lista)return;
   lista.innerHTML=window._usuariosCargados.map(u=>{
     const ep=u.estado_pago||'aldia';
-    const cc=ep==='vencido'?'card vencido':ep==='proximo'?'card proximo':'card';
-    return`<div class="${cc}">
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-${avatarHTML(u)}
-<div style="flex:1">
-<div style="font-size:16px;font-weight:700;color:var(--texto)">${u.nombre}</div>
-<div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
+    const epColor=ep==='vencido'?'#e31e24':ep==='proximo'?'#ff9800':'#4caf50';
+    const epTexto=ep==='vencido'?'🔴 Vencido':ep==='proximo'?'⚠️ Próximo pago':'✅ Al día';
+    const tipoTexto=u.tipo==='personalizado'?'💪 Personalizado':'📋 Asesorado';
+    return`<div onclick="abrirPerfilCliente('${u.id}')" style="background:var(--card);border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px">
+<div style="flex-shrink:0">${avatarHTML(u)}</div>
+<div style="flex:1;min-width:0">
+  <div style="font-size:15px;font-weight:700;color:var(--texto);margin-bottom:4px">${u.nombre}</div>
+  <div style="font-size:11px;color:#666;margin-bottom:6px">🗓️ Día ${u.dia_pago||'-'}</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <span style="font-size:10px;font-weight:700;color:#888;background:#1a1a1a;border-radius:20px;padding:3px 8px">${tipoTexto}</span>
+    <span style="font-size:10px;font-weight:700;color:${epColor};background:${epColor}18;border-radius:20px;padding:3px 8px">${epTexto}</span>
+  </div>
 </div>
-<label class="toggle"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
-</div>
-<div style="margin-bottom:10px">
-<span class="badge ${u.activo?'ba':'bp2'}">${u.activo?'● Activo':'⏸ Pausado'}</span>
-<span class="badge bti">${u.tipo}</span>
-${epBadge(ep)}
-</div>
-<div style="display:flex;gap:5px">
-<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
-<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
-<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
-<button class="btn bp" style="font-size:11px;padding:8px 10px" onclick="eliminarCliente('${u.id}')">🗑️</button>
-</div>
+<label class="toggle" onclick="event.stopPropagation()"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
 </div>`;
   }).join('');
 }
