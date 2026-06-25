@@ -29,6 +29,13 @@ if(p==='rutinas')cargarRutinasClientes();
 if(p==='festivos')cargarFestivos();
 if(p==='logs')cargarLogs();
 if(p==='cronometros'){const c=document.getElementById('cronometros-contenido');if(c)renderCronometros(c);}
+if(p==='hiit'){const c=document.getElementById('hiit-contenido');if(c)renderHiit(c);}
+if(p==='temporizadores'){const c=document.getElementById('temporizadores-contenido');if(c)renderTemporizadores(c);}
+if(p==='calculadoras'){const c=document.getElementById('calculadoras-contenido');if(c)renderCalculadoras(c);}
+if(p==='competencias'){const c=document.getElementById('competencias-contenido');if(c)renderCompetencias(c);}
+if(p==='ruleta'){const c=document.getElementById('ruleta-contenido');if(c)renderRuleta(c);}
+if(p==='enciclopedia'){const c=document.getElementById('enciclopedia-contenido');if(c)renderEnciclopedia(c);}
+if(p==='juegos'){const c=document.getElementById('juegos-contenido');if(c)renderJuegos(c);}
 if(p==='enviar'){cargarSelectEnviar();cargarDifusion();}
 if(p==='admin'){cargarAdmin();setTimeout(cargarCobroAutoEstado,500);}
 if(p==='horarios')initHorarios();
