@@ -115,6 +115,17 @@ async function abrirTickerEditor() {
 }
 
 
+function navToggleTools(btn){
+  const menu=document.getElementById('nav-menu-herramientas');
+  if(!menu)return;
+  const abierto=menu.style.display==='block';
+  navCerrarMenus();
+  if(!abierto){
+    menu.style.display='block';
+    btn.style.color='#e31e24';
+  }
+}
+
 function navToggleFunciones(btn){
   const menu=document.getElementById('menu-funciones');
   if(!menu)return;
@@ -814,7 +825,13 @@ toast('🗑️ Eliminado');cargarFestivos();
 
 function showHerramientaNav(nombre){
   showPage('logs');
-  setTimeout(()=>showHerramienta(nombre),150);
+  setTimeout(()=>{
+    const panel=document.getElementById('herramienta-panel');
+    if(panel)panel.style.display='block';
+    const st=document.querySelector('#page-logs .st');
+    if(st){st.style.display='none';if(st.nextElementSibling)st.nextElementSibling.style.display='none';}
+    showHerramienta(nombre);
+  },150);
 }
 
 function showHerramienta(nombre){
