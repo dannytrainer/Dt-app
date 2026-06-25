@@ -1220,37 +1220,6 @@ async function gestionarPushAdmin() {
 </div>
 </div>
 <div id="page-logs" class="page">
-<p class="st">Herramientas del entrenador</p>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-<div class="card" onclick="showHerramienta('cronometros')" style="cursor:pointer;text-align:center;padding:20px 10px">
-<div style="margin-bottom:8px"><img src="/images/icon-cronometro.png" style="width:88px;height:88px;object-fit:contain"></div>
-<div style="font-size:13px;font-weight:700;color:var(--texto)">Cronómetros</div>
-<div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Individual y múltiple</div>
-</div>
-<div class="card" onclick="showHerramienta('temporizadores')" style="cursor:pointer;text-align:center;padding:20px 10px">
-<div style="margin-bottom:8px"><img src="/images/icon-temporizador.png" style="width:88px;height:88px;object-fit:contain"></div>
-<div style="font-size:13px;font-weight:700;color:var(--texto)">Temporizadores</div>
-<div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Individual y múltiple</div>
-</div>
-<div class="card" onclick="showHerramienta('hiit')" style="cursor:pointer;text-align:center;padding:20px 10px">
-<div style="margin-bottom:8px"><img src="/images/icon-hiit.png" style="width:88px;height:88px;object-fit:contain"></div>
-<div style="font-size:13px;font-weight:700;color:var(--texto)">HIIT / Circuitos</div>
-<div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Tabata, circuitos, intervalos</div>
-</div>
-<div class="card" onclick="showHerramienta('calculadoras')" style="cursor:pointer;text-align:center;padding:20px 10px">
-<div style="margin-bottom:8px"><img src="/images/icon-calculadoras.png" style="width:88px;height:88px;object-fit:contain"></div>
-<div style="font-size:13px;font-weight:700;color:var(--texto)">Calculadoras</div>
-<div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">IMC, RM, pliegues, conversores</div>
-</div>
-<div class="card" onclick="showHerramienta('competencias')" style="cursor:pointer;text-align:center;padding:20px 10px">
-<div style="margin-bottom:8px"><img src="/images/icon-competencias.png" style="width:88px;height:88px;object-fit:contain"></div>
-<div style="font-size:13px;font-weight:700;color:var(--texto)">Competencias</div>
-<div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Rankings y comparativas</div>
-</div>
-
-<div class="card" onclick="showHerramienta('ruleta')" style="cursor:pointer;text-align:center;padding:20px 10px"><div style="margin-bottom:8px"><img src="/images/icon-ruleta.png" style="width:88px;height:88px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:var(--texto)">Ruleta DT</div><div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Elige ejercicio al azar</div></div><div class="card" onclick="showHerramienta('enciclopedia')" style="cursor:pointer;text-align:center;padding:20px 10px;grid-column:1/-1"><div style="margin-bottom:8px"><img src="/images/Enciclopedialogo.png" style="width:56px;height:56px;object-fit:cover;border-radius:12px"></div><div style="font-size:13px;font-weight:700;color:var(--texto)">Enciclopedia</div><div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Biblioteca de ejercicios</div></div><div class="card" onclick="showHerramienta('juegos')" style="cursor:pointer;text-align:center;padding:20px 10px;grid-column:1/-1"><div style="margin-bottom:8px"><img src="/images/icon-juegos.png" style="width:88px;height:88px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:var(--texto)">Juegos</div><div style="font-size:10px;color:var(--texto-secundario);margin-top:4px">Mientras esperas a tu cliente</div></div>
-</div>
-</div>
 <div id="herramienta-panel" style="display:none;margin-top:12px">
 <button onclick="volverHerramientas()" style="background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px">← Volver</button>
 <div id="herramienta-contenido"></div>
