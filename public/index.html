@@ -918,7 +918,18 @@ async function gestionarPushAdmin() {
   <button onclick="navCerrarMenus();showPage('horarios')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-horarios.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Horarios</span></button>
   <button onclick="navCerrarMenus();showPage('enviar')" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-comunicacion.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Enviar Rutinas</span></button>
 </div>
-<button onclick="navToggleHerramientas(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">🔧</span><span style="font-size:9px;font-weight:700;color:#666">Tools</span></button>
+<button onclick="navToggleTools(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px" id="btn-nav-tools"><span style="font-size:20px">🔧</span><span style="font-size:9px;font-weight:700;color:#666">Tools</span></button>
+<!-- MENÚ TOOLS -->
+<div id="menu-tools" style="display:none;position:absolute;bottom:65px;left:0;right:0;background:#1a1a1a;border-top:2px solid #e31e24;z-index:1000;border-radius:16px 16px 0 0;padding:8px 0">
+  <button onclick="navCerrarMenus();showPage('logs');setTimeout(()=>showHerramienta('cronometros'),150)" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-cronometro.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Cronómetros</span></button>
+  <button onclick="navCerrarMenus();showPage('logs');setTimeout(()=>showHerramienta('temporizadores'),150)" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-temporizador.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Temporizadores</span></button>
+  <button onclick="navCerrarMenus();showPage('logs');setTimeout(()=>showHerramienta('hiit'),150)" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-hiit.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>HIIT / Circuitos</span></button>
+  <button onclick="navCerrarMenus();showPage('logs');setTimeout(()=>showHerramienta('calculadoras'),150)" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-calculadoras.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Calculadoras</span></button>
+  <button onclick="navCerrarMenus();showPage('logs');setTimeout(()=>showHerramienta('competencias'),150)" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-competencias.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Competencias</span></button>
+  <button onclick="navCerrarMenus();showPage('logs');setTimeout(()=>showHerramienta('ruleta'),150)" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-ruleta.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Ruleta DT</span></button>
+  <button onclick="navCerrarMenus();showPage('logs');setTimeout(()=>showHerramienta('enciclopedia'),150)" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/Enciclopedialogo.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Enciclopedia</span></button>
+  <button onclick="navCerrarMenus();showPage('logs');setTimeout(()=>showHerramienta('juegos'),150)" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-juegos.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Juegos</span></button>
+</div>
 <button onclick="abrirChatEntrenador()" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">💬</span><span style="font-size:9px;font-weight:700;color:#666">Chat</span></button>
 </div>
 <div id="page-inicio" class="page active">
@@ -1783,35 +1794,35 @@ async function gestionarPushAdmin() {
 
   <div id="nav-menu-herramientas" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#181818;border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
     <div style="display:flex;flex-direction:column;gap:4px">
-      <div onclick="closeNavMenus();showPage('logs');showHerramienta('cronometros')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
+      <div onclick="closeNavMenus();showHerramientaNav('cronometros')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-cronometro.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
         <span style="font-size:13px;color:#ccc;font-weight:600">Cronómetros</span>
       </div>
-      <div onclick="closeNavMenus();showPage('logs');showHerramienta('temporizadores')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
+      <div onclick="closeNavMenus();showHerramientaNav('temporizadores')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-temporizador.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
         <span style="font-size:13px;color:#ccc;font-weight:600">Temporizadores</span>
       </div>
-      <div onclick="closeNavMenus();showPage('logs');showHerramienta('hiit')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
+      <div onclick="closeNavMenus();showHerramientaNav('hiit')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-hiit.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
         <span style="font-size:13px;color:#ccc;font-weight:600">HIIT / Circuitos</span>
       </div>
-      <div onclick="closeNavMenus();showPage('logs');showHerramienta('calculadoras')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
+      <div onclick="closeNavMenus();showHerramientaNav('calculadoras')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-calculadoras.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
         <span style="font-size:13px;color:#ccc;font-weight:600">Calculadoras</span>
       </div>
-      <div onclick="closeNavMenus();showPage('logs');showHerramienta('competencias')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
+      <div onclick="closeNavMenus();showHerramientaNav('competencias')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-competencias.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
         <span style="font-size:13px;color:#ccc;font-weight:600">Competencias</span>
       </div>
-      <div onclick="closeNavMenus();showPage('logs');showHerramienta('ruleta')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
+      <div onclick="closeNavMenus();showHerramientaNav('ruleta')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-ruleta.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
         <span style="font-size:13px;color:#ccc;font-weight:600">Ruleta</span>
       </div>
-      <div onclick="closeNavMenus();showPage('logs');showHerramienta('enciclopedia')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
+      <div onclick="closeNavMenus();showHerramientaNav('enciclopedia')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-herramientas.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
         <span style="font-size:13px;color:#ccc;font-weight:600">Enciclopedia</span>
       </div>
-      <div onclick="closeNavMenus();showPage('logs');showHerramienta('juegos')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer">
+      <div onclick="closeNavMenus();showHerramientaNav('juegos')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer">
         <img src="/images/icon-juegos.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
         <span style="font-size:13px;color:#ccc;font-weight:600">Juegos</span>
       </div>

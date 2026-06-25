@@ -137,13 +137,28 @@ function navToggleHerramientas(btn){
   }
 }
 
+function navToggleTools(btn){
+  const menu=document.getElementById('menu-tools');
+  if(!menu)return;
+  const abierto=menu.style.display==='block';
+  navCerrarMenus();
+  if(!abierto){
+    menu.style.display='block';
+    btn.style.color='#e31e24';
+  }
+}
+
 function navCerrarMenus(){
   const menu=document.getElementById('menu-funciones');
   if(menu)menu.style.display='none';
   const mh=document.getElementById('nav-menu-herramientas');
   if(mh)mh.style.display='none';
+  const mt=document.getElementById('menu-tools');
+  if(mt)mt.style.display='none';
   const btn=document.getElementById('btn-nav-funciones');
   if(btn)btn.style.color='#666';
+  const btnT=document.getElementById('btn-nav-tools');
+  if(btnT)btnT.style.color='#666';
 }
 
 
@@ -796,10 +811,16 @@ await fetch('/api/festivos/'+fecha,{method:'DELETE'});
 toast('🗑️ Eliminado');cargarFestivos();
 }
 
+
+function showHerramientaNav(nombre){
+  showPage('logs');
+  setTimeout(()=>showHerramienta(nombre),150);
+}
+
 function showHerramienta(nombre){
   document.getElementById('herramienta-panel').style.display='block';
-  document.querySelector('#page-logs .st').style.display='none';
-  document.querySelector('#page-logs .st').nextElementSibling.style.display='none';
+  const st=document.querySelector('#page-logs .st');
+  if(st){st.style.display='none';if(st.nextElementSibling)st.nextElementSibling.style.display='none';}
   const c=document.getElementById('herramienta-contenido');
   if(nombre==='enciclopedia') renderEnciclopedia(c);
   else if(nombre==='cronometros') renderCronometros(c);
