@@ -161,94 +161,47 @@ async function abrirPerfilCliente(id){
     <button id="ptab-datos" onclick="perfilTab('datos')" style="flex:1;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">📋 Datos</button>
     <button id="ptab-medidas" onclick="perfilTab('medidas')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">📏 Medidas</button>
     <button id="ptab-tests" onclick="perfilTab('tests')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">💪 Tests</button>
-    <button id="ptab-rutina" onclick="perfilTab('rutina')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">🏋️ Rutina</button>
-    <button id="ptab-nutricion" onclick="perfilTab('nutricion')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">🥗 Nutrición</button>
+    <button id="ptab-rutina" onclick="perfilTab('rutina')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">🏋️ Rutina / 🍖 Alimentación</button>
   </div>
   <div id="perfil-contenido"></div>`;
+  document.body.classList.add('en-perfil');
   showPage('perfil-cliente');
   perfilTab('datos');
 }
 
 function perfilTab(tab){
-  ['datos','medidas','tests','rutina','nutricion'].forEach(t=>{
+  if(window._perfilCambiando) return;
+  window._perfilCambiando=true;
+  setTimeout(()=>window._perfilCambiando=false, 600);
+
+  ['datos','medidas','tests','rutina'].forEach(t=>{
     const b=document.getElementById('ptab-'+t);
     if(b){b.style.background=t===tab?'#e31e24':'none';b.style.color=t===tab?'#fff':'#666';}
   });
   const u=window._perfilClienteActual;
   if(!u)return;
-  // Cerrar modales anteriores y quitarles modo-perfil
+  // Cerrar modales anteriores
   ['modal-cliente','modal-medidas','modal-tests','modal-rutina'].forEach(id=>{
     const m=document.getElementById(id);
     if(m){m.classList.remove('open');m.classList.remove('modo-perfil');}
   });
-  window._modoPerfil=true;
+  const _abrirConModo=(modalId,fn)=>{
+    const m=document.getElementById(modalId);
+    if(m)m.classList.add('modo-perfil');
+    fn();
+  };
   if(tab==='datos'){
-    editarCliente(u.id);
-    setTimeout(()=>{const m=document.getElementById('modal-cliente');if(m)m.classList.add('modo-perfil');},50);
+    _abrirConModo('modal-cliente',()=>editarCliente(u.id));
   } else if(tab==='medidas'){
-    abrirMedidasYSubir(u.id,u.nombre);
-    setTimeout(()=>{const m=document.getElementById('modal-medidas');if(m)m.classList.add('modo-perfil');},50);
+    _abrirConModo('modal-medidas',()=>abrirMedidasYSubir(u.id,u.nombre));
   } else if(tab==='tests'){
-    abrirTestsYSubir(u.id,u.nombre);
-    setTimeout(()=>{const m=document.getElementById('modal-tests');if(m)m.classList.add('modo-perfil');},50);
+    _abrirConModo('modal-tests',()=>abrirTestsYSubir(u.id,u.nombre));
   } else if(tab==='rutina'){
-    abrirRutina(u.id,u.nombre);
-    setTimeout(()=>{const m=document.getElementById('modal-rutina');if(m)m.classList.add('modo-perfil');},50);
-  } else if(tab==='nutricion'){
-    abrirRutina(u.id,u.nombre);
-    setTimeout(()=>{
-      const m=document.getElementById('modal-rutina');
-      if(m)m.classList.add('modo-perfil');
-      switchRutinaTab('alimentacion');
-    },400);
+    _abrirConModo('modal-rutina',()=>abrirRutina(u.id,u.nombre));
   }
 }
 
-function _perfilCargarDatos(u){
-  const c=document.getElementById('perfil-contenido');
-  c.innerHTML='';
-  // Mover el mc del modal-cliente al perfil-contenido temporalmente
-  const m=document.getElementById('modal-cliente');
-  const mc=m?m.querySelector('.mc'):null;
-  if(mc){
-    mc.style.maxHeight='none';
-    mc.style.overflowY='visible';
-    c.appendChild(mc);
-    editarCliente(u.id);
-    // Ocultar botón cancelar y cambiar guardar para que cierre bien
-    const btns=mc.querySelectorAll('button');
-    btns.forEach(b=>{
-      if(b.textContent.includes('Cancelar')) b.style.display='none';
-    });
-  }
-}
 
-function _perfilMostrarSeccion(modalId, fn){
-  const m=document.getElementById(modalId);
-  const c=document.getElementById('perfil-contenido');
-  if(!m||!c)return;
-  // Hacer modal invisible pero funcional
-  m.style.opacity='0';
-  m.style.pointerEvents='none';
-  m.classList.add('open');
-  fn();
-  setTimeout(()=>{
-    m.classList.remove('open');
-    m.style.opacity='';
-    m.style.pointerEvents='';
-    const mc=m.querySelector('.mc');
-    if(mc){
-      c.innerHTML='';
-      const clone=mc.cloneNode(true);
-      clone.style.padding='0';
-      clone.style.background='transparent';
-      clone.style.maxHeight='none';
-      clone.style.overflowY='visible';
-      clone.style.borderRadius='0';
-      c.appendChild(clone);
-    }
-  },500);
-}
 
 function selEstado(e){
 document.getElementById('cliente-estado-pago').value=e;
@@ -488,16 +441,21 @@ function switchRutinaTab(tab){
   document.getElementById('btns-rutina').style.display = esEnt ? 'flex' : 'none';
   if(!esEnt) mostrarRecomendacionesMacros();
 }
-async function abrirRutina(id,nombre){
+async function abrirRutina(id,nombre,tabInicial){
 window._clienteActual=id;
 window.clienteMedidasId=id;
 document.getElementById('rutina-cliente-id').value=id;
 document.getElementById('rutina-titulo').textContent='📋 '+nombre;
+// Si va a abrir alimentación, ocultar entrenamiento antes del render
+if(tabInicial==='alimentacion'){
+  const pe=document.getElementById('panel-entrenamiento');
+  if(pe) pe.style.display='none';
+}
 const res=await fetch('/api/rutinas/'+id);
 rutinaActual=await res.json();
 diaSeleccionado='lunes';
 renderDiasTabs();renderRutinaForm();
-switchRutinaTab('entrenamiento');
+switchRutinaTab(tabInicial||'entrenamiento');
 document.getElementById('modal-rutina').classList.add('open');
 cargarAlimentacion(id);
 }

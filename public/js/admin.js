@@ -16,6 +16,7 @@ if(window._invActivo!==undefined) window._invActivo=false;
 document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
 // Cerrar modales en modo-perfil al cambiar página
 document.querySelectorAll('.modal.modo-perfil').forEach(m=>{m.classList.remove('open');m.classList.remove('modo-perfil');});
+document.body.classList.remove('en-perfil');
 document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
 document.getElementById('page-'+p).classList.add('active');
 const nav=document.getElementById('nav-principal');
