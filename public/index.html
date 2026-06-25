@@ -916,10 +916,11 @@ async function gestionarPushAdmin() {
 <div id="menu-funciones" style="display:none;position:absolute;bottom:65px;left:0;right:0;background:#1a1a1a;border-top:2px solid #e31e24;z-index:1000;border-radius:16px 16px 0 0;padding:8px 0">
   <button onclick="navCerrarMenus();showPage('administrativo')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer">📁 Administrativo</button>
   <button onclick="navCerrarMenus();showPage('horarios')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer">🗓️ Horarios</button>
-  <button onclick="navCerrarMenus();showPage('reportes')" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer">📊 Reportes</button>
+  <button onclick="navCerrarMenus();showPage('reportes')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer">📊 Reportes</button>
+  <button onclick="navCerrarMenus();showPage('enviar')" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer">📲 Enviar Rutinas</button>
 </div>
-<button onclick="showPage('logs')" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">🔧</span><span style="font-size:9px;font-weight:700;color:#666">Tools</span></button>
-<button onclick="showPage('enviar')" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">📲</span><span style="font-size:9px;font-weight:700;color:#666">Enviar</span></button>
+<button onclick="navToggleHerramientas(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">🔧</span><span style="font-size:9px;font-weight:700;color:#666">Tools</span></button>
+<button onclick="showPage('chat')" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">💬</span><span style="font-size:9px;font-weight:700;color:#666">Chat</span></button>
 </div>
 <div id="page-inicio" class="page active">
 
@@ -1046,8 +1047,8 @@ async function gestionarPushAdmin() {
 
 <div id="page-clientes" class="page">
 <input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:11px;color:var(--texto-suave);font-size:14px;outline:none;margin-bottom:12px"><div id="stats-clientes" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px"><div style="background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.25);border-radius:8px;padding:8px;text-align:center"><div id="stat-activos" style="font-size:20px;font-weight:700;color:#4caf50">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">🟢 Activos</div></div><div style="background:rgba(227,30,36,0.10);border:1px solid rgba(227,30,36,0.25);border-radius:8px;padding:8px;text-align:center"><div id="stat-personalizados" style="font-size:20px;font-weight:700;color:#e31e24">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">💪 Person.</div></div><div style="background:rgba(74,158,255,0.10);border:1px solid rgba(74,158,255,0.25);border-radius:8px;padding:8px;text-align:center"><div id="stat-asesorados" style="font-size:20px;font-weight:700;color:#4a9eff">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">📋 Asesor.</div></div><div style="background:rgba(100,100,100,0.10);border:1px solid rgba(100,100,100,0.20);border-radius:8px;padding:8px;text-align:center"><div id="stat-pausados" style="font-size:20px;font-weight:700;color:var(--texto-secundario)">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">⏸️ Pausados</div></div></div><p class="st">Clientes registrados</p>
-<div id="barra-pausa" style="margin-bottom:12px">
-<button onclick="abrirModalPausa()" id="btn-pausa-global" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-medio);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><span id="icono-pausa-global">⏸️</span><span id="lbl-pausa-global">Pausar envíos globalmente</span></button>
+<div style="margin-bottom:12px">
+<button onclick="abrirModalCliente()" style="width:100%;background:var(--rojo);border:none;border-radius:8px;padding:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">➕ Agregar cliente</button>
 </div>
 <div id="modal-pausa" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:80px">
 <div style="background:var(--gris);border:1px solid #333;border-radius:16px;padding:24px;width:88%;max-width:340px">
@@ -1393,6 +1394,9 @@ async function gestionarPushAdmin() {
 <div style="display:flex;gap:8px;margin-top:8px">
 <button class="btn bg" style="flex:1" onclick="cerrarModal()">Cancelar</button>
 <button class="btn br" style="flex:1" onclick="guardarCliente()">Guardar</button>
+</div>
+<div style="margin-top:12px">
+<button onclick="eliminarCliente(window._perfilClienteActual?.id)" style="width:100%;background:transparent;border:1px solid #e31e24;border-radius:8px;padding:10px;color:#e31e24;font-size:13px;font-weight:700;cursor:pointer">🗑️ Eliminar cliente</button>
 </div>
 </div>
 </div>

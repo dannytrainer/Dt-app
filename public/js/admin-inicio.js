@@ -126,9 +126,22 @@ function navToggleFunciones(btn){
   }
 }
 
+function navToggleHerramientas(btn){
+  const menu=document.getElementById('nav-menu-herramientas');
+  if(!menu)return;
+  const abierto=menu.style.display==='block';
+  navCerrarMenus();
+  if(!abierto){
+    menu.style.display='block';
+    btn.style.color='#e31e24';
+  }
+}
+
 function navCerrarMenus(){
   const menu=document.getElementById('menu-funciones');
   if(menu)menu.style.display='none';
+  const mh=document.getElementById('nav-menu-herramientas');
+  if(mh)mh.style.display='none';
   const btn=document.getElementById('btn-nav-funciones');
   if(btn)btn.style.color='#666';
 }
@@ -513,7 +526,7 @@ cerrarModal();cargarClientes();
 async function eliminarCliente(id){
 if(!confirm('¿Eliminar este cliente?'))return;
 await fetch('/api/usuarios/'+id,{method:'DELETE'});
-toast('🗑️ Cliente eliminado');cargarClientes();
+toast('🗑️ Cliente eliminado');cargarClientes();showPage('clientes');
 }
 
 async function toggleActivo(id,activo){
