@@ -2362,6 +2362,21 @@ app.post('/api/log/frontend', (req, res) => {
   res.json({ ok: true });
 });
 
+// ── TICKER ──
+app.get('/api/ticker', (req, res) => {
+  try {
+    const data = JSON.parse(require('fs').readFileSync('./data/ticker.json','utf8'));
+    res.json(data);
+  } catch(e) { res.json([]); }
+});
+
+app.post('/api/ticker', (req, res) => {
+  try {
+    require('fs').writeFileSync('./data/ticker.json', JSON.stringify(req.body, null, 2));
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
 app.listen(3000, () => console.log('DT-APP corriendo en puerto 3000'));
 
 

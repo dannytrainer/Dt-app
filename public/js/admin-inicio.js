@@ -1,3 +1,137 @@
+// ── TICKER EDITOR ──
+let _tickerTaps = 0, _tickerTimer = null;
+function tickerTap() {
+  _tickerTaps++;
+  clearTimeout(_tickerTimer);
+  _tickerTimer = setTimeout(() => { _tickerTaps = 0; }, 2000);
+  if (_tickerTaps >= 7) {
+    _tickerTaps = 0;
+    abrirTickerEditor();
+  }
+}
+
+async function cargarTicker() {
+  try {
+    const frases = await fetch('/api/ticker').then(r => r.json());
+    const inner = document.getElementById('ticker-inner');
+    if (!inner) return;
+    if (!frases.length) return;
+    let items = [];
+    frases.forEach(f => {
+      for (let i = 0; i < (f.prioridad || 1); i++) items.push(f);
+    });
+    const txt = items.map(f => f.texto).join('   ·   ');
+    inner.style.animation = 'none';
+    inner.style.transform = 'translateX(0)';
+    inner.innerHTML = txt + '   ·   ';
+    const anchoTexto = inner.scrollWidth;
+    const anchoContenedor = inner.parentElement.offsetWidth;
+    let pos = anchoContenedor;
+    inner.style.position = 'absolute';
+    inner.style.left = pos + 'px';
+    if (window._tickerInterval) clearInterval(window._tickerInterval);
+    const velocidad = 0.5;
+    window._tickerInterval = setInterval(() => {
+      pos -= velocidad;
+      if (pos < -anchoTexto) pos = anchoContenedor;
+      inner.style.left = pos + 'px';
+    }, 16);
+  } catch(e) {}
+}
+
+
+async function abrirTickerEditor() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  if (sesion.id !== 'ent_001') return;
+  let frases = await fetch('/api/ticker').then(r => r.json()).catch(() => []);
+  
+  const modal = document.createElement('div');
+  modal.id = 'modal-ticker-editor';
+  modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;flex-direction:column;padding:20px;overflow-y:auto';
+  
+  function renderModal() {
+    modal.innerHTML = '<div style="max-width:480px;margin:0 auto;width:100%">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">' +
+      '<div style="font-size:16px;font-weight:900;color:#e31e24">📡 Editor Ticker</div>' +
+      '<button onclick="tickerCerrar()" style="background:#333;border:none;border-radius:8px;color:#fff;padding:6px 12px;cursor:pointer">✕ Cerrar</button></div>' +
+      '<div style="background:#1a1a1a;border-radius:14px;padding:14px;margin-bottom:16px">' +
+      '<div style="font-size:11px;color:#e31e24;font-weight:800;margin-bottom:10px;text-transform:uppercase">➕ Nueva frase</div>' +
+      '<textarea id="ticker-nueva-frase" placeholder="Escribe la frase..." style="width:100%;background:#111;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:13px;resize:none;height:60px;box-sizing:border-box"></textarea>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">' +
+      '<div><div style="font-size:10px;color:#666;margin-bottom:4px">Velocidad (seg)</div>' +
+      '<input type="range" id="ticker-vel" min="10" max="60" value="28" style="width:100%"><div id="ticker-vel-label" style="font-size:11px;color:#888;text-align:center">28s</div></div>' +
+      '<div><div style="font-size:10px;color:#666;margin-bottom:4px">Prioridad</div>' +
+      '<div style="display:flex;gap:4px">' +
+      '<button onclick="tickerSetPrio(1)" id="prio-1" style="flex:1;padding:6px;border-radius:8px;border:none;background:#e31e24;color:#fff;font-size:11px;font-weight:700;cursor:pointer">1x</button>' +
+      '<button onclick="tickerSetPrio(2)" id="prio-2" style="flex:1;padding:6px;border-radius:8px;border:none;background:#333;color:#fff;font-size:11px;font-weight:700;cursor:pointer">2x</button>' +
+      '<button onclick="tickerSetPrio(3)" id="prio-3" style="flex:1;padding:6px;border-radius:8px;border:none;background:#333;color:#fff;font-size:11px;font-weight:700;cursor:pointer">3x</button>' +
+      '</div></div></div>' +
+      '<button onclick="tickerAgregarFrase()" style="width:100%;margin-top:10px;background:#e31e24;border:none;border-radius:10px;padding:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">➕ Agregar frase</button></div>' +
+      '<div style="font-size:11px;color:#666;font-weight:800;text-transform:uppercase;margin-bottom:8px">Frases actuales (' + frases.length + ')</div>' +
+      frases.map((f, i) => '<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:12px;margin-bottom:8px">' +
+        '<div style="font-size:13px;color:#fff;margin-bottom:8px">' + f.texto + '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+        '<div style="font-size:10px;color:#666">⚡ ' + f.velocidad + 's</div>' +
+        '<div style="font-size:10px;color:#666">🔁 ' + f.prioridad + 'x</div>' +
+        '<button onclick="tickerEliminar(' + i + ')" style="margin-left:auto;background:rgba(227,30,36,0.15);border:1px solid rgba(227,30,36,0.3);border-radius:8px;padding:4px 10px;color:#e31e24;font-size:11px;cursor:pointer">🗑️ Eliminar</button>' +
+        '</div></div>').join('') +
+      '</div>';
+    
+    const velInput = document.getElementById('ticker-vel');
+    if (velInput) velInput.oninput = function() {
+      document.getElementById('ticker-vel-label').textContent = this.value + 's';
+    };
+  }
+  
+  window._tickerPrio = 1;
+  window.tickerCerrar = function() { const m = document.getElementById("modal-ticker-editor"); if(m) m.remove(); };
+  window.tickerSetPrio = function(p) {
+    window._tickerPrio = p;
+    [1,2,3].forEach(n => {
+      const b = document.getElementById('prio-' + n);
+      if (b) b.style.background = n === p ? '#e31e24' : '#333';
+    });
+  };
+  
+  window.tickerAgregarFrase = async function() {
+    const txt = document.getElementById('ticker-nueva-frase').value.trim();
+    if (!txt) return;
+    const vel = parseInt(document.getElementById('ticker-vel').value);
+    frases.push({ texto: txt, velocidad: vel, prioridad: window._tickerPrio });
+    await fetch('/api/ticker', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(frases) });
+    cargarTicker();
+    renderModal();
+  };
+  
+  window.tickerEliminar = async function(idx) {
+    frases.splice(idx, 1);
+    await fetch('/api/ticker', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(frases) });
+    cargarTicker();
+    renderModal();
+  };
+  
+  document.body.appendChild(modal);
+  renderModal();
+}
+
+
+function navToggleFunciones(btn){
+  const menu=document.getElementById('menu-funciones');
+  if(!menu)return;
+  const abierto=menu.style.display==='block';
+  navCerrarMenus();
+  if(!abierto){
+    menu.style.display='block';
+    btn.style.color='#e31e24';
+  }
+}
+
+function navCerrarMenus(){
+  const menu=document.getElementById('menu-funciones');
+  if(menu)menu.style.display='none';
+  const btn=document.getElementById('btn-nav-funciones');
+  if(btn)btn.style.color='#666';
+}
 
 
 // ═══════════════════════════════
@@ -84,8 +218,7 @@ async function cargarInicio(){
     if(vencidos.length>0)items.push('🔴 Cobro vencido: '+vencidos.map(u=>u.nombre).join(', '));
     if(proximos.length>0)items.push('⚠️ Próximo cobro: '+proximos.map(u=>u.nombre).join(', '));
     items.push('📅 '+new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'}));
-    const txt=items.join('   •   ');
-    document.getElementById('ticker-inner').textContent=txt+'   •   '+txt;
+    // ticker manejado por cargarTicker()
   
   try{
     const _eid2=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';

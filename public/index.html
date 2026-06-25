@@ -104,7 +104,7 @@ body{background:var(--fondo);color:var(--texto)}
 .nav{display:flex;background:var(--card);border-bottom:1px solid #222;overflow-x:auto}
 .nav button{flex:1;min-width:70px;padding:13px 6px;background:none;border:none;color:var(--texto-secundario);font-size:12px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent}
 .nav button.active{color:var(--rojo);border-bottom-color:var(--rojo)}
-.page{display:none;padding:16px;max-width:600px;margin:0 auto;position:relative}
+.page{display:none;padding:16px 16px 80px 16px;max-width:600px;margin:0 auto;position:relative}
 .page.active{display:block}
 .btn{padding:10px 18px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
 .br{background:var(--rojo);color:var(--texto)}
@@ -908,10 +908,16 @@ async function gestionarPushAdmin() {
 
 
 </div>
-<div id="nav-principal" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#111;border-top:1px solid #1e1e1e;z-index:999;padding:8px 0 12px;display:none">
+<div id="nav-principal" style="display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.08);z-index:999;padding:8px 0 12px">
 <button onclick="showPage('inicio')" style="flex:1;background:none;border:none;color:#e31e24;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">🏠</span><span style="font-size:9px;font-weight:700;color:#e31e24">Inicio</span></button>
 <button onclick="showPage('clientes')" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">👥</span><span style="font-size:9px;font-weight:700;color:#666">Clientes</span></button>
-<button onclick="showPage('rutinas')" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">📋</span><span style="font-size:9px;font-weight:700;color:#666">Rutinas</span></button>
+<button onclick="navToggleFunciones(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px" id="btn-nav-funciones"><span style="font-size:20px">⚡</span><span style="font-size:9px;font-weight:700;color:#666">Funciones</span></button>
+<!-- MENÚ FUNCIONES -->
+<div id="menu-funciones" style="display:none;position:absolute;bottom:65px;left:0;right:0;background:#1a1a1a;border-top:2px solid #e31e24;z-index:1000;border-radius:16px 16px 0 0;padding:8px 0">
+  <button onclick="navCerrarMenus();showPage('administrativo')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer">📁 Administrativo</button>
+  <button onclick="navCerrarMenus();showPage('horarios')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer">🗓️ Horarios</button>
+  <button onclick="navCerrarMenus();showPage('reportes')" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer">📊 Reportes</button>
+</div>
 <button onclick="showPage('logs')" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">🔧</span><span style="font-size:9px;font-weight:700;color:#666">Tools</span></button>
 <button onclick="showPage('enviar')" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">📲</span><span style="font-size:9px;font-weight:700;color:#666">Enviar</span></button>
 </div>
@@ -919,15 +925,9 @@ async function gestionarPushAdmin() {
 
   <!-- TICKER -->
   <div style="background:var(--fondo);border-bottom:1px solid #1a1a1a;overflow:hidden;height:30px;display:flex;align-items:center;margin:-12px -12px 16px -12px">
-    <div style="background:#e31e24;color:#fff;font-size:9px;font-weight:800;padding:0 10px;height:100%;display:flex;align-items:center;white-space:nowrap;letter-spacing:1px;flex-shrink:0">DT-APP</div>
+    <div id="ticker-label" onclick="tickerTap()" style="background:#e31e24;color:#fff;font-size:9px;font-weight:800;padding:0 10px;height:100%;display:flex;align-items:center;white-space:nowrap;letter-spacing:1px;flex-shrink:0;cursor:pointer">DT-APP</div>
     <div style="overflow:hidden;flex:1;height:100%;position:relative">
-      <div style="display:flex;align-items:center;height:100%;white-space:nowrap;animation:tickerMove 28s linear infinite;font-size:11px;color:#888;padding-left:20px">
-        💪 Recuerda: tu mente y tu cuerpo son tu castillo &nbsp;·&nbsp;
-        🔥 Consistencia es la clave del éxito &nbsp;·&nbsp;
-        ⚡ Un buen entrenador transforma vidas &nbsp;·&nbsp;
-        🏆 Cada cliente es un logro más &nbsp;·&nbsp;
-        💡 DT-APP: todo lo que necesitas en un solo lugar &nbsp;·&nbsp;
-      </div>
+      <div id="ticker-inner" style="display:flex;align-items:center;height:100%;white-space:nowrap;font-size:11px;color:#888;padding-left:20px"></div>
     </div>
   </div>
 
