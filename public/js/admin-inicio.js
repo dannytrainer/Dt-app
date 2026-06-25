@@ -113,29 +113,82 @@ document.getElementById('stat-asesorados').textContent=sAsesorados;
 document.getElementById('stat-pausados').textContent=sPausados;
 lista.innerHTML=usuarios.map(u=>{
 const ep=u.estado_pago||'aldia';
-const cc=ep==='vencido'?'card vencido':ep==='proximo'?'card proximo':'card';
-return`<div class="${cc}">
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-${avatarHTML(u)}
-<div style="flex:1">
-<div style="font-size:16px;font-weight:700;color:var(--texto)">${u.nombre}</div>
-<div style="font-size:11px;color:#777;margin-top:2px">📱 ${u.telefono} &nbsp;🗓️ Día ${u.dia_pago||'-'}</div>
+const epColor=ep==='vencido'?'#e31e24':ep==='proximo'?'#ff9800':'#4caf50';
+const epTexto=ep==='vencido'?'🔴 Vencido':ep==='proximo'?'⚠️ Próximo pago':'✅ Al día';
+const tipoTexto=u.tipo==='personalizado'?'💪 Personalizado':'📋 Asesorado';
+return`<div onclick="abrirPerfilCliente('${u.id}')" style="background:var(--card);border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px">
+<div style="flex-shrink:0">${avatarHTML(u)}</div>
+<div style="flex:1;min-width:0">
+  <div style="font-size:15px;font-weight:700;color:var(--texto);margin-bottom:4px">${u.nombre}</div>
+  <div style="font-size:11px;color:#666;margin-bottom:6px">🗓️ Día ${u.dia_pago||'-'}</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <span style="font-size:10px;font-weight:700;color:#888;background:#1a1a1a;border-radius:20px;padding:3px 8px">${tipoTexto}</span>
+    <span style="font-size:10px;font-weight:700;color:${epColor};background:${epColor}18;border-radius:20px;padding:3px 8px">${epTexto}</span>
+  </div>
 </div>
-<label class="toggle"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
-</div>
-<div style="margin-bottom:10px">
-<span class="badge ${u.activo?'ba':'bp2'}">${u.activo?'● Activo':'⏸ Pausado'}</span>
-<span class="badge bti">${u.tipo}</span>
-${epBadge(ep)}
-</div>
-<div style="display:flex;gap:5px">
-<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="editarCliente('${u.id}')">✏️ Editar</button>
-<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirMedidasYSubir('${u.id}','${u.nombre}')">📊 Medidas</button>
-<button class="btn bg" style="flex:1;font-size:11px;padding:8px 4px" onclick="abrirTestsYSubir('${u.id}','${u.nombre}')">🏋️ Tests</button>
-<button class="btn bp" style="font-size:11px;padding:8px 10px" onclick="eliminarCliente('${u.id}')">🗑️</button>
-</div>
+<label class="toggle" onclick="event.stopPropagation()"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
 </div>`;
 }).join('');
+}
+
+async function abrirPerfilCliente(id){
+  _ultimoClienteId=id;
+  const u=window._usuariosCargados.find(x=>x.id===id);
+  if(!u)return;
+  window._perfilClienteActual=u;
+  const ep=u.estado_pago||'aldia';
+  const epColor=ep==='vencido'?'#e31e24':ep==='proximo'?'#ff9800':'#4caf50';
+  const epTexto=ep==='vencido'?'🔴 Vencido':ep==='proximo'?'⚠️ Próximo pago':'✅ Al día';
+  const tipoTexto=u.tipo==='personalizado'?'💪 Personalizado':'📋 Asesorado';
+  const pg=document.getElementById('page-perfil-cliente');
+  pg.innerHTML=`
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+    <button onclick="showPage('clientes')" style="background:none;border:none;color:#e31e24;font-size:22px;cursor:pointer;padding:0">←</button>
+    <div style="flex:1;font-size:15px;font-weight:700;color:var(--texto)">${u.nombre}</div>
+    <label class="toggle"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+    ${avatarHTML(u)}
+    <div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+        <span style="font-size:10px;font-weight:700;color:${epColor};background:${epColor}18;border-radius:20px;padding:3px 10px">${epTexto}</span>
+        <span style="font-size:10px;font-weight:700;color:#888;background:#1a1a1a;border-radius:20px;padding:3px 10px">${tipoTexto}</span>
+      </div>
+      <div style="font-size:11px;color:#666">🗓️ Día ${u.dia_pago||'-'} &nbsp;📱 ${u.telefono}</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:0;background:#1a1a1a;border-radius:12px;padding:4px;margin-bottom:16px;overflow-x:auto">
+    <button id="ptab-datos" onclick="perfilTab('datos')" style="flex:1;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">📋 Datos</button>
+    <button id="ptab-medidas" onclick="perfilTab('medidas')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">📏 Medidas</button>
+    <button id="ptab-tests" onclick="perfilTab('tests')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">💪 Tests</button>
+    <button id="ptab-rutina" onclick="perfilTab('rutina')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">🏋️ Rutina</button>
+    <button id="ptab-nutricion" onclick="perfilTab('nutricion')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">🥗 Nutrición</button>
+  </div>
+  <div id="perfil-contenido"></div>`;
+  showPage('perfil-cliente');
+  perfilTab('datos');
+}
+
+function perfilTab(tab){
+  ['datos','medidas','tests','rutina','nutricion'].forEach(t=>{
+    const b=document.getElementById('ptab-'+t);
+    if(b){b.style.background=t===tab?'#e31e24':'none';b.style.color=t===tab?'#fff':'#666';}
+  });
+  const u=window._perfilClienteActual;
+  if(!u)return;
+  const c=document.getElementById('perfil-contenido');
+  if(tab==='datos'){
+    editarCliente(u.id);
+  } else if(tab==='medidas'){
+    abrirMedidasYSubir(u.id,u.nombre);
+  } else if(tab==='tests'){
+    abrirTestsYSubir(u.id,u.nombre);
+  } else if(tab==='rutina'){
+    abrirRutina(u.id,u.nombre);
+  } else if(tab==='nutricion'){
+    abrirRutina(u.id,u.nombre);
+    setTimeout(()=>switchRutinaTab('alimentacion'),300);
+  }
 }
 
 function selEstado(e){
