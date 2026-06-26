@@ -78,6 +78,7 @@ body.modo-claro{
 }
 body.modo-claro .card{border-color:var(--borde)}
 body.modo-claro input,body.modo-claro select,body.modo-claro textarea{background:var(--card)!important;color:var(--texto)!important;border-color:var(--borde)!important}
+body.modo-claro .modal select,body.modo-claro .modal input,body.modo-claro .modal textarea{background:#e0e0e0!important;color:#111!important;border:1px solid #999!important;-webkit-text-fill-color:#111!important}
 body.modo-claro #app-header{background:var(--card)!important;border-bottom:1px solid #2a2a2a}
 body.modo-claro .nav-bar{background:var(--card)!important;border-top:1px solid var(--borde)}
 body.modo-claro .nav-btn{color:var(--texto-medio)!important}
@@ -1115,7 +1116,7 @@ async function gestionarPushAdmin() {
 
 <!-- Modal crear/editar horario -->
 <div class="modal" id="modal-horario">
-  <div class="modal-content" style="max-height:90vh;overflow-y:auto">
+  <div class="modal-content" style="max-height:calc(90vh - 80px);overflow-y:auto;padding-bottom:80px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div class="mt" id="modal-horario-titulo">➕ Nueva clase</div>
       <button class="btn bg" style="padding:6px 14px" onclick="cerrarModalHorario()">✕</button>
@@ -1131,7 +1132,7 @@ async function gestionarPushAdmin() {
     <!-- Modo cliente -->
     <div id="h-modo-cliente">
       <div class="ig"><label>Cliente</label>
-        <select id="h-cliente" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none">
+        <select id="h-cliente" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;-webkit-appearance:none;appearance:none">
           <option value="">— Seleccionar cliente —</option>
         </select>
       </div>
@@ -1153,10 +1154,10 @@ async function gestionarPushAdmin() {
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="ig"><label>Hora inicio</label>
-        <select id="h-inicio" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none"></select>
+        <select id="h-inicio" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;-webkit-appearance:none;appearance:none"></select>
       </div>
       <div class="ig"><label>Hora fin</label>
-        <select id="h-fin" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none"></select>
+        <select id="h-fin" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;-webkit-appearance:none;appearance:none"></select>
       </div>
     </div>
 
