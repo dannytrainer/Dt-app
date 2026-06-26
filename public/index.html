@@ -930,7 +930,7 @@ async function gestionarPushAdmin() {
   <button onclick="navCerrarMenus();showPage('enciclopedia')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/Enciclopedialogo.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Enciclopedia</span></button>
   <button onclick="navCerrarMenus();showPage('juegos')" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-juegos.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Juegos</span></button>
 </div>
-<button onclick="abrirChatEntrenador()" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px;position:relative"><span style="font-size:36px;line-height:36px">💬</span><div id="chat-ent-badge" style="display:none;position:absolute;top:0;right:8px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div><span style="font-size:9px;font-weight:700;color:#666">Chat</span></button>
+<button onclick="abrirChatEntrenador()" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:36px;line-height:36px">💬</span><span style="font-size:9px;font-weight:700;color:#666">Chat</span></button>
 </div>
 <div id="page-inicio" class="page active">
 
@@ -982,6 +982,7 @@ async function gestionarPushAdmin() {
   </div>
   <div id="hi-cobros" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px;scrollbar-width:none"></div>
 
+  <div style="display:none">
   <!-- ACCESOS RÁPIDOS -->
   <div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px">
     🚀 Accesos rápidos
@@ -1034,6 +1035,7 @@ async function gestionarPushAdmin() {
   </div>
 </div>
 
+  </div>
 <div id="page-admin" class="page">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
   <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800">💰 Módulo Administrativo</div>
@@ -1356,6 +1358,7 @@ async function gestionarPushAdmin() {
 </div>
 </div>
 <button class="fab" onclick="abrirModalCliente()" id="fab-btn" style="display:none">+</button>
+<button onclick="abrirChatEntrenador()" id="chat-ent-fab" style="position:fixed;top:10px;right:62px;width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.75);border:none;color:#fff;font-size:16px;cursor:pointer;z-index:9000;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center">💬</button>
 <div id="chat-ent-badge" style="display:none;position:fixed;top:4px;right:50px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div>
 <div id="chat-ent-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:999999;flex-direction:column">
   <div style="background:var(--card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:2px solid var(--rojo);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
@@ -1799,7 +1802,32 @@ async function gestionarPushAdmin() {
   </div></div>
 </div>
 
-    <div id="nav-menu-herramientas" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--fondo);border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
+  <div id="nav-menu-funciones" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--fondo);border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div onclick="closeNavMenus();showPage('clientes')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-clientes.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Clientes</div>
+      </div>
+      <div onclick="closeNavMenus();showPage('rutinas')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-rutinas.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Rutinas</div>
+      </div>
+      <div onclick="closeNavMenus();showPage('enviar')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-comunicacion.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Enviar</div>
+      </div>
+      <div onclick="closeNavMenus();showPage('admin')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-administrativo.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Administrativo</div>
+      </div>
+      <div onclick="closeNavMenus();showPage('horarios')" style="text-align:center;cursor:pointer">
+        <img src="/images/icon-horarios.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
+        <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Horarios</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="nav-menu-herramientas" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--fondo);border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
     <div style="display:flex;flex-direction:column;gap:4px">
       <div onclick="navCerrarMenus();showPage('cronometros')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-cronometro.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
