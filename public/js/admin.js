@@ -9,6 +9,7 @@ if(hPanel&&hPanel.style.display!=='none'){
   if(st){st.style.display='block';if(st.nextElementSibling)st.nextElementSibling.style.display='grid';}
 }
 desbloquearSwipe();
+navCerrarMenus();
 // Detener todos los loops de juegos
 window._juegoActivo=false;
 if(window._hk) window._hk.activo=false;
