@@ -917,7 +917,7 @@ async function gestionarPushAdmin() {
 <div id="menu-funciones" style="display:none;position:absolute;bottom:65px;left:0;right:0;background:var(--fondo);border-top:2px solid #e31e24;z-index:1000;border-radius:16px 16px 0 0;padding:8px 0">
   <button onclick="navCerrarMenus();showPage('admin')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-administrativo.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Administrativo</span></button>
   <button onclick="navCerrarMenus();showPage('horarios')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-horarios.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Horarios</span></button>
-  <button onclick="navCerrarMenus();showPage('enviar')" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-comunicacion.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Enviar Rutinas</span></button>
+  <button onclick="navCerrarMenus();showPage('enviar')" style="width:100%;background:none;border:none;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-comunicacion.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Enviar Rutinas</span></button>
 </div>
 <button onclick="navToggleTools(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px" id="btn-nav-tools"><img src="/images/icon-herramientas.png" style="width:36px;height:36px;object-fit:contain"><span style="font-size:9px;font-weight:700;color:#666">Tools</span></button>
 <!-- MENÚ TOOLS -->
@@ -929,7 +929,7 @@ async function gestionarPushAdmin() {
   <button onclick="navCerrarMenus();showPage('competencias')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-competencias.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Competencias</span></button>
   <button onclick="navCerrarMenus();showPage('ruleta')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-ruleta.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Ruleta DT</span></button>
   <button onclick="navCerrarMenus();showPage('enciclopedia')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/Enciclopedialogo.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Enciclopedia</span></button>
-  <button onclick="navCerrarMenus();showPage('juegos')" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-juegos.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Juegos</span></button>
+  <button onclick="navCerrarMenus();showPage('juegos')" style="width:100%;background:none;border:none;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-juegos.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Juegos</span></button>
 </div>
 <button onclick="abrirChatEntrenador()" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px;position:relative"><span style="font-size:36px;line-height:36px">💬</span><div id="chat-ent-badge" style="display:none;position:absolute;top:0;right:8px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div><span style="font-size:9px;font-weight:700;color:#666">Chat</span></button>
 </div>
@@ -1830,35 +1830,35 @@ async function gestionarPushAdmin() {
     <div style="display:flex;flex-direction:column;gap:4px">
       <div onclick="navCerrarMenus();showPage('cronometros')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-cronometro.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
-        <span style="font-size:13px;color:#ccc;font-weight:600">Cronómetro</span>
+        <span style="font-size:13px;color:var(--texto);font-weight:600">Cronómetro</span>
       </div>
       <div onclick="navCerrarMenus();showPage('hiit')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-hiit.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
-        <span style="font-size:13px;color:#ccc;font-weight:600">HIIT</span>
+        <span style="font-size:13px;color:var(--texto);font-weight:600">HIIT</span>
       </div>
       <div onclick="navCerrarMenus();showPage('temporizadores')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-temporizador.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
-        <span style="font-size:13px;color:#ccc;font-weight:600">Temporizador</span>
+        <span style="font-size:13px;color:var(--texto);font-weight:600">Temporizador</span>
       </div>
       <div onclick="navCerrarMenus();showPage('calculadoras')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-calculadoras.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
-        <span style="font-size:13px;color:#ccc;font-weight:600">Calculadoras</span>
+        <span style="font-size:13px;color:var(--texto);font-weight:600">Calculadoras</span>
       </div>
       <div onclick="navCerrarMenus();showPage('competencias')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-competencias.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
-        <span style="font-size:13px;color:#ccc;font-weight:600">Competencias</span>
+        <span style="font-size:13px;color:var(--texto);font-weight:600">Competencias</span>
       </div>
       <div onclick="navCerrarMenus();showPage('ruleta')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-ruleta.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
-        <span style="font-size:13px;color:#ccc;font-weight:600">Ruleta DT</span>
+        <span style="font-size:13px;color:var(--texto);font-weight:600">Ruleta DT</span>
       </div>
       <div onclick="navCerrarMenus();showPage('enciclopedia')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/Enciclopedialogo.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
-        <span style="font-size:13px;color:#ccc;font-weight:600">Enciclopedia</span>
+        <span style="font-size:13px;color:var(--texto);font-weight:600">Enciclopedia</span>
       </div>
       <div onclick="navCerrarMenus();showPage('juegos')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer">
         <img src="/images/icon-juegos.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
-        <span style="font-size:13px;color:#ccc;font-weight:600">Juegos</span>
+        <span style="font-size:13px;color:var(--texto);font-weight:600">Juegos</span>
       </div>
     </div>
   </div>
