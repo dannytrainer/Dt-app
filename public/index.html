@@ -908,19 +908,19 @@ async function gestionarPushAdmin() {
 
 
 </div>
-<div id="nav-principal" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;background:rgba(0,0,0,0.45);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.08);z-index:999;padding:8px 0 12px">
-<button onclick="showPage('inicio')" style="flex:1;background:none;border:none;color:#e31e24;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">🏠</span><span style="font-size:9px;font-weight:700;color:#e31e24">Inicio</span></button>
-<button onclick="showPage('clientes')" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">👥</span><span style="font-size:9px;font-weight:700;color:#666">Clientes</span></button>
-<button onclick="navToggleFunciones(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px" id="btn-nav-funciones"><span style="font-size:20px">⚡</span><span style="font-size:9px;font-weight:700;color:#666">Funciones</span></button>
+<div id="nav-principal" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;background:rgba(0,0,0,0.45);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,0.08);z-index:999;padding:8px 0 12px">
+<button onclick="showPage('inicio')" style="flex:1;background:none;border:none;color:#e31e24;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><img src="/images/icon-inicio.png" style="width:36px;height:36px;object-fit:contain"><span style="font-size:9px;font-weight:700;color:#e31e24">Inicio</span></button>
+<button onclick="showPage('clientes')" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><img src="/images/icon-clientes.png" style="width:36px;height:36px;object-fit:contain"><span style="font-size:9px;font-weight:700;color:#666">Clientes</span></button>
+<button onclick="navToggleFunciones(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px" id="btn-nav-funciones"><img src="/images/icon-rutinas.png" style="width:36px;height:36px;object-fit:contain"><span style="font-size:9px;font-weight:700;color:#666">Funciones</span></button>
 <!-- MENÚ FUNCIONES -->
-<div id="menu-funciones" style="display:none;position:absolute;bottom:65px;left:0;right:0;background:#1a1a1a;border-top:2px solid #e31e24;z-index:1000;border-radius:16px 16px 0 0;padding:8px 0">
+<div id="menu-funciones" style="display:none;position:absolute;bottom:65px;left:0;right:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:2px solid #e31e24;z-index:1000;border-radius:16px 16px 0 0;padding:8px 0">
   <button onclick="navCerrarMenus();showPage('admin')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-administrativo.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Administrativo</span></button>
   <button onclick="navCerrarMenus();showPage('horarios')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-horarios.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Horarios</span></button>
   <button onclick="navCerrarMenus();showPage('enviar')" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-comunicacion.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Enviar Rutinas</span></button>
 </div>
-<button onclick="navToggleTools(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px" id="btn-nav-tools"><span style="font-size:20px">🔧</span><span style="font-size:9px;font-weight:700;color:#666">Tools</span></button>
+<button onclick="navToggleTools(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px" id="btn-nav-tools"><img src="/images/icon-herramientas.png" style="width:36px;height:36px;object-fit:contain"><span style="font-size:9px;font-weight:700;color:#666">Tools</span></button>
 <!-- MENÚ TOOLS -->
-<div id="menu-tools" style="display:none;position:absolute;bottom:65px;left:0;right:0;background:#1a1a1a;border-top:2px solid #e31e24;z-index:1000;border-radius:16px 16px 0 0;padding:8px 0">
+<div id="menu-tools" style="display:none;position:absolute;bottom:65px;left:0;right:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:2px solid #e31e24;z-index:1000;border-radius:16px 16px 0 0;padding:8px 0">
   <button onclick="navCerrarMenus();showPage('cronometros')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-cronometro.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Cronómetros</span></button>
   <button onclick="navCerrarMenus();showPage('temporizadores')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-temporizador.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Temporizadores</span></button>
   <button onclick="navCerrarMenus();showPage('hiit')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-hiit.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>HIIT / Circuitos</span></button>
@@ -930,7 +930,7 @@ async function gestionarPushAdmin() {
   <button onclick="navCerrarMenus();showPage('enciclopedia')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/Enciclopedialogo.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Enciclopedia</span></button>
   <button onclick="navCerrarMenus();showPage('juegos')" style="width:100%;background:none;border:none;color:#ccc;padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-juegos.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Juegos</span></button>
 </div>
-<button onclick="abrirChatEntrenador()" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:20px">💬</span><span style="font-size:9px;font-weight:700;color:#666">Chat</span></button>
+<button onclick="abrirChatEntrenador()" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px"><span style="font-size:36px;line-height:36px">💬</span><span style="font-size:9px;font-weight:700;color:#666">Chat</span></button>
 </div>
 <div id="page-inicio" class="page active">
 
@@ -1359,7 +1359,7 @@ async function gestionarPushAdmin() {
 <button onclick="abrirChatEntrenador()" id="chat-ent-fab" style="position:fixed;top:10px;right:62px;width:36px;height:36px;border-radius:50%;background:rgba(227,30,36,0.75);border:none;color:#fff;font-size:16px;cursor:pointer;z-index:9000;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center">💬</button>
 <div id="chat-ent-badge" style="display:none;position:fixed;top:4px;right:50px;background:#ff9800;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:10px;z-index:100000">0</div>
 <div id="chat-ent-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:999999;flex-direction:column">
-  <div style="background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:2px solid var(--rojo);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+  <div style="background:var(--card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:2px solid var(--rojo);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0">
     <button onclick="cerrarChatEntrenador()" style="background:transparent;border:none;color:#e31e24;font-size:20px;cursor:pointer">←</button>
     <div style="font-size:16px;font-weight:900;color:#fff;flex:1">💬 Mensajes</div>
   </div>
@@ -1375,7 +1375,7 @@ async function gestionarPushAdmin() {
       <div id="chat-ent-nombre" style="font-size:15px;font-weight:700;color:#fff"></div>
     </div>
     <div id="chat-ent-mensajes" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
-    <div style="background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--borde);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0">
+    <div style="background:var(--card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--borde);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0">
       <input id="chat-ent-img" type="file" accept="image/*" style="display:none" onchange="chatEntEnviarImagen(this)"/>
       <input id="chat-ent-cam" type="file" accept="image/*" capture="environment" style="display:none" onchange="chatEntEnviarImagen(this)"/>
       <input id="chat-ent-vid" type="file" accept="video/*" style="display:none" onchange="chatEntEnviarVideo(this)"/>
@@ -1800,7 +1800,7 @@ async function gestionarPushAdmin() {
   </div></div>
 </div>
 
-  <div id="nav-menu-funciones" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#181818;border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
+  <div id="nav-menu-funciones" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(0,0,0,0.45);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
       <div onclick="closeNavMenus();showPage('clientes')" style="text-align:center;cursor:pointer">
         <img src="/images/icon-clientes.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
@@ -1825,7 +1825,7 @@ async function gestionarPushAdmin() {
     </div>
   </div>
 
-  <div id="nav-menu-herramientas" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#181818;border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
+  <div id="nav-menu-herramientas" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(0,0,0,0.45);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
     <div style="display:flex;flex-direction:column;gap:4px">
       <div onclick="navCerrarMenus();showPage('cronometros')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;cursor:pointer;border-bottom:1px solid #222">
         <img src="/images/icon-cronometro.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0">
@@ -2238,7 +2238,7 @@ async function compartirPlanNativo() {
 </div>
 
 <!-- NAV -->
-  <div style="background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid #2a2a2a;display:flex;flex-shrink:0">
+  <div style="background:var(--card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid #2a2a2a;display:flex;flex-shrink:0">
     <button onclick="tcTab('rutina')" id="tc-tab-rutina" style="flex:1;padding:12px 4px;border:none;background:transparent;color:#e31e24;font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid #e31e24">📋 Rutina</button>
     <button onclick="tcTab('alimentacion')" id="tc-tab-alimentacion" style="flex:1;padding:12px 4px;border:none;background:transparent;color:var(--texto-secundario);font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">🍖 Nutrición</button>
     <button onclick="tcTab('tools')" id="tc-tab-tools" style="flex:1;padding:12px 4px;border:none;background:transparent;color:var(--texto-secundario);font-size:11px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent">🛠 Tools</button>
