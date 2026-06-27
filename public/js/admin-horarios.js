@@ -57,7 +57,8 @@ let _horarioEditId = null;
 async function cargarHorarios(){
   const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
   const res = await fetch('/api/horarios?entrenador_id=' + _eid);
-  _horariosData = await res.json();
+  const _raw = await res.json();
+  _horariosData = (Array.isArray(_raw) || !_raw) ? {recurrentes:[], unicos:[]} : _raw;
   if(!_horariosData.recurrentes) _horariosData.recurrentes = [];
   if(!_horariosData.unicos) _horariosData.unicos = [];
 }
@@ -427,7 +428,6 @@ async function guardarHorario(){
   }
   if(!nombreCliente && !modoDisponible){ toast('Agrega un cliente o nombre de evento',false); return; }
 
-  await cargarHorarios();
 
   if(recurrente){
     const evento = { id: Date.now().toString(), clienteId:clienteId2||clienteId, nombreCliente, desc:desc2, inicio, fin, color, dias: _horarioDiasSel };

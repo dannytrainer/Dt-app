@@ -547,7 +547,7 @@ function encAbrirFicha(id) {
   var nc = e.nivel==="principiante"?"#64b5f6":e.nivel==="avanzado"?"#e31e24":"#4caf50";
   var nb = e.nivel==="principiante"?"#1a2a3a":e.nivel==="avanzado"?"#3a1a1a":"#1a3a1a";
   var html = "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px\">";
-  var volverFn = window._encDesdeRutina ? "window._encDesdeRutina=false;tcTab('rutina')" : "encMostrarLista()";
+  var volverFn = window._encDesdeRutina ? "window._encDesdeRutina=false;tcTab('rutina')" : window._encDesdeAdmin ? "window._encDesdeAdmin=false;if(window._encAdminVolver){window._encAdminVolver();}" : "encMostrarLista()";
   html += "<button onclick=\"" + volverFn + "\" style=\"background:#1a1a1a;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:14px\">&#8592;</button>";
   html += "<span style=\"font-size:13px;color:#666;flex:1\">Ficha tecnica</span>"; var _sa=JSON.parse(localStorage.getItem("dt_sesion")||"{}"); if(_sa.email==="danielgaviriabotero@gmail.com"){html += "<button onclick='encEditarFicha(&quot;"+id+"&quot;)' style=\"background:#e31e24;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:12px\">✏️ Editar</button>";}
   

@@ -1656,6 +1656,15 @@ async function gestionarPushAdmin() {
 <div id="msec-tests"></div>
 </div>
 </div>
+<div class="modal" id="modal-enc-ficha" style="z-index:10001">
+<div class="mc" style="padding-bottom:40px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<div class="mt">📖 Ficha del ejercicio</div>
+<button class="btn bg" style="padding:6px 14px" onclick="document.getElementById('modal-enc-ficha').classList.remove('open')">✕</button>
+</div>
+<div id="modal-enc-ficha-contenido"></div>
+</div>
+</div>
 <script src="/tests.js"></script>
 <script>window.addEventListener("load",function(){cargarTema();showPage("inicio");cargarNombreEntrenador();});</script>
 

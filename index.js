@@ -1069,7 +1069,7 @@ app.post('/api/alimentacion/:id/plan', (req, res) => {
 
 app.get('/api/horarios', (req, res) => {
   const eid = req.query.entrenador_id || 'ent_001';
-  res.json(cargarJSON('horarios_' + eid + '.json', []));
+  res.json(cargarJSON('horarios_' + eid + '.json', {recurrentes:[], unicos:[]}));
 });
 app.post('/api/horarios', (req, res) => {
   const eid = req.body.entrenador_id || 'ent_001';
@@ -2063,6 +2063,8 @@ app.post('/api/auth/registro', loginLimiter, (req, res) => {
       guardarJSON('usuarios.json', usuariosEnt);
     }
     // Arrancar worker WA para nuevo entrenador
+    guardarJSON('horarios_' + nuevo.id + '.json', {recurrentes:[], unicos:[]});
+    guardarJSON('administrativo_' + nuevo.id + '.json', {clientes:{}});
     conectarWhatsApp(nuevo.id, null);
     return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, email: nuevo.email, nombre: nuevo.nombre, roles: [{rol:'entrenador', id: nuevo.id, nombre: nuevo.nombre}, {rol:'cliente', id: null, nombre: nuevo.nombre}] });
   }

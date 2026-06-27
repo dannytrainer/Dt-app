@@ -691,7 +691,7 @@ setTimeout(()=>{
 },50);
 const ejs=d.ejercicios||[];
 let h='';
-ejs.forEach((e,i)=>{h+=`<div id="rut-drag-ej-${i}" draggable="true" ondragstart="rutDragStart(event,${i},'ej')" ondragover="rutDragOver(event,${i},'ej')" ondrop="rutDrop(event,${i},'ej')" ondragend="rutDragEnd(event)" style="background:var(--fondo);border:1px solid #222;border-radius:8px;padding:10px;margin-bottom:6px;cursor:grab"><div style="display:flex;gap:6px;margin-bottom:6px"><span ontouchstart="rutTouchStart(event,${i},'ej')" ontouchmove="rutTouchMove(event)" ontouchend="rutTouchEnd(event)" style="color:var(--texto-tenue);font-size:16px;padding:6px 4px;cursor:grab;touch-action:none">☰</span><input type="text" value="${e.nombre||''}" placeholder="Ejercicio" id="ej-${i}-n" style="flex:1;background:var(--card);border:1px solid #333;border-radius:6px;padding:8px;color:var(--texto);font-size:13px;outline:none"><button onclick="eliminarEjercicio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button></div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">${[['series','S','4'],['reps','Reps','8-10'],['rir','RIR','1-2'],['desc','DESC','60s'],['var','VAR','V1']].map(([f,label,ph])=>`<div><div style="font-size:9px;color:var(--texto-secundario);text-align:center;margin-bottom:2px">${label}</div><input type="text" id="ej-${i}-${f}" value="${e[f]||''}" placeholder="${ph}" style="width:100%;background:var(--card);border:1px solid #333;border-radius:6px;padding:6px;color:var(--texto);font-size:12px;text-align:center;outline:none"></div>`).join('')}</div></div>`;});
+ejs.forEach((e,i)=>{h+=`<div id="rut-drag-ej-${i}" draggable="true" ondragstart="rutDragStart(event,${i},'ej')" ondragover="rutDragOver(event,${i},'ej')" ondrop="rutDrop(event,${i},'ej')" ondragend="rutDragEnd(event)" style="background:var(--fondo);border:1px solid #222;border-radius:8px;padding:10px;margin-bottom:6px;cursor:grab"><div style="display:flex;gap:6px;margin-bottom:6px"><span ontouchstart="rutTouchStart(event,${i},'ej')" ontouchmove="rutTouchMove(event)" ontouchend="rutTouchEnd(event)" style="color:var(--texto-tenue);font-size:16px;padding:6px 4px;cursor:grab;touch-action:none">☰</span><div style="flex:1;position:relative"><input type="text" value="${e.nombre||''}" placeholder="Ejercicio" id="ej-${i}-n" oninput="entAutoComplete(this,${i})" style="width:100%;background:var(--card);border:1px solid #333;border-radius:6px;padding:8px;color:var(--texto);font-size:13px;outline:none;box-sizing:border-box"><div id="enc-suggest-${i}" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid #444;border-radius:0 0 8px 8px;z-index:9999;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4)"></div></div><button onclick="entVerEjercicio(${i})" style="background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:6px 8px;cursor:pointer;font-size:13px">👁️</button><button onclick="eliminarEjercicio(${i})" style="background:#3a0000;color:#e31e24;border:1px solid #e31e24;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button></div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">${[['series','S','4'],['reps','Reps','8-10'],['rir','RIR','1-2'],['desc','DESC','60s'],['var','VAR','V1']].map(([f,label,ph])=>`<div><div style="font-size:9px;color:var(--texto-secundario);text-align:center;margin-bottom:2px">${label}</div><input type="text" id="ej-${i}-${f}" value="${e[f]||''}" placeholder="${ph}" style="width:100%;background:var(--card);border:1px solid #333;border-radius:6px;padding:6px;color:var(--texto);font-size:12px;text-align:center;outline:none"></div>`).join('')}</div></div>`;});
 document.getElementById('rutina-form').innerHTML=`<div class="ig"><label>🏷️ Título</label><textarea id="rec-${diaSeleccionado}" placeholder="Escribe el título del dia...">${d.recordatorio||''}</textarea></div><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:10px 0 8px">📋 Ejercicios</div><div id="lista-ejs">${h}</div><button onclick="agregarEjercicio()" style="width:100%;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar ejercicio</button><div style="margin-top:10px"><button onclick="toggleCardio()" style="width:100%;background:var(--fondo);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer">🏃 Cardio</button><div id="panel-cardio" style="display:none;background:var(--fondo);border:1px solid #222;border-radius:8px;padding:10px;margin-top:6px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:8px">🏃 CARDIO</div><div id="lista-cardio"></div><button onclick="agregarCardio()" style="width:100%;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:4px">➕ Agregar momento de cardio</button></div></div><div style="margin-top:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700">📝 Notas</div><button id="chip-presencial" onclick="togglePresencial()" style="padding:5px 12px;border-radius:20px;border:1px solid #333;background:${d.presencial?'#e31e24':'#1a1a1a'};color:${d.presencial?'#fff':'#666'};font-size:10px;font-weight:700;cursor:pointer">🏟️ Presencial</button></div><textarea id="rut-${diaSeleccionado}" placeholder="Notas adicionales..." style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:13px;outline:none;min-height:80px">${d.rutina||''}</textarea></div>`;
 }
 
@@ -849,3 +849,139 @@ function showHerramienta(nombre){
   else c.innerHTML='<p style="color:var(--texto-secundario);text-align:center;padding:40px">🚧 Próximamente: '+nombre+'</p>';
 }
 
+
+
+// ── AUTOCOMPLETE EJERCICIOS ─────────────────────────────
+function encNombreLimpio(nombre) {
+  return nombre.replace(/^[A-Z]\d+\s+/i, '').trim();
+}
+
+function entAutoComplete(input, i) {
+  const q = input.value.trim().toLowerCase();
+  const cont = document.getElementById('enc-suggest-' + i);
+  if (!cont) return;
+  if (q.length < 2) { cont.style.display = 'none'; return; }
+  const lista = window._encEjercicios || [];
+  if (!lista.length) {
+    fetch('/api/enciclopedia').then(function(r){return r.json();}).then(function(data){
+      if (Array.isArray(data)) { window._encEjercicios = data; entAutoComplete(input, i); }
+    });
+    return;
+  }
+  const matches = lista.filter(function(e) {
+    const limpio = encNombreLimpio(e.nombre).toLowerCase();
+    const completo = e.nombre.toLowerCase();
+    return limpio.includes(q) || completo.includes(q);
+  }).slice(0, 6);
+  if (matches.length === 0) { cont.style.display = 'none'; return; }
+  cont.innerHTML = matches.map(function(e) {
+    const limpio = encNombreLimpio(e.nombre);
+    return '<div onclick="entSeleccionarEj(' + i + ',\'' + limpio.replace(/'/g,"\\'") + '\')" style="padding:10px 14px;border-bottom:1px solid #333;cursor:pointer;font-size:13px;color:var(--texto)">' + limpio + '</div>';
+  }).join('');
+  cont.style.display = 'block';
+}
+
+function entSeleccionarEj(i, nombre) {
+  const inp = document.getElementById('ej-' + i + '-n');
+  if (inp) inp.value = nombre;
+  const cont = document.getElementById('enc-suggest-' + i);
+  if (cont) cont.style.display = 'none';
+}
+
+function entVerEjercicio(i) {
+  const inp = document.getElementById('ej-' + i + '-n');
+  if (!inp || !inp.value.trim()) { alert('Escribe el nombre del ejercicio primero'); return; }
+  fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(inp.value.trim()))
+    .then(function(r){ return r.json(); })
+    .then(function(res) {
+      if (res.encontrado) {
+        const ej = res.ejercicio;
+        const cargar = function() {
+          const cont = document.getElementById('modal-enc-ficha-contenido');
+          if (!cont) return;
+          window._encEjercicios = window._encEjercicios || [];
+          if (!window._encEjercicios.find(function(x){ return x.id === ej.id; })) {
+            window._encEjercicios.push(ej);
+          }
+          window._encGrupos = window._encGrupos || [];
+          cont.innerHTML = '';
+          var modal = document.getElementById('modal-enc-ficha');
+          modal.classList.add('open');
+          encAbrirFichaModal(ej.id);
+        };
+        cargar();
+      } else {
+        alert('No se encontró ejercicio para: ' + inp.value.trim());
+      }
+    })
+    .catch(function(){ alert('Error al buscar ejercicio'); });
+}
+
+function encAbrirFichaModal(id) {
+  var e = (window._encEjercicios||[]).find(function(x){return x.id===id;});
+  if (!e) return;
+  var cont = document.getElementById('modal-enc-ficha-contenido');
+  if (!cont) return;
+  var gr = (window._encGrupos||[]).find(function(g){return g.id===e.grupo;});
+  var nc = e.nivel==='principiante'?'#64b5f6':e.nivel==='avanzado'?'#e31e24':'#4caf50';
+  var nb = e.nivel==='principiante'?'#1a2a3a':e.nivel==='avanzado'?'#3a1a1a':'#1a3a1a';
+  var html = '';
+  if (e.video_youtube) {
+    html += '<div style="position:relative;width:100%;padding-bottom:56.25%;margin-bottom:12px;border-radius:10px;overflow:hidden"><iframe src="' + e.video_youtube + '" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen></iframe></div>';
+  } else if (e.imagen_inicio || e.imagen_fin || e.imagen) {
+    var img1 = e.imagen_inicio || e.imagen || '';
+    var img2 = e.imagen_fin || e.imagen2 || e.imagen_inicio || e.imagen || '';
+    var filtro = (e.invertir === false || e.grupo === 'estiramientos') ? 'none' : 'invert(1)';
+    html += '<div style="background:#1a1a1a;border-radius:10px;overflow:hidden;margin-bottom:12px;text-align:center;padding:16px;position:relative">';
+    html += '<img id="enc-modal-anim-img" src="' + img1 + '" style="max-width:100%;height:280px;width:auto;object-fit:contain;filter:' + filtro + '" data-img1="' + img1 + '" data-img2="' + img2 + '">';
+    html += '<div style="position:absolute;bottom:6px;right:8px;font-size:10px;color:#e31e24;font-weight:700;opacity:0.7">DT-APP</div></div>';
+    if (img1 !== img2) {
+      setTimeout(function() {
+        var img = document.getElementById('enc-modal-anim-img');
+        if (!img) return;
+        var toggle = false;
+        setInterval(function() {
+          if (!document.getElementById('enc-modal-anim-img')) return;
+          toggle = !toggle;
+          img.src = toggle ? img.dataset.img2 : img.dataset.img1;
+        }, 1500);
+      }, 100);
+    }
+  }
+  html += '<div style="margin-bottom:14px">';
+  html += '<div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">' + (gr?gr.icon+' ':'') + e.grupo + (e.subgrupo?' - '+e.subgrupo:'') + '</div>';
+  html += '<div style="font-size:22px;font-weight:900;color:#fff;text-transform:uppercase;line-height:1.1;margin-bottom:8px">' + e.nombre + '</div>';
+  html += '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+  if (e.nivel) html += '<span style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;background:' + nb + ';color:' + nc + '">' + e.nivel + '</span>';
+  if (e.equipamiento) html += '<span style="padding:3px 8px;border-radius:4px;font-size:11px;background:#1e1e1e;color:var(--texto-medio);border:1px solid #333">' + e.equipamiento + '</span>';
+  html += '</div></div>';
+  if ((e.musculos_principales||[]).length > 0 || (e.musculos_secundarios||[]).length > 0) {
+    html += '<div style="margin-bottom:16px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Musculos</div><div style="display:flex;flex-wrap:wrap;gap:6px">';
+    (e.musculos_principales||[]).forEach(function(m){html += '<span style="padding:4px 10px;border-radius:6px;font-size:12px;background:rgba(227,30,36,0.15);border:1px solid rgba(227,30,36,0.4);color:#ff6b6b">&#11088; ' + m + '</span>';});
+    (e.musculos_secundarios||[]).forEach(function(m){html += '<span style="padding:4px 10px;border-radius:6px;font-size:12px;background:var(--gris);border:1px solid var(--borde);color:var(--texto-suave)">' + m + '</span>';});
+    html += '</div></div>';
+  }
+  if ((e.ejecucion||[]).length > 0) {
+    html += '<div style="margin-bottom:16px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Ejecucion</div>';
+    e.ejecucion.forEach(function(paso,i){
+      html += '<div style="display:flex;gap:10px;margin-bottom:10px"><div style="width:24px;height:24px;background:#e31e24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px">' + (i+1) + '</div><div style="font-size:13px;color:var(--texto-suave);line-height:1.5">' + paso + '</div></div>';
+    });
+    html += '</div>';
+  }
+  if ((e.errores_comunes||[]).length > 0) {
+    html += '<div style="margin-bottom:16px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Errores comunes</div>';
+    e.errores_comunes.forEach(function(err){
+      html += '<div style="display:flex;gap:8px;margin-bottom:8px"><span style="color:#ffab40;font-size:14px;flex-shrink:0">&#9888;</span><div style="font-size:13px;color:var(--texto-suave);line-height:1.5">' + err + '</div></div>';
+    });
+    html += '</div>';
+  }
+  if ((e.variantes||[]).length > 0) {
+    html += '<div style="margin-bottom:16px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Variantes</div><div style="display:flex;gap:8px;flex-wrap:wrap">';
+    e.variantes.forEach(function(v){
+      var ve = (window._encEjercicios||[]).find(function(x){return x.id===v;});
+      html += '<div style="padding:6px 12px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;font-size:12px;color:#fff">' + (ve?ve.nombre:v) + '</div>';
+    });
+    html += '</div></div>';
+  }
+  cont.innerHTML = html;
+}

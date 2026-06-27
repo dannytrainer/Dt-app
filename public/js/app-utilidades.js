@@ -523,18 +523,35 @@ function tcRenderEnciclopedia(c) {
 }
 
 function tcVerEnciclopedia(id) {
-  window._encDesdeRutina = true;
-  tcTab('tools');
-  setTimeout(function(){
-    tcToolAbrirHerr('enciclopedia');
-    setTimeout(function(){
-      if (window._encEjercicios && window._encEjercicios.length > 0) {
-        encAbrirFicha(id);
-      } else {
-        setTimeout(function(){ encAbrirFicha(id); }, 1500);
-      }
-    }, 500);
-  }, 200);
+  var cargar = function() {
+    var ej = (window._encEjercicios||[]).find(function(x){ return x.id === id; });
+    if (!ej) {
+      fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(id))
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+          if (res.encontrado) {
+            window._encEjercicios = window._encEjercicios || [];
+            window._encEjercicios.push(res.ejercicio);
+            tcVerEnciclopedia(id);
+          }
+        });
+      return;
+    }
+    var cont = document.getElementById('modal-enc-ficha-contenido');
+    if (!cont) return;
+    var modal = document.getElementById('modal-enc-ficha');
+    if (!modal) return;
+    modal.classList.add('open');
+    encAbrirFichaModal(id);
+  };
+  if (!window._encEjercicios || window._encEjercicios.length === 0) {
+    fetch('/api/enciclopedia').then(function(r){ return r.json(); }).then(function(data){
+      if (Array.isArray(data)) { window._encEjercicios = data; }
+      cargar();
+    });
+  } else {
+    cargar();
+  }
 }
 
 function mostrarRecomendacionesMacros() {
@@ -1678,3 +1695,76 @@ function tcToggleSonidos(btn) {
   btn.style.background = sonidos ? '#e31e24' : '#1a1a1a';
 }
 
+
+
+
+
+
+function encAbrirFichaModal(id) {
+  var e = (window._encEjercicios||[]).find(function(x){return x.id===id;});
+  if (!e) return;
+  var cont = document.getElementById('modal-enc-ficha-contenido');
+  if (!cont) return;
+  var gr = (window._encGrupos||[]).find(function(g){return g.id===e.grupo;});
+  var nc = e.nivel==='principiante'?'#64b5f6':e.nivel==='avanzado'?'#e31e24':'#4caf50';
+  var nb = e.nivel==='principiante'?'#1a2a3a':e.nivel==='avanzado'?'#3a1a1a':'#1a3a1a';
+  var html = '';
+  if (e.video_youtube) {
+    html += '<div style="position:relative;width:100%;padding-bottom:56.25%;margin-bottom:12px;border-radius:10px;overflow:hidden"><iframe src="' + e.video_youtube + '" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen></iframe></div>';
+  } else if (e.imagen_inicio || e.imagen_fin || e.imagen) {
+    var img1 = e.imagen_inicio || e.imagen || '';
+    var img2 = e.imagen_fin || e.imagen2 || e.imagen_inicio || e.imagen || '';
+    var filtro = (e.invertir === false || e.grupo === 'estiramientos') ? 'none' : 'invert(1)';
+    html += '<div style="background:#1a1a1a;border-radius:10px;overflow:hidden;margin-bottom:12px;text-align:center;padding:16px;position:relative">';
+    html += '<img id="enc-modal-anim-img" src="' + img1 + '" style="max-width:100%;height:280px;width:auto;object-fit:contain;filter:' + filtro + '" data-img1="' + img1 + '" data-img2="' + img2 + '">';
+    html += '<div style="position:absolute;bottom:6px;right:8px;font-size:10px;color:#e31e24;font-weight:700;opacity:0.7">DT-APP</div></div>';
+    if (img1 !== img2) {
+      setTimeout(function() {
+        var img = document.getElementById('enc-modal-anim-img');
+        if (!img) return;
+        var toggle = false;
+        setInterval(function() {
+          if (!document.getElementById('enc-modal-anim-img')) return;
+          toggle = !toggle;
+          img.src = toggle ? img.dataset.img2 : img.dataset.img1;
+        }, 1500);
+      }, 100);
+    }
+  }
+  html += '<div style="margin-bottom:14px">';
+  html += '<div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">' + (gr?gr.icon+' ':'') + e.grupo + (e.subgrupo?' - '+e.subgrupo:'') + '</div>';
+  html += '<div style="font-size:22px;font-weight:900;color:#fff;text-transform:uppercase;line-height:1.1;margin-bottom:8px">' + e.nombre + '</div>';
+  html += '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+  if (e.nivel) html += '<span style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;background:' + nb + ';color:' + nc + '">' + e.nivel + '</span>';
+  if (e.equipamiento) html += '<span style="padding:3px 8px;border-radius:4px;font-size:11px;background:#1e1e1e;color:var(--texto-medio);border:1px solid #333">' + e.equipamiento + '</span>';
+  html += '</div></div>';
+  if ((e.musculos_principales||[]).length > 0 || (e.musculos_secundarios||[]).length > 0) {
+    html += '<div style="margin-bottom:16px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Musculos</div><div style="display:flex;flex-wrap:wrap;gap:6px">';
+    (e.musculos_principales||[]).forEach(function(m){html += '<span style="padding:4px 10px;border-radius:6px;font-size:12px;background:rgba(227,30,36,0.15);border:1px solid rgba(227,30,36,0.4);color:#ff6b6b">&#11088; ' + m + '</span>';});
+    (e.musculos_secundarios||[]).forEach(function(m){html += '<span style="padding:4px 10px;border-radius:6px;font-size:12px;background:var(--gris);border:1px solid var(--borde);color:var(--texto-suave)">' + m + '</span>';});
+    html += '</div></div>';
+  }
+  if ((e.ejecucion||[]).length > 0) {
+    html += '<div style="margin-bottom:16px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Ejecucion</div>';
+    e.ejecucion.forEach(function(paso,i){
+      html += '<div style="display:flex;gap:10px;margin-bottom:10px"><div style="width:24px;height:24px;background:#e31e24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px">' + (i+1) + '</div><div style="font-size:13px;color:var(--texto-suave);line-height:1.5">' + paso + '</div></div>';
+    });
+    html += '</div>';
+  }
+  if ((e.errores_comunes||[]).length > 0) {
+    html += '<div style="margin-bottom:16px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Errores comunes</div>';
+    e.errores_comunes.forEach(function(err){
+      html += '<div style="display:flex;gap:8px;margin-bottom:8px"><span style="color:#ffab40;font-size:14px;flex-shrink:0">&#9888;</span><div style="font-size:13px;color:var(--texto-suave);line-height:1.5">' + err + '</div></div>';
+    });
+    html += '</div>';
+  }
+  if ((e.variantes||[]).length > 0) {
+    html += '<div style="margin-bottom:16px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Variantes</div><div style="display:flex;gap:8px;flex-wrap:wrap">';
+    e.variantes.forEach(function(v){
+      var ve = (window._encEjercicios||[]).find(function(x){return x.id===v;});
+      html += '<div style="padding:6px 12px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;font-size:12px;color:#fff">' + (ve?ve.nombre:v) + '</div>';
+    });
+    html += '</div></div>';
+  }
+  cont.innerHTML = html;
+}
