@@ -1812,23 +1812,23 @@ async function gestionarPushAdmin() {
 
   <div id="nav-menu-funciones" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--fondo);border-top:1px solid #2a2a2a;border-radius:20px 20px 0 0;z-index:998;padding:16px 12px">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-      <div onclick="closeNavMenus();showPage('clientes')" style="text-align:center;cursor:pointer">
+      <div onclick="navCerrarMenus();showPage('clientes')" style="text-align:center;cursor:pointer">
         <img src="/images/icon-clientes.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
         <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Clientes</div>
       </div>
-      <div onclick="closeNavMenus();showPage('rutinas')" style="text-align:center;cursor:pointer">
+      <div onclick="navCerrarMenus();showPage('rutinas')" style="text-align:center;cursor:pointer">
         <img src="/images/icon-rutinas.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
         <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Rutinas</div>
       </div>
-      <div onclick="closeNavMenus();showPage('enviar')" style="text-align:center;cursor:pointer">
+      <div onclick="navCerrarMenus();showPage('enviar')" style="text-align:center;cursor:pointer">
         <img src="/images/icon-comunicacion.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
         <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Enviar</div>
       </div>
-      <div onclick="closeNavMenus();showPage('admin')" style="text-align:center;cursor:pointer">
+      <div onclick="navCerrarMenus();showPage('admin')" style="text-align:center;cursor:pointer">
         <img src="/images/icon-administrativo.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
         <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Administrativo</div>
       </div>
-      <div onclick="closeNavMenus();showPage('horarios')" style="text-align:center;cursor:pointer">
+      <div onclick="navCerrarMenus();showPage('horarios')" style="text-align:center;cursor:pointer">
         <img src="/images/icon-horarios.png" style="width:52px;height:52px;object-fit:contain;border-radius:10px">
         <div style="font-size:10px;color:var(--texto-suave);margin-top:4px;font-weight:600">Horarios</div>
       </div>
@@ -1887,7 +1887,7 @@ function toggleNavMenu(menu) {
     funciones.style.display = 'none';
   }
 }
-function closeNavMenus() {
+function navCerrarMenus() {
   document.getElementById('nav-menu-funciones').style.display = 'none';
   document.getElementById('nav-menu-herramientas').style.display = 'none';
 }
