@@ -50,7 +50,7 @@ function renderCompetencias(c) {
 }
 
 async function verRankingCategoria(cat) {
-  var c = document.getElementById('herramienta-contenido');
+  var c = (window._compContenedor || document.getElementById('competencias-contenido') || document.getElementById('herramienta-contenido'));
   c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--texto-secundario)">⏳ Cargando ranking...</div>';
   var cats = {
     atleta:  {icon:'<img src="/images/comp-mejor-atleta.png" style="width:36px;height:36px;object-fit:contain">', label:'Mejor Atleta',     color:'#e31e24'},
@@ -63,7 +63,12 @@ async function verRankingCategoria(cat) {
   var info = cats[cat];
   var usuarios = (window._usuariosCargados || []).filter(function(u){return u.activo;});
   if (!usuarios.length) {
-    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--texto-secundario)">Sin usuarios activos</div>';
+    var eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+    fetch('/api/usuarios?entrenador_id=' + eid).then(function(r){return r.json();}).then(function(data){
+      window._usuariosCargados = data;
+      renderCopas(cat, c);
+    });
+    c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--texto-secundario)">Cargando usuarios...</div>';
     return;
   }
   var ranking = [];
@@ -178,7 +183,7 @@ async function verRankingCategoria(cat) {
 }
 
 function verRankingPersonalizado() {
-  var c = document.getElementById('herramienta-contenido');
+  var c = (window._compContenedor || document.getElementById('competencias-contenido') || document.getElementById('herramienta-contenido'));
   var usuarios = (window._usuariosCargados || []).filter(function(u){return u.activo;});
   var listaU = '';
   for (var i=0; i<usuarios.length; i++) {
@@ -282,7 +287,7 @@ var _compExtMetricas = {
 
 // ── LISTAR COMPETENCIAS ──────────────────────────────────────────────────────
 async function verCompetenciasExternas() {
-  var c = document.getElementById('herramienta-contenido');
+  var c = (window._compContenedor || document.getElementById('competencias-contenido') || document.getElementById('herramienta-contenido'));
   try {
     var res = await fetch('/api/competencias');
     _compExt = await res.json();
@@ -319,7 +324,7 @@ async function verCompetenciasExternas() {
 function _crearCompExt() {
   if(!entEsPremium()){mostrarCandadoPremium('Crear competencias requiere Plan Premium.');return;}
   _compPruebasSeleccionadas = [];
-  var c = document.getElementById('herramienta-contenido');
+  var c = (window._compContenedor || document.getElementById('competencias-contenido') || document.getElementById('herramienta-contenido'));
 
   // Construir selector de pruebas agrupado
   var grupos = {};
@@ -572,7 +577,7 @@ function _calcularPuntosComp(comp) {
 function _renderCompExtDetalle() {
   var comp = _compExtActual;
   if (!comp) return;
-  var c = document.getElementById('herramienta-contenido');
+  var c = (window._compContenedor || document.getElementById('competencias-contenido') || document.getElementById('herramienta-contenido'));
   var pruebas  = comp.pruebas || [];
   var sistema  = comp.sistemaPuntos || 'ranking';
   var sistLabel = sistema==='ranking'?'Ranking':(sistema==='porcentaje'?'% del mejor':'Puntos fijos');
@@ -711,7 +716,7 @@ function _renderCompExtDetalle() {
 function _agregarParticipanteExt(editIdx) {
   var comp = _compExtActual;
   if (!comp) return;
-  var c = document.getElementById('herramienta-contenido');
+  var c = (window._compContenedor || document.getElementById('competencias-contenido') || document.getElementById('herramienta-contenido'));
   var pruebas = comp.pruebas || [];
   var partic  = (editIdx !== undefined) ? comp.participantes[editIdx] : null;
 
@@ -821,7 +826,7 @@ var _prMeta = {
   }
 };
 
-function _prContenedor() { return document.getElementById('herramienta-contenido'); }
+function _prContenedor() { return (window._compContenedor || document.getElementById('competencias-contenido') || document.getElementById('herramienta-contenido')); }
 function _prTipoActual() { var s=document.getElementById('pr-ejercicio-sel'); return s?s.getAttribute('data-tipo'):''; }
 
 async function verPRCategoria(tipo) {

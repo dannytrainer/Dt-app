@@ -17,28 +17,28 @@ function renderJuegos(c) {
     <div style="margin-bottom:16px">
       <div style="font-size:11px;font-weight:700;color:#e31e24;text-transform:uppercase;margin-bottom:12px">🎮 Juegos</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="card" onclick="renderTriqui(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
+        <div class="card" onclick="renderTriqui((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')))" style="cursor:pointer;text-align:center;padding:16px 10px">
           <div style="font-size:28px;margin-bottom:6px">✕○</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Triqui</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">2 jugadores</div>
         </div>
-        <div class="card" onclick="renderSnake(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
+        <div class="card" onclick="renderSnake((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')))" style="cursor:pointer;text-align:center;padding:16px 10px">
           <div style="font-size:28px;margin-bottom:6px">🐍</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Snake</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Esquiva y crece</div>
         </div>
-        <div class="card" onclick="renderMemoria(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
+        <div class="card" onclick="renderMemoria((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')))" style="cursor:pointer;text-align:center;padding:16px 10px">
           <div style="font-size:28px;margin-bottom:6px">🧠</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">Memoria</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">Encuentra los pares</div>
         </div>
-        <div class="card" onclick="renderHockey(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px">
+        <div class="card" onclick="renderHockey((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')))" style="cursor:pointer;text-align:center;padding:16px 10px">
           <div style="font-size:28px;margin-bottom:6px">🏒</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">DT Hockey</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">2 jugadores</div>
         </div>
         </div>
-        <div class="card" onclick="(localStorage.getItem('dt_rol')==='cliente'&&!tcEsPremium())?tcMostrarPremium():renderInvaders(document.getElementById('herramienta-contenido'))" style="cursor:pointer;text-align:center;padding:16px 10px;grid-column:1/-1">
+        <div class="card" onclick="(localStorage.getItem('dt_rol')==='cliente'&&!tcEsPremium())?tcMostrarPremium():renderInvaders((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')))" style="cursor:pointer;text-align:center;padding:16px 10px;grid-column:1/-1">
           <div style="font-size:28px;margin-bottom:6px">👾</div>
           <div style="font-size:13px;font-weight:700;color:var(--texto)">DT Invaders ⭐</div>
           <div style="font-size:10px;color:var(--texto-secundario);margin-top:3px">100 niveles — Derrota al Sedentario Supremo</div>
@@ -50,7 +50,7 @@ function renderJuegos(c) {
 function renderHockey(c) {
   bloquearSwipe();
   c.innerHTML = `
-    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
+    <button onclick="renderJuegos((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div style="text-align:center;flex:1">
         <div id="hk-score1" style="font-size:32px;font-weight:700;color:#3b82f6">0</div>
@@ -233,7 +233,7 @@ function renderInvaders(c) {
   var scoreGuardado = parseInt(localStorage.getItem('inv_score')||0);
   var mejor = parseInt(localStorage.getItem('inv_mejor')||0);
   c.innerHTML = `
-    <button onclick="desbloquearSwipe();renderJuegos(document.getElementById('herramienta-contenido'));invStop();" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:12px">← Juegos</button>
+    <button onclick="desbloquearSwipe();renderJuegos((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')));invStop();" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:12px">← Juegos</button>
     <div style="text-align:center;padding:16px 0 8px">
       <div style="font-size:28px;font-weight:900;color:#e31e24;letter-spacing:2px;text-shadow:0 0 20px #e31e2488">DT INVADERS</div>
       <div style="font-size:11px;color:#666;margin-top:4px;letter-spacing:1px">DERROTA AL SEDENTARIO SUPREMO</div>
@@ -593,7 +593,7 @@ function invEmpezar() {
   var c = document.getElementById('inv-contenido');
   if(!c) return;
   c.innerHTML = `
-    <button onclick="desbloquearSwipe();renderJuegos(document.getElementById('herramienta-contenido'));invStop();"  style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:8px">← Juegos</button>
+    <button onclick="desbloquearSwipe();renderJuegos((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')));invStop();"  style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:8px">← Juegos</button>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
       <div style="font-size:11px;color:var(--texto-secundario)">Nivel <span id="inv-nivel" style="color:#e31e24;font-weight:700">1</span></div>
       <div style="font-size:13px;font-weight:700;color:#f59e0b">⭐ <span id="inv-score">0</span></div>
@@ -1856,7 +1856,7 @@ function penFin() {
 function renderSnake(c) {
   bloquearSwipe();
   c.innerHTML = `
-    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
+    <button onclick="renderJuegos((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
     <div style="text-align:center;margin-bottom:10px">
       <div style="font-size:15px;font-weight:700;color:var(--texto)">Snake DT</div>
     </div>
@@ -2067,7 +2067,7 @@ function skDraw() {
 function renderMemoria(c) {
   bloquearSwipe();
   c.innerHTML = `
-    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
+    <button onclick="renderJuegos((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:10px">← Juegos</button>
     <div style="text-align:center;margin-bottom:12px">
       <div style="font-size:15px;font-weight:700;color:var(--texto)">Memoria DT</div>
       <div style="font-size:11px;color:var(--texto-secundario);margin-top:3px">Encuentra todos los pares</div>
@@ -2213,7 +2213,7 @@ function memGanar() {
 function renderTriqui(c) {
   bloquearSwipe();
   c.innerHTML = `
-    <button onclick="renderJuegos(document.getElementById('herramienta-contenido'))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:14px">← Juegos</button>
+    <button onclick="renderJuegos((window._juegosContenedor || document.getElementById('juegos-contenido') || document.getElementById('herramienta-contenido')))" style="background:var(--gris);color:var(--texto-secundario);border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;margin-bottom:14px">← Juegos</button>
     <div style="text-align:center;margin-bottom:12px">
       <div style="font-size:15px;font-weight:700;color:var(--texto)">Triqui DT</div>
       <div id="triqui-status" style="font-size:12px;color:var(--texto-secundario);margin-top:4px">Turno: 🏋️ Entrenador</div>
