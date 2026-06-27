@@ -1103,7 +1103,12 @@ function generarRecibo(){
   const ridx = window._reciboIdx !== undefined ? window._reciboIdx : pagos.length-1;
   const p = pagos.length ? [...pagos].reverse()[ridx] : {};
   const nombreEntrenador = (window._configApp&&window._configApp.nombre_entrenador)||(window._config&&window._config.nombre_entrenador)||(window._adminData&&window._adminData.config&&window._adminData.config.nombre_entrenador)||'DT-APP';
-  const logoSrc = (window._configApp&&window._configApp.logo_entrenador)||(window._config&&window._config.logo_entrenador)||(window._adminData&&window._adminData.config&&window._adminData.config.logo_entrenador)||'/logo_trainer.png';
+  const _eid_rec = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  const _cfgRec = (window._adminData&&window._adminData.config)||{};
+  if (!_cfgRec.logo_entrenador) {
+    try { const _r = await fetch('/api/config?entrenador_id='+_eid_rec); const _d = await _r.json(); Object.assign(_cfgRec, _d); if(!window._adminData) window._adminData={config:{}}; Object.assign(window._adminData.config, _d); } catch(e){}
+  }
+  const logoSrc = _cfgRec.logo_entrenador || '/logo_trainer.png';
 
   const W = 420, H = 820;
   const canvas = document.createElement('canvas');

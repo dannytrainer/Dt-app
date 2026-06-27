@@ -11,6 +11,8 @@ async function subirLogo(input){
   if(!file)return;
   const form=new FormData();
   form.append('logo',file);
+  const _eid_logo=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  form.append('entrenador_id',_eid_logo);
   try{
     const r=await fetch('/api/config/logo',{method:'POST',body:form});
     const d=await r.json();
