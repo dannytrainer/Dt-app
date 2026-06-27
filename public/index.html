@@ -88,6 +88,8 @@ button[onclick="abrirConfig()"]{background:transparent!important;border:none!imp
 body.modo-claro{--fondo:#f0f0f0;--card:#ffffff;--gris:#e0e0e0;--gris2:#d0d0d0;color:#111!important}
 body.modo-claro .card{border-color:var(--texto-suave)}
 body.modo-claro input,body.modo-claro select,body.modo-claro textarea{background:#fff!important;color:#111!important;border-color:var(--texto-suave)!important}
+#modal-horario input,#modal-horario select,#modal-horario textarea{background:#1a1a1a!important;color:#fff!important;border-color:#444!important}
+body.modo-claro #modal-horario input,body.modo-claro #modal-horario select,body.modo-claro #modal-horario textarea{background:#fff!important;color:#111!important;border-color:#999!important}
 body.modo-claro .bg{background:var(--gris2);color:#111}
 body.modo-claro #app-header{background:#fff!important;border-bottom:1px solid #ddd}
 body.modo-claro #app-header h1,body.modo-claro #app-header p,body.modo-claro #app-header div{color:#111!important}
@@ -1132,7 +1134,7 @@ async function gestionarPushAdmin() {
     <!-- Modo cliente -->
     <div id="h-modo-cliente">
       <div class="ig"><label>Cliente</label>
-        <select id="h-cliente" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;-webkit-appearance:none;appearance:none">
+        <select id="h-cliente" style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;-webkit-appearance:none;appearance:none">
           <option value="">— Seleccionar cliente —</option>
         </select>
       </div>
@@ -1141,23 +1143,23 @@ async function gestionarPushAdmin() {
     <!-- Modo disponible -->
     <div id="h-modo-disponible" style="display:none">
       <div class="ig"><label>Descripción (opcional)</label>
-        <input type="text" id="h-disponible-desc" placeholder="Ej: Disponible para clase personalizada..." style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;box-sizing:border-box">
+        <input type="text" id="h-disponible-desc" placeholder="Ej: Disponible para clase personalizada..." style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;box-sizing:border-box">
       </div>
     </div>
 
     <!-- Modo evento -->
     <div id="h-modo-evento" style="display:none">
       <div class="ig"><label>Nombre del evento</label>
-        <input type="text" id="h-desc" placeholder="Ej: Clase grupal, Test físico, Semipersonalizado..." style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;box-sizing:border-box">
+        <input type="text" id="h-desc" placeholder="Ej: Clase grupal, Test físico, Semipersonalizado..." style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;box-sizing:border-box">
       </div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="ig"><label>Hora inicio</label>
-        <select id="h-inicio" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;-webkit-appearance:none;appearance:none"></select>
+        <select id="h-inicio" style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;-webkit-appearance:none;appearance:none"></select>
       </div>
       <div class="ig"><label>Hora fin</label>
-        <select id="h-fin" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;-webkit-appearance:none;appearance:none"></select>
+        <select id="h-fin" style="width:100%;background:var(--fondo);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto);font-size:14px;outline:none;-webkit-appearance:none;appearance:none"></select>
       </div>
     </div>
 
