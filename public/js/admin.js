@@ -8,8 +8,8 @@ if(hPanel&&hPanel.style.display!=='none'){
   const st=document.querySelector('#page-logs .st');
   if(st){st.style.display='block';if(st.nextElementSibling)st.nextElementSibling.style.display='grid';}
 }
-desbloquearSwipe();
-navCerrarMenus();
+if(typeof desbloquearSwipe === 'function') desbloquearSwipe();
+if(typeof navCerrarMenus === 'function') navCerrarMenus();
 // Detener todos los loops de juegos
 window._juegoActivo=false;
 if(window._hk) window._hk.activo=false;
@@ -1093,7 +1093,7 @@ async function registrarPago(id){
   abrirAdminCliente(id);
 }
 
-function generarRecibo(){
+async function generarRecibo(){
   const id = window._reciboClienteId;
   if(!id) return;
   const u = (window._adminUsuarios||[]).find(x=>String(x.id)===String(id));
