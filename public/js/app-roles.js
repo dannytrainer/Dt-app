@@ -50,7 +50,8 @@ function loginEntrenador() {
       const emailUsado = document.getElementById('input-email-entrenador') ? document.getElementById('input-email-entrenador').value : 'danielgaviriabotero@gmail.com';
       data.email = data.email || emailUsado;
       data.roles = data.roles || [{rol:'entrenador',id:data.id},{rol:'cliente',id:null}];
-      localStorage.setItem('dt_sesion', JSON.stringify(data));
+      alert('login nativo dt_sesion:'+JSON.stringify({id:data.id,rol:data.rol,email:data.email}));
+localStorage.setItem('dt_sesion', JSON.stringify(data));
       setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
       localStorage.setItem(ROL_KEY, data.rol || 'entrenador');
       mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
@@ -58,7 +59,8 @@ function loginEntrenador() {
     } else {
       document.getElementById('error-pass').style.display = 'block';
     }
-  }).catch(() => {
+  }).catch((err) => {
+    alert('catch error:'+err);
     if (pass === PASS_ENTRENADOR) {
       localStorage.setItem(ROL_KEY, 'entrenador');
       localStorage.setItem('dt_sesion', JSON.stringify({email:'danielgaviriabotero@gmail.com', rol:'entrenador'}));
