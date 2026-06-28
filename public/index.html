@@ -2612,6 +2612,8 @@ function salirARol() {
       .then(r=>r.json()).then(d => {
         d.email = d.email || sesion.email;
         d.nombre = d.nombre || sesion.nombre || sesion.email;
+        d._skipAutoRol = true;
+        localStorage.setItem('dt_google_data', JSON.stringify(d));
         mostrarSeleccionRol(d);
       }).catch(() => mostrarPantalla('pantalla-rol'));
   } else {
@@ -2623,7 +2625,10 @@ function cerrarSesion() {
   const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   const email = sesion.email;
   const nombre = sesion.nombre;
-  ['dt_rol','dt_cliente_tel','dt_cliente_id','dt_sesion','dt_ultimo_rol'].forEach(k => localStorage.removeItem(k));
+  ['dt_rol','dt_cliente_tel','dt_cliente_id','dt_ultimo_rol'].forEach(k => localStorage.removeItem(k));
+  const _s=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  delete _s.rol;
+  localStorage.setItem('dt_sesion',JSON.stringify(_s));
   if (email) {
     fetch('/api/auth/roles?email=' + encodeURIComponent(email))
       .then(r => r.json())

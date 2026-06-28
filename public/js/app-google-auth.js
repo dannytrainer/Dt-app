@@ -84,6 +84,13 @@ async function seleccionarRolGoogle(r) {
   const googleData = JSON.parse(localStorage.getItem('dt_google_data') || '{}');
   const sesionActual = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   const data = Object.assign({}, googleData);
+  // Si googleData vacío, usar sesionActual o r
+  if(!data.roles && sesionActual.roles) data.roles = sesionActual.roles;
+  if(!data.roles && r.roles) data.roles = r.roles;
+  if(!data.email && sesionActual.email) data.email = sesionActual.email;
+  if(!data.email && r.email) data.email = r.email;
+  if(!data.nombre && sesionActual.nombre) data.nombre = sesionActual.nombre;
+  if(!data.nombre && r.nombre) data.nombre = r.nombre;
   let rolData = r;
   // Si es usuario nuevo o no tiene ese rol, crearlo en el backend
   if (!r.id) {

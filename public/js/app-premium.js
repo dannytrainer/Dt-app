@@ -64,7 +64,7 @@ function entPagarPremiumModal() {
 function mostrarApp() {
   cargarConfigEntrenador();
   actualizarNombreEntrenador();
-  setTimeout(()=>{ if(typeof showPage==='function') showPage('inicio'); }, 200);
+  setTimeout(()=>{ if(typeof showPage==='function') showPage('inicio'); }, 600);
   ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente'].forEach(p => {
     document.getElementById(p).style.display = 'none';
   });
