@@ -1608,7 +1608,7 @@ function tcAbrirConfig() {
   document.body.appendChild(el);
 
   if (uid) {
-    fetch('/api/admin/' + uid + '?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(function(r){ return r.json(); }).then(function(d) {
+    fetch('/api/admin/' + uid + '?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(function(r){ return r.json(); }).then(function(d) {
       var box = document.getElementById('tc-config-pago-ent');
       var usr = window._tcUsuario || {};
       var estado = usr.estado_pago || 'aldia';

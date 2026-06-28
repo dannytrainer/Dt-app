@@ -142,7 +142,7 @@ async function abrirChatEntrenador() {
   document.getElementById('chat-ent-lista').style.flexDirection = 'column';
   document.getElementById('chat-ent-individual').style.display = 'none';
   if (!window._adminUsuarios || window._adminUsuarios.length === 0) {
-    window._adminUsuarios = await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).catch(()=>[]);
+    window._adminUsuarios = await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()).catch(()=>[]);
   }
   cargarListaChatClientes();
 }

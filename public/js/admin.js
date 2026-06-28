@@ -75,7 +75,7 @@ function cobroAutoActualizarUI(activo){
 }
 async function cargarCobroAutoEstado(){
   try{
-    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
     const cfg = await fetch('/api/config?entrenador_id='+eid).then(r=>r.json());
     const activo = cfg.cobro_auto_activo !== false;
     cobroAutoActualizarUI(activo);
@@ -88,7 +88,7 @@ async function toggleCobroAuto(){
     return;
   }
   try{
-    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
     const cfg = await fetch('/api/config?entrenador_id='+eid).then(r=>r.json());
     const nuevoEstado = cfg.cobro_auto_activo === false ? true : false;
     await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entrenador_id:eid, cobro_auto_activo:nuevoEstado})});
@@ -106,7 +106,7 @@ async function enviarCobroManual(id){
   if(!msg){ toast('⚠️ Escribe un mensaje de cobro primero',false); return; }
   if(!u.telefono){ toast('⚠️ Cliente sin teléfono registrado',false); return; }
   try{
-    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
     const res = await fetch('/api/enviar',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -125,9 +125,9 @@ const MONEDAS = ['COP','USD','EUR','GBP','MXN','ARS','BRL','PEN','CLP'];
 async function cargarAdmin(){
   try{
     const [usuarios, adminData, configData] = await Promise.all([
-      fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()),
-      fetch('/api/admin?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()),
-      fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json())
+      fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()),
+      fetch('/api/admin?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()),
+      fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json())
     ]);
     window._adminUsuarios = usuarios;
     window._adminData = adminData;
@@ -146,7 +146,7 @@ function showAdminTab(tab){
   if(tab==='dashboard') c.innerHTML=renderAdminDashboard();
   else if(tab==='clientes') c.innerHTML=renderAdminClientes();
   else if(tab==='config') {
-    fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg=>{
+    fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()).then(cfg=>{
       if(!window._adminData) window._adminData={};
       window._adminData.config = cfg;
       c.innerHTML=renderAdminConfig();
@@ -722,7 +722,7 @@ let _waQRInstance = null;
 let _waQRTexto = null;
 
 async function cargarEstadoWA() {
-  const entId = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+  const entId = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
   try {
     const res = await fetch('/api/wa/estado?entrenador_id=' + entId);
     const data = await res.json();
@@ -887,7 +887,7 @@ async function desconectarMiWhatsApp() {
 }
 
 function cargarCodigoVinc() {
-  fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg=>{
+  fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()).then(cfg=>{
     const el = document.getElementById('vinc-codigo-txt');
     if (el && cfg.codigo_vinculacion) el.textContent = cfg.codigo_vinculacion;
     const el2 = document.getElementById('admin-codigo-vinc-txt');
@@ -1059,7 +1059,7 @@ async function guardarAdminCliente(id){
   if(typeof cargarInicio === 'function') cargarInicio();
   // Refrescar datos completos del módulo admin para que persista al navegar
   try {
-    const eidR=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const eidR=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
     const usuariosFrescos = await fetch('/api/usuarios?entrenador_id='+eidR).then(r=>r.json());
     window._adminUsuarios = usuariosFrescos;
   } catch(e) {}
@@ -1103,7 +1103,7 @@ async function generarRecibo(){
   const ridx = window._reciboIdx !== undefined ? window._reciboIdx : pagos.length-1;
   const p = pagos.length ? [...pagos].reverse()[ridx] : {};
   const nombreEntrenador = (window._configApp&&window._configApp.nombre_entrenador)||(window._config&&window._config.nombre_entrenador)||(window._adminData&&window._adminData.config&&window._adminData.config.nombre_entrenador)||'DT-APP';
-  const _eid_rec = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  const _eid_rec = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||null;
   const _cfgRec = (window._adminData&&window._adminData.config)||{};
   if (!_cfgRec.logo_entrenador) {
     try { const _r = await fetch('/api/config?entrenador_id='+_eid_rec); const _d = await _r.json(); Object.assign(_cfgRec, _d); if(!window._adminData) window._adminData={config:{}}; Object.assign(window._adminData.config, _d); } catch(e){}

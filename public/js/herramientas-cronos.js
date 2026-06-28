@@ -299,7 +299,7 @@ async function descargarHTMLRutina(){
 }
 
 function cargarSelectEnviar(){
-  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(u=>{
+  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()).then(u=>{
     _usuariosEnviar=u;
     _difusionSeleccionados=new Set();
     _difusionIniciado=false;

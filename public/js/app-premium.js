@@ -5,7 +5,7 @@
 let _entConfig = null;
 
 async function cargarConfigEntrenador() {
-  const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+  const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
   try {
     const cfg = await fetch('/api/config?entrenador_id=' + eid).then(r=>r.json());
     _entConfig = cfg;
@@ -64,6 +64,7 @@ function entPagarPremiumModal() {
 function mostrarApp() {
   cargarConfigEntrenador();
   actualizarNombreEntrenador();
+  setTimeout(()=>{ if(typeof showPage==='function') showPage('inicio'); }, 200);
   ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente'].forEach(p => {
     document.getElementById(p).style.display = 'none';
   });
@@ -71,7 +72,6 @@ function mostrarApp() {
   const ef = document.getElementById('chat-ent-fab');
   if (ef) { ef.style.display = 'flex'; ef.style.background = 'rgba(227,30,36,0.45)'; }
   actualizarBadgeEntrenador();
-  showPage('inicio');
 }
 
 function mostrarTerminalCliente(tel) {

@@ -78,7 +78,7 @@ function loginCliente() {
   if(errorTel) errorTel.style.display = 'none';
   if(errorVinc) errorVinc.style.display = 'none';
 
-  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(usuarios => {
+  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()).then(usuarios => {
     const u = usuarios.find(u => u.telefono && u.telefono.replace(/\s/g,'') === tel && u.activo);
     if (u) {
       if(codeBox) codeBox.style.display = 'none';

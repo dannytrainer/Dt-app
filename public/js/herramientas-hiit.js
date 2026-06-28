@@ -457,7 +457,7 @@ function hiitDragEnd(){
 
 async function hiitGuardar(){
   if(!entEsPremium()){mostrarCandadoPremium('Guardar circuitos requiere Plan Premium.');return;}
-  const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+  const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
   _hiitActual.entrenador_id = _eid;
   await fetch('/api/hiit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_hiitActual)});
   await hiitCargar();

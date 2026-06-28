@@ -191,7 +191,7 @@ function enviarPagoWA(idx){
 }
 async function cargarInicio(){
   try{
-    const usuarios=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json());
+    const usuarios=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json());
     const activos=usuarios.filter(u=>u.activo);
     const person=activos.filter(u=>u.tipo==='personalizado').length;
     const asesor=activos.filter(u=>u.tipo==='asesorado').length;
@@ -260,7 +260,7 @@ async function cargarInicio(){
     // ticker manejado por cargarTicker()
   
   try{
-    const _eid2=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+    const _eid2=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||null;
     const _hdata=await fetch('/api/horarios?entrenador_id='+_eid2).then(r=>r.json());
     _horariosData={recurrentes:_hdata.recurrentes||[],unicos:_hdata.unicos||[]};
     setTimeout(renderMiniCal, 300);
@@ -268,7 +268,23 @@ async function cargarInicio(){
 }catch(e){console.error('cargarInicio',e);}
 }
 async function cargarClientes(){
-const res=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'));
+const _ses=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+const _gd=JSON.parse(localStorage.getItem('dt_google_data')||'{}');
+let _eid=_ses.id;
+if(!_eid){
+  const _rol=localStorage.getItem('dt_rol')||'entrenador';
+  const _roles=_ses.roles||_gd.roles||[];
+  const _re=_roles.find(x=>x.rol===_rol);
+  if(_re&&_re.id) _eid=_re.id;
+}
+if(!_eid && _ses.email){
+  try{
+    const _r=await fetch('/api/auth/roles?email='+encodeURIComponent(_ses.email)).then(r=>r.json());
+    const _re=(_r.roles||[]).find(x=>x.rol==='entrenador');
+    if(_re&&_re.id){_eid=_re.id;_ses.id=_eid;localStorage.setItem('dt_sesion',JSON.stringify(_ses));}
+  }catch(e){}
+}
+const res=await fetch('/api/usuarios?entrenador_id=' + (_eid||null));
 const usuarios=await res.json();
 const lista=document.getElementById('lista-clientes');
 const empty=document.getElementById('empty-clientes');
@@ -454,7 +470,7 @@ await renderTests(id);
 }
 async function abrirModalCliente(){
   if (!entEsPremium()) {
-    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001');
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
     const usuarios = await fetch('/api/usuarios?entrenador_id=' + eid).then(r=>r.json()).catch(()=>[]);
     const activos = usuarios.filter(u => u.activo !== false).length;
     if (activos >= 3) {
@@ -590,7 +606,7 @@ async function cambiarFoto(id){
 
 
 async function cargarRutinasClientes(){
-const res=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001'));
+const res=await fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null));
 const usuarios=await res.json();
 document.getElementById('lista-rutinas-clientes').innerHTML=usuarios.map(u=>`
 <div class="card" onclick="abrirRutina('${u.id}','${u.nombre}')" style="cursor:pointer">

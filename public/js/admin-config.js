@@ -11,7 +11,7 @@ async function subirLogo(input){
   if(!file)return;
   const form=new FormData();
   form.append('logo',file);
-  const _eid_logo=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  const _eid_logo=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||null;
   form.append('entrenador_id',_eid_logo);
   try{
     const r=await fetch('/api/config/logo',{method:'POST',body:form});
@@ -78,7 +78,7 @@ async function guardarInstagram(){
 }
 async function cargarNombreEntrenador(){
   try{
-    const cfg=await fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json());
+    const cfg=await fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json());
     if(cfg.colores)aplicarColoresGuardados(cfg.colores);
     if(cfg.nombre_entrenador){
       document.getElementById('nombre-entrenador').textContent=cfg.nombre_entrenador;
@@ -108,7 +108,7 @@ function abrirConfig(){
   cargarEstadoWA();
   cargarEstadoWA();
   // Mostrar estado premium entrenador
-  fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(cfg => {
+  fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()).then(cfg => {
     const el = document.getElementById('cfg-premium-estado');
     if (!el) return;
     const activo = cfg.premium_entrenador;

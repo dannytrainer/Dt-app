@@ -7,8 +7,9 @@ function checkGoogleLogin() {
   const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   const rol = localStorage.getItem('dt_rol');
   if (sesion.email && rol) {
-    if (sesion.roles && sesion.roles.length > 0) {
-      mostrarSeleccionRol({nombre: sesion.nombre||sesion.email, email: sesion.email, roles: sesion.roles});
+    if (sesion.id && sesion.rol) {
+      if(sesion.rol==='entrenador') mostrarApp();
+      else mostrarTerminalCliente(sesion.usuario_id||sesion.id);
       return true;
     }
     // Sesión sin roles — buscarlos
@@ -18,6 +19,9 @@ function checkGoogleLogin() {
         d.nombre = d.nombre || sesion.nombre || sesion.email;
         const s = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
         s.roles = d.roles;
+        const _re = d.roles.find(r => r.rol === localStorage.getItem('dt_rol'));
+        if(_re) s.id = _re.id || s.id;
+        if(_re) s.nombre = _re.nombre || s.nombre;
         localStorage.setItem('dt_sesion', JSON.stringify(s));
         setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
         mostrarSeleccionRol(d);
@@ -57,7 +61,7 @@ function mostrarSeleccionRol(d) {
   cont.innerHTML = '';
   // Último rol usado — entrar directo si ya existe
   const ultimoRol = localStorage.getItem('dt_ultimo_rol');
-  if (ultimoRol) {
+  if (ultimoRol && !d._skipAutoRol) {
     const rolAuto = d.roles.find(r => r.rol === ultimoRol);
     if (rolAuto) {
       seleccionarRolGoogle(Object.assign({}, rolAuto, {email: d.email, nombre: d.nombre}));
@@ -79,7 +83,7 @@ function mostrarSeleccionRol(d) {
 async function seleccionarRolGoogle(r) {
   const googleData = JSON.parse(localStorage.getItem('dt_google_data') || '{}');
   const sesionActual = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
-  const data = Object.assign({}, sesionActual, googleData);
+  const data = Object.assign({}, googleData);
   let rolData = r;
   // Si es usuario nuevo o no tiene ese rol, crearlo en el backend
   if (!r.id) {
@@ -93,7 +97,8 @@ async function seleccionarRolGoogle(r) {
       if (d.ok) rolData = d;
     } catch(e) { console.error('Error creando perfil:', e); }
   }
-  localStorage.setItem('dt_sesion', JSON.stringify({ok:true, rol:rolData.rol, id:rolData.id, email:data.email||r.email||'', nombre:rolData.nombre||data.nombre, usuario_id:rolData.usuario_id||rolData.id, roles:data.roles||[]}));
+  const _idFinal = rolData.id || (data.roles||[]).find(x=>x.rol===rolData.rol)?.id || r.id || (r.roles||[]).find(x=>x.rol===rolData.rol)?.id;
+localStorage.setItem('dt_sesion', JSON.stringify({ok:true, rol:rolData.rol, id:_idFinal, email:data.email||r.email||'', nombre:rolData.nombre||data.nombre, usuario_id:rolData.usuario_id||_idFinal, roles:(data.roles&&data.roles.length?data.roles:(r.roles||[]))}));
   setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
   localStorage.setItem('dt_rol', rolData.rol);
   localStorage.setItem('dt_ultimo_rol', rolData.rol);
@@ -111,22 +116,19 @@ function cerrarSesionGoogle() {
   const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   const email = sesion.email;
   const nombre = sesion.nombre;
-  ['dt_sesion','dt_rol','dt_ultimo_rol','dt_cliente_id','dt_cliente_tel'].forEach(k => localStorage.removeItem(k));
-  if (email) {
-    fetch('/api/auth/roles?email=' + encodeURIComponent(email))
-      .then(r => r.json())
-      .then(d => {
-        d.nombre = d.nombre || nombre;
-        localStorage.setItem('dt_google_data', JSON.stringify(d));
-        ['app-entrenador','tc-main','terminal-cliente'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
+  ['dt_rol','dt_ultimo_rol','dt_cliente_id','dt_cliente_tel'].forEach(k => localStorage.removeItem(k));
+  const _s=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  delete _s.rol;
+  localStorage.setItem('dt_sesion',JSON.stringify(_s));
+  if(email) fetch('/api/auth/roles?email='+encodeURIComponent(email)).then(r=>r.json()).then(d=>{
+    d.nombre=d.nombre||nombre;
+    d._skipAutoRol=true;
+    localStorage.setItem('dt_google_data',JSON.stringify(d));
+    mostrarSeleccionRol(d);
+  }).catch(()=>location.reload());
+  else location.reload();
 
-        mostrarSeleccionRol(d);
-      }).catch(() => location.reload());
-  } else {
-    location.reload();
-  }
 }
-
 function cambiarRol() {
   // Ocultar terminales
   ['app-entrenador','tc-main','terminal-cliente'].forEach(id => {

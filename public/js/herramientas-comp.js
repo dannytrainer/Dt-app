@@ -63,7 +63,7 @@ async function verRankingCategoria(cat) {
   var info = cats[cat];
   var usuarios = (window._usuariosCargados || []).filter(function(u){return u.activo;});
   if (!usuarios.length) {
-    var eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+    var eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||null;
     fetch('/api/usuarios?entrenador_id=' + eid).then(function(r){return r.json();}).then(function(data){
       window._usuariosCargados = data;
       renderCopas(cat, c);

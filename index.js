@@ -305,7 +305,7 @@ async function enviarDocumento(telefono, buffer, mimetype, fileName, entId) {
 }
 
 app.get('/api/wa/estado', (req, res) => {
-  const entId = req.query.entrenador_id || 'ent_001';
+  const entId = req.query.entrenador_id || null;
   const sess = waSessions[entId] || {};
   let telefono = null;
   try {
@@ -499,7 +499,7 @@ cron.schedule('* * * * *', async () => {
         if (!usuario.activo) continue;
         if (usuario.estado_pago !== 'proximo' && usuario.estado_pago !== 'vencido') continue;
 
-        const entId_cron = usuario.entrenador_id || 'ent_001';
+        const entId_cron = usuario.entrenador_id || null;
         const cfgEnt = cargarJSON('config_' + entId_cron + '.json', {});
         // Respetar pausa por entrenador
         const pausaEnt = cfgEnt.envios_pausados_hasta || null;
@@ -628,7 +628,7 @@ app.get('/api/usuarios/:id', (req, res) => {
 });
 app.post('/api/usuarios', (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
-  const nuevo = { id: 'cli_' + Date.now().toString(), activo: true, entrenador_id: req.body.entrenador_id || 'ent_001', ...req.body };
+  const nuevo = { id: 'cli_' + Date.now().toString(), activo: true, entrenador_id: req.body.entrenador_id || null, ...req.body };
   usuarios.push(nuevo);
   const carpetaFotos = path.join(__dirname, 'data/fotos', nuevo.id);
   fs.mkdirSync(path.join(carpetaFotos, 'antes'), { recursive: true });
@@ -734,7 +734,7 @@ app.post('/api/chat/:id/leer', (req, res) => {
 });
 
 app.get('/api/chat/no-leidos/entrenador', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const chats = cargarJSON('chats.json', {});
   const usuarios = cargarJSON('usuarios.json', []);
   const misClientes = usuarios.filter(u => u.entrenador_id === eid).map(u => u.id);
@@ -855,9 +855,9 @@ app.delete('/api/festivos/:fecha', (req, res) => {
   res.json({ ok: true });
 });
 app.get('/api/hiit', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const data = cargarJSON('hiit.json');
-  res.json(data.filter(c => (c.entrenador_id || 'ent_001') === eid));
+  res.json(data.filter(c => (c.entrenador_id || null) === eid));
 });
 app.post('/api/hiit', (req, res) => {
   const data = cargarJSON('hiit.json');
@@ -881,7 +881,7 @@ app.delete('/api/hiit/:id', (req, res) => {
 // SUBIR LOGO
 app.post('/api/config/logo', upload.single('logo'), (req, res) => {
   if(!req.file) return res.status(400).json({error:'No file'});
-  const eid_logo = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const eid_logo = req.body.entrenador_id || req.query.entrenador_id || null;
   const archivoLogo = 'config_' + eid_logo + '.json';
   const cfg = cargarJSON(archivoLogo, {});
   const rutaLogo = '/logo_'+eid_logo+'.png';
@@ -892,21 +892,21 @@ app.post('/api/config/logo', upload.single('logo'), (req, res) => {
 
 // ADMINISTRATIVO
 app.get('/api/admin', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const archivo = 'administrativo_' + eid + '.json';
   const base = cargarJSON('administrativo.json');
   const data = cargarJSON(archivo, {clientes:{}, config: base.config});
   res.json(data);
 });
 app.get('/api/admin/:id', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const archivo = 'administrativo_' + eid + '.json';
   const base = cargarJSON('administrativo.json');
   const data = cargarJSON(archivo, {clientes:{}, config: base.config});
   res.json(data.clientes[req.params.id] || {});
 });
 app.post('/api/admin/:id', (req, res) => {
-  const eid = req.body.entrenador_id || 'ent_001';
+  const eid = req.body.entrenador_id || null;
   const archivo = 'administrativo_' + eid + '.json';
   const base = cargarJSON('administrativo.json');
   const data = cargarJSON(archivo, {clientes:{}, config: base.config});
@@ -923,7 +923,7 @@ app.post('/api/admin/:id', (req, res) => {
   res.json({ok:true});
 });
 app.post('/api/admin/:id/pago', (req, res) => {
-  const eid = req.body.entrenador_id || 'ent_001';
+  const eid = req.body.entrenador_id || null;
   const archivo = 'administrativo_' + eid + '.json';
   const base = cargarJSON('administrativo.json');
   const data = cargarJSON(archivo, {clientes:{}, config: base.config});
@@ -936,7 +936,7 @@ app.post('/api/admin/:id/pago', (req, res) => {
   res.json({ok:true});
 });
 app.post('/api/admin/config/update', (req, res) => {
-  const eid = req.body.entrenador_id || 'ent_001';
+  const eid = req.body.entrenador_id || null;
   const archivo = 'administrativo_' + eid + '.json';
   const base = cargarJSON('administrativo.json');
   const data = cargarJSON(archivo, {clientes:{}, config: base.config});
@@ -946,7 +946,7 @@ app.post('/api/admin/config/update', (req, res) => {
 });
 // CONFIG
 app.get('/api/config', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const archivo = 'config_' + eid + '.json';
   const cfg = cargarJSON(archivo, {});
   const cuentas = cargarJSON('cuentas.json', {entrenadores:[]});
@@ -955,7 +955,7 @@ app.get('/api/config', (req, res) => {
   res.json(cfg);
 });
 app.post('/api/config', (req, res) => {
-  const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const eid = req.body.entrenador_id || req.query.entrenador_id || null;
   const archivo = 'config_' + eid + '.json';
   const cfg = cargarJSON(archivo, {});
   Object.assign(cfg, req.body);
@@ -986,7 +986,7 @@ app.post('/api/enciclopedia/personalizados/:id/foto/:tipo', uploadFotoEjercicio.
     var tipo = req.params.tipo;
     var ext = req.file.originalname.split('.').pop();
     var ruta = '/enciclopedia/imgs/' + id + '-' + tipo + '.' + ext;
-    var eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+    var eid = req.body.entrenador_id || req.query.entrenador_id || null;
     var customPath = './data/enciclopedia_personalizados_' + eid + '.json';
     var data = fs.existsSync(customPath) ? JSON.parse(require('fs').readFileSync(customPath)) : {ejercicios:[]};
     var idx = data.ejercicios.findIndex(function(e) { return e.id === id; });
@@ -1068,11 +1068,11 @@ app.post('/api/alimentacion/:id/plan', (req, res) => {
 });
 
 app.get('/api/horarios', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   res.json(cargarJSON('horarios_' + eid + '.json', {recurrentes:[], unicos:[]}));
 });
 app.post('/api/horarios', (req, res) => {
-  const eid = req.body.entrenador_id || 'ent_001';
+  const eid = req.body.entrenador_id || null;
   guardarJSON('horarios_' + eid + '.json', req.body);
   res.json({ok:true});
 });
@@ -1081,7 +1081,7 @@ app.post('/api/grupo-info', async (req, res) => {
   const { link, entrenador_id } = req.body;
   if(!link) return res.json({ok:false, error:'Sin link'});
   try {
-    const entId = entrenador_id || 'ent_001';
+    const entId = entrenador_id || null;
     const sess = waSessions[entId];
     if(!sess || !sess.conectado || !sess.proceso) return res.json({ok:false, error:'WhatsApp no conectado'});
     const codigo = link.split('/').pop();
@@ -1099,12 +1099,12 @@ app.post('/api/grupo-info', async (req, res) => {
 });
 
 app.get('/api/status',(req,res)=>{
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const sess = waSessions[eid];
   res.json({conectado: sess ? sess.conectado : false});
 });
 app.get('/api/logs', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const logs = cargarJSON('logs.json');
   const usuarios = cargarJSON('usuarios.json', []);
   const misClientes = usuarios.filter(u => u.entrenador_id === eid).map(u => u.id);
@@ -1412,7 +1412,7 @@ function invalidarCacheEnciclopedia() {
 }
 
 function cargarPersonalizados(entId) {
-  const eid = entId || 'ent_001';
+  const eid = entId || null;
   const customPath = path.join(__dirname, 'data', 'enciclopedia_personalizados_' + eid + '.json');
   if (!fs.existsSync(customPath)) return { limite_free: 10, ejercicios: [] };
   try { return JSON.parse(fs.readFileSync(customPath, 'utf8')); } catch(e) { return { limite_free: 10, ejercicios: [] }; }
@@ -1428,7 +1428,7 @@ require("./rutas_historial")(app, fs);
 // ── ENCICLOPEDIA ──
 app.get('/ejercicio/:id', (req, res) => {
   const oficiales = getEnciclopedia();
-  const custom = cargarPersonalizados(req.query.entrenador_id || 'ent_001');
+  const custom = cargarPersonalizados(req.query.entrenador_id || null);
   const todos = [...oficiales, ...(custom.ejercicios || [])];
   const ej = todos.find(e => e.id === req.params.id);
   if (!ej) return res.status(404).send('<h2>Ejercicio no encontrado</h2>');
@@ -1484,7 +1484,7 @@ ${ej.errores_comunes.map(e => `<div class="error"><span>⚠️</span><span>${e}<
 
 
 app.get('/api/enciclopedia/buscar-match/:nombre', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const oficiales = getEnciclopedia();
   const custom = cargarPersonalizados(eid);
   const todos = [...oficiales, ...(custom.ejercicios || [])];
@@ -1539,7 +1539,7 @@ app.put('/api/enciclopedia/editar/:id', (req, res) => {
 
 
 app.get('/api/enciclopedia', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const oficiales = getEnciclopedia();
   const custom = cargarPersonalizados(eid);
   let todos = [...oficiales, ...(custom.ejercicios || [])];
@@ -1558,13 +1558,13 @@ app.get('/api/enciclopedia', (req, res) => {
 });
 
 app.get('/api/enciclopedia/personalizados', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const data = cargarPersonalizados(eid);
   res.json(data.ejercicios || []);
 });
 
 app.post('/api/enciclopedia/personalizados', (req, res) => {
-  const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const eid = req.body.entrenador_id || req.query.entrenador_id || null;
   const config = cargarJSON('config_' + eid + '.json', {});
   const plan = config.plan || 'free';
   const data = cargarPersonalizados(eid);
@@ -1579,7 +1579,7 @@ app.post('/api/enciclopedia/personalizados', (req, res) => {
 });
 
 app.put('/api/enciclopedia/personalizados/:id', (req, res) => {
-  const eid = req.body.entrenador_id || req.query.entrenador_id || 'ent_001';
+  const eid = req.body.entrenador_id || req.query.entrenador_id || null;
   const data = cargarPersonalizados(eid);
   const idx = (data.ejercicios||[]).findIndex(e => e.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
@@ -1590,7 +1590,7 @@ app.put('/api/enciclopedia/personalizados/:id', (req, res) => {
 });
 
 app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const data = cargarPersonalizados(eid);
   data.ejercicios = (data.ejercicios||[]).filter(e => e.id !== req.params.id);
   const customPath3 = 'enciclopedia_personalizados_' + eid + '.json';
@@ -1600,7 +1600,7 @@ app.delete('/api/enciclopedia/personalizados/:id', (req, res) => {
 
 app.get('/api/enciclopedia/:id', (req, res) => {
   const id = req.params.id;
-  const eid = req.query.entrenador_id || 'ent_001';
+  const eid = req.query.entrenador_id || null;
   const oficiales = getEnciclopedia();
   const custom = cargarPersonalizados(eid);
   const todos = [...oficiales, ...(custom.ejercicios || [])];
@@ -1945,7 +1945,7 @@ app.post('/api/foto-comparativa/:id/:tipo', uploadFotoComp.single('foto'), (req,
 // Vinculación cliente
 app.post('/api/vincular', (req, res) => {
   const { id, codigo } = req.body;
-  const eid_vinc = req.body.entrenador_id || 'ent_001';
+  const eid_vinc = req.body.entrenador_id || null;
   const cfg = cargarJSON('config_' + eid_vinc + '.json', {});
   const usuarios = cargarJSON('usuarios.json');
   const u = usuarios.find(u => u.id === id);
@@ -1956,7 +1956,7 @@ app.post('/api/vincular', (req, res) => {
 });
 
 app.get('/api/codigo-entrenador', (req, res) => {
-  const eid_cod = req.query.entrenador_id || 'ent_001';
+  const eid_cod = req.query.entrenador_id || null;
   const cfg = cargarJSON('config_' + eid_cod + '.json', {});
   res.json({ codigo: cfg.codigo_vinculacion });
 });

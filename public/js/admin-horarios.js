@@ -55,7 +55,7 @@ let _horarioDiasSel = [];
 let _horarioEditId = null;
 
 async function cargarHorarios(){
-  const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  const _eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||null;
   const res = await fetch('/api/horarios?entrenador_id=' + _eid);
   const _raw = await res.json();
   _horariosData = (Array.isArray(_raw) || !_raw) ? {recurrentes:[], unicos:[]} : _raw;
@@ -75,7 +75,7 @@ async function initHorarios(){
 }
 
 function cargarClientesSelectH(){
-  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||'ent_001')).then(r=>r.json()).then(usuarios=>{
+  fetch('/api/usuarios?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()).then(usuarios=>{
     const sel = document.getElementById('h-cliente');
     if(!sel) return;
     sel.innerHTML = '<option value="">— Seleccionar cliente —</option>' +
@@ -447,7 +447,7 @@ async function guardarHorario(){
     }
   }
 
-  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||null;
   await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
   toast('✅ Horario guardado');
   cerrarModalHorario();
@@ -513,7 +513,7 @@ async function eliminarHorario(){
   await cargarHorarios();
   _horariosData.recurrentes = _horariosData.recurrentes.filter(e=>e.id!==_horarioEditId);
   _horariosData.unicos = _horariosData.unicos.filter(e=>e.id!==_horarioEditId);
-  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||'ent_001';
+  _horariosData.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id)||null;
   await fetch('/api/horarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_horariosData)});
   toast('🗑️ Eliminado');
   cerrarModalHorario();
