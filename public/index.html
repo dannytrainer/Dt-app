@@ -1743,25 +1743,14 @@ async function gestionarPushAdmin() {
         <button onclick="guardarNombreEntrenador()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Guardar</button>
       </div>
     </div>
-    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
-      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">Logo de la app</div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <img id="cfg-logo-preview" src="/logo_trainer.png" style="width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid #2a2a2a" onerror="this.src='/icon.png'">
-        <div style="flex:1">
-          <input type="file" id="cfg-logo-input" accept="image/*" style="display:none" onchange="subirLogo(this)">
-          <button onclick="document.getElementById('cfg-logo-input').click()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer;width:100%">&#128247; Logo del entrenador</button>
-          <div style="font-size:10px;color:var(--texto-medio);margin-top:6px;text-align:center">PNG o JPG &middot; m&aacute;x 5MB</div>
-        </div>
-      </div>
-    </div>
-    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px">
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;margin-top:10px">
       <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">&#128247; Instagram del entrenador</div>
       <div style="display:flex;gap:8px;align-items:center">
         <input id="cfg-instagram" type="text" placeholder="@tu_instagram" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none">
         <button onclick="guardarInstagram()" style="background:#e31e24;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer">Guardar</button>
       </div>
     </div>
-    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center">
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:16px;margin-top:10px;display:flex;justify-content:space-between;align-items:center">
       <div>
         <div style="font-size:13px;font-weight:700;color:#fff">Tema</div>
         <div id="ent-cfg-tema-lbl" style="font-size:11px;color:var(--texto-medio)">Modo oscuro</div>
