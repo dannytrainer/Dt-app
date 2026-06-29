@@ -64,7 +64,11 @@ function mostrarSeleccionRol(d) {
   if (ultimoRol && !d._skipAutoRol) {
     const rolAuto = d.roles.find(r => r.rol === ultimoRol);
     if (rolAuto) {
-      seleccionarRolGoogle(Object.assign({}, rolAuto, {email: d.email, nombre: d.nombre}));
+      // Si rolAuto no tiene id, completar con dt_sesion que el login guardó
+      const _sesLogin = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+      if (!rolAuto.id && _sesLogin.id && ultimoRol === 'entrenador') rolAuto.id = _sesLogin.id;
+      if (!rolAuto.id && _sesLogin.usuario_id && ultimoRol === 'cliente') rolAuto.id = _sesLogin.usuario_id;
+      seleccionarRolGoogle(Object.assign({}, rolAuto, {email: d.email||_sesLogin.email, nombre: d.nombre||_sesLogin.nombre}));
       return;
     }
   }

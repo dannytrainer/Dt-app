@@ -284,8 +284,8 @@ if(!_eid && _ses.email){
     if(_re&&_re.id){_eid=_re.id;_ses.id=_eid;localStorage.setItem('dt_sesion',JSON.stringify(_ses));}
   }catch(e){}
 }
-alert('DEBUG cargarClientes:\ndt_sesion='+JSON.stringify(JSON.parse(localStorage.getItem('dt_sesion')||'{}'))+'\n_eid='+_eid);
-alert('DEBUG cargarClientes:\ndt_sesion='+JSON.stringify(JSON.parse(localStorage.getItem('dt_sesion')||'{}'))+'\n_eid='+_eid);
+// Si no hay _eid, usar el ID guardado al entrar a la app
+if(!_eid && window._entrenadorId) _eid=window._entrenadorId;
 const res=await fetch('/api/usuarios?entrenador_id=' + (_eid||null));
 const usuarios=await res.json();
 const lista=document.getElementById('lista-clientes');

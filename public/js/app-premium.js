@@ -64,6 +64,9 @@ function entPagarPremiumModal() {
 function mostrarApp() {
   cargarConfigEntrenador();
   actualizarNombreEntrenador();
+  // Guardar ID del entrenador en variable global para uso en cargarClientes
+  const _sApp = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  if (_sApp.id) window._entrenadorId = _sApp.id;
   setTimeout(()=>{ if(typeof showPage==='function') showPage('inicio'); }, 600);
   ['pantalla-rol','pantalla-login-entrenador','pantalla-login-cliente'].forEach(p => {
     document.getElementById(p).style.display = 'none';
@@ -172,6 +175,8 @@ function loginUnificado() {
       localStorage.setItem(ROL_KEY, data.rol);
       if (data.usuario_id) localStorage.setItem('dt_cliente_id', data.usuario_id);
       localStorage.removeItem('dt_login_intentos');
+      // Guardar ID en variable global para uso posterior
+      if (data.id) window._entrenadorId = data.id;
       mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
     } else {
       // Contador de intentos

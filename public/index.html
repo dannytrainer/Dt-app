@@ -2569,7 +2569,12 @@ function loginUnificado() {
       localStorage.setItem(ROL_KEY, data.rol);
       if (data.usuario_id) localStorage.setItem('dt_cliente_id', data.usuario_id);
       localStorage.removeItem('dt_login_intentos');
-      mostrarSeleccionRol({nombre: data.nombre||data.email, email: data.email, roles: data.roles});
+      // Guardar ID en variable global para cuenta nativa
+      if (data.id) window._entrenadorId = data.id;
+      // Guardar dt_google_data con roles completos igual que salirARol
+      const _gdNativa = {email: data.email, nombre: data.nombre||data.email, roles: data.roles};
+      localStorage.setItem('dt_google_data', JSON.stringify(_gdNativa));
+      mostrarSeleccionRol(_gdNativa);
     } else {
       // Contador de intentos
       const intentos = parseInt(localStorage.getItem('dt_login_intentos') || '0') + 1;
@@ -2607,12 +2612,25 @@ function salirARol() {
   });
   const sesion = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
   ['dt_rol','dt_cliente_tel','dt_cliente_id','dt_ultimo_rol'].forEach(k => localStorage.removeItem(k));
+  // Preservar dt_sesion para cuenta nativa
+  const _sNativa = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  delete _sNativa.rol;
+  localStorage.setItem('dt_sesion', JSON.stringify(_sNativa));
+  // Borrar ultimo_rol para que cuenta nativa elija rol con ID correcto
+  localStorage.removeItem('dt_ultimo_rol');
   if (sesion.email) {
     fetch('/api/auth/roles?email=' + encodeURIComponent(sesion.email))
       .then(r=>r.json()).then(d => {
         d.email = d.email || sesion.email;
         d.nombre = d.nombre || sesion.nombre || sesion.email;
         d._skipAutoRol = true;
+        // Enriquecer roles con IDs de la sesion nativa
+        d.roles = (d.roles||[]).map(r => {
+          if (r.rol === 'entrenador' && !r.id && _sNativa.id) r.id = _sNativa.id;
+          if (r.rol === 'cliente' && !r.id && _sNativa.usuario_id) r.id = _sNativa.usuario_id;
+          return r;
+        });
+        localStorage.setItem('dt_sesion', JSON.stringify(Object.assign({}, _sNativa, {roles: d.roles})));
         localStorage.setItem('dt_google_data', JSON.stringify(d));
         mostrarSeleccionRol(d);
       }).catch(() => mostrarPantalla('pantalla-rol'));
@@ -2637,7 +2655,14 @@ function cerrarSesion() {
         if (!d.roles.find(r => r.rol === 'entrenador')) d.roles.push({rol:'entrenador', id:null, nombre: nombre});
         if (!d.roles.find(r => r.rol === 'cliente')) d.roles.push({rol:'cliente', id:null, nombre: nombre});
         d.nombre = d.nombre || nombre;
-        localStorage.setItem('dt_google_data', JSON.stringify(d));
+        // Cuenta nativa: enriquecer roles con IDs correctos del servidor, sin tocar dt_google_data
+        const _sesNativa = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+        d.roles = d.roles.map(r => {
+          if (r.rol === 'entrenador' && !r.id && _sesNativa.id) r.id = _sesNativa.id;
+          if (r.rol === 'cliente' && !r.id && _sesNativa.usuario_id) r.id = _sesNativa.usuario_id;
+          return r;
+        });
+        localStorage.setItem('dt_sesion', JSON.stringify(Object.assign({}, _sesNativa, {roles: d.roles})));
         ['app-entrenador','tc-main','terminal-cliente','terminal-cliente-app'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
         mostrarSeleccionRol(d);
       }).catch(() => location.reload());
@@ -2647,6 +2672,19 @@ function cerrarSesion() {
 }
 
 window.addEventListener('DOMContentLoaded', initRol);
+// DEBUG: detectar cuándo dt_sesion se vacía
+(function(){
+  const _orig = localStorage.setItem.bind(localStorage);
+  localStorage.setItem = function(k, v) {
+    if (k === 'dt_sesion') {
+      const parsed = JSON.parse(v || '{}');
+      if (!parsed.id) {
+        console.warn('⚠️ dt_sesion guardado SIN id:', v, new Error().stack);
+      }
+    }
+    return _orig(k, v);
+  };
+})();
 </script>
 
 <script>
@@ -4929,19 +4967,28 @@ function mostrarSeleccionRol(d) {
 async function seleccionarRolGoogle(r) {
   const googleData = JSON.parse(localStorage.getItem('dt_google_data') || '{}');
   const sesionActual = JSON.parse(localStorage.getItem('dt_sesion') || '{}');
+  alert('DEBUG seleccionarRolGoogle:\nr='+JSON.stringify(r)+'\nsesionActual='+JSON.stringify(sesionActual)+'\ngoogleData='+JSON.stringify(googleData));
   const data = Object.assign({}, sesionActual, googleData);
   let rolData = r;
-  // Si es usuario nuevo o no tiene ese rol, crearlo en el backend
-  if (!r.id) {
+  // Si no tiene id, buscar primero en /api/auth/roles antes de crear perfil nuevo
+  if (!r.id && (r.email || data.email)) {
     try {
-      const res = await fetch('/api/auth/crear-perfil', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email: data.email, nombre: data.nombre, rol: r.rol })
-      });
-      const d = await res.json();
-      if (d.ok) rolData = d;
-    } catch(e) { console.error('Error creando perfil:', e); }
+      const _email = r.email || data.email;
+      const _roles = await fetch('/api/auth/roles?email=' + encodeURIComponent(_email)).then(x=>x.json());
+      const _re = (_roles.roles||[]).find(x=>x.rol===r.rol);
+      if (_re && _re.id) {
+        rolData = Object.assign({}, r, {id: _re.id, usuario_id: _re.usuario_id||_re.id, nombre: _re.nombre||r.nombre||data.nombre});
+      } else {
+        // Solo crear perfil si realmente no existe
+        const res = await fetch('/api/auth/crear-perfil', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ email: _email, nombre: data.nombre||r.nombre, rol: r.rol })
+        });
+        const d = await res.json();
+        if (d.ok) rolData = d;
+      }
+    } catch(e) { console.error('Error buscando/creando perfil:', e); }
   }
   localStorage.setItem('dt_sesion', JSON.stringify({ok:true, rol:rolData.rol, id:rolData.id, email:data.email||r.email||'', nombre:rolData.nombre||data.nombre, usuario_id:rolData.usuario_id||rolData.id, roles:data.roles||[]}));
   setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
