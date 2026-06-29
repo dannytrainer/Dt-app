@@ -498,8 +498,10 @@ cron.schedule('* * * * *', async () => {
 
 
     // Cobros automaticos - hora fija 8:37 am
+    const HORA_COBRO = new Date().getHours(), MIN_COBRO = new Date().getMinutes();
     const ahoraMinCobro = ahora.getHours()*60 + ahora.getMinutes();
-    if (ahoraMinCobro === 8*60 + 37) {
+    console.log('CRON cobro llegó:', ahoraMinCobro, HORA_COBRO*60+MIN_COBRO);
+    if (ahoraMinCobro === HORA_COBRO*60 + MIN_COBRO) {
       for (const usuario of usuarios) {
         if (!usuario.activo) continue;
         if (usuario.estado_pago !== 'proximo' && usuario.estado_pago !== 'vencido') continue;
@@ -538,12 +540,7 @@ cron.schedule('* * * * *', async () => {
         }
         if (!msg || !msg.trim()) continue;
         const enviado_cron = await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
-        if (enviado_cron) {
-          usuario.msg_cobro_enviado = true;
-          const _us = cargarJSON('usuarios.json');
-          const _idx = _us.findIndex(u => u.id === usuario.id);
-          if (_idx !== -1) { _us[_idx].msg_cobro_enviado = true; guardarJSON('usuarios.json', _us); }
-        }
+        if (enviado_cron) usuario.msg_cobro_enviado = true;
         // Push al cliente
         const subCliCobro = pushSuscripciones[usuario.id];
         if (subCliCobro) {
