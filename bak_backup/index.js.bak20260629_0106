@@ -529,32 +529,34 @@ cron.schedule('* * * * *', async () => {
         } else {
           msg = dataCli.msg_recordatorio || usuario.msg_pago || 'El dia de hoy se vencio tu plan de entrenamiento.';
         }
+        // Push al entrenador siempre, independiente del mensaje WA
+        const _subEntPrev = pushSuscripciones[usuario.entrenador_id];
+        if (_subEntPrev) {
+          const _tituloEnt = usuario.estado_pago === 'proximo' ? '⚠️ Pago próximo' : '🔴 Pago vencido';
+          const _mensajeEnt = usuario.estado_pago === 'proximo' ? (usuario.nombre||'Un cliente') + ' vence en 3 días.' : (usuario.nombre||'Un cliente') + ' tiene pago vencido.';
+          webpush.sendNotification(_subEntPrev, JSON.stringify({ titulo: _tituloEnt, mensaje: _mensajeEnt })).catch(e => registrarError('webpush', e));
+        }
         if (!msg || !msg.trim()) continue;
         const enviado_cron = await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
-        // Push al cliente (una vez por ciclo)
-        const pushBanderaCliente = usuario.estado_pago === 'proximo' ? 'push_proximo_enviado' : 'push_vencido_enviado';
+        if (enviado_cron) {
+          usuario.msg_cobro_enviado = true;
+          const _us = cargarJSON('usuarios.json');
+          const _idx = _us.findIndex(u => u.id === usuario.id);
+          if (_idx !== -1) { _us[_idx].msg_cobro_enviado = true; guardarJSON('usuarios.json', _us); }
+        }
+        // Push al cliente
         const subCliCobro = pushSuscripciones[usuario.id];
-        if (subCliCobro && !usuario[pushBanderaCliente]) {
+        if (subCliCobro) {
           const tituloCli = usuario.estado_pago === 'proximo' ? 'Pago próximo' : 'Plan vencido';
           const mensajeCli = usuario.estado_pago === 'proximo' ? (usuario.msg_proximo || 'Tu plan vence en 3 días.') : (usuario.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.');
           webpush.sendNotification(subCliCobro, JSON.stringify({ titulo: tituloCli, mensaje: mensajeCli })).catch(e => registrarError('webpush', e));
         }
-        // Push al entrenador (una vez por ciclo)
+        // Push al entrenador
         const subEntCobro = pushSuscripciones[usuario.entrenador_id];
-        if (subEntCobro && !usuario[pushBanderaCliente]) {
+        if (subEntCobro) {
           const tituloEnt = usuario.estado_pago === 'proximo' ? '⚠️ Pago próximo' : '🔴 Pago vencido';
           const mensajeEnt = usuario.estado_pago === 'proximo' ? (usuario.nombre || 'Un cliente') + ' vence en 3 días.' : (usuario.nombre || 'Un cliente') + ' tiene pago vencido.';
           webpush.sendNotification(subEntCobro, JSON.stringify({ titulo: tituloEnt, mensaje: mensajeEnt })).catch(e => registrarError('webpush', e));
-        }
-        // Persistir banderas
-        if (enviado_cron || subCliCobro || subEntCobro) {
-          const _us = cargarJSON('usuarios.json');
-          const _idx = _us.findIndex(u => u.id === usuario.id);
-          if (_idx !== -1) {
-            if (enviado_cron) _us[_idx].msg_cobro_enviado = true;
-            _us[_idx][pushBanderaCliente] = true;
-            guardarJSON('usuarios.json', _us);
-          }
         }
       }
     }
