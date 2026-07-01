@@ -277,7 +277,6 @@ function conectarWhatsApp(entId, telefono) {
   if (!entId) return;
   if (waSessions[entId] && waSessions[entId].proceso) {
     waSessions[entId].detenido = true;
-    try { waSessions[entId].proceso.send({ tipo: 'detener' }); } catch(e) {}
     try { waSessions[entId].proceso.kill(); } catch(e) {}
   }
   waSessions[entId] = { proceso: null, conectado: false, pairingCode: null, qrCode: null, pendientes: {} };
@@ -367,14 +366,7 @@ app.post('/api/wa/desconectar', async (req, res) => {
   const { entrenador_id } = req.body;
   if (!entrenador_id) return res.json({ ok: false, error: 'Falta entrenador_id' });
   const sess = waSessions[entrenador_id];
-  if (sess) {
-    sess.detenido = true;
-    const procesoAnterior = sess.proceso;
-    try { procesoAnterior && procesoAnterior.send({ tipo: 'detener' }); } catch(e) {}
-    // TODO(deuda-tecnica): reemplazar por ACK real del worker (tipo:'detenido_ok')
-    // en vez de timeout fijo. Ver auditoria P0-A.
-    setTimeout(() => { try { procesoAnterior && procesoAnterior.kill(); } catch(e) {} }, 200);
-  }
+  if (sess) { sess.detenido = true; try { sess.proceso && sess.proceso.kill(); } catch(e) {} }
   delete waSessions[entrenador_id];
   try { fs.rmSync(path.join(__dirname, 'auth_' + entrenador_id), { recursive: true, force: true }); } catch(e) {}
   res.json({ ok: true });

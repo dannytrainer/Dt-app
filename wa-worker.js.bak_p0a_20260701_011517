@@ -9,7 +9,6 @@ const authFolder = path.join(__dirname, 'auth_' + entId);
 let sock = null;
 let conectado = false;
 let pairingCode = null;
-let detenido = false;
 
 const enviar = (msg) => { try { if (process.send) process.send(msg); } catch(e) { console.log('IPC cerrado, ignorando:', e.message); } };
 
@@ -58,7 +57,7 @@ async function iniciar() {
           console.log('No se pudo borrar sesion incompleta [' + entId + ']:', e.message);
         }
       }
-      if (shouldReconnect && !detenido) {
+      if (shouldReconnect) {
         console.log('🔄 Reconectando ['+entId+']...');
         setTimeout(iniciar, 3000);
       }
@@ -73,8 +72,6 @@ async function iniciar() {
 }
 
 process.on('message', async (msg) => {
-  if (msg.tipo === 'detener') { detenido = true; return; }
-  if (detenido) return;
   if (msg.tipo === 'enviar' || msg.tipo === 'enviarDoc') {
     if (!conectado || !sock) {
       enviar({ tipo: 'resultado', id: msg.id, ok: false, error: 'No conectado' });

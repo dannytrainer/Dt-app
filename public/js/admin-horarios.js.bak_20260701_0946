@@ -1,14 +1,5 @@
 
 // ── MINI CALENDARIO INICIO ──────────────────────────────
-let _miniCalScrollManual = false;
-(function _miniCalAttachScrollListener(){
-  const el = document.getElementById('mini-cal-body');
-  if(el){
-    el.addEventListener('scroll', function(){ _miniCalScrollManual = true; }, {passive:true});
-  } else {
-    setTimeout(_miniCalAttachScrollListener, 500);
-  }
-})();
 function renderMiniCal() {
   const header = document.getElementById('mini-cal-header');
   const body = document.getElementById('mini-cal-body');
@@ -35,45 +26,24 @@ function renderMiniCal() {
     return '<div style="text-align:center;font-size:9px;font-weight:700;padding:5px 2px;color:'+(esHoy?'#e31e24':'#555')+';text-transform:uppercase">'+nombDia[i]+'<br>'+d.getDate()+'</div>';
   }).join('');
 
-  const slots = [];
-  for(let h=3; h<=22; h++){
-    slots.push({h:h, m:0});
-    if(h<22) slots.push({h:h, m:30});
-  }
-  function aMin(hhmm){
-    const p = (hhmm||'0:0').split(':');
-    return (parseInt(p[0])||0)*60 + (parseInt(p[1])||0);
-  }
-  const ahoraDate = new Date();
-  const nowMin = ahoraDate.getHours()*60 + ahoraDate.getMinutes();
-  const occupiedUntil = [0,0,0,0,0,0,0];
+  const horas = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
   let html = '';
-  slots.forEach((slot, si) => {
-    const slotMin = slot.h*60 + slot.m;
-    const esActual = nowMin >= slotMin && nowMin < slotMin+30;
-    const label = slot.m===0 ? (slot.h < 12 ? slot.h+'am' : slot.h===12 ? '12pm' : (slot.h-12)+'pm') : '';
-    html += '<div'+(esActual?' id="mini-cal-hora-actual"':'')+' style="grid-row:'+(si+1)+';grid-column:1;font-size:8px;color:'+(esActual?'#e31e24':'#444')+';font-weight:'+(esActual?'700':'400')+';padding:2px 4px;height:18px;display:flex;align-items:flex-start;padding-top:1px;border-right:1px solid #1a1a1a;border-bottom:1px solid #111;'+(esActual?'border-left:2px solid #e31e24;':'')+'">'+(label||(esActual?'•':''))+'</div>';
+  horas.forEach(h => {
+    const label = h < 12 ? h+'am' : h===12 ? '12pm' : (h-12)+'pm';
+    html += '<div style="font-size:8px;color:#444;padding:2px 4px;height:36px;display:flex;align-items:flex-start;padding-top:3px;border-right:1px solid #1a1a1a;border-bottom:1px solid #111">'+label+'</div>';
     dias.forEach((d,di) => {
-      if (si < occupiedUntil[di]) return;
-      const ev = recurrentes.find(e => e.dias && e.dias.includes(di) && aMin(e.inicio) >= slotMin && aMin(e.inicio) < slotMin+30)
-        || unicos.find(e => e.fecha === d.toISOString().split('T')[0] && aMin(e.inicio) >= slotMin && aMin(e.inicio) < slotMin+30);
+      const ev = recurrentes.find(e => e.dias && e.dias.includes(di) && parseInt((e.inicio||'0').split(':')[0]) === h)
+              || unicos.find(e => e.fecha === d.toISOString().split('T')[0] && parseInt((e.inicio||'0').split(':')[0]) === h);
       if (ev) {
-        const durMin = ev.fin ? (aMin(ev.fin) - aMin(ev.inicio)) : 30;
-        const spanSlots = Math.max(1, Math.round(durMin/30));
-        occupiedUntil[di] = si + spanSlots;
         const color = ev.color || '#9c27b0';
         const nombre = ev.nombreCliente || ev.desc || 'Clase';
-        html += '<div style="grid-row:'+(si+1)+' / span '+spanSlots+';grid-column:'+(di+2)+';border-left:1px solid #1a1a1a;border-bottom:1px solid #111;padding:1px"><div style="background:'+color+'22;border-left:2px solid '+color+';border-radius:3px;height:100%;padding:1px 3px;font-size:7px;font-weight:700;color:'+color+';overflow:hidden;line-height:1.1">'+nombre+'</div></div>';
+        html += '<div style="border-left:1px solid #1a1a1a;border-bottom:1px solid #111;height:36px;padding:2px"><div style="background:'+color+'22;border-left:2px solid '+color+';border-radius:4px;height:100%;padding:2px 3px;font-size:8px;font-weight:700;color:'+color+';overflow:hidden;line-height:1.2">'+nombre+'</div></div>';
       } else {
-        html += '<div style="grid-row:'+(si+1)+';grid-column:'+(di+2)+';border-left:1px solid #1a1a1a;border-bottom:1px solid #111;height:18px"></div>';
+        html += '<div style="border-left:1px solid #1a1a1a;border-bottom:1px solid #111;height:36px"></div>';
       }
     });
   });
   body.innerHTML = html;
-  if(!_miniCalScrollManual){
-    const filaActual = document.getElementById('mini-cal-hora-actual');
-    if(filaActual) filaActual.scrollIntoView({block:'start'});
-  }
 }
 // ────────────────────────────────────────────────────────
 // ===== HORARIOS =====
@@ -204,8 +174,8 @@ function renderHorariosSemana(){
   html += `</div>`;
 
   // Grid fijo de fondo + clases absolutas encima
-  const PX_POR_MIN = 0.8; // pixels por minuto
-  const HORA_INICIO = 3;  // 5am
+  const PX_POR_MIN = 1.2; // pixels por minuto
+  const HORA_INICIO = 5;  // 5am
   const HORA_FIN = 22;    // 10pm
   const totalMin = (HORA_FIN - HORA_INICIO) * 60;
   const totalAlto = totalMin * PX_POR_MIN;
@@ -220,10 +190,6 @@ function renderHorariosSemana(){
     const ampm = h < 12 ? 'AM' : 'PM';
     const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
     html += `<div style="position:absolute;top:${topPx}px;left:0;right:0;font-size:9px;color:var(--texto-tenue);text-align:right;padding-right:4px;border-top:1px solid #1a1a1a">${h12}:00 ${ampm}</div>`;
-    if(h<HORA_FIN){
-      const topPxMedia = topPx + 30 * PX_POR_MIN;
-      html += `<div style="position:absolute;top:${topPxMedia}px;left:0;right:0;border-top:1px dashed #1a1a1a"></div>`;
-    }
   }
   html += `</div>`;
 
@@ -235,11 +201,7 @@ function renderHorariosSemana(){
     // Líneas de hora de fondo
     for(let h=HORA_INICIO; h<=HORA_FIN; h++){
       const topPx = (h - HORA_INICIO) * 60 * PX_POR_MIN;
-      html += `<div onclick="abrirModalHorario('${f}','${h}:00')" style="position:absolute;top:${topPx}px;left:0;right:0;height:${30*PX_POR_MIN}px;border-top:1px solid #1a1a1a;cursor:pointer" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='transparent'"></div>`;
-      if(h<HORA_FIN){
-        const topPxMedia = topPx + 30 * PX_POR_MIN;
-        html += `<div onclick="abrirModalHorario('${f}','${h}:30')" style="position:absolute;top:${topPxMedia}px;left:0;right:0;height:${30*PX_POR_MIN}px;cursor:pointer" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='transparent'"></div>`;
-      }
+      html += `<div onclick="abrirModalHorario('${f}','${h}:00')" style="position:absolute;top:${topPx}px;left:0;right:0;height:${60*PX_POR_MIN}px;border-top:1px solid #1a1a1a;cursor:pointer" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='transparent'"></div>`;
     }
 
     // Clases encima
@@ -315,107 +277,9 @@ function tiempoAMin(t){
   return h*60+m;
 }
 
-// ===== Selector de hora tipo rueda =====
-let _ruedaHoraSlots = [];
-const RUEDA_ITEM_H = 36;
-
-function _generarSlotsRueda(){
-  const slots = [];
-  for(let h=3; h<=22; h++){
-    slots.push(String(h).padStart(2,'0')+':00');
-    slots.push(String(h).padStart(2,'0')+':30');
-  }
-  slots.push('23:00');
-  return slots;
-}
-
-function _renderRuedaItems(scrollId){
-  const el = document.getElementById(scrollId);
-  el.innerHTML = _ruedaHoraSlots.map(s=>
-    '<div class="rueda-hora-item" data-valor="'+s+'" style="height:36px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:15px;color:var(--texto-tenue);transition:color .15s">'+hora24a12(s)+'</div>'
-  ).join('');
-}
-
-function _ruedaActivoDe(scrollId){
-  const el = document.getElementById(scrollId);
-  const items = el.querySelectorAll('.rueda-hora-item');
-  const centro = el.scrollTop + el.clientHeight/2;
-  let idxActivo = 0, minDist = Infinity;
-  items.forEach((it,i)=>{
-    const itemCentro = it.offsetTop + RUEDA_ITEM_H/2;
-    const dist = Math.abs(itemCentro - centro);
-    if(dist<minDist){ minDist=dist; idxActivo=i; }
-    it.style.color = 'var(--texto-tenue)';
-    it.style.fontWeight = '400';
-    it.style.fontSize = '15px';
-  });
-  if(items[idxActivo]){
-    items[idxActivo].style.color = 'var(--texto)';
-    items[idxActivo].style.fontWeight = '700';
-    items[idxActivo].style.fontSize = '17px';
-  }
-  return items[idxActivo] ? items[idxActivo].dataset.valor : null;
-}
-
-function _scrollARuedaValor(scrollId, valor){
-  const el = document.getElementById(scrollId);
-  let idx = _ruedaHoraSlots.indexOf(valor);
-  if(idx<0) idx = 0;
-  el.scrollTop = idx * RUEDA_ITEM_H;
-}
-
-function abrirRuedaHora(){
-  _ruedaHoraSlots = _generarSlotsRueda();
-  _renderRuedaItems('rueda-inicio-scroll');
-  _renderRuedaItems('rueda-fin-scroll');
-
-  const inicioActual = document.getElementById('h-inicio').value || _ruedaHoraSlots[0];
-  const finActual = document.getElementById('h-fin').value || _ruedaHoraSlots[Math.min(2,_ruedaHoraSlots.length-1)];
-
-  document.getElementById('modal-rueda-hora').style.display = 'flex';
-  setTimeout(function(){
-    _scrollARuedaValor('rueda-inicio-scroll', inicioActual);
-    _scrollARuedaValor('rueda-fin-scroll', finActual);
-    _ruedaActivoDe('rueda-inicio-scroll');
-    _ruedaActivoDe('rueda-fin-scroll');
-  }, 50);
-}
-
-function cerrarRuedaHora(){
-  document.getElementById('modal-rueda-hora').style.display = 'none';
-}
-
-function confirmarRuedaHora(){
-  const valorInicio = _ruedaActivoDe('rueda-inicio-scroll');
-  const valorFin = _ruedaActivoDe('rueda-fin-scroll');
-  if(!valorInicio || !valorFin) return;
-
-  if(tiempoAMin(valorFin) <= tiempoAMin(valorInicio)){
-    toast('La hora fin debe ser mayor a la de inicio', false);
-    return;
-  }
-
-  document.getElementById('h-inicio').value = valorInicio;
-  document.getElementById('h-inicio-btn').textContent = hora24a12(valorInicio);
-  document.getElementById('h-fin').value = valorFin;
-  document.getElementById('h-fin-btn').textContent = hora24a12(valorFin);
-  cerrarRuedaHora();
-}
-
-(function _ruedaHoraAttachListeners(){
-  const elI = document.getElementById('rueda-inicio-scroll');
-  const elF = document.getElementById('rueda-fin-scroll');
-  if(elI && elF){
-    elI.addEventListener('scroll', function(){ clearTimeout(elI._t); elI._t = setTimeout(function(){_ruedaActivoDe('rueda-inicio-scroll');}, 60); }, {passive:true});
-    elF.addEventListener('scroll', function(){ clearTimeout(elF._t); elF._t = setTimeout(function(){_ruedaActivoDe('rueda-fin-scroll');}, 60); }, {passive:true});
-  } else {
-    setTimeout(_ruedaHoraAttachListeners, 500);
-  }
-})();
-
 function generarOpcionesHora(){
   const ops = [];
-  for(let h=3;h<=22;h++){
+  for(let h=5;h<=22;h++){
     ops.push(String(h).padStart(2,'0')+':00');
     ops.push(String(h).padStart(2,'0')+':30');
   }
@@ -431,7 +295,6 @@ function hora24a12(h24){
 }
 
 function abrirModalHorario(fecha, hora){
-  if(hora){ const p = hora.split(':'); hora = String(parseInt(p[0])).padStart(2,'0')+':'+p[1]; }
   _horarioEditId = null;
   _horarioDiasSel = [];
   _horarioColorSel = '#e31e24';
@@ -465,17 +328,13 @@ function abrirModalHorario(fecha, hora){
 
   // Opciones hora
   const ops = generarOpcionesHora();
+  const optHTML = ops.map(o=>`<option value="${o}">${hora24a12(o)}</option>`).join('');
+  document.getElementById('h-inicio').innerHTML = optHTML;
+  document.getElementById('h-fin').innerHTML = optHTML;
   if(hora){
     document.getElementById('h-inicio').value = hora;
-    document.getElementById('h-inicio-btn').textContent = hora24a12(hora);
     const finIdx = Math.min(ops.indexOf(hora)+2, ops.length-1);
     document.getElementById('h-fin').value = ops[finIdx];
-    document.getElementById('h-fin-btn').textContent = hora24a12(ops[finIdx]);
-  } else {
-    document.getElementById('h-inicio').value = ops[0];
-    document.getElementById('h-inicio-btn').textContent = hora24a12(ops[0]);
-    document.getElementById('h-fin').value = ops[0];
-    document.getElementById('h-fin-btn').textContent = hora24a12(ops[0]);
   }
 
   cargarClientesSelectH();
@@ -617,10 +476,12 @@ function editarHorario(id, tipo){
   document.getElementById('h-desc').value = e.desc||'';
   document.getElementById('h-btn-eliminar').style.display = '';
 
+  const ops = generarOpcionesHora();
+  const optHTML = ops.map(o=>`<option value="${o}">${o}</option>`).join('');
+  document.getElementById('h-inicio').innerHTML = optHTML;
+  document.getElementById('h-fin').innerHTML = optHTML;
   document.getElementById('h-inicio').value = e.inicio;
-  document.getElementById('h-inicio-btn').textContent = hora24a12(e.inicio);
   document.getElementById('h-fin').value = e.fin;
-  document.getElementById('h-fin-btn').textContent = hora24a12(e.fin);
 
   const rec = tipo==='rec';
   document.getElementById('h-recurrente').checked = rec;

@@ -204,7 +204,7 @@ function renderHorariosSemana(){
   html += `</div>`;
 
   // Grid fijo de fondo + clases absolutas encima
-  const PX_POR_MIN = 0.8; // pixels por minuto
+  const PX_POR_MIN = 1.2; // pixels por minuto
   const HORA_INICIO = 3;  // 5am
   const HORA_FIN = 22;    // 10pm
   const totalMin = (HORA_FIN - HORA_INICIO) * 60;
@@ -431,7 +431,6 @@ function hora24a12(h24){
 }
 
 function abrirModalHorario(fecha, hora){
-  if(hora){ const p = hora.split(':'); hora = String(parseInt(p[0])).padStart(2,'0')+':'+p[1]; }
   _horarioEditId = null;
   _horarioDiasSel = [];
   _horarioColorSel = '#e31e24';
