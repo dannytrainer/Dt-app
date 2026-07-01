@@ -204,4 +204,3 @@ async function tcVincularEntrenador() {
     st.textContent='Error de conexión';
   }
 }
-

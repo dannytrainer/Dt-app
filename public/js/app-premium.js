@@ -170,9 +170,6 @@ function loginUnificado() {
   }).then(r=>r.json()).then(data => {
     if (data.ok) {
       data.roles = data.roles || [{rol:'entrenador',id:data.id},{rol:'cliente',id:data.usuario_id||null}];
-      localStorage.setItem('dt_sesion', JSON.stringify(data));
-      setTimeout(() => { if(window.activarPushTrasLogin) window.activarPushTrasLogin(); }, 1000);
-      localStorage.setItem(ROL_KEY, data.rol);
       if (data.usuario_id) localStorage.setItem('dt_cliente_id', data.usuario_id);
       localStorage.removeItem('dt_login_intentos');
       // Guardar ID en variable global para uso posterior
