@@ -98,14 +98,24 @@ async function toggleCobroAuto(){
 
 
 async function enviarCobroManual(id){
+  console.log('enviarCobroManual id:', id);
   const u = (window._adminUsuarios||[]).find(x=>x.id==id || x.id=='cli_'+id || x.id.replace('cli_','')==String(id));
+  console.log('usuario encontrado:', u ? u.nombre : 'NO');
   if(!u){ toast('❌ Cliente no encontrado',false); return; }
   const msg = document.getElementById('ac-msg') ? document.getElementById('ac-msg').value : (u.msg_pago||'');
   if(!msg){ toast('⚠️ Escribe un mensaje de cobro primero',false); return; }
   if(!u.telefono){ toast('⚠️ Cliente sin teléfono registrado',false); return; }
-  const tel = u.telefono.replace(/[^0-9]/g, '');
-  const url = 'https://wa.me/'+tel+'?text='+encodeURIComponent(msg);
-  window.open(url, '_blank');
+  try{
+    const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
+    const res = await fetch('/api/enviar',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({telefono:u.telefono, mensaje:msg, entrenador_id:eid})
+    });
+    const d = await res.json();
+    if(d.ok){ toast('✅ Mensaje enviado a '+u.nombre); }
+    else{ toast('❌ '+(d.error||'No se pudo enviar'),false); }
+  }catch(e){ toast('❌ Error de conexión',false); }
 }
 
 // MODULO ADMINISTRATIVO
@@ -476,9 +486,9 @@ function renderAdminConfig(){
   const tab=window._configTab||'general';
   let html='<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:80px">';
   html+='<div style="display:flex;gap:6px;margin-bottom:4px">';
-  [{id:'general',icon:'⚙️',lbl:'General'},{id:'vinculacion',icon:'🔗',lbl:'Vinculación'},{id:'premium',icon:'🔑',lbl:'Premium'}].forEach(t=>{
+  [{id:'general',icon:'⚙️',lbl:'General'},{id:'vinculacion',icon:'🔗',lbl:'Vinculación'},{id:'whatsapp',icon:'💬',lbl:'WhatsApp'},{id:'premium',icon:'🔑',lbl:'Premium'}].forEach(t=>{
     const a=t.id===tab;
-    html+='<button onclick="window._configTab=\''+t.id+'\';document.getElementById(\'admin-tab-content\').innerHTML=renderAdminConfig();cargarCodigoVinc();" style="flex:1;padding:8px 2px;border-radius:10px;border:'+(a?'2px solid #e31e24':'1px solid #333')+';background:'+(a?'#1a0000':'#111')+';color:'+(a?'#e31e24':'#888')+';font-size:10px;font-weight:700;cursor:pointer">'+t.icon+'<br>'+t.lbl+'</button>';
+    html+='<button onclick="window._configTab=\''+t.id+'\';document.getElementById(\'admin-tab-content\').innerHTML=renderAdminConfig();if(\''+t.id+'\'===\'whatsapp\')cargarEstadoWA();else cargarCodigoVinc();" style="flex:1;padding:8px 2px;border-radius:10px;border:'+(a?'2px solid #e31e24':'1px solid #333')+';background:'+(a?'#1a0000':'#111')+';color:'+(a?'#e31e24':'#888')+';font-size:10px;font-weight:700;cursor:pointer">'+t.icon+'<br>'+t.lbl+'</button>';
   });
   html+='</div>';
 
@@ -547,6 +557,19 @@ function renderAdminConfig(){
     html+='</div>';
     html+='<textarea id="np-mensaje" placeholder="Mensaje — usa {nombre}, {precio}, {descuento}" style="width:100%;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px;color:var(--texto);font-size:12px;min-height:80px;box-sizing:border-box;margin-bottom:8px"></textarea>';
     html+='<button onclick="guardarPromoCustom()" style="width:100%;background:#1a0a1a;border:1px solid #4a1a4a;border-radius:10px;color:#e91e63;font-size:13px;font-weight:700;padding:10px;cursor:pointer">💾 Guardar promoción</button>';
+    html+='</div></div>';
+  }
+
+  if(tab==='whatsapp'){
+    html+='<div style="background:var(--gris);border-radius:14px;padding:16px">';
+    html+='<div style="font-size:13px;color:var(--texto);font-weight:700;margin-bottom:12px">💬 Conexión WhatsApp</div>';
+    html+='<div id="wa-estado-box" style="background:var(--card);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
+    html+='<div id="wa-estado-txt" style="font-size:15px;font-weight:700;color:#888">Verificando...</div>';
+    html+='</div>';
+    html+='<div id="wa-codigo-box" style="display:none;background:#0a0a0a;border:2px solid #e31e24;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">';
+    html+='<div style="font-size:11px;color:var(--texto-medio);margin-bottom:8px">Ingresa este código en WhatsApp → Dispositivos vinculados → Vincular con número</div>';
+    html+='<div style="font-size:10px;color:#ff9800;margin-top:6px">⏳ Ingresa el código rápido (antes de 30 seg). Si WhatsApp muestra un error al inicio, espera unos segundos: normalmente conecta igual.</div>';
+    html+='<div id="wa-codigo-txt" style="font-size:32px;font-weight:900;color:#e31e24;letter-spacing:6px;font-family:monospace">——————</div>';
     html+='</div></div>';
   }
 

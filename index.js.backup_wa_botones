@@ -1019,6 +1019,80 @@ app.get('/api/logs', (req, res) => {
   });
   res.json(logsFiltrados);
 });
+app.post('/api/enviar', async (req, res) => {
+  const { telefono, mensaje, entrenador_id } = req.body;
+  if (!entrenador_id) {
+    return res.json({ ok: false, error: 'Falta entrenador_id, no se envia para evitar mezclar numeros' });
+  }
+  const resultado = await enviarMensaje(telefono, mensaje, entrenador_id);
+  res.json({ ok: resultado });
+});
+app.post('/api/enviar-rutina/:id', async (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const rutinas = cargarJSON('rutinas.json');
+  const usuario = usuarios.find(u => u.id === req.params.id);
+  if (!usuario) return res.status(404).json({ error: 'No encontrado' });
+  const rutina = rutinas[req.params.id];
+  if (!rutina) return res.status(404).json({ error: 'Sin rutina' });
+  const dias = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+  const emojis = {lunes:'🔥',martes:'⚡',miercoles:'💪',jueves:'🔥',viernes:'⚡',sabado:'💪',domingo:'🌟'};
+  let lineas = ['*Rutina de ' + usuario.nombre + '*', ''];
+  for (const dia of dias) {
+    const d = rutina[dia];
+    if (!d) continue;
+    const ejs = d.ejercicios && d.ejercicios.filter(e=>e.nombre).length > 0 ? d.ejercicios : null;
+    if (!ejs && !d.rutina) continue;
+    const tit = dia.charAt(0).toUpperCase()+dia.slice(1);
+    lineas.push('╔════════════════════╗');
+    lineas.push('║ ' + emojis[dia] + ' ' + tit.toUpperCase().padEnd(18) + '║');
+    lineas.push('╚════════════════════╝');
+    if (d.recordatorio) {
+      lineas.push('📝 ' + d.recordatorio);
+    }
+    if (ejs && ejs.length > 0) {
+      ejs.forEach((e) => {
+        if (e.nombre) {
+          lineas.push('┌───────────────────┐');
+          lineas.push('│ ' + e.nombre.substring(0,17).padEnd(17) + '│');
+          lineas.push('├───────────────────┤');
+          lineas.push('│ Serie: ' + (e.series || '').padEnd(14) + '│');
+          lineas.push('│ Rep: ' + (e.reps || '').padEnd(14) + '│');
+          lineas.push('│ Rir: ' + (e.rir || '').padEnd(12) + '│');
+          lineas.push('│ Desc: ' + (e.desc || '').padEnd(11) + '│');
+          lineas.push('│ Var: ' + (e.var || '').padEnd(13) + '│');
+          lineas.push('└───────────────────┘');
+        }
+      });
+    }
+    if (d.rutina) {
+      lineas.push('📌 ' + d.rutina);
+    }
+    if (Array.isArray(d.cardio) && d.cardio.length > 0) {
+      lineas.push('🏃 CARDIO');
+      lineas.push('');
+      d.cardio.forEach(c => {
+        if (c.ejercicio) {
+          lineas.push('┌─────────────────────────┐');
+          if (c.momento) lineas.push('│ Momento: ' + c.momento.trim());
+          lineas.push('│ Ejercicio: ' + c.ejercicio.trim());
+          if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo.toString().trim() + ' min');
+          if (c.notas) {
+            c.notas.trim().split('\n').forEach((nl,ni) => {
+              if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
+            });
+          }
+          lineas.push('└─────────────────────────┘');
+          lineas.push('');
+        }
+      });
+    }
+    lineas.push('');
+  }
+  let texto = lineas.join('\n');
+  const resultado = await enviarMensaje(usuario.telefono, texto, usuario.entrenador_id);
+  res.json({ ok: resultado });
+});
+
 app.get('/api/enviar-dia/:id/:dia/texto', async (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
   const rutinas = cargarJSON('rutinas.json');
@@ -1130,6 +1204,87 @@ app.get('/api/enviar-dia/:id/:dia/texto', async (req, res) => {
   res.json({ texto });
 });
 
+app.post('/api/enviar-dia/:id/:dia', async (req, res) => {
+  const usuarios = cargarJSON('usuarios.json');
+  const rutinas = cargarJSON('rutinas.json');
+
+  const usuario = usuarios.find(u => u.id === req.params.id);
+
+  if (!usuario) {
+    return res.status(404).json({ error: 'Usuario no encontrado' });
+  }
+
+  const rutina = rutinas[req.params.id];
+
+  if (!rutina) {
+    return res.status(404).json({ error: 'Rutina no encontrada' });
+  }
+
+  const dia = req.params.dia.toLowerCase();
+
+  if (!rutina[dia]) {
+    return res.status(404).json({ error: 'Día no encontrado' });
+  }
+
+  const d = rutina[dia];
+
+  let lineas = [];
+
+  lineas.push(`*Rutina de ${usuario.nombre}*`);
+  lineas.push('');
+  lineas.push(`🔥 ${dia.toUpperCase()}`);
+  lineas.push('');
+
+  if (d.recordatorio) {
+    lineas.push(`📝 ${d.recordatorio}`);
+    lineas.push('');
+  }
+
+  if (d.ejercicios && d.ejercicios.length > 0) {
+    d.ejercicios.forEach(e => {
+lineas.push('┌───────────────────┐');
+lineas.push(`│ ${e.nombre || ''}`.padEnd(20) + '│');
+lineas.push('├───────────────────┤');
+lineas.push(`│ Series: ${e.series || ''}`.padEnd(20) + '│');
+lineas.push(`│ Reps: ${e.reps || ''}`.padEnd(20) + '│');
+lineas.push(`│ RIR: ${e.rir || ''}`.padEnd(20) + '│');
+lineas.push(`│ DESC: ${e.desc || ''}`.padEnd(20) + '│');
+lineas.push(`│ VAR: ${e.var || ''}`.padEnd(20) + '│');
+lineas.push('└───────────────────┘');
+lineas.push('');    });
+  }
+
+  if (d.rutina) {
+    lineas.push(`📌 ${d.rutina}`);
+  }
+
+  if (Array.isArray(d.cardio) && d.cardio.length > 0) {
+    lineas.push('');
+    lineas.push('🏃 CARDIO');
+      lineas.push('');
+      d.cardio.forEach(c => {
+        if (c.ejercicio) {
+          lineas.push('┌─────────────────────────┐');
+          if (c.momento) lineas.push('│ Momento: ' + c.momento.trim());
+          lineas.push('│ Ejercicio: ' + c.ejercicio.trim());
+          if (c.tiempo) lineas.push('│ Tiempo: ' + c.tiempo.toString().trim() + ' min');
+          if (c.notas) {
+            c.notas.trim().split('\n').forEach((nl,ni) => {
+              if (nl.trim()) lineas.push((ni===0 ? '│ Notas: ' : '│   ') + nl.trim());
+            });
+          }
+          lineas.push('└─────────────────────────┘');
+          lineas.push('');
+        }
+      });
+  }
+
+  const texto = lineas.join('\n');
+
+  const resultado = await enviarMensaje(usuario.telefono, texto, usuario.entrenador_id);
+
+  res.json({ ok: resultado });
+});
 // ── ENCICLOPEDIA ──
 app.get('/api/glosario', (req, res) => {
   const data = cargarJSON('glosario.json', []);

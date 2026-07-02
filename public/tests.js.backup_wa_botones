@@ -523,10 +523,11 @@ async function generarTextoTest(tipo) {
 
 async function enviarTest(tipo) {
   const r = await generarTextoTest(tipo);
-  if (!r.telefono) { toast('⚠️ Cliente sin teléfono registrado', false); return; }
-  const tel = r.telefono.replace(/[^0-9]/g, '');
-  const url = 'https://wa.me/'+tel+'?text='+encodeURIComponent(r.texto);
-  window.open(url, '_blank');
+  const entId = JSON.parse(localStorage.getItem('dt_sesion')||'{}').id || null;
+  if (!entId) { alert('No se pudo confirmar tu sesion. Espera un momento e intenta de nuevo.'); return; }
+  const res = await fetch('/api/enviar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telefono: r.telefono, mensaje: r.texto, entrenador_id: entId }) });
+  const data = await res.json();
+  toast(data.ok ? '✅ Enviado' : '❌ Error', data.ok);
 }
 
 async function copiarTest(tipo) {

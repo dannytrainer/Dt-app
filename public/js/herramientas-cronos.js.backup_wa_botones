@@ -392,6 +392,23 @@ async function compartirDiaRutina(){
   }
 }
 
+async function enviarDiaRutina(){
+const id=document.getElementById('enviar-cliente-dia').value;
+const dia=document.getElementById('enviar-dia-select').value;
+if(!id){toast('Selecciona un cliente',false);return;}
+const res=await fetch('/api/enviar-dia/'+id+'/'+dia,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+const data=await res.json();
+toast(data.ok?'✅ Día enviado':'❌ Error',data.ok);
+}
+
+async function enviarRutinaCompleta(){
+const id=document.getElementById('enviar-cliente').value;
+if(!id){toast('Selecciona un cliente',false);return;}
+const res=await fetch('/api/enviar-rutina/'+id,{method:'POST'});
+const data=await res.json();
+toast(data.ok?'✅ Rutina enviada':'❌ Error',data.ok);
+}
+
 async function mostrarTarjetaPremium(){
   if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
   const id = document.getElementById("enviar-cliente").value;
@@ -433,6 +450,15 @@ async function mostrarTarjetaPremium(){
   modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.remove(); });
 }
 
+async function enviarInformePremium(){
+  if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
+  const id=document.getElementById("enviar-cliente").value;
+  if(!id){toast("Selecciona un cliente",false);return;}
+  if(!confirm("Enviar informe premium por WhatsApp?")){return;}
+  const res=await fetch("/api/informe/"+id+"/enviar",{method:"POST"});
+  const data=await res.json();
+  toast(data.ok?"Informe enviado":"Error: "+data.error,data.ok);
+}
 async function descargarInformeArchivo(){
   if(!entEsPremium()){mostrarCandadoPremium('El Informe Premium requiere Plan Premium.');return;}
   const id=document.getElementById("enviar-cliente").value;
