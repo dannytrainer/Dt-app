@@ -131,7 +131,9 @@ async function cargarLogsPanel(filtro) {
   const logs = data.logs || [];
 
   const traducciones = [
+    { patron: "getaddrinfo ENOTFOUND web.whatsapp", nombre: "WhatsApp sin conexion", desc: "WhatsApp intento conectarse pero no habia internet." },
     { patron: "getaddrinfo ENOTFOUND", nombre: "Sin conexion a internet", desc: "El servidor intento conectarse a un servicio externo sin exito." },
+    { patron: "printQRInTerminal", nombre: "Aviso de WhatsApp desactualizado", desc: "Una opcion de configuracion de WhatsApp quedo obsoleta. No afecta el funcionamiento." },
     { patron: "Cannot read prop", nombre: "Dato faltante en el servidor", desc: "El servidor intento leer un dato que no existia." },
     { patron: "ENOENT", nombre: "Archivo no encontrado", desc: "El servidor busco un archivo que no existe." },
     { patron: "SyntaxError", nombre: "Error de codigo", desc: "Hay un error de sintaxis en el codigo o en un archivo JSON." },

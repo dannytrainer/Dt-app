@@ -20,6 +20,8 @@ const storageFoto = multer.diskStorage({
   }
 });
 const uploadFoto = multer({storage:storageFoto,limits:{fileSize:5*1024*1024}});
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const qrcode = require('qrcode-terminal');
 const cron = require('node-cron');
 
 // Fecha actual en zona horaria de Colombia
@@ -266,6 +268,20 @@ const guardarJSON = (archivo, datos) => {
   fs.writeFileSync(ruta, JSON.stringify(datos, null, 2));
 };
 
+// [WhatsApp legacy removido - ver wa-v2]
+
+
+async function enviarMensaje(telefono, mensaje, entId) {
+  // WhatsApp temporalmente desconectado (en reconstruccion, ver wa-v2)
+  return false;
+}
+
+async function enviarDocumento(telefono, buffer, mimetype, fileName, entId) {
+  // WhatsApp temporalmente desconectado (en reconstruccion, ver wa-v2)
+  return false;
+}
+
+// [Rutas WhatsApp legacy removidas - ver wa-v2]
 
 
 
@@ -999,6 +1015,10 @@ app.post('/api/horarios', (req, res) => {
   const eid = req.body.entrenador_id || null;
   guardarJSON('horarios_' + eid + '.json', req.body);
   res.json({ok:true});
+});
+
+app.post('/api/grupo-info', async (req, res) => {
+  res.json({ ok: false, error: 'WhatsApp temporalmente desconectado (en reconstruccion)' });
 });
 
 app.get('/api/status',(req,res)=>{
@@ -1766,6 +1786,17 @@ app.get('/api/informe/:id/descargar', async (req, res) => {
     res.send(htmlContent);
   } catch(e) {
     res.status(500).send('Error al generar descarga');
+  }
+});
+app.post('/api/informe/:id/enviar', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const usuarios = JSON.parse(fs.readFileSync('./data/usuarios.json', 'utf8'));
+    const usuario = usuarios.find(u => u.id == id || u.telefono == id);
+    if (!usuario) return res.status(404).json({ ok: false, error: 'Cliente no encontrado' });
+    return res.json({ ok: false, error: 'WhatsApp temporalmente desconectado (en reconstruccion)' });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
   }
 });
 

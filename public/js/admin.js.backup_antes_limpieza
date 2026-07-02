@@ -717,6 +717,174 @@ function copiarCodigoVinc() {
   navigator.clipboard.writeText(el.textContent).then(() => toast('📋 Código copiado'));
 }
 
+// Cargar código guardado al abrir config
+let _waQRInstance = null;
+let _waQRTexto = null;
+
+async function cargarEstadoWA() {
+  const entId = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
+  try {
+    const res = await fetch('/api/wa/estado?entrenador_id=' + entId);
+    const data = await res.json();
+    const txt = document.getElementById('wa-estado-txt');
+    const box = document.getElementById('wa-codigo-box');
+    const cod = document.getElementById('wa-codigo-txt');
+    const btnCon = document.getElementById('wa-btn-conectar');
+    const btnQR = document.getElementById('wa-btn-qr');
+    const btnDesc = document.getElementById('wa-btn-desconectar');
+    const numTxt = document.getElementById('wa-numero-txt');
+    const qrBox = document.getElementById('wa-qr-box');
+    const qrCanvas = document.getElementById('wa-qr-canvas');
+    if (numTxt) numTxt.textContent = (data.conectado && data.telefono) ? ('Número registrado: ' + data.telefono) : 'Sin número registrado';
+    if (!txt) return;
+    const btnReconectar = document.getElementById('wa-btn-reconectar');
+    if (data.conectado) {
+      txt.textContent = '✅ WhatsApp conectado';
+      txt.style.color = '#4caf50';
+      if (box) box.style.display = 'none';
+      if (btnCon) btnCon.style.display = 'none';
+      if (btnQR) btnQR.style.display = 'none';
+      if (btnReconectar) btnReconectar.style.display = 'none';
+      if (qrBox) qrBox.style.display = 'none';
+      if (btnDesc) btnDesc.style.display = 'block';
+      _waQRTexto = null;
+    } else {
+      txt.textContent = '🔴 No conectado';
+      txt.style.color = '#e31e24';
+      if (data.pairingCode && box && cod) {
+        box.style.display = 'block';
+        cod.textContent = data.pairingCode;
+        if (btnCon) btnCon.style.display = 'none';
+        if (btnQR) btnQR.style.display = 'none';
+        if (btnReconectar) btnReconectar.style.display = 'none';
+        if (qrBox) qrBox.style.display = 'none';
+        if (btnDesc) btnDesc.style.display = 'block';
+        _waQRTexto = null;
+      } else if (data.qrCode && qrBox && qrCanvas) {
+        if (box) box.style.display = 'none';
+        if (btnCon) btnCon.style.display = 'block';
+        if (btnQR) btnQR.style.display = 'none';
+        if (btnReconectar) btnReconectar.style.display = 'none';
+        qrBox.style.display = 'block';
+        if (btnDesc) btnDesc.style.display = 'block';
+        if (data.qrCode !== _waQRTexto && window.QRCode) {
+          qrCanvas.innerHTML = '';
+          _waQRInstance = new QRCode(qrCanvas, { text: data.qrCode, width: 200, height: 200 });
+          _waQRTexto = data.qrCode;
+        }
+      } else {
+        if (box) box.style.display = 'none';
+        if (qrBox) qrBox.style.display = 'none';
+        if (btnDesc) btnDesc.style.display = 'none';
+        _waQRTexto = null;
+        if (data.tieneCredenciales) {
+          if (btnCon) btnCon.style.display = 'none';
+          if (btnQR) btnQR.style.display = 'none';
+          if (btnReconectar) btnReconectar.style.display = 'block';
+        } else {
+          if (btnCon) btnCon.style.display = 'block';
+          if (btnQR) btnQR.style.display = 'block';
+          if (btnReconectar) btnReconectar.style.display = 'none';
+        }
+      }
+    }
+  } catch(e) {
+    const txt = document.getElementById('wa-estado-txt');
+    if (txt) { txt.textContent = '⚠️ Error al verificar'; txt.style.color = '#ff9800'; }
+  }
+}
+
+async function corregirNumeroWA() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  const tel = prompt('Ingresa el número correcto de WhatsApp con código de país (ej: 573012345678):');
+  if (!tel) return;
+  const res = await fetch('/api/wa/corregir-numero', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId, telefono: tel })
+  });
+  const data = await res.json();
+  toast(data.ok ? '✅ Número corregido: ' + tel : (data.error || 'Error al corregir'));
+  await cargarEstadoWA();
+}
+
+async function conectarMiWhatsApp() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  alert('PASOS PARA CONECTAR:\n\n1. Abre WhatsApp y entra a Dispositivos vinculados\n2. Toca en Anadir dispositivo\n3. Toca "Vincular con numero de telefono" (debajo del escaner)\n4. Vuelve aqui y presiona OK, luego escribe tu numero con 57 adelante\n5. Te llegara una notificacion de WhatsApp de intento de vinculacion: aceptala\n6. Copia el codigo que aparece aqui y pegalo en WhatsApp\n\nPuede salir "vinculacion fallida" pero conecta en menos de 1 minuto. Espera sin cerrar.');
+  const tel = prompt('Ingresa tu número de WhatsApp con código de país (ej: 573012345678):');
+  if (!tel) return;
+  const btn = document.getElementById('wa-btn-conectar');
+  if (btn) { btn.textContent = '⏳ Conectando...'; btn.disabled = true; }
+  const res = await fetch('/api/wa/conectar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId, telefono: tel })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    let _waPolling = setInterval(async () => { await cargarEstadoWA(); const s = waSessions && waSessions[entId]; if (document.getElementById("wa-estado-txt") && document.getElementById("wa-estado-txt").textContent.includes("✅")) clearInterval(_waPolling); }, 3000);
+  } else {
+    toast(data.error || 'Error al conectar');
+    if (btn) { btn.textContent = '📲 Conectar WhatsApp'; btn.disabled = false; }
+  }
+}
+
+async function reconectarMiWhatsApp() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  const btn = document.getElementById('wa-btn-reconectar');
+  if (btn) { btn.textContent = '⏳ Reconectando...'; btn.disabled = true; }
+  const res = await fetch('/api/wa/conectar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    let _waPolling = setInterval(async () => { await cargarEstadoWA(); if (document.getElementById("wa-estado-txt") && document.getElementById("wa-estado-txt").textContent.includes("✅")) clearInterval(_waPolling); }, 3000);
+  } else {
+    toast(data.error || 'Error al reconectar');
+  }
+  if (btn) { btn.textContent = '🔄 Reconectar'; btn.disabled = false; }
+}
+
+async function generarQRMiWhatsApp() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  const btn = document.getElementById('wa-btn-qr');
+  if (btn) { btn.textContent = '⏳ Generando...'; btn.disabled = true; }
+  const res = await fetch('/api/wa/conectar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    let _waPolling = setInterval(async () => { await cargarEstadoWA(); if (document.getElementById("wa-estado-txt") && document.getElementById("wa-estado-txt").textContent.includes("✅")) clearInterval(_waPolling); }, 3000);
+  } else {
+    toast(data.error || 'Error al generar QR');
+  }
+  if (btn) { btn.textContent = '📷 Generar código QR'; btn.disabled = false; }
+}
+
+async function desconectarMiWhatsApp() {
+  const sesion = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
+  const entId = sesion.id || 'ent_001';
+  if (!confirm('¿Seguro que quieres desconectar WhatsApp?')) return;
+  const btn = document.getElementById('wa-btn-desconectar');
+  if (btn) { btn.textContent = '⏳ Desconectando...'; btn.disabled = true; }
+  const res = await fetch('/api/wa/desconectar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entrenador_id: entId })
+  });
+  const data = await res.json();
+  toast(data.ok ? '✅ WhatsApp desconectado' : (data.error || 'Error al desconectar'));
+  if (btn) { btn.textContent = '🛑 Desconectar'; btn.disabled = false; }
+  await cargarEstadoWA();
+}
 
 function cargarCodigoVinc() {
   fetch('/api/config?entrenador_id='+(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(r=>r.json()).then(cfg=>{
