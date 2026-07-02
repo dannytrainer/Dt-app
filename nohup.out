@@ -1,15 +1,3 @@
 nohup: ignoring input
-Interfaz en http://localhost:3000
-{"level":40,"time":"2026-05-19T22:05:40.805Z","pid":22180,"hostname":"localhost","class":"baileys","msg":"⚠️ The printQRInTerminal option has been deprecated. You will no longer receive QR codes in the terminal automatically. Please listen to the connection.update event yourself and handle the QR your way. You can remove this message by removing this opttion. This message will be removed in a future version."}
-{"level":30,"time":"2026-05-19T22:05:41.076Z","pid":22180,"hostname":"localhost","class":"baileys","browser":["Mac OS","Chrome","14.4.1"],"helloMsg":{"clientHello":{"ephemeral":"3Gu/eKq76Nn6DLgOLejQ5NGoulhh7BQy6Tw+mh88AXw="}},"msg":"connected to WA"}
+DT-APP corriendo en puerto 3000
 Festivos sincronizados: 0 nuevos
-{"level":30,"time":"2026-05-19T22:05:41.487Z","pid":22180,"hostname":"localhost","class":"baileys","node":{"username":"573006197897","passive":true,"userAgent":{"platform":"WEB","appVersion":{"primary":2,"secondary":3000,"tertiary":1035194821},"mcc":"000","mnc":"000","osVersion":"0.1","device":"Desktop","osBuildNumber":"0.1","releaseChannel":"RELEASE","localeLanguageIso6391":"en","localeCountryIso31661Alpha2":"US"},"webInfo":{"webSubPlatform":"WEB_BROWSER"},"connectType":"WIFI_UNKNOWN","connectReason":"USER_ACTIVATED","device":1,"pull":true,"lidDbMigrated":false},"msg":"logging in..."}
-{"level":30,"time":"2026-05-19T22:05:42.005Z","pid":22180,"hostname":"localhost","class":"baileys","msg":"770 pre-keys found on server"}
-{"level":30,"time":"2026-05-19T22:05:42.006Z","pid":22180,"hostname":"localhost","class":"baileys","msg":"Current prekey ID: 52018, exists in storage: true"}
-{"level":30,"time":"2026-05-19T22:05:42.006Z","pid":22180,"hostname":"localhost","class":"baileys","msg":"PreKey validation passed - Server: 770, Current prekey 52018 exists"}
-{"level":30,"time":"2026-05-19T22:05:42.149Z","pid":22180,"hostname":"localhost","class":"baileys","msg":"handled 0 offline messages/notifications"}
-{"level":30,"time":"2026-05-19T22:05:42.154Z","pid":22180,"hostname":"localhost","class":"baileys","msg":"Connection is now AwaitingInitialSync, buffering events"}
-{"level":30,"time":"2026-05-19T22:05:42.155Z","pid":22180,"hostname":"localhost","class":"baileys","msg":"Reconnection with existing sync data, skipping history sync wait. Transitioning to Online."}
-{"level":30,"time":"2026-05-19T22:05:42.327Z","pid":22180,"hostname":"localhost","class":"baileys","msg":"opened connection to WA"}
-✅ WhatsApp conectado!
-{"level":30,"time":"2026-05-19T22:05:42.374Z","pid":22180,"hostname":"localhost","class":"baileys","myPN":"573006197897:1@s.whatsapp.net","myLID":"270699037995066:1@lid","msg":"Own LID session created successfully"}

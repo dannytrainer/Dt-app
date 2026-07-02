@@ -31,7 +31,6 @@ function fechaHoyBogota() {
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { fork } = require('child_process');
 
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
@@ -269,129 +268,21 @@ const guardarJSON = (archivo, datos) => {
   fs.writeFileSync(ruta, JSON.stringify(datos, null, 2));
 };
 
-// Mapa de sesiones WA por entrenador
-// ── MÓDULO WHATSAPP ──────────────────────────────────────────────
-const waSessions = {};
+// [WhatsApp legacy removido - ver wa-v2]
 
-function conectarWhatsApp(entId, telefono) {
-  if (!entId) return;
-  if (waSessions[entId] && waSessions[entId].proceso) {
-    waSessions[entId].detenido = true;
-    try { waSessions[entId].proceso.send({ tipo: 'detener' }); } catch(e) {}
-    try { waSessions[entId].proceso.kill(); } catch(e) {}
-  }
-  waSessions[entId] = { proceso: null, conectado: false, pairingCode: null, qrCode: null, pendientes: {} };
-  const sess = waSessions[entId];
-  const env = { ...process.env, ENT_ID: entId };
-  if (telefono) env.ENT_TELEFONO = telefono;
-  const worker = fork(path.join(__dirname, 'wa-worker.js'), [], { env, silent: false });
-  sess.proceso = worker;
-  worker.on('message', (msg) => {
-    if (msg.tipo === 'codigo') { sess.pairingCode = msg.codigo; }
-    if (msg.tipo === 'qr') { sess.qrCode = msg.qr; }
-    if (msg.tipo === 'estado') { sess.conectado = msg.conectado; if (msg.conectado) sess.qrCode = null; }
-    if (msg.tipo === 'resultado') { const cb = sess.pendientes[msg.id]; if (cb) { cb(msg.ok); delete sess.pendientes[msg.id]; } }
-  });
-  worker.on('exit', (code) => {
-    sess.proceso = null;
-    sess.conectado = false;
-    if (code !== 0 && !sess.detenido) {
-      setTimeout(() => { if (!waSessions[entId] || !waSessions[entId].proceso) conectarWhatsApp(entId, null); }, 5000);
-    }
-  });
-  console.log('🚀 Worker iniciado para ['+entId+']');
-}
 
 async function enviarMensaje(telefono, mensaje, entId) {
-  const sess = waSessions[entId];
-  if (!sess || !sess.conectado || !sess.proceso) return false;
-  const msgId = Date.now() + '_msg';
-  const resultado = await new Promise((resolve) => {
-    sess.pendientes[msgId] = resolve;
-    sess.proceso.send({ tipo: 'enviar', id: msgId, telefono, mensaje });
-    setTimeout(() => { if (sess.pendientes[msgId]) { delete sess.pendientes[msgId]; resolve(false); } }, 15000);
-  });
-  return resultado;
+  // WhatsApp temporalmente desconectado (en reconstruccion, ver wa-v2)
+  return false;
 }
 
 async function enviarDocumento(telefono, buffer, mimetype, fileName, entId) {
-  const sess = waSessions[entId];
-  if (!sess || !sess.conectado || !sess.proceso) return false;
-  const msgId = Date.now() + '_doc';
-  const resultado = await new Promise((resolve) => {
-    sess.pendientes[msgId] = resolve;
-    sess.proceso.send({
-      tipo: 'enviarDoc',
-      id: msgId,
-      telefono,
-      buffer: buffer.toString('base64'),
-      mimetype,
-      fileName
-    });
-    setTimeout(() => { if (sess.pendientes[msgId]) { delete sess.pendientes[msgId]; resolve(false); } }, 15000);
-  });
-  return resultado;
+  // WhatsApp temporalmente desconectado (en reconstruccion, ver wa-v2)
+  return false;
 }
 
-app.get('/api/wa/estado', (req, res) => {
-  const entId = req.query.entrenador_id || null;
-  const sess = waSessions[entId] || {};
-  let telefono = null;
-  try {
-    const c = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
-    const e = c.entrenadores.find(e => e.id === entId);
-    if (e) telefono = e.telefono || null;
-  } catch(e) {}
-  let tieneCredenciales = false;
-  try { tieneCredenciales = fs.existsSync(path.join(__dirname, 'auth_' + entId, 'creds.json')); } catch(e) {}
-  res.json({ conectado: sess.conectado||false, codigo: sess.pairingCode||null, qrCode: sess.qrCode||null, telefono, tieneCredenciales });
-});
+// [Rutas WhatsApp legacy removidas - ver wa-v2]
 
-app.post('/api/wa/conectar', async (req, res) => {
-  const { entrenador_id, telefono } = req.body;
-  if (!entrenador_id) return res.json({ ok: false, error: 'Falta entrenador_id' });
-  const sess = waSessions[entrenador_id];
-  if (sess && sess.conectado) return res.json({ ok: false, error: 'Ya conectado' });
-  conectarWhatsApp(entrenador_id, telefono || null);
-  if (telefono) {
-    try {
-      const c = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
-      const e = c.entrenadores.find(e => e.id === entrenador_id);
-      if (e) { e.telefono = telefono; fs.writeFileSync(path.join(__dirname, 'data/cuentas.json'), JSON.stringify(c, null, 2)); }
-    } catch(e) {}
-  }
-  res.json({ ok: true });
-});
-
-app.post('/api/wa/desconectar', async (req, res) => {
-  const { entrenador_id } = req.body;
-  if (!entrenador_id) return res.json({ ok: false, error: 'Falta entrenador_id' });
-  const sess = waSessions[entrenador_id];
-  if (sess) {
-    sess.detenido = true;
-    const procesoAnterior = sess.proceso;
-    try { procesoAnterior && procesoAnterior.send({ tipo: 'detener' }); } catch(e) {}
-    // TODO(deuda-tecnica): reemplazar por ACK real del worker (tipo:'detenido_ok')
-    // en vez de timeout fijo. Ver auditoria P0-A.
-    setTimeout(() => { try { procesoAnterior && procesoAnterior.kill(); } catch(e) {} }, 200);
-  }
-  delete waSessions[entrenador_id];
-  try { fs.rmSync(path.join(__dirname, 'auth_' + entrenador_id), { recursive: true, force: true }); } catch(e) {}
-  res.json({ ok: true });
-});
-
-app.post('/api/wa/corregir-numero', (req, res) => {
-  const { entrenador_id, telefono } = req.body;
-  if (!entrenador_id || !telefono) return res.json({ ok: false, error: 'Faltan datos' });
-  try {
-    const c = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/cuentas.json'), 'utf8'));
-    const e = c.entrenadores.find(e => e.id === entrenador_id);
-    if (!e) return res.json({ ok: false, error: 'No encontrado' });
-    e.telefono = telefono.replace(/\D/g,'');
-    fs.writeFileSync(path.join(__dirname, 'data/cuentas.json'), JSON.stringify(c, null, 2));
-    res.json({ ok: true });
-  } catch(e) { res.json({ ok: false, error: e.message }); }
-});
 
 
 
@@ -1127,30 +1018,11 @@ app.post('/api/horarios', (req, res) => {
 });
 
 app.post('/api/grupo-info', async (req, res) => {
-  const { link, entrenador_id } = req.body;
-  if(!link) return res.json({ok:false, error:'Sin link'});
-  try {
-    const entId = entrenador_id || null;
-    const sess = waSessions[entId];
-    if(!sess || !sess.conectado || !sess.proceso) return res.json({ok:false, error:'WhatsApp no conectado'});
-    const codigo = link.split('/').pop();
-    const msgId = Date.now() + '_grp';
-    const resultado = await new Promise((resolve) => {
-      sess.pendientes[msgId] = resolve;
-      sess.proceso.send({ tipo: 'grupoInfo', id: msgId, codigo });
-      setTimeout(() => { if(sess.pendientes[msgId]) { delete sess.pendientes[msgId]; resolve(null); } }, 10000);
-    });
-    if(!resultado) return res.json({ok:false, error:'No se pudo obtener info del grupo'});
-    res.json({ok:true, jid:resultado.id, nombre:resultado.subject, participantes:resultado.size});
-  } catch(e) {
-    res.json({ok:false, error:e.message});
-  }
+  res.json({ ok: false, error: 'WhatsApp temporalmente desconectado (en reconstruccion)' });
 });
 
 app.get('/api/status',(req,res)=>{
-  const eid = req.query.entrenador_id || null;
-  const sess = waSessions[eid];
-  res.json({conectado: sess ? sess.conectado : false});
+  res.json({conectado: false});
 });
 app.get('/api/logs', (req, res) => {
   const eid = req.query.entrenador_id || null;
@@ -1658,7 +1530,6 @@ app.get('/api/enciclopedia/:id', (req, res) => {
   res.json(ej);
 });
 
-// conectarWhatsApp('ent_001', '573006197897'); // deshabilitado: causaba reconexion automatica no deseada al arrancar
 
 // PREMIUM — validar código
 app.post('/api/premium/activar', (req, res) => {
@@ -1923,45 +1794,7 @@ app.post('/api/informe/:id/enviar', async (req, res) => {
     const usuarios = JSON.parse(fs.readFileSync('./data/usuarios.json', 'utf8'));
     const usuario = usuarios.find(u => u.id == id || u.telefono == id);
     if (!usuario) return res.status(404).json({ ok: false, error: 'Cliente no encontrado' });
-
-    const telefono = usuario.telefono.replace(/[^0-9]/g, '');
-    const jid = telefono + '@s.whatsapp.net';
-    const nombre = usuario.nombre || 'Cliente';
-
-    const http = require('http');
-    const htmlContent = await new Promise((resolve, reject) => {
-      const req2 = http.request({ hostname: 'localhost', port: 3000, path: '/api/informe/' + id + '/html', method: 'GET' }, (res2) => {
-        let data = '';
-        res2.on('data', chunk => data += chunk);
-        res2.on('end', () => resolve(data));
-      });
-      req2.on('error', reject);
-      req2.end();
-    });
-
-    const buffer = Buffer.from(htmlContent, 'utf-8');
-    const entId = usuario.entrenador_id;
-    if (!entId) {
-      return res.json({ ok: false, error: 'Cliente sin entrenador asignado, no se puede enviar' });
-    }
-    const sess = waSessions[entId];
-    if (!sess || !sess.conectado || !sess.proceso) {
-      return res.json({ ok: false, error: 'WhatsApp no conectado para este entrenador' });
-    }
-    const msgId = Date.now() + '_inf';
-    const resultado = await new Promise((resolve) => {
-      sess.pendientes[msgId] = resolve;
-      sess.proceso.send({
-        tipo: 'enviarDoc',
-        id: msgId,
-        telefono: usuario.telefono,
-        buffer: buffer.toString('base64'),
-        mimetype: 'text/html',
-        fileName: 'Informe-Premium-' + nombre.replace(/ /g, '-') + '.html'
-      });
-      setTimeout(() => { if (sess.pendientes[msgId]) { delete sess.pendientes[msgId]; resolve(false); } }, 15000);
-    });
-    res.json({ ok: resultado, mensaje: resultado ? 'Informe enviado a ' + nombre : 'Error al enviar' });
+    return res.json({ ok: false, error: 'WhatsApp temporalmente desconectado (en reconstruccion)' });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
@@ -2114,7 +1947,6 @@ app.post('/api/auth/registro', loginLimiter, (req, res) => {
     // Arrancar worker WA para nuevo entrenador
     guardarJSON('horarios_' + nuevo.id + '.json', {recurrentes:[], unicos:[]});
     guardarJSON('administrativo_' + nuevo.id + '.json', {clientes:{}});
-    conectarWhatsApp(nuevo.id, null);
     return res.json({ ok: true, rol: 'entrenador', id: nuevo.id, email: nuevo.email, nombre: nuevo.nombre, roles: [{rol:'entrenador', id: nuevo.id, nombre: nuevo.nombre}, {rol:'cliente', id: null, nombre: nuevo.nombre}] });
   }
   
