@@ -322,20 +322,8 @@ cron.schedule('* * * * *', async () => {
     let usuarios2 = JSON.parse(fs.readFileSync(path.join(__dirname,'data','usuarios.json'),'utf8'));
     let cambio = false;
     usuarios2 = usuarios2.map(u => {
-      if (!u.dia_pago) return u;
+      if (!u.activo || !u.dia_pago) return u;
       const diaPago = parseInt(u.dia_pago);
-
-      if (!u.fecha_ultimo_pago && diaHoy < diaPago && u.estado_pago === 'vencido') {
-        u.estado_pago = 'aldia';
-        u.activo = true;
-        u.push_cobro_pendiente = false;
-        u.msg_cobro_enviado = false;
-        u.push_vencido_enviado = false;
-        u.push_proximo_enviado = false;
-        cambio = true;
-      }
-
-      if (!u.activo) return u;
 
       if (u.fecha_ultimo_pago) {
         const corteEsteMes = fechaCorte(diaPago, hoySoloFecha.getFullYear(), hoySoloFecha.getMonth());

@@ -501,11 +501,6 @@ function filtrarClientes(){
     d.style.display=d.innerText.toLowerCase().includes(q)?'block':'none';
   });
 }
-function filtrarClientesPorChip(tipo){
-  window._chipClienteSel=tipo;
-  cargarClientes();
-}
-
 function filtrarRutinas(){
   const q=document.getElementById('buscador-rutinas').value.toLowerCase();
   document.querySelectorAll('#lista-rutinas-clientes>div').forEach(d=>{
@@ -568,9 +563,9 @@ function cobrosRenderLista(){
         +'<div onclick="cobrosToggleSeleccion(\''+u.id+'\')" style="width:22px;height:22px;border-radius:7px;border:2px solid '+(marcado?color:'#333')+';background:'+(marcado?color:'transparent')+';flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:900">'+(marcado?'✓':'')+'</div>'
         +av
         +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--texto)">'+u.nombre+'</div><div style="font-size:10.5px;color:'+color+';font-weight:700;margin-top:1px">'+estadoTexto+'</div>'
-        +(enviado?'<div style="font-size:10px;font-weight:800;color:#25d366;background:#0a1f10;border:1px solid #25d366;border-radius:6px;padding:2px 6px;margin-top:3px;width:fit-content">✓ Recordatorio enviado</div>':'')
+        +(enviado?'<div style="font-size:10px;font-weight:800;color:#25d366;background:#0a1f10;border:1px solid #25d366;border-radius:6px;padding:2px 6px;margin-top:3px;width:fit-content">✓ Cobro ya hecho</div>':'')
         +'</div>'
-        +'<div onclick="cobrosEnviarIndividual(\''+u.id+'\')" style="background:'+(enviado?'#111':color)+';border:'+(enviado?'1px solid #25d366':'none')+';border-radius:9px;color:'+(enviado?'#25d366':'#fff')+';font-size:11px;font-weight:800;padding:9px 11px;cursor:pointer;white-space:nowrap;flex-shrink:0">'+(enviado?'📲 Reenviar':'📲 WA')+'</div>'
+        +'<div onclick="cobrosEnviarIndividual(\''+u.id+'\')" style="background:'+(enviado?'#111':color)+';border:'+(enviado?'1px solid #25d366':'none')+';border-radius:9px;color:'+(enviado?'#25d366':'#fff')+';font-size:11px;font-weight:800;padding:9px 11px;cursor:pointer;white-space:nowrap;flex-shrink:0">'+(enviado?'✓ Enviado':'📲 WA')+'</div>'
         +'</div>';
     }).join('');
   }
@@ -628,10 +623,9 @@ function cobrosMostrarOverlayPara(id){
   document.getElementById('cobros-cadena-avatar').src=u.foto||'';
   document.getElementById('cobros-cadena-nombre').textContent=u.nombre;
   document.getElementById('cobros-cadena-mensaje').textContent=_cobrosMensajeDe(u);
-  document.getElementById('cobros-cadena-progreso').textContent=(_cobrosColaIndex+1)+' de '+_cobrosCola.length+' clientes';
+  document.getElementById('cobros-cadena-progreso').textContent='CLIENTE '+(_cobrosColaIndex+1)+' DE '+_cobrosCola.length;
   document.getElementById('cobros-cadena-barra').style.width=((_cobrosColaIndex+1)/_cobrosCola.length*100)+'%';
   document.getElementById('cobros-overlay').style.display='flex';
-  document.body.style.overflow='hidden';
 }
 
 async function cobrosMarcarEnviado(id){
@@ -646,7 +640,6 @@ function cobrosAvanzarCadena(){
     cobrosMostrarOverlayPara(_cobrosCola[_cobrosColaIndex]);
   }else{
     document.getElementById('cobros-overlay').style.display='none';
-    document.body.style.overflow='';
     _cobrosSeleccionados.clear();
     cobrosRenderLista();
   }

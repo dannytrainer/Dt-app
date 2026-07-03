@@ -1064,7 +1064,7 @@ async function gestionarPushAdmin() {
 <div id="page-clientes" class="page">
 <div style="display:flex;gap:8px;margin-bottom:10px">
 <input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="flex:1;background:var(--card);border:1px solid #333;border-radius:8px;padding:11px;color:var(--texto-suave);font-size:14px;outline:none">
-
+<button onclick="toggleOrdenClientes()" style="background:var(--card);border:1px solid #333;border-radius:8px;padding:11px 14px;color:var(--texto-suave);font-size:16px;cursor:pointer">⇅</button>
 </div>
 <div id="chips-clientes" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;white-space:nowrap"></div>
 <div style="margin-bottom:12px">

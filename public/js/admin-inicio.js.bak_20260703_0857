@@ -294,6 +294,12 @@ if(!usuarios.length){lista.innerHTML='';empty.style.display='block';return;}
 empty.style.display='none';
 window._usuariosCargados=usuarios;
 const _ordenAsc=window._ordenClientesAsc||false;
+usuarios.sort((a,b)=>{
+  if(!!a.activo!==!!b.activo) return a.activo?-1:1;
+  const ta=a.fecha_registro?new Date(a.fecha_registro).getTime():0;
+  const tb=b.fecha_registro?new Date(b.fecha_registro).getTime():0;
+  return _ordenAsc?(ta-tb):(tb-ta);
+});
 window._usuariosCargados=usuarios;
 const sActivos=usuarios.filter(u=>u.activo).length;
 const sPersonalizados=usuarios.filter(u=>u.activo&&u.tipo==='personalizado').length;
@@ -328,10 +334,7 @@ function _cumpleChip(u){
 usuarios.sort((a,b)=>{
   const pa=_cumpleChip(a)?0:1;
   const pb=_cumpleChip(b)?0:1;
-  if(pa!==pb) return pa-pb;
-  const ta=a.fecha_registro?new Date(a.fecha_registro).getTime():0;
-  const tb=b.fecha_registro?new Date(b.fecha_registro).getTime():0;
-  return _ordenAsc?(ta-tb):(tb-ta);
+  return pa-pb;
 });
 lista.innerHTML=usuarios.map(u=>{
 const ep=u.estado_pago||'aldia';

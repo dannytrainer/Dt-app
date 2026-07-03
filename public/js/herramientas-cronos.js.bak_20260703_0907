@@ -506,6 +506,11 @@ function filtrarClientesPorChip(tipo){
   cargarClientes();
 }
 
+function toggleOrdenClientes(){
+  window._ordenClientesAsc=!window._ordenClientesAsc;
+  cargarClientes();
+}
+
 function filtrarRutinas(){
   const q=document.getElementById('buscador-rutinas').value.toLowerCase();
   document.querySelectorAll('#lista-rutinas-clientes>div').forEach(d=>{

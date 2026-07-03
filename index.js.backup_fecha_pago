@@ -309,117 +309,49 @@ cron.schedule('0 2 * * *', () => {
 cron.schedule('* * * * *', async () => {
   // Auto actualizar estado de pago
   try {
-    const hoyDate0 = new Date();
-    const hoySoloFecha = new Date(hoyDate0.getFullYear(), hoyDate0.getMonth(), hoyDate0.getDate());
-    const diaHoy = hoyDate0.getDate();
-
-    function fechaCorte(diaPago, year, month) {
-      const ultimoDia = new Date(year, month + 1, 0).getDate();
-      const dia = Math.min(diaPago, ultimoDia);
-      return new Date(year, month, dia);
-    }
-
+    const hoy2 = new Date();
+    const diaHoy = hoy2.getDate();
     let usuarios2 = JSON.parse(fs.readFileSync(path.join(__dirname,'data','usuarios.json'),'utf8'));
     let cambio = false;
     usuarios2 = usuarios2.map(u => {
-      if (!u.dia_pago) return u;
-      const diaPago = parseInt(u.dia_pago);
-
-      if (!u.fecha_ultimo_pago && diaHoy < diaPago && u.estado_pago === 'vencido') {
-        u.estado_pago = 'aldia';
-        u.activo = true;
-        u.push_cobro_pendiente = false;
-        u.msg_cobro_enviado = false;
-        u.push_vencido_enviado = false;
-        u.push_proximo_enviado = false;
-        cambio = true;
-      }
-
       if (!u.activo) return u;
-
-      if (u.fecha_ultimo_pago) {
-        const corteEsteMes = fechaCorte(diaPago, hoySoloFecha.getFullYear(), hoySoloFecha.getMonth());
-
-        let cicloPasado;
-        if (corteEsteMes <= hoySoloFecha) {
-          cicloPasado = corteEsteMes;
-        } else {
-          const mesAnt = hoySoloFecha.getMonth() - 1;
-          const y = mesAnt < 0 ? hoySoloFecha.getFullYear() - 1 : hoySoloFecha.getFullYear();
-          const m = (mesAnt + 12) % 12;
-          cicloPasado = fechaCorte(diaPago, y, m);
-        }
-        const diasDesdeCorte = Math.floor((hoySoloFecha - cicloPasado) / 86400000);
-
-        let cicloProximo;
-        if (corteEsteMes >= hoySoloFecha) {
-          cicloProximo = corteEsteMes;
-        } else {
-          const mesSig = hoySoloFecha.getMonth() + 1;
-          const y = mesSig > 11 ? hoySoloFecha.getFullYear() + 1 : hoySoloFecha.getFullYear();
-          const m = mesSig % 12;
-          cicloProximo = fechaCorte(diaPago, y, m);
-        }
-        const diasHastaCorte = Math.floor((cicloProximo - hoySoloFecha) / 86400000);
-
-        const fechaPagoDate = new Date(u.fecha_ultimo_pago + 'T00:00:00');
-        const yaPagoEsteCiclo = fechaPagoDate >= cicloPasado;
-
-        if (yaPagoEsteCiclo) {
-          if (diasHastaCorte > 0 && diasHastaCorte <= 3) {
-            if (u.estado_pago !== 'proximo') { u.estado_pago = 'proximo'; u.push_cobro_pendiente = true; cambio = true; }
-          } else if (u.estado_pago !== 'aldia') {
-            u.estado_pago = 'aldia'; cambio = true;
-          }
-        } else {
-          if (diasDesdeCorte >= 0 && diasDesdeCorte < 3) {
-            if (u.estado_pago !== 'vencido') { u.estado_pago = 'vencido'; u.push_cobro_pendiente = true; cambio = true; }
-          } else if (diasDesdeCorte >= 3) {
-            if (u.activo) { u.activo = false; cambio = true; }
-            if (u.estado_pago !== 'vencido') { u.estado_pago = 'vencido'; cambio = true; }
-          }
-        }
-      } else {
-        const diasAntes = 3;
-        const esDiaPago = diaPago === diaHoy;
-        const esVencido = diaPago < diaHoy && u.estado_pago !== 'aldia';
-        const esProximo = diaPago === diaHoy + diasAntes;
-
-        if (esVencido && u.estado_pago !== 'vencido') {
-          u.estado_pago = 'vencido'; u.push_cobro_pendiente = true; cambio = true;
-        } else if (esDiaPago && u.estado_pago === 'vencido') {
-          u.estado_pago = 'vencido';
-        } else if (esProximo && u.estado_pago === 'aldia') {
-          u.estado_pago = 'proximo'; u.push_cobro_pendiente = true; cambio = true;
-        }
+      const diasAntes = 3;
+      const esDiaPago = u.dia_pago === diaHoy;
+      const esVencido = u.dia_pago < diaHoy && u.estado_pago !== 'aldia';
+      const esProximo = u.dia_pago === diaHoy + diasAntes || (u.tipo_pago === 'quincenal' && u.dia_pago2 === diaHoy + diasAntes);
+      if (esVencido && u.estado_pago !== 'vencido') {
+        u.estado_pago = 'vencido'; cambio = true;
+        // Push se envia a las 8:37am, no aqui
       }
-
+      else if (esDiaPago && u.estado_pago === 'vencido') { u.estado_pago = 'vencido'; }
+      else if (esProximo && u.estado_pago === 'aldia') {
+        u.estado_pago = 'proximo'; cambio = true;
+        // Push se envia a las 8:37am, no aqui
+      }
+      return u;
+    });
+    // Pausar clientes vencidos hace mas de 3 dias
+    usuarios2 = usuarios2.map(u => {
+      if (!u.activo) return u;
+      if (u.estado_pago === 'vencido' && u.dia_pago) {
+        const hoyDate = new Date();
+        const fechaPago = new Date(hoyDate.getFullYear(), hoyDate.getMonth(), parseInt(u.dia_pago));
+        if (parseInt(u.dia_pago) > hoyDate.getDate()) {
+          fechaPago.setMonth(fechaPago.getMonth() - 1);
+        }
+        const diasVencido = Math.floor((hoyDate - fechaPago) / (1000*60*60*24));
+        if (diasVencido >= 3) { u.activo = false; cambio = true; }
+      }
       if (u.estado_pago === 'aldia') {
         if (u.msg_cobro_enviado) { u.msg_cobro_enviado = false; cambio = true; }
         if (u.push_vencido_enviado) { u.push_vencido_enviado = false; cambio = true; }
         if (u.push_proximo_enviado) { u.push_proximo_enviado = false; cambio = true; }
-        if (u.push_cobro_pendiente) { u.push_cobro_pendiente = false; cambio = true; }
       }
       return u;
     });
-
-    usuarios2 = usuarios2.map(u => {
-      if (!u.activo || u.fecha_ultimo_pago) return u;
-      if (u.estado_pago === 'vencido' && u.dia_pago) {
-        const hoyDatePausa = new Date();
-        const fechaPagoCiclo = new Date(hoyDatePausa.getFullYear(), hoyDatePausa.getMonth(), parseInt(u.dia_pago));
-        if (parseInt(u.dia_pago) > hoyDatePausa.getDate()) {
-          fechaPagoCiclo.setMonth(fechaPagoCiclo.getMonth() - 1);
-        }
-        const diasVencido = Math.floor((hoyDatePausa - fechaPagoCiclo) / (1000*60*60*24));
-        if (diasVencido >= 3) { u.activo = false; cambio = true; }
-      }
-      return u;
-    });
-
     if (cambio) fs.writeFileSync(path.join(__dirname,'data','usuarios.json'), JSON.stringify(usuarios2, null, 2));
 
-    // Verificar premium de entrenadores
+  // Verificar premium de entrenadores
   try {
     const cuentasCron = cargarJSON('cuentas.json', {entrenadores:[], clientes:[]});
     const hoyStr = new Date().toISOString().split('T')[0];
@@ -924,7 +856,7 @@ app.post('/api/admin/:id/pago', (req, res) => {
   guardarJSON(archivo, data);
   const usuarios = cargarJSON('usuarios.json');
   const idx = usuarios.findIndex(u => u.id === req.params.id || u.id === 'cli_'+req.params.id);
-  if(idx !== -1){ usuarios[idx].estado_pago = 'aldia'; usuarios[idx].fecha_ultimo_pago = new Date().toISOString().split('T')[0]; guardarJSON('usuarios.json', usuarios); }
+  if(idx !== -1){ usuarios[idx].estado_pago = 'aldia'; guardarJSON('usuarios.json', usuarios); }
   res.json({ok:true});
 });
 app.post('/api/usuarios/:id/marcar-enviado', (req, res) => {

@@ -1062,11 +1062,7 @@ async function gestionarPushAdmin() {
 </div>
 
 <div id="page-clientes" class="page">
-<div style="display:flex;gap:8px;margin-bottom:10px">
-<input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="flex:1;background:var(--card);border:1px solid #333;border-radius:8px;padding:11px;color:var(--texto-suave);font-size:14px;outline:none">
-
-</div>
-<div id="chips-clientes" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;white-space:nowrap"></div>
+<input type="text" id="buscador-clientes" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:11px;color:var(--texto-suave);font-size:14px;outline:none;margin-bottom:12px"><div id="stats-clientes" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px"><div style="background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.25);border-radius:8px;padding:8px;text-align:center"><div id="stat-activos" style="font-size:20px;font-weight:700;color:#4caf50">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">🟢 Activos</div></div><div style="background:rgba(227,30,36,0.10);border:1px solid rgba(227,30,36,0.25);border-radius:8px;padding:8px;text-align:center"><div id="stat-personalizados" style="font-size:20px;font-weight:700;color:#e31e24">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">💪 Person.</div></div><div style="background:rgba(74,158,255,0.10);border:1px solid rgba(74,158,255,0.25);border-radius:8px;padding:8px;text-align:center"><div id="stat-asesorados" style="font-size:20px;font-weight:700;color:#4a9eff">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">📋 Asesor.</div></div><div style="background:rgba(100,100,100,0.10);border:1px solid rgba(100,100,100,0.20);border-radius:8px;padding:8px;text-align:center"><div id="stat-pausados" style="font-size:20px;font-weight:700;color:var(--texto-secundario)">0</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase;margin-top:2px">⏸️ Pausados</div></div></div><p class="st">Clientes registrados</p>
 <div style="margin-bottom:12px">
 <button onclick="abrirModalCliente()" style="width:100%;background:var(--rojo);border:none;border-radius:8px;padding:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">➕ Agregar cliente</button>
 </div>
@@ -1353,32 +1349,16 @@ async function gestionarPushAdmin() {
 </div>
 </div>
 <div class="card" style="margin-top:8px">
-  <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px">💰 Cobros pendientes</div>
+  <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px">📢 Difusión</div>
+  <input type="text" id="buscar-difusion" placeholder="🔍 Filtrar clientes..." oninput="cargarDifusion()" style="width:100%;background:var(--card);border:1px solid #333;border-radius:8px;padding:9px;color:var(--texto-suave);font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px">
   <div style="display:flex;gap:8px;margin-bottom:10px">
-    <button class="btn" style="flex:1;font-size:12px;padding:8px" onclick="cobrosSeleccionarTodos(false)">Todos <span id="cobros-cnt-todos"></span></button>
-    <button class="btn" style="flex:1;font-size:12px;padding:8px" onclick="cobrosSeleccionarTodos(true)">Sin enviar <span id="cobros-cnt-sinenviar"></span></button>
-    <button class="btn" style="flex:1;font-size:12px;padding:8px" onclick="cobrosLimpiarSeleccion()">Limpiar</button>
+    <button class="btn" style="flex:1;font-size:12px;padding:8px" onclick="difusionSelTodos()">✅ Todos</button>
+    <button class="btn" style="flex:1;font-size:12px;padding:8px" onclick="difusionDeselTodos()">⬜ Ninguno</button>
   </div>
-  <div id="cobros-barra-sel" style="display:none;background:var(--card);border:1px solid #333;border-radius:10px;padding:10px 12px;margin-bottom:10px">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <span style="font-size:13px;color:var(--texto)"><b id="cobros-contador-sel" style="color:#e31e24">0</b> seleccionados</span>
-      <button class="btn br" style="font-size:12px;padding:8px 12px" onclick="cobrosIniciarCadena()">Enviar →</button>
-    </div>
-    <div id="cobros-aviso-cadena" style="display:none;font-size:11px;color:#ff9800;margin-top:8px"></div>
-  </div>
-  <div id="cobros-lista"></div>
+  <div id="difusion-lista" style="max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:6px"></div>
+  <div class="ig"><label>Mensaje</label><textarea id="mensaje-custom" placeholder="Escribe el mensaje para enviar..."></textarea></div>
+  <button class="btn br" style="width:100%" onclick="enviarDifusion()">📤 Enviar difusión</button>
 </div>
-</div>
-<div id="cobros-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999998;align-items:center;justify-content:center;padding:20px;overflow-y:auto;box-sizing:border-box">
-  <div style="background:var(--card);border:1px solid #333;border-radius:16px;padding:24px 20px;max-width:340px;width:100%;text-align:center">
-    <img id="cobros-cadena-avatar" src="" style="width:64px;height:64px;border-radius:50%;border:3px solid #25d366;object-fit:cover;margin-bottom:12px">
-    <div id="cobros-cadena-progreso" style="font-size:11px;color:#666;font-weight:700;margin-bottom:8px"></div>
-    <div style="height:5px;background:#000;border-radius:3px;overflow:hidden;margin-bottom:16px"><div id="cobros-cadena-barra" style="height:100%;background:#25d366;width:0%"></div></div>
-    <h3 id="cobros-cadena-nombre" style="font-size:16px;color:var(--texto);margin:0 0 8px"></h3>
-    <p id="cobros-cadena-mensaje" style="font-size:12.5px;color:#999;background:#0a0a0a;border-radius:10px;padding:10px 12px;text-align:left;margin:0 0 16px;line-height:1.5"></p>
-    <button class="btn br" style="width:100%;margin-bottom:8px" onclick="cobrosConfirmarEnvio()">📲 Abrir WhatsApp y enviar</button>
-    <button style="width:100%;background:transparent;border:none;color:#666;font-size:12px;padding:8px;cursor:pointer" onclick="cobrosOmitirEnvio()">Omitir este cliente</button>
-  </div>
 </div>
 <button class="fab" onclick="abrirModalCliente()" id="fab-btn" style="display:none">+</button>
 <div id="chat-ent-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:999999;flex-direction:column">

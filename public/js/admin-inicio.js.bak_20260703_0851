@@ -294,6 +294,12 @@ if(!usuarios.length){lista.innerHTML='';empty.style.display='block';return;}
 empty.style.display='none';
 window._usuariosCargados=usuarios;
 const _ordenAsc=window._ordenClientesAsc||false;
+usuarios.sort((a,b)=>{
+  if(!!a.activo!==!!b.activo) return a.activo?-1:1;
+  const ta=a.fecha_registro?new Date(a.fecha_registro).getTime():0;
+  const tb=b.fecha_registro?new Date(b.fecha_registro).getTime():0;
+  return _ordenAsc?(ta-tb):(tb-ta);
+});
 window._usuariosCargados=usuarios;
 const sActivos=usuarios.filter(u=>u.activo).length;
 const sPersonalizados=usuarios.filter(u=>u.activo&&u.tipo==='personalizado').length;
@@ -314,25 +320,21 @@ const chipSel=window._chipClienteSel||'todos';
 const chipsEl=document.getElementById('chips-clientes');
 if(chipsEl){
   chipsEl.innerHTML=chipsDefs.map(c=>`<div onclick="filtrarClientesPorChip('${c.id}')" style="display:inline-block;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;${chipSel===c.id?'background:#e31e24;color:#fff':'background:var(--card);color:var(--texto-medio);border:1px solid #333'}">${c.label} ${c.n}</div>`).join('');
-}
-function _cumpleChip(u){
-  if(chipSel==='todos') return true;
-  if(chipSel==='activos') return !!u.activo;
-  if(chipSel==='pausados') return !u.activo;
-  if(chipSel==='personalizado') return u.activo&&u.tipo==='personalizado';
-  if(chipSel==='asesorado') return u.activo&&u.tipo==='asesorado';
-  if(chipSel==='proximo') return u.activo&&u.estado_pago==='proximo';
-  if(chipSel==='vencido') return u.activo&&u.estado_pago==='vencido';
-  return true;
-}
-usuarios.sort((a,b)=>{
-  const pa=_cumpleChip(a)?0:1;
-  const pb=_cumpleChip(b)?0:1;
-  if(pa!==pb) return pa-pb;
-  const ta=a.fecha_registro?new Date(a.fecha_registro).getTime():0;
-  const tb=b.fecha_registro?new Date(b.fecha_registro).getTime():0;
-  return _ordenAsc?(ta-tb):(tb-ta);
+
+document.querySelectorAll('#lista-clientes>div').forEach((d,i)=>{
+  const u=usuarios[i];
+  if(i<3)alert("chip="+chipSel+" i="+i+" nombre="+(u?u.nombre:"SIN_USUARIO"));
+  if(!u) return;
+  let pasa=true;
+  if(chipSel==='activos') pasa=!!u.activo;
+  else if(chipSel==='pausados') pasa=!u.activo;
+  else if(chipSel==='personalizado') pasa=u.activo&&u.tipo==='personalizado';
+  else if(chipSel==='asesorado') pasa=u.activo&&u.tipo==='asesorado';
+  else if(chipSel==='proximo') pasa=u.activo&&u.estado_pago==='proximo';
+  else if(chipSel==='vencido') pasa=u.activo&&u.estado_pago==='vencido';
+  d.style.display=pasa?'flex':'none';
 });
+}
 lista.innerHTML=usuarios.map(u=>{
 const ep=u.estado_pago||'aldia';
 const epColor=ep==='vencido'?'#e31e24':ep==='proximo'?'#ff9800':'#4caf50';

@@ -501,11 +501,6 @@ function filtrarClientes(){
     d.style.display=d.innerText.toLowerCase().includes(q)?'block':'none';
   });
 }
-function filtrarClientesPorChip(tipo){
-  window._chipClienteSel=tipo;
-  cargarClientes();
-}
-
 function filtrarRutinas(){
   const q=document.getElementById('buscador-rutinas').value.toLowerCase();
   document.querySelectorAll('#lista-rutinas-clientes>div').forEach(d=>{
