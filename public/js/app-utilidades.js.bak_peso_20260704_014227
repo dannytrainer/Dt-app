@@ -132,7 +132,7 @@ function tcRenderPlanDia(cont, semana, idx) {
 
   cont.innerHTML = tabs + totales + comidas;
 }
-function tcRenderProgresoResumen(cont) {
+function tcRenderProgreso(cont) {
   cont.innerHTML = '<div style="text-align:center;padding:30px"><div style="font-size:32px">⏳</div></div>';
   const uid = _tcUsuario && _tcUsuario.id;
   if (!uid) return;
@@ -145,14 +145,6 @@ function tcRenderProgresoResumen(cont) {
 
     const medidas = hist.medidas || [];
     const ultima = medidas[medidas.length - 1];
-    const pesos = hist.peso || [];
-    const ultimoPeso = pesos[pesos.length - 1];
-    if (ultimoPeso) {
-      html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
-      html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">⚖️ Peso corporal — ' + ultimoPeso.fecha + '</div>';
-      html += '<div style="background:#1a1a1a;border-radius:8px;padding:10px 12px;text-align:center"><div style="font-size:22px;font-weight:900;color:#fff">' + ultimoPeso.valor + '<span style="font-size:12px;color:var(--texto-medio)"> kg</span></div></div>';
-      html += '</div>';
-    }
     if (ultima) {
       html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
       html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📏 Medidas — ' + ultima.fecha + '</div>';
@@ -217,51 +209,12 @@ function tcRenderProgresoResumen(cont) {
       html += '</div><div style="margin-top:8px;text-align:right;font-size:11px;color:#e31e24;font-weight:700">Score: ' + lastEspecif.scoreTotal + '/100</div></div>';
     }
 
-    if (!ultimoPeso && !ultima && !lastFuerza && !lastResist && !lastEspecif) {
+    if (!ultima && !lastFuerza && !lastResist && !lastEspecif) {
       html = '<div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:12px">📊</div><div style="font-size:16px;font-weight:700;color:var(--texto-medio)">Sin datos aún</div></div>';
     }
 
     cont.innerHTML = html;
   });
-}
-
-let _tcProgresoVistaActual = 'resumen';
-let _tcProgresoContRef = null;
-
-function tcRenderProgreso(cont) {
-  _tcProgresoContRef = cont;
-  cont.innerHTML = '<div style="display:flex;gap:8px;margin-bottom:14px">'
-    + '<button onclick="tcProgresoVista(\'resumen\')" id="tc-prog-resumen" style="flex:1;padding:8px 12px;border-radius:20px;border:1px solid #e31e24;background:#e31e24;color:#fff;font-size:12px;font-weight:700;cursor:pointer">📊 Resumen</button>'
-    + '<button onclick="tcProgresoVista(\'proyecciones\')" id="tc-prog-proyecciones" style="flex:1;padding:8px 12px;border-radius:20px;border:1px solid #333;background:transparent;color:var(--texto-secundario);font-size:12px;font-weight:700;cursor:pointer">📈 Proyecciones</button>'
-    + '</div><div id="tc-prog-contenido"></div>';
-  _tcProgresoVistaActual = 'resumen';
-  const sub = document.getElementById('tc-prog-contenido');
-  tcRenderProgresoResumen(sub);
-}
-
-function tcRenderProgresoProyecciones(cont) {
-  cont.innerHTML = '<div style="text-align:center;padding:50px 20px">'
-    + '<div style="font-size:48px;margin-bottom:14px">📈</div>'
-    + '<div style="font-size:16px;font-weight:700;color:var(--texto-medio);margin-bottom:6px">Proyecciones</div>'
-    + '<div style="font-size:12px;color:#666;line-height:1.5">Próximamente: gráficas de evolución,<br>tendencias y comparaciones.</div>'
-    + '</div>';
-}
-
-function tcProgresoVista(vista) {
-  _tcProgresoVistaActual = vista;
-  const btnResumen = document.getElementById('tc-prog-resumen');
-  const btnProyecciones = document.getElementById('tc-prog-proyecciones');
-  const sub = document.getElementById('tc-prog-contenido');
-  if (!sub) return;
-  if (vista === 'resumen') {
-    if (btnResumen) { btnResumen.style.background = '#e31e24'; btnResumen.style.borderColor = '#e31e24'; btnResumen.style.color = '#fff'; }
-    if (btnProyecciones) { btnProyecciones.style.background = 'transparent'; btnProyecciones.style.borderColor = '#333'; btnProyecciones.style.color = 'var(--texto-secundario)'; }
-    tcRenderProgresoResumen(sub);
-  } else {
-    if (btnProyecciones) { btnProyecciones.style.background = '#e31e24'; btnProyecciones.style.borderColor = '#e31e24'; btnProyecciones.style.color = '#fff'; }
-    if (btnResumen) { btnResumen.style.background = 'transparent'; btnResumen.style.borderColor = '#333'; btnResumen.style.color = 'var(--texto-secundario)'; }
-    tcRenderProgresoProyecciones(sub);
-  }
 }
 
 function tcRenderPerfil(cont) {

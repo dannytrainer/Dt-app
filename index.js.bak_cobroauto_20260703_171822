@@ -487,6 +487,9 @@ cron.schedule('* * * * *', async () => {
           if (pausaEnt === 'indefinido') continue;
           if (new Date(pausaEnt) >= new Date(hoy)) continue;
         }
+        const hoy_cron = new Date().toISOString().split('T')[0];
+        const entTienePremium = cfgEnt.premium_entrenador && cfgEnt.premium_entrenador_hasta && cfgEnt.premium_entrenador_hasta >= hoy_cron;
+        if (!entTienePremium) continue;
         if (cfgEnt.cobro_auto_activo === false) continue;
 
         // No enviar si ya se envio mensaje de cobro
@@ -1815,7 +1818,7 @@ app.post('/api/auth/registro', loginLimiter, (req, res) => {
     };
     cuentas.entrenadores.push(nuevo);
     guardarJSON('cuentas.json', cuentas);
-    guardarJSON('config_' + nuevo.id + '.json', { nombre_entrenador: nuevo.nombre, email: nuevo.email, codigo_vinculacion: nuevo.codigo_vinculacion, msg_prellenado: false, cobro_auto_activo: true, premium_entrenador: false });
+    guardarJSON('config_' + nuevo.id + '.json', { nombre_entrenador: nuevo.nombre, email: nuevo.email, codigo_vinculacion: nuevo.codigo_vinculacion, msg_prellenado: false, cobro_auto_activo: false, premium_entrenador: false });
     // Crear automáticamente como su propio primer cliente
     const usuariosEnt = cargarJSON('usuarios.json', []);
     const yaExisteEnt = usuariosEnt.find(u => u.id === nuevo.id);

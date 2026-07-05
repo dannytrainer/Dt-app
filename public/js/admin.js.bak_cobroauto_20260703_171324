@@ -82,6 +82,11 @@ async function cargarCobroAutoEstado(){
   }catch(e){}
 }
 async function toggleCobroAuto(){
+  const esPremium = typeof entEsPremium === 'function' ? entEsPremium() : false;
+  if(!esPremium){
+    toast('⭐ Función Premium — Activa tu plan para usarla.',false);
+    return;
+  }
   try{
     const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
     const cfg = await fetch('/api/config?entrenador_id='+eid).then(r=>r.json());

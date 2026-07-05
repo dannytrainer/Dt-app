@@ -864,21 +864,57 @@ function tcMostrarResumenFinal() {
   } catch(e) {}
 }
 
+let _tcCierrePorTiempoEjecutado = false;
+
+function _tcCheckTiempoLimite() {
+  const inicio = parseInt(localStorage.getItem('tc-timer-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x')));
+  if (!inicio) return;
+  const tiempoMaxMin = (_tcRutina && _tcRutina[_tcDia] && _tcRutina[_tcDia].tiempo_max_min) || 0;
+  if (!tiempoMaxMin) return;
+  const seg = Math.floor((Date.now() - inicio) / 1000);
+  const restanteSeg = (tiempoMaxMin * 60) - seg;
+  if (restanteSeg <= 0 && !_tcCierrePorTiempoEjecutado) {
+    _tcCierrePorTiempoEjecutado = true;
+    if (_tcTimerRutina) clearInterval(_tcTimerRutina);
+    const txt = document.getElementById('tc-timer-rutina-txt');
+    if (txt) txt.textContent = '⏱ Tiempo agotado';
+    setTimeout(() => { tcConfirmarFinalizar(); }, 1500);
+  }
+}
+
 function tcMostrarBannerTimer() {
   const banner = document.getElementById('tc-banner-timer');
   if (!banner) return;
   banner.style.display = 'flex';
+  _tcCierrePorTiempoEjecutado = false;
+  let _tcLimiteDiv = document.getElementById('tc-limite-visible');
+  if (!_tcLimiteDiv) {
+    _tcLimiteDiv = document.createElement('span');
+    _tcLimiteDiv.id = 'tc-limite-visible';
+    _tcLimiteDiv.style.cssText = 'font-size:11px;color:#ff9800;font-weight:700;margin-left:10px';
+    banner.appendChild(_tcLimiteDiv);
+  }
   if (_tcTimerRutina) clearInterval(_tcTimerRutina);
   _tcTimerRutina = setInterval(() => {
     const inicio = parseInt(localStorage.getItem('tc-timer-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x')));
     if (!inicio) { clearInterval(_tcTimerRutina); return; }
+    const tiempoMaxMin = (_tcRutina && _tcRutina[_tcDia] && _tcRutina[_tcDia].tiempo_max_min) || 0;
     const seg = Math.floor((Date.now() - inicio) / 1000);
+    const txt = document.getElementById('tc-timer-rutina-txt');
     const h = String(Math.floor(seg/3600)).padStart(2,'0');
     const m = String(Math.floor((seg%3600)/60)).padStart(2,'0');
     const s = String(seg%60).padStart(2,'0');
-    const txt = document.getElementById('tc-timer-rutina-txt');
     if (txt) txt.textContent = h+':'+m+':'+s;
+    if (_tcLimiteDiv) {
+      _tcLimiteDiv.textContent = tiempoMaxMin > 0 ? ('Límite: ' + tiempoMaxMin + ' min') : '';
+    }
+    if (tiempoMaxMin > 0) {
+      _tcCheckTiempoLimite();
+    }
   }, 1000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') _tcCheckTiempoLimite();
+  });
 }
 
 // Arrancar banner si hay timer activo al cargar

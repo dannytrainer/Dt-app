@@ -1044,7 +1044,7 @@ async function gestionarPushAdmin() {
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
   <div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1.5px;font-weight:800">💰 Módulo Administrativo</div>
   <div onclick="toggleCobroAuto()" id="cobro-auto-btn" style="display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid #333;border-radius:20px;padding:6px 12px;cursor:pointer">
-    <div style="font-size:11px;color:var(--texto-medio);font-weight:700">🔔 Notif. admin</div>
+    <div style="font-size:11px;color:var(--texto-medio);font-weight:700">🤖 Auto</div>
     <div id="cobro-auto-toggle" style="width:36px;height:20px;border-radius:10px;background:#333;position:relative;transition:background 0.2s">
       <div id="cobro-auto-dot" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s"></div>
     </div>
@@ -5600,7 +5600,7 @@ function dtVersionTap() {
 </script>
 <script src="js/app-utilidades.js"></script>
 <script src="js/app-chat.js"></script>
-<script src="js/app-terminal.js?v=1783193303556"></script>
+<script src="js/app-terminal.js"></script>
 <script src="js/app-media.js"></script>
 <script src="js/app-pesos.js"></script>
 <script src="js/app-premium.js"></script>
