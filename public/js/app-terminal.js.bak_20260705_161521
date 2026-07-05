@@ -597,19 +597,10 @@ function tcDetenerRutina() {
   const cardiosBtnsInc = document.querySelectorAll('[id^="tc-cardio-btn-"]');
   const incompletos = Array.from(btns).filter(b => !b.disabled).length + Array.from(cardiosBtnsInc).filter(b => !b.disabled && !b.textContent.includes('completado') && !b.textContent.includes('Completado')).length;
   if (incompletos > 0) {
-
-    const mensajesMotivacionales = [
-      'Recuerda por qué empezaste.',
-      'Tus objetivos no se alcanzan por casualidad.',
-      'Cada repetición cuenta.',
-      'No dejes que una decisión de hoy retrase los resultados que buscas.',
-      'La disciplina pesa más que la motivación.'
-    ];
-    const mensajeRandom = mensajesMotivacionales[Math.floor(Math.random()*mensajesMotivacionales.length)];
     const div = document.createElement('div');
     div.id = 'tc-confirm-finalizar';
     div.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:30px';
-    div.innerHTML = '<div style="font-size:48px">⚠️</div><div style="font-size:16px;font-weight:900;color:#e31e24;text-align:center;line-height:1.6">Estás finalizando la rutina sin completar ' + incompletos + ' ejercicio' + (incompletos>1?'s':'') + '.<br><br>¿Tienes una emergencia? Si no: ' + mensajeRandom + '</div><div style="display:flex;gap:12px;margin-top:8px;width:100%"><button onclick="tcConfirmarFinalizar()" style="flex:1;padding:12px;border-radius:10px;border:1px solid #e31e24;background:#1a0000;color:#e31e24;font-size:14px;font-weight:700;cursor:pointer">Sí, finalizar</button><button onclick="document.getElementById(&quot;tc-confirm-finalizar&quot;).remove()" style="flex:1;padding:12px;border-radius:10px;border:1px solid #4caf50;background:#0a1a0a;color:#4caf50;font-size:14px;font-weight:700;cursor:pointer">No, sigo</button></div>';
+    div.innerHTML = '<div style="font-size:48px">⚠️</div><div style="font-size:16px;font-weight:900;color:#e31e24;text-align:center;line-height:1.6">Estás finalizando la rutina sin completar ' + incompletos + ' ejercicio' + (incompletos>1?'s':'') + '.<br><br>¿Tienes una emergencia o solo estás siendo mediocre con tus objetivos?</div><div style="display:flex;gap:12px;margin-top:8px;width:100%"><button onclick="tcConfirmarFinalizar()" style="flex:1;padding:12px;border-radius:10px;border:1px solid #e31e24;background:#1a0000;color:#e31e24;font-size:14px;font-weight:700;cursor:pointer">Sí, finalizar</button><button onclick="document.getElementById(&quot;tc-confirm-finalizar&quot;).remove()" style="flex:1;padding:12px;border-radius:10px;border:1px solid #4caf50;background:#0a1a0a;color:#4caf50;font-size:14px;font-weight:700;cursor:pointer">No, sigo</button></div>';
     document.body.appendChild(div);
     return;
   }
