@@ -182,14 +182,6 @@ function tcMostrarAyudaRutina(){
 }
 
 function tcRenderRutina(cont) {
-  {
-    const _uidR = (_tcUsuario && _tcUsuario.id) || 'x';
-    const _fechaInicioR = localStorage.getItem('tc-fecha-inicio-' + _uidR);
-    if (_fechaInicioR && _fechaInicioR !== tcFechaHoy()) {
-      tcCerrarRutinaPendiente();
-    }
-  }
-
   
   // Verificar si cliente está pausado
   if (_tcUsuario && _tcUsuario.activo === false) {
@@ -369,41 +361,43 @@ function tcVerDia(dia) {
     html += '<div style="background:var(--card);border-left:3px solid #e31e24;border-radius:10px;padding:12px 14px;margin-bottom:14px"><div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">🏷️ Título</div><div style="font-size:13px;color:var(--texto-suave);line-height:1.5">' + recordatorio + '</div></div>';
   }
   html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📋 ' + ejercicios.length + ' ejercicios</div>';
+
+
+  // CARDIO - mostrar antes de ejercicios
   if (cardio.length > 0) {
     html += '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🏃 ' + cardio.length + ' bloques de cardio</div>';
-  }
-
-  function _tcHtmlCardio(cx, ci) {
-    let h = '<div style="background:#1a0000;border:1px solid #2a0000;border-radius:14px;padding:14px;margin-bottom:12px">';
-    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-    h += '<div><div style="font-size:13px;font-weight:700;color:#e31e24">' + (cx.momento||'Cardio') + '</div>';
-    h += '<div style="font-size:12px;color:var(--texto-suave);margin-top:2px">' + (cx.ejercicio||'') + '</div></div>';
-    h += '<div style="display:flex;gap:6px;align-items:center">';
-    h += '<div style="background:#1a0000;border-radius:8px;padding:6px 12px;text-align:center">';
-    h += '<div style="font-size:16px;font-weight:900;color:#e31e24">' + (cx.tiempo||'—') + '</div>';
-    h += '<div style="font-size:9px;color:#e31e24;text-transform:uppercase">min</div></div>';
-    h += '<div id="tc-cardio-enc-btn-' + ci + '" style="display:none;background:#111;border:1px solid #333;border-radius:8px;padding:5px 8px;color:var(--texto-medio);font-size:11px;font-weight:700;cursor:pointer;align-items:center;gap:4px">&#128065;</div>';
-    h += '</div>';
-    h += '</div>';
-    (function(cxi, cxej){ fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(cxej||'') + '?grupo=cardio', {method:'GET'}).then(function(r){return r.json();}).then(function(res){ if(res.encontrado){ var b=document.getElementById('tc-cardio-enc-btn-'+cxi); if(b){b.style.display='flex';b.onclick=function(){ if(tcEsPremium()){tcVerEnciclopedia(res.ejercicio.id);}else{tcMostrarPremium();} };}}}); })(ci, cx.ejercicio);
-    if (cx.notas) h += '<div style="font-size:11px;color:var(--texto-medio);font-style:italic;border-top:1px solid #1a2a3a;padding-top:8px;margin-top:4px">' + cx.notas + '</div>';
-    h += '<button id="tc-cardio-btn-' + ci + '" onclick="tcCardioHecho(' + ci + ')" style="width:100%;margin-top:10px;padding:7px 10px;border-radius:8px;border:none;background:#1a0000;color:#e31e24;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #e31e24">✅ Cardio realizado</button>';
-    h += '</div>';
-    return h;
+    cardio.forEach((cx, ci) => {
+      html += '<div style="background:#1a0000;border:1px solid #2a0000;border-radius:14px;padding:14px;margin-bottom:12px">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+      html += '<div><div style="font-size:13px;font-weight:700;color:#e31e24">' + (cx.momento||'Cardio') + '</div>';
+      html += '<div style="font-size:12px;color:var(--texto-suave);margin-top:2px">' + (cx.ejercicio||'') + '</div></div>';
+      html += '<div style="display:flex;gap:6px;align-items:center">';
+      html += '<div style="background:#1a0000;border-radius:8px;padding:6px 12px;text-align:center">';
+      html += '<div style="font-size:16px;font-weight:900;color:#e31e24">' + (cx.tiempo||'—') + '</div>';
+      html += '<div style="font-size:9px;color:#e31e24;text-transform:uppercase">min</div></div>';
+      html += '<div id="tc-cardio-enc-btn-' + ci + '" style="display:none;background:#111;border:1px solid #333;border-radius:8px;padding:5px 8px;color:var(--texto-medio);font-size:11px;font-weight:700;cursor:pointer;align-items:center;gap:4px">&#128065;</div>';
+      html += '</div>';
+      html += '</div>';
+      // buscar match cardio
+      (function(cxi, cxej){ fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(cxej||'') + '?grupo=cardio', {method:'GET'}).then(function(r){return r.json();}).then(function(res){ if(res.encontrado){ var b=document.getElementById('tc-cardio-enc-btn-'+cxi); if(b){b.style.display='flex';b.onclick=function(){ if(tcEsPremium()){tcVerEnciclopedia(res.ejercicio.id);}else{tcMostrarPremium();} };}}}); })(ci, cx.ejercicio);
+      if (cx.notas) html += '<div style="font-size:11px;color:var(--texto-medio);font-style:italic;border-top:1px solid #1a2a3a;padding-top:8px;margin-top:4px">' + cx.notas + '</div>';
+      html += '<button id="tc-cardio-btn-' + ci + '" onclick="tcCardioHecho(' + ci + ')" style="width:100%;margin-top:10px;padding:7px 10px;border-radius:8px;border:none;background:#1a0000;color:#e31e24;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #e31e24">✅ Cardio realizado</button>';
+      html += '</div>';
+    });
   }
 
   _tcEjercicios = ejercicios; // guardar para reporte
-
-  function _tcHtmlEjercicio(ej, i) {
+  ejercicios.forEach((ej, i) => {
     const series = parseInt(ej.series) || 3;
     if (_tcSeriesCompletadas[i] === undefined) _tcSeriesCompletadas[i] = 0;
     let bombillas = '';
     for (let s = 0; s < series; s++) {
       bombillas += '<span id="tc-bomb-' + i + '-' + s + '" onclick="tcDeshacerSerie(' + i + ',' + s + ')" style="font-size:22px;opacity:0.25;transition:.3s;cursor:pointer">⭕</span>';
     }
-    let h = '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
-    h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-size:15px;font-weight:700;color:#fff">' + (ej.nombre||'Ejercicio') + '</div><div style="font-size:11px;color:var(--texto-medio);margin-top:2px">' + (ej.grupo||'') + '</div></div>';
-    h += ej.video ? '<a href="' + ej.video + '" target="_blank" style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:5px 10px;color:#e31e24;font-size:11px;font-weight:700;text-decoration:none">▶ Video</a>' : '';
+    html += '<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-size:15px;font-weight:700;color:#fff">' + (ej.nombre||'Ejercicio') + '</div><div style="font-size:11px;color:var(--texto-medio);margin-top:2px">' + (ej.grupo||'') + '</div></div>';
+    html += ej.video ? '<a href="' + ej.video + '" target="_blank" style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:5px 10px;color:#e31e24;font-size:11px;font-weight:700;text-decoration:none">▶ Video</a>' : '';
+    // Botón Ver enciclopedia
     fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(ej.nombre||''), {method:'GET'})
       .then(function(r){return r.json();})
       .then(function(res){
@@ -415,37 +409,19 @@ function tcVerDia(dia) {
           }
         }
       }).catch(function(){});
-    h += '<div id="tc-enc-btn-' + i + '" style="display:none;background:#111;border:1px solid #333;border-radius:8px;padding:5px 10px;color:var(--texto-medio);font-size:11px;font-weight:700;cursor:pointer;align-items:center;gap:4px">&#128065; Ver</div>';
-    h += '</div>';
-    h += '<div style="display:flex;gap:6px;margin-bottom:12px">';
-    h += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.series||'—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Series</div></div>';
-    h += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.reps||'—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Reps</div></div>';
-    h += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#e31e24">' + (ej.rir||'—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">RIR</div></div>';
-    h += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.desc ? ej.desc + ' seg' : '—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Desc</div></div>';
-    if (ej.var) h += '<div onclick="tcScrollNotas()" style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px;cursor:pointer"><div style="font-size:16px;font-weight:900;color:#e31e24">' + ej.var + '</div><div style="font-size:9px;color:#e31e24;text-transform:uppercase">VAR</div></div>';
-    h += '</div>';
-    h += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">' + bombillas + '</div>';
-    h += '<button onclick="tcSerie(' + i + ',' + (parseInt(ej.desc)||0) + ',' + series + ')" id="tc-btn-serie-' + i + '" style="width:100%;padding:7px 10px;border-radius:8px;border:none;background:#e31e24;color:#fff;font-size:12px;font-weight:700;cursor:pointer">✅ Serie 1 de ' + series + '</button>';
-    h += '</div>';
-    return h;
-  }
-
-  let _tcOrdenDia = (diaData && Array.isArray(diaData.orden) && diaData.orden.length === ejercicios.length + cardio.length) ? diaData.orden : null;
-  if (!_tcOrdenDia) {
-    _tcOrdenDia = [];
-    for (let i = 0; i < cardio.length; i++) _tcOrdenDia.push('cardio' + i);
-    for (let i = 0; i < ejercicios.length; i++) _tcOrdenDia.push('ej' + i);
-  }
-  _tcOrdenDia.forEach(function(token){
-    const tipo = token.replace(/[0-9]+$/, '');
-    const idx = parseInt(token.replace(/^[a-z]+/, ''), 10);
-    if (tipo === 'ej') {
-      if (ejercicios[idx]) html += _tcHtmlEjercicio(ejercicios[idx], idx);
-    } else {
-      if (cardio[idx]) html += _tcHtmlCardio(cardio[idx], idx);
-    }
+    html += '<div id="tc-enc-btn-' + i + '" style="display:none;background:#111;border:1px solid #333;border-radius:8px;padding:5px 10px;color:var(--texto-medio);font-size:11px;font-weight:700;cursor:pointer;align-items:center;gap:4px">&#128065; Ver</div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:6px;margin-bottom:12px">';
+    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.series||'—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Series</div></div>';
+    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.reps||'—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Reps</div></div>';
+    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#e31e24">' + (ej.rir||'—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">RIR</div></div>';
+    html += '<div style="background:#1a1a1a;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px"><div style="font-size:16px;font-weight:900;color:#fff">' + (ej.desc ? ej.desc + ' seg' : '—') + '</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Desc</div></div>';
+    if (ej.var) html += '<div onclick="tcScrollNotas()" style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:6px 12px;text-align:center;flex:1;min-width:50px;cursor:pointer"><div style="font-size:16px;font-weight:900;color:#e31e24">' + ej.var + '</div><div style="font-size:9px;color:#e31e24;text-transform:uppercase">VAR</div></div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">' + bombillas + '</div>';
+    html += '<button onclick="tcSerie(' + i + ',' + (parseInt(ej.desc)||0) + ',' + series + ')" id="tc-btn-serie-' + i + '" style="width:100%;padding:7px 10px;border-radius:8px;border:none;background:#e31e24;color:#fff;font-size:12px;font-weight:700;cursor:pointer">✅ Serie 1 de ' + series + '</button>';
+    html += '</div>';
   });
-
   if (notas) {
     html += '<div id="tc-notas-generales" style="background:var(--card);border:1px dashed var(--borde);border-radius:10px;padding:12px 14px;margin-top:4px;transition:border 0.3s,box-shadow 0.3s"><div style="font-size:10px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">📝 Notas</div><div style="font-size:12px;color:var(--texto-medio);line-height:1.5">' + notas + '</div></div>';
   }
@@ -611,8 +587,6 @@ function tcIniciarRutina() {
   const _timerKey = 'tc-timer-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x');
   if (localStorage.getItem(_timerKey)) return;
   localStorage.setItem(_timerKey, Date.now());
-  localStorage.setItem('tc-dia-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x'), _tcDia);
-  localStorage.setItem('tc-fecha-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x'), tcFechaHoy());
   tcMostrarBannerTimer();
   const btn = document.getElementById('tc-btn-iniciar-rutina');
   if (btn) { btn.textContent = '✅ Rutina en curso'; btn.style.color = '#4caf50'; btn.style.border = '1px solid #4caf50'; }
@@ -821,8 +795,6 @@ function tcConfirmarFinalizar() {
   // Detener timer
   localStorage.removeItem('tc-timer-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x'));
   if (_tcTimerRutina) clearInterval(_tcTimerRutina);
-  localStorage.removeItem('tc-dia-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x'));
-  localStorage.removeItem('tc-fecha-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x'));
   const banner = document.getElementById('tc-banner-timer');
   if (banner) banner.style.display = 'none';
 
@@ -901,150 +873,9 @@ function tcMostrarResumenFinal() {
   } catch(e) {}
 }
 
-function tcCerrarRutinaPendiente() {
-  const uid = (_tcUsuario && _tcUsuario.id) || 'x';
-  const diaInicio = localStorage.getItem('tc-dia-inicio-' + uid);
-  const fechaInicio = localStorage.getItem('tc-fecha-inicio-' + uid);
-  const timerInicioTs = parseInt(localStorage.getItem('tc-timer-inicio-' + uid)) || 0;
-
-  if (_tcTimerRutina) { clearInterval(_tcTimerRutina); _tcTimerRutina = null; }
-  const banner = document.getElementById('tc-banner-timer');
-  if (banner) banner.style.display = 'none';
-
-  if (!diaInicio || !fechaInicio || !timerInicioTs) {
-    localStorage.removeItem('tc-timer-inicio-' + uid);
-    localStorage.removeItem('tc-dia-inicio-' + uid);
-    localStorage.removeItem('tc-fecha-inicio-' + uid);
-    return;
-  }
-
-  let progresoGuardado = {};
-  try { progresoGuardado = JSON.parse(localStorage.getItem('tc-progreso-' + uid + '-' + fechaInicio + '-' + diaInicio)) || {}; } catch(e) {}
-  const seriesCompletadasObj = progresoGuardado.series || {};
-  const cardioCompletadoObj = progresoGuardado.cardio || {};
-
-  const diaData = _tcRutina && _tcRutina[diaInicio];
-  const ejerciciosDia = (diaData && diaData.ejercicios) || [];
-  const cardioDia = (diaData && diaData.cardio) || [];
-
-  const totalSeries = ejerciciosDia.reduce((acc, ej) => acc + (parseInt(ej.series) || 0), 0);
-  const seriesHechas = Object.values(seriesCompletadasObj).reduce((a, b) => a + (parseInt(b) || 0), 0);
-
-  let ejerciciosHechos = 0;
-  ejerciciosDia.forEach((ej, i) => {
-    const total = parseInt(ej.series) || 3;
-    const hechas = parseInt(seriesCompletadasObj[i]) || 0;
-    if (hechas >= total) ejerciciosHechos++;
-  });
-
-  const cardioTotal = cardioDia.length;
-  let cardiosHechos = 0;
-  let minutosCardio = 0;
-  cardioDia.forEach((cx, ci) => {
-    if (cardioCompletadoObj[ci]) {
-      cardiosHechos++;
-      if (cx.tiempo) minutosCardio += parseInt(cx.tiempo) || 0;
-    }
-  });
-
-  const totalEjercicios = ejerciciosDia.length + cardioDia.length;
-  const completados = ejerciciosHechos + cardiosHechos;
-  const faltantes = totalEjercicios - completados;
-  const completo = faltantes === 0 && totalEjercicios > 0;
-  const tiempoSeg = Math.floor((Date.now() - timerInicioTs) / 1000);
-
-  const resumen = {
-    ejercicios: totalEjercicios,
-    ejerciciosHechos: completados,
-    series: totalSeries,
-    seriesHechas,
-    cardios: cardiosHechos,
-    cardioTotal,
-    minutosCardio,
-    tiempo: tiempoSeg,
-    completo,
-    fecha: fechaInicio
-  };
-  localStorage.setItem('tc-rutina-completa-' + uid + '-' + fechaInicio, JSON.stringify(resumen));
-
-  if (uid !== 'x') {
-    const rid = 'rep-' + Date.now();
-    let detalleRows = '';
-    ejerciciosDia.forEach((ej, i) => {
-      const totalS = parseInt(ej.series) || 3;
-      const hechas = parseInt(seriesCompletadasObj[i]) || 0;
-      const pct = totalS > 0 ? Math.round(hechas / totalS * 100) : 0;
-      const bars = Array.from({length: totalS}, (_, s) => s >= hechas ? '⭕' : '🟢').join('');
-      detalleRows += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #2a2a2a">'
-        + '<div><div style="font-size:12px;font-weight:700;color:#fff">' + (ej.nombre||'Ejercicio') + '</div>'
-        + '<div style="font-size:10px;color:#aaaaaa;margin-top:1px">' + (ej.grupo||'') + (ej.reps ? ' · ' + ej.reps + ' reps' : '') + (ej.rir ? ' · RIR ' + ej.rir : '') + '</div></div>'
-        + '<div style="text-align:right"><div style="font-size:13px;letter-spacing:2px">' + bars + '</div>'
-        + '<div style="font-size:10px;color:' + (pct===100?'#4caf50':'#e31e24') + ';font-weight:700">' + hechas + '/' + totalS + ' series</div></div>'
-        + '</div>';
-    });
-
-    let cardioRows = '';
-    cardioDia.forEach((cx, ci) => {
-      const hecho = !!cardioCompletadoObj[ci];
-      cardioRows += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #2a2a2a">'
-        + '<div><div style="font-size:12px;font-weight:700;color:#fff">' + (cx.momento||'Cardio') + '</div>'
-        + '<div style="font-size:10px;color:#aaaaaa">' + (cx.ejercicio||'') + (cx.tiempo ? ' · ' + cx.tiempo + ' min' : '') + '</div></div>'
-        + '<div style="font-size:13px">' + (hecho ? '🟢 Hecho' : '⭕ No hecho') + '</div>'
-        + '</div>';
-    });
-
-    const tituloDia = (diaData && diaData.recordatorio) ? diaData.recordatorio : '';
-    const html = '<div style="font-family:sans-serif;max-width:340px">'
-      + '<div style="background:' + (completo?'#0a1a0a':'#1a0a00') + ';border:1px solid ' + (completo?'#4caf50':'#e31e24') + ';border-radius:12px;padding:12px 14px;margin-bottom:6px">'
-      + (tituloDia ? '<div style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;opacity:0.85">🏷️ ' + tituloDia + '</div>' : '')
-      + '<div style="font-size:15px;font-weight:900;color:' + (completo?'#4caf50':'#ff9800') + ';margin-bottom:6px">' + (completo?'🏆 Rutina completada':'⚠️ Rutina incompleta') + ' (sesión anterior)</div>'
-      + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
-      + '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + completados + '/' + totalEjercicios + '</div><div style="font-size:9px;color:#aaaaaa;text-transform:uppercase">Ejercicios</div></div>'
-      + '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + seriesHechas + '/' + totalSeries + '</div><div style="font-size:9px;color:#aaaaaa;text-transform:uppercase">Series</div></div>'
-      + (cardiosHechos > 0 ? '<div style="background:rgba(0,0,0,0.06);border-radius:8px;padding:6px 10px;text-align:center;flex:1"><div style="font-size:16px;font-weight:900;color:#4caf50">' + cardiosHechos + '/' + cardioTotal + '</div><div style="font-size:9px;color:#aaaaaa;text-transform:uppercase">Cardio</div></div>' : '')
-      + '</div></div>'
-      + '<div onclick="(function(){var d=document.getElementById(\'' + rid + '\');d.style.display=d.style.display===\'none\'?\'block\':\'none\';})()" style="cursor:pointer;background:#7a1015;border:1px solid #a32028;border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-      + '<span style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px">📊 Ver detalle</span>'
-      + '<span style="color:#fff;font-size:14px">▾</span></div>'
-      + '<div id="' + rid + '" style="display:none;background:#7a1015;border:1px solid #a32028;border-radius:10px;padding:10px 14px;margin-bottom:4px">'
-      + detalleRows
-      + (cardioRows ? '<div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px">🏃 Cardio</div>' + cardioRows : '')
-      + '</div>'
-      + '<div style="font-size:10px;color:#999;text-align:right;padding:2px 4px">📅 ' + fechaInicio + ' (cerrada al cambiar de día)</div>'
-      + '</div>';
-
-    const _payload = JSON.stringify({autor: 'cliente', tipo: 'reporte', contenido: html});
-    if (navigator.onLine) {
-      fetch('/api/chat/' + uid, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: _payload
-      }).catch(() => {
-        const _cola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
-        _cola.push({ url: '/api/chat/' + uid, payload: _payload, ts: Date.now() });
-        localStorage.setItem('tc-sync-cola', JSON.stringify(_cola));
-      });
-    } else {
-      const _cola = JSON.parse(localStorage.getItem('tc-sync-cola') || '[]');
-      _cola.push({ url: '/api/chat/' + uid, payload: _payload, ts: Date.now() });
-      localStorage.setItem('tc-sync-cola', JSON.stringify(_cola));
-    }
-  }
-
-  localStorage.removeItem('tc-timer-inicio-' + uid);
-  localStorage.removeItem('tc-dia-inicio-' + uid);
-  localStorage.removeItem('tc-fecha-inicio-' + uid);
-}
-
 let _tcCierrePorTiempoEjecutado = false;
 
 function _tcCheckTiempoLimite() {
-  const _uidChk = (_tcUsuario && _tcUsuario.id) || 'x';
-  const _fechaInicioChk = localStorage.getItem('tc-fecha-inicio-' + _uidChk);
-  if (_fechaInicioChk && _fechaInicioChk !== tcFechaHoy()) {
-    tcCerrarRutinaPendiente();
-    return;
-  }
   const inicio = parseInt(localStorage.getItem('tc-timer-inicio-' + ((_tcUsuario && _tcUsuario.id) || 'x')));
   if (!inicio) return;
   const tiempoMaxMin = (_tcRutina && _tcRutina[_tcDia] && _tcRutina[_tcDia].tiempo_max_min) || 0;

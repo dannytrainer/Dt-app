@@ -1478,7 +1478,6 @@ async function gestionarPushAdmin() {
 </div>
 <div id="panel-entrenamiento">
 <div class="dtab" id="dias-tabs"></div>
-<div id="mover-dia-panel" style="margin-bottom:10px"></div>
 <div id="rutina-form"></div>
 <div id="btns-rutina" style="display:flex;gap:8px;margin-top:16px;padding-bottom:8px;background:var(--card)">
 <button class="btn bg" style="flex:1" onclick="cerrarModalRutina()">Cancelar</button>

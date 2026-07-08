@@ -10,21 +10,6 @@ let _touchClone=null;
 let _touchOffsetX=0;
 let _touchOffsetY=0;
 
-function _dtMoverEnOrden(dia,tipoOrigen,idxOrigen,tipoDestino,idxDestino){
-  const d=rutinaActual[dia];
-  if(!Array.isArray(d.orden)) d.orden=_dtObtenerOrden(d);
-  const tokenOrigen=tipoOrigen+idxOrigen;
-  const tokenDestino=tipoDestino+idxDestino;
-  const posOrigen=d.orden.indexOf(tokenOrigen);
-  const posDestino=d.orden.indexOf(tokenDestino);
-  if(posOrigen===-1||posDestino===-1||posOrigen===posDestino)return false;
-  const orden=d.orden.slice();
-  const item=orden.splice(posOrigen,1)[0];
-  orden.splice(posDestino,0,item);
-  d.orden=orden;
-  return true;
-}
-
 function rutTouchStart(e,i,tipo){
   guardarEjsActuales();
   _touchDragIdx=i;
@@ -60,21 +45,30 @@ function rutTouchEnd(e){
   _touchClone.remove();
   _touchClone=null;
   if(_touchDragEl)_touchDragEl.style.opacity='1';
-  const els=document.querySelectorAll('[data-tipo]');
-  let targetTipo=null;
+  const selector='[id^="rut-drag-'+_touchDragTipo+'-"]';
+  const els=document.querySelectorAll(selector);
   let targetIdx=null;
   els.forEach(el=>{
     const rect=el.getBoundingClientRect();
     if(x>=rect.left&&x<=rect.right&&y>=rect.top&&y<=rect.bottom){
-      targetTipo=el.getAttribute('data-tipo');
-      targetIdx=parseInt(el.getAttribute('data-idx'));
+      const id=el.id;
+      targetIdx=parseInt(id.split('-').pop());
     }
   });
-  if(targetIdx!==null&&(targetTipo!==_touchDragTipo||targetIdx!==_touchDragIdx)){
+  if(targetIdx!==null&&targetIdx!==_touchDragIdx){
     const dia=diaSeleccionado;
-    if(_dtMoverEnOrden(dia,_touchDragTipo,_touchDragIdx,targetTipo,targetIdx)){
-      renderRutinaForm();
+    if(_touchDragTipo==='ej'){
+      const arr=rutinaActual[dia].ejercicios||[];
+      const item=arr.splice(_touchDragIdx,1)[0];
+      arr.splice(targetIdx,0,item);
+      rutinaActual[dia].ejercicios=arr;
+    } else {
+      const arr=rutinaActual[dia].cardio||[];
+      const item=arr.splice(_touchDragIdx,1)[0];
+      arr.splice(targetIdx,0,item);
+      rutinaActual[dia].cardio=arr;
     }
+    renderRutinaForm();
   }
   _touchDragIdx=null;
   _touchDragTipo=null;
@@ -94,19 +88,28 @@ function rutDragStart(e,i,tipo){
 }
 function rutDragOver(e,i,tipo){
   e.preventDefault();
+  if(tipo!==_rutDragTipo)return;
   document.querySelectorAll('[id^="rut-drag-"]').forEach(el=>el.style.borderTop='');
   var el=document.getElementById('rut-drag-'+tipo+'-'+i);
   if(el)el.style.borderTop='2px solid #e31e24';
 }
 function rutDrop(e,i,tipo){
   e.preventDefault();
-  if(_rutDragIdx===null)return;
-  if(_rutDragTipo===tipo&&_rutDragIdx===i)return;
+  if(_rutDragIdx===null||_rutDragIdx===i||tipo!==_rutDragTipo)return;
   var dia=diaSeleccionado;
-  if(_dtMoverEnOrden(dia,_rutDragTipo,_rutDragIdx,tipo,i)){
-    renderRutinaForm();
+  if(tipo==='ej'){
+    var arr=rutinaActual[dia].ejercicios||[];
+    var item=arr.splice(_rutDragIdx,1)[0];
+    arr.splice(i,0,item);
+    rutinaActual[dia].ejercicios=arr;
+  } else {
+    var arr=rutinaActual[dia].cardio||[];
+    var item=arr.splice(_rutDragIdx,1)[0];
+    arr.splice(i,0,item);
+    rutinaActual[dia].cardio=arr;
   }
   _rutDragIdx=null;
+  renderRutinaForm();
 }
 function rutDragEnd(e){
   _rutDragIdx=null;

@@ -734,7 +734,7 @@ function _dtOrdenDefault(d){
   const nCar=(d.cardio||[]).length;
   const orden=[];
   for(let i=0;i<nEj;i++)orden.push('ej'+i);
-  for(let i=0;i<nCar;i++)orden.push('cardio'+i);
+  for(let i=0;i<nCar;i++)orden.push('car'+i);
   return orden;
 }
 function _dtObtenerOrden(d){
@@ -828,7 +828,7 @@ rutinaActual[dia].ejercicios.push({nombre:'',series:'',reps:'',rir:'',desc:'',va
 nuevoToken='ej'+(rutinaActual[dia].ejercicios.length-1);
 } else {
 rutinaActual[dia].cardio.push({momento:'',ejercicio:'',tiempo:'',notas:''});
-nuevoToken='cardio'+(rutinaActual[dia].cardio.length-1);
+nuevoToken='car'+(rutinaActual[dia].cardio.length-1);
 }
 rutinaActual[dia].orden.push(nuevoToken);
 const sel=document.getElementById('selector-tipo-elemento');
@@ -862,11 +862,11 @@ if(Array.isArray(rutinaActual[dia].cardio)){
 rutinaActual[dia].cardio.splice(idx,1);
 if(!Array.isArray(rutinaActual[dia].orden))rutinaActual[dia].orden=_dtObtenerOrden(rutinaActual[dia]);
 rutinaActual[dia].orden=rutinaActual[dia].orden
-.filter(function(t){return t!==('cardio'+idx);})
+.filter(function(t){return t!==('car'+idx);})
 .map(function(t){
-if(t.indexOf('cardio')===0){
+if(t.indexOf('car')===0){
 const n=parseInt(t.replace(/^[a-z]+/,''),10);
-if(n>idx)return 'cardio'+(n-1);
+if(n>idx)return 'car'+(n-1);
 }
 return t;
 });
