@@ -38,6 +38,7 @@ if(p==='ruleta'){const c=document.getElementById('ruleta-contenido');if(c)render
 if(p==='enciclopedia'){const c=document.getElementById('enciclopedia-contenido');if(c)renderEnciclopedia(c);}
 if(p==='juegos'){const c=document.getElementById('juegos-contenido');if(c){window._juegosContenedor=c;renderJuegos(c);}}
 if(p==='enviar'){cargarSelectEnviar();cargarPanelCobros();}
+if(p==='clase-presencial'){cpInitPagina();}
 if(p==='admin'){cargarAdmin();setTimeout(cargarCobroAutoEstado,500);}
 if(p==='horarios')initHorarios();
 }

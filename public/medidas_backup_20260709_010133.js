@@ -10,47 +10,6 @@ function showMTab(t) {
   window._medidasSubTab = t;
 }
 
-function wrapAnalisisAccordions(){
-  const cont = document.getElementById('msec-analisis');
-  if(!cont) return;
-  const children = Array.from(cont.children);
-  let html = '';
-  children.forEach((child, i) => {
-    const headerDiv = child.querySelector(':scope > div:first-child');
-    const headerText = headerDiv ? headerDiv.textContent : ('Sección ' + (i+1));
-    html += `<div class="acc-seg open" id="accseg-an-${i}">
-      <div class="acc-seg-head" onclick="toggleAccSeg(this)" style="display:flex;justify-content:space-between;align-items:center;background:#0c0c0c;border:1px solid #1a1a1a;border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:pointer">
-        <span style="font-size:13px;font-weight:700">${headerText}</span><span class="acc-seg-arrow" style="color:#e31e24;font-size:12px">▾</span>
-      </div>
-      <div class="acc-seg-body" style="margin-bottom:10px">${child.outerHTML}</div>
-    </div>`;
-  });
-
-  html += `<div class="acc-seg" id="accseg-proyeccion">
-    <div class="acc-seg-head" onclick="toggleAccSeg(this)" style="display:flex;justify-content:space-between;align-items:center;background:#0c0c0c;border:1px solid #1a1a1a;border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:pointer">
-      <span style="font-size:13px;font-weight:700">🔮 Proyección</span><span class="acc-seg-arrow" style="color:#e31e24;font-size:12px">▾</span>
-    </div>
-    <div class="acc-seg-body" style="display:none;margin-bottom:10px">
-      <div style="background:#111;border:1px dashed #3a1a1a;border-radius:10px;padding:14px;color:#888;font-size:12px;text-align:center">
-        📌 Próximamente: peso objetivo, % grasa objetivo, tiempo estimado y fecha proyectada según tu progreso actual.
-      </div>
-    </div>
-  </div>`;
-
-  html += `<div class="acc-seg" id="accseg-historial">
-    <div class="acc-seg-head" onclick="toggleAccSeg(this)" style="display:flex;justify-content:space-between;align-items:center;background:#0c0c0c;border:1px solid #1a1a1a;border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:pointer">
-      <span style="font-size:13px;font-weight:700">📜 Historial</span><span class="acc-seg-arrow" style="color:#e31e24;font-size:12px">▾</span>
-    </div>
-    <div class="acc-seg-body" style="display:none;margin-bottom:10px">
-      <div style="background:#111;border:1px dashed #3a1a1a;border-radius:10px;padding:14px;color:#888;font-size:12px;text-align:center">
-        📌 Próximamente: línea de tiempo unificada con registros de peso, medidas, tests y fotos.
-      </div>
-    </div>
-  </div>`;
-
-  cont.innerHTML = html;
-}
-
 function toggleAccSeg(headerEl){
   const seg = headerEl.parentElement;
   seg.classList.toggle('open');
@@ -77,7 +36,7 @@ async function showMTabLoad(t, id) {
       await abrirTests(id, u ? u.nombre : '');
     }
   }
-  if (t === 'analisis') { await renderAnalisis(id); wrapAnalisisAccordions(); }
+  if (t === 'analisis') await renderAnalisis(id);
 }
 
 async function abrirMedidas(id, nombre) {

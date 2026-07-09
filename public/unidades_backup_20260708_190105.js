@@ -7,12 +7,12 @@ window.UNIDADES = {
     this.actualizarBoton();
     const id = window.clienteMedidasId || window.clienteTestsId;
     const modalMedidas = document.getElementById('modal-medidas');
+    const modalTests = document.getElementById('modal-tests');
     if (modalMedidas && modalMedidas.classList.contains('open') && id) {
-      if (window._medidasSubTab === 'tests') {
-        renderTests(id);
-      } else {
-        showMTabLoad(window._tabActiva || 'peso', id);
-      }
+      showMTabLoad(window._tabActiva || 'peso', id);
+    }
+    if (modalTests && modalTests.classList.contains('open') && id) {
+      renderTests(id);
     }
   },
 

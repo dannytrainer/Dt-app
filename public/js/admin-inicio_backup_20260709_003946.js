@@ -381,7 +381,8 @@ async function abrirPerfilCliente(id){
   </div>
   <div style="display:flex;gap:0;background:#1a1a1a;border-radius:12px;padding:4px;margin-bottom:16px;overflow-x:auto">
     <button id="ptab-datos" onclick="perfilTab('datos')" style="flex:1;background:#e31e24;border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">📋 Datos</button>
-    <button id="ptab-medidas" onclick="perfilTab('medidas')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">📈 Seguimiento</button>
+    <button id="ptab-medidas" onclick="perfilTab('medidas')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">📏 Medidas</button>
+    <button id="ptab-tests" onclick="perfilTab('tests')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">💪 Tests</button>
     <button id="ptab-rutina" onclick="perfilTab('rutina')" style="flex:1;background:none;border:none;color:#666;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer;white-space:nowrap">🏋️ Rutina / 🍖 Alimentación</button>
   </div>
   <div id="perfil-contenido"></div>`;

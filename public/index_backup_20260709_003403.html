@@ -922,7 +922,6 @@ async function gestionarPushAdmin() {
   <button onclick="navCerrarMenus();showPage('admin')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-administrativo.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Administrativo</span></button>
   <button onclick="navCerrarMenus();showPage('horarios')" style="width:100%;background:none;border:none;border-bottom:1px solid #222;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-horarios.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Horarios</span></button>
   <button onclick="navCerrarMenus();showPage('enviar')" style="width:100%;background:none;border:none;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><img src="/images/icon-comunicacion.png" style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0"><span>Enviar Rutinas</span></button>
-  <button onclick="navCerrarMenus();showPage('clase-presencial')" style="width:100%;background:none;border:none;color:var(--texto);padding:14px 20px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px"><span style="font-size:32px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🏋</span><span>Clase Presencial</span><span style="margin-left:auto;background:#e31e24;color:#fff;font-size:9px;font-weight:800;letter-spacing:0.4px;padding:3px 8px;border-radius:20px">NUEVO</span></button>
 </div>
 <button onclick="navToggleTools(this)" style="flex:1;background:none;border:none;color:#666;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px" id="btn-nav-tools"><img src="/images/icon-herramientas.png" style="width:36px;height:36px;object-fit:contain"><span style="font-size:9px;font-weight:700;color:#666">Tools</span></button>
 <!-- MENÚ TOOLS -->
@@ -1240,13 +1239,6 @@ async function gestionarPushAdmin() {
 <div id="herramienta-contenido"></div>
 </div>
 <div id="lista-logs" style="display:none"></div>
-</div>
-<div id="page-clase-presencial" class="page">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-    <button onclick="showPage('inicio')" style="background:var(--rojo);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:6px 12px;cursor:pointer">← Volver</button>
-    <div style="font-size:10px;color:var(--rojo);text-transform:uppercase;letter-spacing:1.5px;font-weight:800">🏋 Clase Presencial</div>
-  </div>
-  <div id="clase-presencial-contenido"></div>
 </div>
 <div id="page-cronometros" class="page">
 <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
@@ -1640,48 +1632,23 @@ async function gestionarPushAdmin() {
 <div class="mt" id="modal-medidas-titulo">📈 Seguimiento</div>
 <button class="btn bg" style="padding:6px 14px" onclick="document.getElementById('modal-medidas').classList.remove('open');_reordenarLista();_renderListaLocal()">✕</button>
 </div>
-
 <div style="display:flex;gap:6px;margin-bottom:16px">
+<button id="mtab-perfil" class="btn bg" style="flex:1;font-size:12px" onclick="showMTabLoad('perfil',window.clienteMedidasId)">👤 Perfil</button>
 <button id="mtab-medidas" class="btn br" style="flex:1;font-size:12px" onclick="showMTabLoad('medidas',window.clienteMedidasId)">📏 Medidas</button>
-<button id="mtab-tests" class="btn bg" style="flex:1;font-size:12px" onclick="showMTabLoad('tests',window.clienteMedidasId)">🧪 Tests</button>
 <button id="mtab-analisis" class="btn bg" style="flex:1;font-size:12px" onclick="showMTabLoad('analisis',window.clienteMedidasId)">📊 Análisis</button>
 </div>
-
+<div id="msec-perfil" style="display:none"></div>
 <div id="msec-medidas-grupo">
-
-  <div class="acc-seg open" id="accseg-perfil">
-    <div class="acc-seg-head" onclick="toggleAccSeg(this)" style="display:flex;justify-content:space-between;align-items:center;background:#0c0c0c;border:1px solid #1a1a1a;border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:pointer">
-      <span style="font-size:13px;font-weight:700">🧬 Datos físicos</span><span class="acc-seg-arrow" style="color:#e31e24;font-size:12px">▾</span>
-    </div>
-    <div class="acc-seg-body" style="margin-bottom:10px">
-      <div id="msec-perfil"></div>
-    </div>
+  <div style="display:flex;gap:6px;margin-bottom:12px">
+    <button id="medsub-peso" class="btn br" style="flex:1;font-size:11px" onclick="showMedidasSubTab('peso',window.clienteMedidasId)">⚖️ Peso</button>
+    <button id="medsub-perimetros" class="btn bg" style="flex:1;font-size:11px" onclick="showMedidasSubTab('perimetros',window.clienteMedidasId)">📏 Perímetros</button>
+    <button id="medsub-tests" class="btn bg" style="flex:1;font-size:11px" onclick="showMedidasSubTab('tests',window.clienteMedidasId)">🧪 Tests</button>
   </div>
-
-  <div class="acc-seg open" id="accseg-peso">
-    <div class="acc-seg-head" onclick="toggleAccSeg(this)" style="display:flex;justify-content:space-between;align-items:center;background:#0c0c0c;border:1px solid #1a1a1a;border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:pointer">
-      <span style="font-size:13px;font-weight:700">⚖️ Peso</span><span class="acc-seg-arrow" style="color:#e31e24;font-size:12px">▾</span>
-    </div>
-    <div class="acc-seg-body" style="margin-bottom:10px">
-      <div id="msec-peso"></div>
-    </div>
-  </div>
-
-  <div class="acc-seg open" id="accseg-perimetros">
-    <div class="acc-seg-head" onclick="toggleAccSeg(this)" style="display:flex;justify-content:space-between;align-items:center;background:#0c0c0c;border:1px solid #1a1a1a;border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:pointer">
-      <span style="font-size:13px;font-weight:700">📏 Perímetros / Pliegues</span><span class="acc-seg-arrow" style="color:#e31e24;font-size:12px">▾</span>
-    </div>
-    <div class="acc-seg-body" style="margin-bottom:10px">
-      <div id="msec-medidas"></div>
-    </div>
-  </div>
-
+  <div id="msec-peso"></div>
+  <div id="msec-medidas" style="display:none"></div>
+  <div id="msec-tests-wrap" style="display:none"><div id="msec-tests"></div></div>
 </div>
-
-<div id="msec-tests-wrap" style="display:none"><div id="msec-tests"></div></div>
-
 <div id="msec-analisis" style="display:none"></div>
-
 </div>
 </div>
 
@@ -1702,7 +1669,6 @@ async function gestionarPushAdmin() {
   <script src="js/tc-nutricion.js"></script>
   <script src="js/admin-recomendaciones.js"></script>
   <script src="js/admin-horarios.js"></script>
-  <script src="js/admin-clase-presencial.js"></script>
   <script src="js/admin-inicio.js"></script>
   <script src="js/herramientas-comp.js"></script>
   <script src="js/herramientas-timer.js"></script>
