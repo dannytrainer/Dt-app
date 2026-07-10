@@ -30,7 +30,7 @@ if(p==='rutinas')cargarRutinasClientes();
 if(p==='festivos')cargarFestivos();
 if(p==='logs')cargarLogs();
 if(p==='cronometros'){const c=document.getElementById('cronometros-contenido');if(c)renderCronometros(c);}
-if(p==='hiit'){const c=document.getElementById('hiit-contenido');if(c)renderHiit(c);}
+if(p==='hiit'){const c=document.getElementById('hiit-page-contenido');if(c)renderHiit(c);}
 if(p==='temporizadores'){const c=document.getElementById('temporizadores-contenido');if(c)renderTemporizadores(c);}
 if(p==='calculadoras'){const c=document.getElementById('calculadoras-contenido');if(c)renderCalculadoras(c);}
 if(p==='competencias'){const c=document.getElementById('competencias-contenido');if(c){window._compContenedor=c;renderCompetencias(c);}}

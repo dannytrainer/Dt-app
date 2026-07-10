@@ -709,7 +709,7 @@ function renderItems(r) {
   var cont = document.getElementById('itms'+r.id);
   if (!cont) return;
   cont.innerHTML = r.items.map(function(item, i) {
-    var x = r.items.length > 2 ? '<button onclick="quitarItem('+r.id+','+i+')" style="background:none;border:none;color:#888;cursor:pointer;font-size:11px;padding:0;margin-left:3px">✕</button>' : '';
+    var x = r.items.length > 2 ? '<button onclick="quitarItem(\'' +r.id+ '\',' +i+ ')" style="background:none;border:none;color:#888;cursor:pointer;font-size:11px;padding:0;margin-left:3px">✕</button>' : '';
     return '<span style="background:#1a1a1a;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;display:inline-flex;align-items:center">'+item+x+'</span>';
   }).join('');
 }

@@ -3,7 +3,8 @@
 let _hiitCircuitos=[];
 async function hiitCargar(){
   try{
-    const r=await fetch('/api/hiit');
+    const _eid=(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
+    const r=await fetch('/api/hiit?entrenador_id='+encodeURIComponent(_eid));
     const todos=await r.json();
     _hiitCircuitos=todos.filter(x=>x.tipo!=='intervalo');
     _intervCircuitos=todos.filter(x=>x.tipo==='intervalo');
@@ -163,8 +164,11 @@ async function intervGuardar() {
   if (!iv.nombre.trim()) { toast('⚠️ Ponle un nombre',false); return; }
   iv.tipo = 'intervalo';
   if (!iv.id) iv.id = Date.now();
+  if (!iv.entrenador_id) iv.entrenador_id = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
   if(!entEsPremium()){mostrarCandadoPremium('Guardar intervalos requiere Plan Premium.');return;}
-  await fetch('/api/hiit', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(iv)});
+  const r = await fetch('/api/hiit', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(iv)});
+  const j = await r.json();
+  if (!j.ok) { toast('⚠️ '+(j.error||'Error al guardar'),false); return; }
   var idx = _intervCircuitos.findIndex(function(x){return x.id===iv.id;});
   if (idx >= 0) _intervCircuitos[idx] = iv;
   else _intervCircuitos.push(iv);
