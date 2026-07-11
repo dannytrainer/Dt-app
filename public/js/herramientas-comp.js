@@ -171,7 +171,7 @@ async function verRankingCategoria(cat) {
 
   c.innerHTML =
     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
-      '<button onclick="renderCompetencias(document.getElementById(\'herramienta-contenido\'))" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<button onclick="renderCompetencias(window._compContenedor || document.getElementById(\'competencias-contenido\') || document.getElementById(\'herramienta-contenido\'))" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
       '<div style="font-size:14px;font-weight:700;color:var(--texto)">' + info.icon + ' ' + info.label + '</div>' +
     '</div>' +
     '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:14px;padding:20px 10px 10px;margin-bottom:14px">' +
@@ -196,7 +196,7 @@ function verRankingPersonalizado() {
   }
   c.innerHTML =
     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
-      '<button onclick="renderCompetencias(document.getElementById(\'herramienta-contenido\'))" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
+      '<button onclick="renderCompetencias(window._compContenedor || document.getElementById(\'competencias-contenido\') || document.getElementById(\'herramienta-contenido\'))" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer">← Volver</button>' +
       '<div style="font-size:14px;font-weight:700;color:var(--texto)">✏️ Competencia personalizada</div>' +
     '</div>' +
     '<div style="background:var(--fondo);border:1px solid #1a1a1a;border-radius:12px;padding:14px;margin-bottom:12px">' +

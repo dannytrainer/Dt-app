@@ -1,3 +1,17 @@
+// ---- BUSQUEDA UNIFICADA DE CLIENTES (nombre + telefono + email + cedula) ----
+function dtClienteTextoBusqueda(cliente) {
+  if (!cliente) return '';
+  return [cliente.nombre, cliente.telefono, cliente.email, cliente.cedula]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function dtClienteCoincide(cliente, query) {
+  if (!query || !query.trim()) return true;
+  return dtClienteTextoBusqueda(cliente).includes(query.toLowerCase().trim());
+}
+
 // ---- FIN TIMER RUTINA ----
 
 

@@ -496,9 +496,10 @@ async function cargarEstadoPausaGlobal(){
   actualizarBtnPausaGlobal(hasta);
 }
 function filtrarClientes(){
-  const q=document.getElementById('buscador-clientes').value.toLowerCase();
+  const q=document.getElementById('buscador-clientes').value.toLowerCase().trim();
   document.querySelectorAll('#lista-clientes>div').forEach(d=>{
-    d.style.display=d.innerText.toLowerCase().includes(q)?'block':'none';
+    const texto=d.getAttribute('data-search')||d.innerText.toLowerCase();
+    d.style.display=texto.includes(q)?'block':'none';
   });
 }
 function filtrarClientesPorChip(tipo){

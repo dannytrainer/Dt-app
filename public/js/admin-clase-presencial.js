@@ -378,7 +378,7 @@ function cpInyectarEstilos() {
     + ".cp-cardio-notas{font-size:10.5px;color:#7fb8d8;font-style:italic;margin-top:6px;border-top:1px solid #1c3f5f;padding-top:6px}"
     + ".cp-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999;display:flex;align-items:flex-end}"
     + ".cp-modal{width:100%;max-width:520px;margin:0 auto;background:#1c1c1c;border-radius:18px 18px 0 0;padding:18px;max-height:82vh;overflow-y:auto}"
-    + ".cp-search{background:#111;border:1px solid #2a2a2a;border-radius:10px;padding:11px 14px;font-size:14px;color:#fff;width:100%;margin-bottom:12px}"
+    + ".cp-search{background:#111;border:1px solid #2a2a2a;border-radius:10px;padding:11px 14px;font-size:16px;color:#fff;width:100%;margin-bottom:12px}"
     + ".cp-cli-item{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid #2a2a2a;cursor:pointer}"
     + ".cp-avatar{width:34px;height:34px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#999;flex-shrink:0}"
     + ".cp-select{width:100%;background:#111;border:1px solid #2a2a2a;color:#fff;border-radius:8px;padding:11px;font-size:14px;margin:10px 0}"
@@ -629,7 +629,7 @@ function cpRenderModalBusqueda(filtro) {
   const recientes = disponibles.filter(function(c){ return recientesIds.includes(c.id); });
 
   const filtrados = filtro
-    ? disponibles.filter(function(c){ return (c.nombre || '').toLowerCase().includes(filtro.toLowerCase()); })
+    ? disponibles.filter(function(c){ return dtClienteCoincide(c, filtro); })
     : disponibles;
 
   let html = '<div class="cp-modal">';

@@ -166,7 +166,7 @@ async function cargarListaChatClientes() {
   const cont = document.getElementById('chat-ent-clientes');
   if (!cont) return;
   const buscar = (document.getElementById('chat-ent-buscar')||{}).value || '';
-  const filtrados = usuarios.filter(u => u.activo && u.nombre.toLowerCase().includes(buscar.toLowerCase()));
+  const filtrados = usuarios.filter(u => dtClienteCoincide(u, buscar));
   filtrados.sort((a,b) => (noLeidos.porCliente[b.id]||0) - (noLeidos.porCliente[a.id]||0));
   cont.innerHTML = filtrados.map(u => {
     const nl = noLeidos.porCliente[u.id] || 0;

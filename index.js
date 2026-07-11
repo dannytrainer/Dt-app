@@ -508,13 +508,11 @@ cron.schedule('* * * * *', async () => {
           webpush.sendNotification(_subEntPrev, JSON.stringify({ titulo: _tituloEnt, mensaje: _mensajeEnt })).catch(e => registrarError('webpush', e));
         }
         if (!msg || !msg.trim()) continue;
-        const enviado_cron = await enviarMensaje(usuario.telefono, msg, usuario.entrenador_id);
-        if (enviado_cron) {
-          usuario.msg_cobro_enviado = true;
-          const _us = cargarJSON('usuarios.json');
-          const _idx = _us.findIndex(u => u.id === usuario.id);
-          if (_idx !== -1) { _us[_idx].msg_cobro_enviado = true; guardarJSON('usuarios.json', _us); }
-        }
+        // Envio por WhatsApp removido (Baileys ya no esta disponible). Se marca como enviado tras notificar por push.
+        usuario.msg_cobro_enviado = true;
+        const _us = cargarJSON('usuarios.json');
+        const _idx = _us.findIndex(u => u.id === usuario.id);
+        if (_idx !== -1) { _us[_idx].msg_cobro_enviado = true; guardarJSON('usuarios.json', _us); }
         // Push al cliente
         const subCliCobro = pushSuscripciones[usuario.id];
         if (subCliCobro) {

@@ -338,7 +338,7 @@ const ep=u.estado_pago||'aldia';
 const epColor=ep==='vencido'?'#e31e24':ep==='proximo'?'#ff9800':'#4caf50';
 const epTexto=ep==='vencido'?'🔴 Vencido':ep==='proximo'?'⚠️ Próximo pago':'✅ Al día';
 const tipoTexto=u.tipo==='personalizado'?'💪 Personalizado':'📋 Asesorado';
-return`<div onclick="abrirPerfilCliente('${u.id}')" style="background:var(--card);border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px">
+return`<div onclick="abrirPerfilCliente('${u.id}')" data-search="${dtClienteTextoBusqueda(u).replace(/"/g,'&quot;')}" style="background:var(--card);border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px">
 <div style="flex-shrink:0">${avatarHTML(u)}</div>
 <div style="flex:1;min-width:0">
   <div style="font-size:15px;font-weight:700;color:var(--texto);margin-bottom:4px">${u.nombre}</div>
@@ -512,7 +512,7 @@ function _renderListaLocal(){
     const epColor=ep==='vencido'?'#e31e24':ep==='proximo'?'#ff9800':'#4caf50';
     const epTexto=ep==='vencido'?'🔴 Vencido':ep==='proximo'?'⚠️ Próximo pago':'✅ Al día';
     const tipoTexto=u.tipo==='personalizado'?'💪 Personalizado':'📋 Asesorado';
-    return`<div onclick="abrirPerfilCliente('${u.id}')" style="background:var(--card);border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px">
+    return`<div onclick="abrirPerfilCliente('${u.id}')" data-search="${dtClienteTextoBusqueda(u).replace(/"/g,'&quot;')}" style="background:var(--card);border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px">
 <div style="flex-shrink:0">${avatarHTML(u)}</div>
 <div style="flex:1;min-width:0">
   <div style="font-size:15px;font-weight:700;color:var(--texto);margin-bottom:4px">${u.nombre}</div>
