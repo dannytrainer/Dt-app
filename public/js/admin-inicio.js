@@ -544,6 +544,7 @@ async function abrirModalCliente(){
 document.getElementById('cliente-id').value='';
 document.getElementById('cliente-nombre').value='';
 document.getElementById('cliente-telefono').value='';
+if(document.getElementById('cliente-cedula')) document.getElementById('cliente-cedula').value='';
 document.getElementById('cliente-pago').value='';
 document.getElementById('cliente-pago2').value='';
 document.getElementById('cliente-tipo-pago').value='mensual';
@@ -560,6 +561,7 @@ document.getElementById('cliente-id').value=u.id;
 document.getElementById('cliente-nombre').value=u.nombre;
 document.getElementById('cliente-telefono').value=u.telefono;
 document.getElementById('cliente-email').value=u.email||'';
+if(document.getElementById('cliente-cedula')) document.getElementById('cliente-cedula').value=u.cedula||'';
 document.getElementById('cliente-tipo').value=u.tipo;
 document.getElementById('cliente-pago').value=u.dia_pago||'';
 document.getElementById('cliente-pago2').value=u.dia_pago2||'';
@@ -591,6 +593,7 @@ entrenador_id:(JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null),
 nombre:document.getElementById('cliente-nombre').value.trim(),
 telefono:document.getElementById('cliente-telefono').value.replace(/\D/g,''),
 email:document.getElementById('cliente-email').value.trim(),
+cedula:document.getElementById('cliente-cedula')?document.getElementById('cliente-cedula').value.trim():'',
 tipo:document.getElementById('cliente-tipo').value,
 tipo_pago:document.getElementById('cliente-tipo-pago').value,
 dia_pago:parseInt(document.getElementById('cliente-pago').value)||null,

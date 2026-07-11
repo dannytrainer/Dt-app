@@ -499,7 +499,7 @@ function filtrarClientes(){
   const q=document.getElementById('buscador-clientes').value.toLowerCase().trim();
   document.querySelectorAll('#lista-clientes>div').forEach(d=>{
     const texto=d.getAttribute('data-search')||d.innerText.toLowerCase();
-    d.style.display=texto.includes(q)?'block':'none';
+    d.style.display=texto.includes(q)?'flex':'none';
   });
 }
 function filtrarClientesPorChip(tipo){
