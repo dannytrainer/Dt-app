@@ -10,7 +10,7 @@ function showMTab(t) {
   window._medidasSubTab = t;
 }
 
-function wrapAnalisisAccordions(id){
+function wrapAnalisisAccordions(){
   const cont = document.getElementById('msec-analisis');
   if(!cont) return;
   const children = Array.from(cont.children);
@@ -42,71 +42,13 @@ function wrapAnalisisAccordions(id){
       <span style="font-size:13px;font-weight:700">📜 Historial</span><span class="acc-seg-arrow" style="color:#e31e24;font-size:12px">▾</span>
     </div>
     <div class="acc-seg-body" style="display:none;margin-bottom:10px">
-      <div id="historial-lista-${id}" style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;color:#888;font-size:12px;text-align:center">
-        Cargando historial...
+      <div style="background:#111;border:1px dashed #3a1a1a;border-radius:10px;padding:14px;color:#888;font-size:12px;text-align:center">
+        📌 Próximamente: línea de tiempo unificada con registros de peso, medidas, tests y fotos.
       </div>
     </div>
   </div>`;
 
   cont.innerHTML = html;
-  renderHistorialLista(id);
-}
-
-async function renderHistorialLista(id) {
-  const cont = document.getElementById('historial-lista-' + id);
-  if (!cont) return;
-  try {
-    const hist = await fetch('/api/historial/' + id).then(r => r.json());
-    const tomas = (hist.tomas || []).slice().reverse();
-
-    if (!tomas.length) {
-      cont.innerHTML = '<div style="color:#555;font-size:12px;padding:10px">Aún no hay tomas registradas. Se generará automáticamente cada mes según la fecha de pago.</div>';
-      return;
-    }
-
-    let html = '';
-    tomas.forEach((t, i) => {
-      const cintura = t.medidas && t.medidas.cintura ? t.medidas.cintura + ' cm' : '—';
-      const peso = t.peso != null ? t.peso + ' kg' : '—';
-      const fFrontal = t.fotos && t.fotos.frontal ? t.fotos.frontal : null;
-      const fLateral = t.fotos && t.fotos.lateral ? t.fotos.lateral : null;
-      const idDetalle = 'toma-detalle-' + id + '-' + i;
-
-      html += `<div style="background:#0c0c0c;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:8px;overflow:hidden">
-        <div onclick="document.getElementById('${idDetalle}').style.display=document.getElementById('${idDetalle}').style.display==='none'?'block':'none'" style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer">
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:700;color:#fff">📅 ${t.fecha}</div>
-            <div style="font-size:11px;color:#888;margin-top:2px">⚖️ ${peso} &nbsp;📏 ${cintura}</div>
-          </div>
-          <div style="display:flex;gap:4px">
-            ${fFrontal ? `<img src="${fFrontal}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid #2a2a2a">` : ''}
-            ${fLateral ? `<img src="${fLateral}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid #2a2a2a">` : ''}
-          </div>
-        </div>
-        <div id="${idDetalle}" style="display:none;padding:10px 12px;border-top:1px solid #1a1a1a">
-          ${Object.entries(t.medidas || {}).filter(([k,v]) => k !== 'fecha' && k !== 'analisis' && v).map(([k,v]) => `
-            <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px">
-              <span style="color:#888;text-transform:capitalize">${k}</span>
-              <span style="color:#fff;font-weight:700">${v}</span>
-            </div>`).join('')}
-          ${t.analisis_congelado && t.analisis_congelado.pctGrasa ? `
-            <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1a1a1a;font-size:11px;color:#888">
-              % Grasa: <span style="color:#fff;font-weight:700">${t.analisis_congelado.pctGrasa}%</span> &nbsp;
-              Kg músculo: <span style="color:#fff;font-weight:700">${t.analisis_congelado.kgMusculo} kg</span>
-            </div>` : ''}
-          ${(fFrontal || fLateral) ? `
-            <div style="display:flex;gap:8px;margin-top:8px">
-              ${fFrontal ? `<img src="${fFrontal}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
-              ${fLateral ? `<img src="${fLateral}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
-            </div>` : ''}
-        </div>
-      </div>`;
-    });
-
-    cont.innerHTML = html;
-  } catch (e) {
-    cont.innerHTML = '<div style="color:#e31e24;font-size:12px">Error cargando historial</div>';
-  }
 }
 
 function toggleAccSeg(headerEl){
@@ -135,7 +77,7 @@ async function showMTabLoad(t, id) {
       await abrirTests(id, u ? u.nombre : '');
     }
   }
-  if (t === 'analisis') { await renderAnalisis(id); wrapAnalisisAccordions(id); }
+  if (t === 'analisis') { await renderAnalisis(id); wrapAnalisisAccordions(); }
 }
 
 async function abrirMedidas(id, nombre) {
@@ -345,7 +287,7 @@ async function renderAnalisis(id) {
   } else if (!html) {
     html = '<p style="color:#555;text-align:center;padding:30px">Registra pliegues y medidas<br>para ver el análisis</p>';
   }
-  html += `<div style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;margin-bottom:10px"><div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">📸 Condición Actual</div><div style="display:flex;gap:10px"><div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Frontal</div><img src="data/fotos/${id}/actual/frontal.jpg?t=${Date.now()}" onclick="verFotoGrande(this.src)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;border-radius:8px;border:1px solid #2a2a2a;cursor:pointer;max-height:180px;object-fit:cover"><div style="display:none;background:#1a1a1a;border:1px dashed #333;border-radius:8px;height:120px;align-items:center;justify-content:center;flex-direction:column;gap:6px"><span style="font-size:24px">📷</span><span style="font-size:10px;color:#555">Sin foto</span></div><input type="file" accept="image/*" style="display:none" id="inp-frontal-${id}" onchange="subirFotoActual(this,'${id}','frontal')"><button onclick="document.getElementById('inp-frontal-${id}').click()" style="margin-top:8px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:11px;padding:6px 12px;width:100%;cursor:pointer">📤 Subir</button></div><div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Lateral</div><img src="data/fotos/${id}/actual/lateral.jpg?t=${Date.now()}" onclick="verFotoGrande(this.src)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;border-radius:8px;border:1px solid #2a2a2a;cursor:pointer;max-height:180px;object-fit:cover"><div style="display:none;background:#1a1a1a;border:1px dashed #333;border-radius:8px;height:120px;align-items:center;justify-content:center;flex-direction:column;gap:6px"><span style="font-size:24px">📷</span><span style="font-size:10px;color:#555">Sin foto</span></div><input type="file" accept="image/*" style="display:none" id="inp-lateral-${id}" onchange="subirFotoActual(this,'${id}','lateral')"><button onclick="document.getElementById('inp-lateral-${id}').click()" style="margin-top:8px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:11px;padding:6px 12px;width:100%;cursor:pointer">📤 Subir</button></div></div></div>`;
+  html += `<div style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;margin-bottom:10px"><div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">📸 Comparativa Antes / Después</div><div style="display:flex;gap:10px"><div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Antes</div><img src="data/fotos/${id}/antes/foto.jpg?t=${Date.now()}" onclick="verFotoGrande(this.src)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;border-radius:8px;border:1px solid #2a2a2a;cursor:pointer;max-height:180px;object-fit:cover"><div style="display:none;background:#1a1a1a;border:1px dashed #333;border-radius:8px;height:120px;align-items:center;justify-content:center;flex-direction:column;gap:6px"><span style="font-size:24px">📷</span><span style="font-size:10px;color:#555">Sin foto</span></div><input type="file" accept="image/*" style="display:none" id="inp-antes-${id}" onchange="subirFotoComparativa(this,'${id}','antes')"><button onclick="document.getElementById('inp-antes-${id}').click()" style="margin-top:8px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:11px;padding:6px 12px;width:100%;cursor:pointer">📤 Subir</button></div><div style="flex:1;text-align:center"><div style="font-size:10px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Después</div><img src="data/fotos/${id}/despues/foto.jpg?t=${Date.now()}" onclick="verFotoGrande(this.src)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;border-radius:8px;border:1px solid #2a2a2a;cursor:pointer;max-height:180px;object-fit:cover"><div style="display:none;background:#1a1a1a;border:1px dashed #333;border-radius:8px;height:120px;align-items:center;justify-content:center;flex-direction:column;gap:6px"><span style="font-size:24px">📷</span><span style="font-size:10px;color:#555">Sin foto</span></div><input type="file" accept="image/*" style="display:none" id="inp-despues-${id}" onchange="subirFotoComparativa(this,'${id}','despues')"><button onclick="document.getElementById('inp-despues-${id}').click()" style="margin-top:8px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:11px;padding:6px 12px;width:100%;cursor:pointer">📤 Subir</button></div></div></div>`;
   document.getElementById('msec-analisis').innerHTML = html;
 }
 
@@ -633,20 +575,6 @@ async function subirFotoComparativa(input, id, tipo) {
   fd.append('foto', input.files[0]);
   fd.append('tipo', tipo);
   const res = await fetch('/api/foto-comparativa/' + id + '/' + tipo, {method:'POST', body:fd});
-  if (res.ok) {
-    toast('✅ Foto ' + tipo + ' guardada');
-    showMTabLoad('analisis', id);
-  } else {
-    toast('❌ Error al subir foto', false);
-  }
-}
-
-async function subirFotoActual(input, id, tipo) {
-  if (!input.files[0]) return;
-  const fd = new FormData();
-  fd.append('foto', input.files[0]);
-  fd.append('tipo', tipo);
-  const res = await fetch('/api/foto-actual/' + id + '/' + tipo, {method:'POST', body:fd});
   if (res.ok) {
     toast('✅ Foto ' + tipo + ' guardada');
     showMTabLoad('analisis', id);

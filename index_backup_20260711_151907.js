@@ -1710,30 +1710,6 @@ app.post('/api/foto-comparativa/:id/:tipo', uploadFotoComp.single('foto'), (req,
   } catch(e) { res.status(500).json({ok:false,error:e.message}); }
 });
 
-// ═══ Foto condición actual (frontal/lateral) — Historial Fase 1 ═══
-const storageFotoActual = multer.diskStorage({
-  destination:(req,file,cb)=>{
-    const {id,tipo} = req.params;
-    const dir = path.join(__dirname,'data/fotos',id,'actual');
-    fs.mkdirSync(dir,{recursive:true});
-    cb(null,dir);
-  },
-  filename:(req,file,cb)=>{
-    const {tipo} = req.params;
-    const ext = file.originalname.split('.').pop();
-    cb(null, tipo + '.' + ext);
-  }
-});
-const uploadFotoActual = multer({storage:storageFotoActual,limits:{fileSize:5*1024*1024}});
-
-app.post('/api/foto-actual/:id/:tipo', uploadFotoActual.single('foto'), (req, res) => {
-  try {
-    const {id, tipo} = req.params;
-    if (!['frontal','lateral'].includes(tipo)) return res.status(400).json({ok:false,error:'Tipo inválido'});
-    res.json({ok:true, path:`data/fotos/${id}/actual/${tipo}.${req.file.originalname.split('.').pop()}`});
-  } catch(e) { res.status(500).json({ok:false,error:e.message}); }
-});
-
 // Vinculación cliente
 app.post('/api/vincular', (req, res) => {
   const { id, codigo } = req.body;

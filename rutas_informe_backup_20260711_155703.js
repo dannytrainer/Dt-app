@@ -436,20 +436,12 @@ module.exports = function(app, fs) {
         });
       } catch(e) { calculos = {}; }
 
-      // Fotos condición actual (frontal/lateral)
-      const extsFoto = ['jpg','jpeg','png','webp'];
-      function buscarFoto(tipo) {
-        for (const ext of extsFoto) {
-          const p = path.join(__dirname, 'data/fotos', id, 'actual', tipo + '.' + ext);
-          if (fs.existsSync(p)) return p;
-        }
-        return null;
-      }
-      const fotoFrontalPath = buscarFoto('frontal');
-      const fotoLateralPath = buscarFoto('lateral');
+      // Fotos comparativas
+      const fotoAntes   = path.join(__dirname, 'data/fotos', id, 'antes', 'foto.jpg');
+      const fotoDespues = path.join(__dirname, 'data/fotos', id, 'despues', 'foto.jpg');
       let fotoAntesB64 = null, fotoDespuesB64 = null;
-      try { if (fotoFrontalPath) fotoAntesB64   = fs.readFileSync(fotoFrontalPath).toString('base64'); } catch{}
-      try { if (fotoLateralPath) fotoDespuesB64 = fs.readFileSync(fotoLateralPath).toString('base64'); } catch{}
+      try { if (fs.existsSync(fotoAntes))   fotoAntesB64   = fs.readFileSync(fotoAntes).toString('base64'); } catch{}
+      try { if (fs.existsSync(fotoDespues)) fotoDespuesB64 = fs.readFileSync(fotoDespues).toString('base64'); } catch{}
       let iconB64 = null, logoTrainerB64 = null;
       try { iconB64 = fs.readFileSync(path.join(__dirname,'public','icon.png')).toString('base64'); } catch{}
       try {
@@ -783,15 +775,15 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
 
         <!-- Fotos comparativas -->
         <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;">📸 CONDICIÓN ACTUAL</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;">📸 COMPARATIVA ANTES / DESPUÉS</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <div style="text-align:center;">
-              <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Frontal</div>
+              <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Antes</div>
               ${fotoAntesB64 ? `<img src="data:image/jpeg;base64,${fotoAntesB64}" style="width:100%;border-radius:6px;border:1px solid var(--gris-borde);max-height:200px;object-fit:cover;">`
               : `<div style="background:#1a1a1a;border:1px dashed #333;border-radius:6px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;"><span style="font-size:28px;">🏃</span><span style="font-size:10px;color:#555;">Sin foto</span></div>`}
             </div>
             <div style="text-align:center;">
-              <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lateral</div>
+              <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Después</div>
               ${fotoDespuesB64 ? `<img src="data:image/jpeg;base64,${fotoDespuesB64}" style="width:100%;border-radius:6px;border:1px solid var(--rojo);max-height:200px;object-fit:cover;">`
               : `<div style="background:#1a1a1a;border:1px dashed var(--rojo);border-radius:6px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;"><span style="font-size:28px;">💪</span><span style="font-size:10px;color:#555;">Sin foto</span></div>`}
             </div>

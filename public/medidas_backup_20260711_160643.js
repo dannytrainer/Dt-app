@@ -49,64 +49,6 @@ function wrapAnalisisAccordions(id){
   </div>`;
 
   cont.innerHTML = html;
-  renderHistorialLista(id);
-}
-
-async function renderHistorialLista(id) {
-  const cont = document.getElementById('historial-lista-' + id);
-  if (!cont) return;
-  try {
-    const hist = await fetch('/api/historial/' + id).then(r => r.json());
-    const tomas = (hist.tomas || []).slice().reverse();
-
-    if (!tomas.length) {
-      cont.innerHTML = '<div style="color:#555;font-size:12px;padding:10px">Aún no hay tomas registradas. Se generará automáticamente cada mes según la fecha de pago.</div>';
-      return;
-    }
-
-    let html = '';
-    tomas.forEach((t, i) => {
-      const cintura = t.medidas && t.medidas.cintura ? t.medidas.cintura + ' cm' : '—';
-      const peso = t.peso != null ? t.peso + ' kg' : '—';
-      const fFrontal = t.fotos && t.fotos.frontal ? t.fotos.frontal : null;
-      const fLateral = t.fotos && t.fotos.lateral ? t.fotos.lateral : null;
-      const idDetalle = 'toma-detalle-' + id + '-' + i;
-
-      html += `<div style="background:#0c0c0c;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:8px;overflow:hidden">
-        <div onclick="document.getElementById('${idDetalle}').style.display=document.getElementById('${idDetalle}').style.display==='none'?'block':'none'" style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer">
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:700;color:#fff">📅 ${t.fecha}</div>
-            <div style="font-size:11px;color:#888;margin-top:2px">⚖️ ${peso} &nbsp;📏 ${cintura}</div>
-          </div>
-          <div style="display:flex;gap:4px">
-            ${fFrontal ? `<img src="${fFrontal}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid #2a2a2a">` : ''}
-            ${fLateral ? `<img src="${fLateral}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid #2a2a2a">` : ''}
-          </div>
-        </div>
-        <div id="${idDetalle}" style="display:none;padding:10px 12px;border-top:1px solid #1a1a1a">
-          ${Object.entries(t.medidas || {}).filter(([k,v]) => k !== 'fecha' && k !== 'analisis' && v).map(([k,v]) => `
-            <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px">
-              <span style="color:#888;text-transform:capitalize">${k}</span>
-              <span style="color:#fff;font-weight:700">${v}</span>
-            </div>`).join('')}
-          ${t.analisis_congelado && t.analisis_congelado.pctGrasa ? `
-            <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1a1a1a;font-size:11px;color:#888">
-              % Grasa: <span style="color:#fff;font-weight:700">${t.analisis_congelado.pctGrasa}%</span> &nbsp;
-              Kg músculo: <span style="color:#fff;font-weight:700">${t.analisis_congelado.kgMusculo} kg</span>
-            </div>` : ''}
-          ${(fFrontal || fLateral) ? `
-            <div style="display:flex;gap:8px;margin-top:8px">
-              ${fFrontal ? `<img src="${fFrontal}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
-              ${fLateral ? `<img src="${fLateral}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
-            </div>` : ''}
-        </div>
-      </div>`;
-    });
-
-    cont.innerHTML = html;
-  } catch (e) {
-    cont.innerHTML = '<div style="color:#e31e24;font-size:12px">Error cargando historial</div>';
-  }
 }
 
 function toggleAccSeg(headerEl){
