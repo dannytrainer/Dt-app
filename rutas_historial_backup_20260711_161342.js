@@ -39,17 +39,6 @@ function generarTomaSnapshot(id, fs) {
   const proporciones = calc.calcularProporciones(medActual);
   const salud = calc.calcularSaludMetabolica(medActual, perfil.altura);
 
-  // Resumen de tests: último registro de cada tipo
-  let testsResumen = {};
-  try {
-    const testsData = JSON.parse(fs.readFileSync('data/tests.json', 'utf8'));
-    const registros = (testsData[id] && testsData[id].registros) || [];
-    ['fuerza', 'resist', 'especifico'].forEach(tipo => {
-      const delTipo = registros.filter(r => r.tipo === tipo);
-      if (delTipo.length) testsResumen[tipo] = delTipo[delTipo.length - 1];
-    });
-  } catch (e) { /* sin tests disponibles */ }
-
   const path = require('path');
   const dirActual = path.join(__dirname, 'data', 'fotos', id, 'actual');
   const dirToma = path.join(__dirname, 'data', 'fotos', id, 'tomas', new Date().toISOString().split('T')[0]);
@@ -76,7 +65,6 @@ function generarTomaSnapshot(id, fs) {
     medidas: medActual,
     perfil: { sexo: perfil.sexo, edad: perfil.edad, altura: perfil.altura, objetivo: perfil.objetivo },
     analisis_congelado: { pctGrasa, pctMagra, kgGrasa, kgMusculo, proporciones, salud },
-    tests_resumen: testsResumen,
     fotos
   };
 
@@ -97,8 +85,6 @@ app.post('/api/historial/:id/generar-toma-test', (req, res) => {
     res.json(resultado);
   } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
-
-module.exports.generarTomaSnapshot = generarTomaSnapshot;
 
 app.post('/api/historial/:id/resolver-pendiente', (req, res) => {
   try {

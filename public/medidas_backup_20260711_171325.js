@@ -150,15 +150,6 @@ function toggleSeleccionToma(id, i) {
   }
 }
 
-function diffPeso(tA, tB) {
-  const va = parseFloat(tA.peso);
-  const vb = parseFloat(tB.peso);
-  if (isNaN(va) || isNaN(vb)) return '<span style="color:#555">—</span>';
-  const d = (vb - va);
-  const color = d === 0 ? '#888' : (d < 0 ? '#4caf50' : '#e31e24');
-  return `<span style="color:${color};font-weight:700">${d>0?'+':''}${d.toFixed(1)}</span>`;
-}
-
 function pintarComparativaHistorial(id, cont) {
   if (!cont) return;
   const tomas = _historialTomasCache[id] || [];
@@ -204,7 +195,7 @@ function pintarComparativaHistorial(id, cont) {
     </div>
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515;font-size:12px">
       <span style="color:#888">Peso</span>
-      <span>${tA.peso ?? '—'} → ${tB.peso ?? '—'} kg &nbsp;${diffPeso(tA, tB)}</span>
+      <span>${tA.peso ?? '—'} → ${tB.peso ?? '—'} kg &nbsp;${diff('cintura',true).replace('cintura','peso')}</span>
     </div>
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515;font-size:12px">
       <span style="color:#888">Cintura</span>

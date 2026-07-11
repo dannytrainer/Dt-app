@@ -379,6 +379,62 @@ function hiitRenderLista(c){
   </div>`).join('');
 }
 
+function hiitAutoComplete(input, i) {
+  const q = input.value.trim().toLowerCase();
+  const cont = document.getElementById('hiit-suggest-' + i);
+  if (!cont) return;
+  if (q.length < 2) { cont.style.display = 'none'; return; }
+  const lista = window._encEjercicios || [];
+  if (!lista.length) {
+    fetch('/api/enciclopedia').then(function(r){return r.json();}).then(function(data){
+      if (Array.isArray(data)) { window._encEjercicios = data; hiitAutoComplete(input, i); }
+    });
+    return;
+  }
+  const matches = lista.filter(function(e) {
+    const limpio = encNombreLimpio(e.nombre).toLowerCase();
+    const completo = e.nombre.toLowerCase();
+    return limpio.includes(q) || completo.includes(q);
+  }).slice(0, 6);
+  if (matches.length === 0) { cont.style.display = 'none'; return; }
+  cont.innerHTML = matches.map(function(e) {
+    const limpio = encNombreLimpio(e.nombre);
+    return '<div onclick="hiitSeleccionarEj(' + i + ',\'' + limpio.replace(/'/g,"\\'") + '\')" style="padding:10px 14px;border-bottom:1px solid #333;cursor:pointer;font-size:13px;color:var(--texto)">' + limpio + '</div>';
+  }).join('');
+  cont.style.display = 'block';
+}
+
+function hiitSeleccionarEj(i, nombre) {
+  _hiitActual.bloques[i].nombre = nombre;
+  const inp = document.getElementById('hiit-bloque-nombre-' + i);
+  if (inp) inp.value = nombre;
+  const cont = document.getElementById('hiit-suggest-' + i);
+  if (cont) cont.style.display = 'none';
+}
+
+function hiitVerEjercicio(i) {
+  const b = _hiitActual.bloques[i];
+  if (!b || !b.nombre || !b.nombre.trim()) { alert('Escribe el nombre del ejercicio primero'); return; }
+  fetch('/api/enciclopedia/buscar-match/' + encodeURIComponent(b.nombre.trim()))
+    .then(function(r){ return r.json(); })
+    .then(function(res) {
+      if (res.encontrado) {
+        const ej = res.ejercicio;
+        window._encEjercicios = window._encEjercicios || [];
+        if (!window._encEjercicios.find(function(x){ return x.id === ej.id; })) {
+          window._encEjercicios.push(ej);
+        }
+        const cont = document.getElementById('modal-enc-ficha-contenido');
+        if (cont) cont.innerHTML = '';
+        const modal = document.getElementById('modal-enc-ficha');
+        if (modal) modal.classList.add('open');
+        encAbrirFichaModal(ej.id);
+      } else {
+        alert('No se encontró ejercicio para: ' + b.nombre.trim());
+      }
+    });
+}
+
 function hiitRenderEditor(c){
   const ci=_hiitActual;
   let html=`
@@ -403,7 +459,11 @@ function hiitRenderEditor(c){
     <div draggable="true" ondragstart="hiitDragStart(event,${i})" ondragover="hiitDragOver(event,${i})" ondrop="hiitDrop(event,${i})" ondragend="hiitDragEnd()" id="hiit-bloque-${i}" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:var(--gris);border-radius:8px;padding:8px;cursor:grab">
       <div style="font-size:16px;color:var(--texto-tenue);cursor:grab">☰</div>
       <div style="font-size:18px">${b.tipo==='ejercicio'?'💪':'😮‍💨'}</div>
-      <input value="${b.nombre}" onchange="_hiitActual.bloques[${i}].nombre=this.value" style="flex:1;background:none;border:none;border-bottom:1px solid #333;color:var(--texto);font-size:12px;outline:none;padding:2px">
+      <div style="flex:1;position:relative">
+        <input id="hiit-bloque-nombre-${i}" value="${b.nombre}" ${b.tipo==='ejercicio'?`oninput="hiitAutoComplete(this,${i})"`:''} onchange="_hiitActual.bloques[${i}].nombre=this.value" style="width:100%;background:none;border:none;border-bottom:1px solid #333;color:var(--texto);font-size:12px;outline:none;padding:2px;box-sizing:border-box">
+        ${b.tipo==='ejercicio'?`<div id="hiit-suggest-${i}" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--fondo);border:1px solid #444;border-radius:0 0 8px 8px;z-index:9999;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4)"></div>`:''}
+      </div>
+      ${b.tipo==='ejercicio'?`<button onclick="hiitVerEjercicio(${i})" style="background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:5px 7px;cursor:pointer;font-size:12px">👁️</button>`:''}
       <input type="number" min="1" value="${b.tiempo}" onchange="_hiitActual.bloques[${i}].tiempo=parseInt(this.value)||1" style="width:52px;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:6px;padding:4px;font-size:13px;text-align:center;font-family:monospace">
       <span style="font-size:10px;color:var(--texto-tenue)">s</span>
       <button onclick="_hiitActual.bloques.splice(${i},1);hiitMostrar('editor')" style="background:none;border:none;color:var(--texto-tenue);font-size:16px;cursor:pointer">✖</button>
@@ -509,10 +569,38 @@ function hiitRenderEjecucion(c){
   const pct=e.total>0?Math.round((e.resto/e.total)*100):0;
   const colores={ejercicio:'#e31e24',descanso:'#ff9800',preparacion:'#2196f3',descFinSerie:'#9c27b0',descFinCircuito:'#4caf50'};
   const color=colores[bloque.tipo]||'#fff';
+  let imgHtml='';
+  if(bloque.tipo==='ejercicio'){
+    if(!e._imgCache) e._imgCache={};
+    const key=bloque.nombre;
+    if(e._imgCache[key]===undefined){
+      e._imgCache[key]=null;
+      fetch('/api/enciclopedia/buscar-match/'+encodeURIComponent(key))
+        .then(function(r){return r.json();})
+        .then(function(res){
+          e._imgCache[key]=res.encontrado?res.ejercicio:false;
+          if(_hiitEjecutando===e && e.seq[e.idx]===bloque){
+            hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+          }
+        })
+        .catch(function(){ e._imgCache[key]=false; });
+    }
+    const cacheEntry=e._imgCache[key];
+    if(cacheEntry && (cacheEntry.imagen_inicio||cacheEntry.imagen||cacheEntry.imagen_fin||cacheEntry.imagen2)){
+      const img1=cacheEntry.imagen_inicio||cacheEntry.imagen||'';
+      const img2=cacheEntry.imagen_fin||cacheEntry.imagen2||cacheEntry.imagen_inicio||cacheEntry.imagen||'';
+      imgHtml='<div style="display:flex;gap:8px;margin:10px auto;max-width:320px">'+
+        '<img src="'+img1+'" style="flex:1;width:50%;border-radius:10px;background:#1a1a1a;object-fit:contain;max-height:130px">'+
+        '<img src="'+img2+'" style="flex:1;width:50%;border-radius:10px;background:#1a1a1a;object-fit:contain;max-height:130px">'+
+        '</div>'+
+        '<button onclick="hiitVerEjercicioEjecucion()" style="background:#111;color:#ccc;border:1px solid #333;border-radius:8px;padding:7px 14px;font-size:11px;cursor:pointer;margin-bottom:8px">📖 Ver completo</button>';
+    }
+  }
   c.innerHTML=`
   <div style="text-align:center;padding:10px 0">
     <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">Serie ${bloque.serie} de ${e.ci.series} · Bloque ${e.idx+1} de ${e.seq.length}</div>
     <div style="font-size:22px;font-weight:700;color:${color};margin-bottom:8px;letter-spacing:1px">${bloque.nombre}</div>
+    ${imgHtml}
     <div style="font-size:80px;font-weight:700;color:var(--texto);font-family:monospace;text-shadow:0 0 30px ${color}66;line-height:1">${fmtTimer(e.resto)}</div>
     <div style="margin:12px auto;width:90%;height:8px;background:var(--gris2);border-radius:4px">
       <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;transition:width 1s linear"></div>
@@ -557,6 +645,23 @@ function hiitToggle(){
     },1000);
     hiitRenderEjecucion(document.getElementById('hiit-contenido'));
   }
+}
+
+function hiitVerEjercicioEjecucion(){
+  const e=_hiitEjecutando;
+  if(!e) return;
+  const bloque=e.seq[e.idx];
+  const ej=e._imgCache && e._imgCache[bloque.nombre];
+  if(!ej) return;
+  window._encEjercicios = window._encEjercicios || [];
+  if(!window._encEjercicios.find(function(x){return x.id===ej.id;})){
+    window._encEjercicios.push(ej);
+  }
+  const cont=document.getElementById('modal-enc-ficha-contenido');
+  if(cont) cont.innerHTML='';
+  const modal=document.getElementById('modal-enc-ficha');
+  if(modal) modal.classList.add('open');
+  encAbrirFichaModal(ej.id);
 }
 
 function hiitSonarBloque(tipo){

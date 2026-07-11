@@ -52,173 +52,61 @@ function wrapAnalisisAccordions(id){
   renderHistorialLista(id);
 }
 
-let _historialTomasCache = {};
-let _historialSeleccion = [];
-
 async function renderHistorialLista(id) {
   const cont = document.getElementById('historial-lista-' + id);
   if (!cont) return;
   try {
     const hist = await fetch('/api/historial/' + id).then(r => r.json());
     const tomas = (hist.tomas || []).slice().reverse();
-    _historialTomasCache[id] = tomas;
-    _historialSeleccion = [];
 
     if (!tomas.length) {
       cont.innerHTML = '<div style="color:#555;font-size:12px;padding:10px">Aún no hay tomas registradas. Se generará automáticamente cada mes según la fecha de pago.</div>';
       return;
     }
 
-    cont.innerHTML = `<div id="historial-comparativa-${id}"></div><div id="historial-tarjetas-${id}"></div>`;
-    pintarTarjetasHistorial(id);
+    let html = '';
+    tomas.forEach((t, i) => {
+      const cintura = t.medidas && t.medidas.cintura ? t.medidas.cintura + ' cm' : '—';
+      const peso = t.peso != null ? t.peso + ' kg' : '—';
+      const fFrontal = t.fotos && t.fotos.frontal ? t.fotos.frontal : null;
+      const fLateral = t.fotos && t.fotos.lateral ? t.fotos.lateral : null;
+      const idDetalle = 'toma-detalle-' + id + '-' + i;
+
+      html += `<div style="background:#0c0c0c;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:8px;overflow:hidden">
+        <div onclick="document.getElementById('${idDetalle}').style.display=document.getElementById('${idDetalle}').style.display==='none'?'block':'none'" style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer">
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:700;color:#fff">📅 ${t.fecha}</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">⚖️ ${peso} &nbsp;📏 ${cintura}</div>
+          </div>
+          <div style="display:flex;gap:4px">
+            ${fFrontal ? `<img src="${fFrontal}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid #2a2a2a">` : ''}
+            ${fLateral ? `<img src="${fLateral}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid #2a2a2a">` : ''}
+          </div>
+        </div>
+        <div id="${idDetalle}" style="display:none;padding:10px 12px;border-top:1px solid #1a1a1a">
+          ${Object.entries(t.medidas || {}).filter(([k,v]) => k !== 'fecha' && k !== 'analisis' && v).map(([k,v]) => `
+            <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px">
+              <span style="color:#888;text-transform:capitalize">${k}</span>
+              <span style="color:#fff;font-weight:700">${v}</span>
+            </div>`).join('')}
+          ${t.analisis_congelado && t.analisis_congelado.pctGrasa ? `
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1a1a1a;font-size:11px;color:#888">
+              % Grasa: <span style="color:#fff;font-weight:700">${t.analisis_congelado.pctGrasa}%</span> &nbsp;
+              Kg músculo: <span style="color:#fff;font-weight:700">${t.analisis_congelado.kgMusculo} kg</span>
+            </div>` : ''}
+          ${(fFrontal || fLateral) ? `
+            <div style="display:flex;gap:8px;margin-top:8px">
+              ${fFrontal ? `<img src="${fFrontal}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
+              ${fLateral ? `<img src="${fLateral}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
+            </div>` : ''}
+        </div>
+      </div>`;
+    });
+
+    cont.innerHTML = html;
   } catch (e) {
     cont.innerHTML = '<div style="color:#e31e24;font-size:12px">Error cargando historial</div>';
   }
-}
-
-function pintarTarjetasHistorial(id) {
-  const tomas = _historialTomasCache[id] || [];
-  const cont = document.getElementById('historial-tarjetas-' + id);
-  if (!cont) return;
-
-  let html = '';
-  tomas.forEach((t, i) => {
-    const cintura = t.medidas && t.medidas.cintura ? t.medidas.cintura + ' cm' : '—';
-    const peso = t.peso != null ? t.peso + ' kg' : '—';
-    const fFrontal = t.fotos && t.fotos.frontal ? t.fotos.frontal : null;
-    const fLateral = t.fotos && t.fotos.lateral ? t.fotos.lateral : null;
-    const idDetalle = 'toma-detalle-' + id + '-' + i;
-    const seleccionada = _historialSeleccion.includes(i);
-    const borde = seleccionada ? '1px solid #e31e24' : '1px solid #1a1a1a';
-
-    html += `<div style="background:#0c0c0c;border:${borde};border-radius:10px;margin-bottom:8px;overflow:hidden">
-      <div onclick="toggleSeleccionToma('${id}', ${i})" style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer">
-        <div style="flex:1">
-          <div style="font-size:12px;font-weight:700;color:${seleccionada?'#e31e24':'#fff'}">📅 ${t.fecha}${seleccionada?' ✓':''}</div>
-          <div style="font-size:11px;color:#888;margin-top:2px">⚖️ ${peso} &nbsp;📏 ${cintura}</div>
-        </div>
-        <div style="display:flex;gap:4px">
-          ${fFrontal ? `<img src="${fFrontal}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid #2a2a2a">` : ''}
-          ${fLateral ? `<img src="${fLateral}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid #2a2a2a">` : ''}
-        </div>
-      </div>
-      <div id="${idDetalle}" style="display:none;padding:10px 12px;border-top:1px solid #1a1a1a">
-        ${Object.entries(t.medidas || {}).filter(([k,v]) => k !== 'fecha' && k !== 'analisis' && v).map(([k,v]) => `
-          <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px">
-            <span style="color:#888;text-transform:capitalize">${k}</span>
-            <span style="color:#fff;font-weight:700">${v}</span>
-          </div>`).join('')}
-        ${t.analisis_congelado && t.analisis_congelado.pctGrasa ? `
-          <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1a1a1a;font-size:11px;color:#888">
-            % Grasa: <span style="color:#fff;font-weight:700">${t.analisis_congelado.pctGrasa}%</span> &nbsp;
-            Kg músculo: <span style="color:#fff;font-weight:700">${t.analisis_congelado.kgMusculo} kg</span>
-          </div>` : ''}
-        ${(fFrontal || fLateral) ? `
-          <div style="display:flex;gap:8px;margin-top:8px">
-            ${fFrontal ? `<img src="${fFrontal}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
-            ${fLateral ? `<img src="${fLateral}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
-          </div>` : ''}
-      </div>
-    </div>`;
-  });
-
-  cont.innerHTML = html;
-}
-
-function toggleSeleccionToma(id, i) {
-  const idx = _historialSeleccion.indexOf(i);
-  if (idx !== -1) {
-    _historialSeleccion.splice(idx, 1);
-  } else {
-    _historialSeleccion.push(i);
-    if (_historialSeleccion.length > 2) _historialSeleccion.shift();
-  }
-
-  pintarTarjetasHistorial(id);
-
-  const contComp = document.getElementById('historial-comparativa-' + id);
-  if (_historialSeleccion.length === 2) {
-    pintarComparativaHistorial(id, contComp);
-  } else if (contComp) {
-    contComp.innerHTML = '';
-    // Al tener solo 1 seleccionada, mostrar su detalle expandido
-    const tomas = _historialTomasCache[id] || [];
-    tomas.forEach((t, j) => {
-      const det = document.getElementById('toma-detalle-' + id + '-' + j);
-      if (det) det.style.display = (_historialSeleccion.length === 1 && _historialSeleccion[0] === j) ? 'block' : 'none';
-    });
-  }
-}
-
-function diffPeso(tA, tB) {
-  const va = parseFloat(tA.peso);
-  const vb = parseFloat(tB.peso);
-  if (isNaN(va) || isNaN(vb)) return '<span style="color:#555">—</span>';
-  const d = (vb - va);
-  const color = d === 0 ? '#888' : (d < 0 ? '#4caf50' : '#e31e24');
-  return `<span style="color:${color};font-weight:700">${d>0?'+':''}${d.toFixed(1)}</span>`;
-}
-
-function pintarComparativaHistorial(id, cont) {
-  if (!cont) return;
-  const tomas = _historialTomasCache[id] || [];
-  const [iA, iB] = _historialSeleccion.slice().sort((a,b) => b-a);
-  const tA = tomas[iA];
-  const tB = tomas[iB];
-  if (!tA || !tB) return;
-
-  function diff(campo, invertido) {
-    const va = parseFloat(tA.medidas && tA.medidas[campo]);
-    const vb = parseFloat(tB.medidas && tB.medidas[campo]);
-    if (isNaN(va) || isNaN(vb)) return '<span style="color:#555">—</span>';
-    const d = (vb - va);
-    const mejora = invertido ? d < 0 : d > 0;
-    const color = d === 0 ? '#888' : (mejora ? '#4caf50' : '#e31e24');
-    return `<span style="color:${color};font-weight:700">${d>0?'+':''}${d.toFixed(1)}</span>`;
-  }
-
-  function diffAnalisis(campo, invertido) {
-    const va = parseFloat(tA.analisis_congelado && tA.analisis_congelado[campo]);
-    const vb = parseFloat(tB.analisis_congelado && tB.analisis_congelado[campo]);
-    if (isNaN(va) || isNaN(vb)) return '<span style="color:#555">—</span>';
-    const d = (vb - va);
-    const mejora = invertido ? d < 0 : d > 0;
-    const color = d === 0 ? '#888' : (mejora ? '#4caf50' : '#e31e24');
-    return `<span style="color:${color};font-weight:700">${d>0?'+':''}${d.toFixed(1)}</span>`;
-  }
-
-  const fA = tA.fotos || {};
-  const fB = tB.fotos || {};
-
-  cont.innerHTML = `<div style="background:#111;border:1px solid #e31e24;border-radius:10px;padding:14px;margin-bottom:12px">
-    <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">🔍 Comparativa: ${tA.fecha} vs ${tB.fecha}</div>
-    <div style="display:flex;gap:10px;margin-bottom:12px">
-      <div style="flex:1;text-align:center">
-        <div style="font-size:10px;color:#888;margin-bottom:4px">${tA.fecha}</div>
-        ${fA.frontal ? `<img src="${fA.frontal}" onclick="verFotoGrande(this.src)" style="width:100%;border-radius:8px;cursor:pointer;max-height:150px;object-fit:cover">` : '<div style="background:#1a1a1a;border-radius:8px;height:100px;display:flex;align-items:center;justify-content:center;color:#555;font-size:11px">Sin foto</div>'}
-      </div>
-      <div style="flex:1;text-align:center">
-        <div style="font-size:10px;color:#888;margin-bottom:4px">${tB.fecha}</div>
-        ${fB.frontal ? `<img src="${fB.frontal}" onclick="verFotoGrande(this.src)" style="width:100%;border-radius:8px;cursor:pointer;max-height:150px;object-fit:cover">` : '<div style="background:#1a1a1a;border-radius:8px;height:100px;display:flex;align-items:center;justify-content:center;color:#555;font-size:11px">Sin foto</div>'}
-      </div>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515;font-size:12px">
-      <span style="color:#888">Peso</span>
-      <span>${tA.peso ?? '—'} → ${tB.peso ?? '—'} kg &nbsp;${diffPeso(tA, tB)}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515;font-size:12px">
-      <span style="color:#888">Cintura</span>
-      <span>${(tA.medidas&&tA.medidas.cintura)??'—'} → ${(tB.medidas&&tB.medidas.cintura)??'—'} cm &nbsp;${diff('cintura', true)}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515;font-size:12px">
-      <span style="color:#888">% Grasa</span>
-      <span>${(tA.analisis_congelado&&tA.analisis_congelado.pctGrasa)??'—'} → ${(tB.analisis_congelado&&tB.analisis_congelado.pctGrasa)??'—'}% &nbsp;${diffAnalisis('pctGrasa', true)}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px">
-      <span style="color:#888">Kg músculo</span>
-      <span>${(tA.analisis_congelado&&tA.analisis_congelado.kgMusculo)??'—'} → ${(tB.analisis_congelado&&tB.analisis_congelado.kgMusculo)??'—'} kg &nbsp;${diffAnalisis('kgMusculo', false)}</span>
-    </div>
-  </div>`;
 }
 
 function toggleAccSeg(headerEl){

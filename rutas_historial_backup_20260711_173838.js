@@ -98,8 +98,6 @@ app.post('/api/historial/:id/generar-toma-test', (req, res) => {
   } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
-module.exports.generarTomaSnapshot = generarTomaSnapshot;
-
 app.post('/api/historial/:id/resolver-pendiente', (req, res) => {
   try {
     const { indiceEliminar } = req.body;
