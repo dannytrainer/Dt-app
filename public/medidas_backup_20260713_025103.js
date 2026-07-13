@@ -922,26 +922,16 @@ async function abrirCamara(id, tipo) {
 
   try {
     _camaraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' },
+      video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1920 } },
       audio: false
     });
     video.srcObject = _camaraStream;
-    video.style.objectFit = 'cover';
-    video.style.width = '100%';
-    video.style.height = '100%';
   } catch (e) {
     video.style.display = 'none';
     errorDiv.style.display = 'block';
     errorDiv.style.color = '#fff';
     errorDiv.textContent = '⚠️ No se pudo acceder a la cámara. Verifica los permisos, o usa la opción "Subir" en su lugar.';
     return;
-  }
-
-  // Listar lentes traseros disponibles (para poder alternar entre ellos si el zoom no está disponible)
-  try {
-    await listarLentesCamara();
-  } catch (e) {
-    console.error('No se pudieron listar lentes:', e);
   }
 
   // El zoom es una mejora opcional: si falla, no debe afectar la cámara ya funcionando
@@ -987,10 +977,24 @@ async function capturarFotoCamara() {
   const canvas = document.getElementById('camara-canvas');
   if (!video.videoWidth) { toast('⚠️ Cámara no lista, espera un momento', false); return; }
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const esHorizontalCrudo = vw > vh; // el buffer vino en landscape aunque el teléfono esté en vertical
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  if (esHorizontalCrudo) {
+    // Rotar 90° para que el resultado quede en vertical
+    canvas.width = vh;
+    canvas.height = vw;
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(90 * Math.PI / 180);
+    ctx.drawImage(video, -vw / 2, -vh / 2, vw, vh);
+    ctx.restore();
+  } else {
+    canvas.width = vw;
+    canvas.height = vh;
+    ctx.drawImage(video, 0, 0, vw, vh);
+  }
 
   canvas.toBlob(async (blob) => {
     const fd = new FormData();
@@ -1034,8 +1038,7 @@ function configurarZoomCamara() {
       return;
     }
   }
-  // Sin soporte real de zoom en este navegador/dispositivo: ocultamos el control
-  // (confirmado que el navegador ignora el constraint incluso si se fuerza directamente)
+  // Sin soporte de zoom por hardware: ocultamos el slider (evita prometer algo que no funciona)
   slider.style.display = 'none';
   document.getElementById('camara-zoom-valor').textContent = '';
 }
@@ -1089,39 +1092,5 @@ async function aplicarZoomCamara(valor) {
     } catch (e) {
       // Si el navegador rechaza el valor puntual, no rompemos la cámara, solo ignoramos ese ajuste
     }
-  }
-}
-
-// ═══ Selector de lente físico (fallback cuando no hay zoom nativo) ═══
-let _camaraLentesDisponibles = [];
-let _camaraLenteIndiceActual = 0;
-
-async function listarLentesCamara() {
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  _camaraLentesDisponibles = devices.filter(d => d.kind === 'videoinput');
-  const btn = document.getElementById('camara-lente-btn');
-  btn.style.display = _camaraLentesDisponibles.length > 1 ? 'block' : 'none';
-}
-
-async function cambiarLenteCamara() {
-  if (_camaraLentesDisponibles.length < 2) return;
-  _camaraLenteIndiceActual = (_camaraLenteIndiceActual + 1) % _camaraLentesDisponibles.length;
-  const lente = _camaraLentesDisponibles[_camaraLenteIndiceActual];
-
-  if (_camaraStream) {
-    _camaraStream.getTracks().forEach(track => track.stop());
-  }
-
-  const video = document.getElementById('camara-video');
-  try {
-    _camaraStream = await navigator.mediaDevices.getUserMedia({
-      video: { deviceId: { exact: lente.deviceId }, width: { ideal: 1080 }, height: { ideal: 1920 } },
-      audio: false
-    });
-    video.srcObject = _camaraStream;
-    try { configurarZoomCamara(); } catch (e) {}
-    toast('📷 Lente ' + (_camaraLenteIndiceActual + 1) + '/' + _camaraLentesDisponibles.length);
-  } catch (e) {
-    toast('❌ No se pudo cambiar de lente', false);
   }
 }

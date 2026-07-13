@@ -481,7 +481,6 @@ module.exports = function(app, fs) {
 // Función generadora del HTML completo
 // ============================================================
 function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtmlFinal, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso, calculos, fotoAntesB64, fotoDespuesB64, iconB64, logoTrainerB64, registros, nombreEntrenador, cfg, tomasArr }) {
-  const idGrafico = 'grf_' + (usuario.id || Date.now().toString(36));
   const perfil = usuario.perfil || {};
   const edad = perfil.edad || usuario.edad || null;
   const altura = perfil.altura || usuario.altura || null;
@@ -784,12 +783,12 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
           ${(tomasArr && tomasArr.filter(t => t && t.fecha).length >= 2) ? `
           <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin:10px 0 8px;">📈 EVOLUCIÓN DE RENDIMIENTO</div>
           <div style="display:flex;gap:6px;margin-bottom:10px;">
-            <div id="${idGrafico}-btn-kg" onclick="window['${idGrafico}_cambiarVista']('kg')" style="flex:1;text-align:center;background:var(--rojo);border:1px solid var(--rojo);color:#fff;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Kg</div>
-            <div id="${idGrafico}-btn-pct" onclick="window['${idGrafico}_cambiarVista']('pct')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">%</div>
-            <div id="${idGrafico}-btn-tests" onclick="window['${idGrafico}_cambiarVista']('tests')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Rendimiento</div>
+            <div id="${idUnicoGrafico}-btn-kg" onclick="window['${idUnicoGrafico}_cambiarVista']('kg')" style="flex:1;text-align:center;background:var(--rojo);border:1px solid var(--rojo);color:#fff;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Kg</div>
+            <div id="${idUnicoGrafico}-btn-pct" onclick="window['${idUnicoGrafico}_cambiarVista']('pct')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">%</div>
+            <div id="${idUnicoGrafico}-btn-tests" onclick="window['${idUnicoGrafico}_cambiarVista']('tests')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Rendimiento</div>
           </div>
-          <div id="${idGrafico}-grafico"></div>
-          <div id="${idGrafico}-leyenda" style="display:flex;gap:10px;margin-top:6px;font-size:9px;color:#ccc;flex-wrap:wrap;"></div>
+          <div id="${idUnicoGrafico}-grafico"></div>
+          <div id="${idUnicoGrafico}-leyenda" style="display:flex;gap:10px;margin-top:6px;font-size:9px;color:#ccc;flex-wrap:wrap;"></div>
           ` : ''}
         </div>
 
@@ -839,7 +838,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
               salud: (t.analisis_congelado && t.analisis_congelado.salud) || {},
               scoreFuerza: (t.tests_resumen && t.tests_resumen.fuerza && t.tests_resumen.fuerza.scoreTotal) || null,
               scoreResist: (t.tests_resumen && t.tests_resumen.resist && t.tests_resumen.resist.scoreTotal) || null,
-              scoreEspecifico: (t.tests_resumen && t.tests_resumen.especif && t.tests_resumen.especif.scoreTotal) || null,
+              scoreEspecifico: (t.tests_resumen && t.tests_resumen.especifico && t.tests_resumen.especifico.scoreTotal) || null,
               frontalB64: leerFotoB64(t.fotos && t.fotos.frontal),
               lateralB64: leerFotoB64(t.fotos && t.fotos.lateral)
             }));
@@ -978,8 +977,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
 
                 actualizarDatos(0);
 
-                // ── Gráfico de evolución con botones (vive en columna izquierda, usa idGrafico) ──
-                const idGraf = '${idGrafico}';
+                // ── Gráfico de evolución con botones ──
                 const datosGrafico = {
                   kg: {
                     series: [
@@ -1005,8 +1003,8 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
                 function dibujarGrafico(vista) {
                   const d = datosGrafico[vista];
                   const seriesConDatos = d.series.filter(s => s.valores.some(v => v != null));
-                  const cont = document.getElementById(idGraf + '-grafico');
-                  const leyenda = document.getElementById(idGraf + '-leyenda');
+                  const cont = document.getElementById(idBase + '-grafico');
+                  const leyenda = document.getElementById(idBase + '-leyenda');
 
                   if (!seriesConDatos.length) {
                     cont.innerHTML = '<div style="color:#555;font-size:11px;text-align:center;padding:20px 0;">Sin datos suficientes</div>';
@@ -1059,9 +1057,9 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
                   }).join('');
                 }
 
-                window[idGraf + '_cambiarVista'] = function(vista) {
+                window[idBase + '_cambiarVista'] = function(vista) {
                   ['kg', 'pct', 'tests'].forEach(function(v) {
-                    const btn = document.getElementById(idGraf + '-btn-' + v);
+                    const btn = document.getElementById(idBase + '-btn-' + v);
                     if (v === vista) {
                       btn.style.background = 'var(--rojo)';
                       btn.style.borderColor = 'var(--rojo)';

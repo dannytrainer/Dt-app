@@ -922,13 +922,10 @@ async function abrirCamara(id, tipo) {
 
   try {
     _camaraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' },
+      video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1920 } },
       audio: false
     });
     video.srcObject = _camaraStream;
-    video.style.objectFit = 'cover';
-    video.style.width = '100%';
-    video.style.height = '100%';
   } catch (e) {
     video.style.display = 'none';
     errorDiv.style.display = 'block';
@@ -987,10 +984,24 @@ async function capturarFotoCamara() {
   const canvas = document.getElementById('camara-canvas');
   if (!video.videoWidth) { toast('⚠️ Cámara no lista, espera un momento', false); return; }
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const esHorizontalCrudo = vw > vh; // el buffer vino en landscape aunque el teléfono esté en vertical
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  if (esHorizontalCrudo) {
+    // Rotar 90° para que el resultado quede en vertical
+    canvas.width = vh;
+    canvas.height = vw;
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(90 * Math.PI / 180);
+    ctx.drawImage(video, -vw / 2, -vh / 2, vw, vh);
+    ctx.restore();
+  } else {
+    canvas.width = vw;
+    canvas.height = vh;
+    ctx.drawImage(video, 0, 0, vw, vh);
+  }
 
   canvas.toBlob(async (blob) => {
     const fd = new FormData();

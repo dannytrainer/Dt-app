@@ -922,13 +922,10 @@ async function abrirCamara(id, tipo) {
 
   try {
     _camaraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' },
+      video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1920 } },
       audio: false
     });
     video.srcObject = _camaraStream;
-    video.style.objectFit = 'cover';
-    video.style.width = '100%';
-    video.style.height = '100%';
   } catch (e) {
     video.style.display = 'none';
     errorDiv.style.display = 'block';

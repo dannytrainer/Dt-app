@@ -839,7 +839,7 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
               salud: (t.analisis_congelado && t.analisis_congelado.salud) || {},
               scoreFuerza: (t.tests_resumen && t.tests_resumen.fuerza && t.tests_resumen.fuerza.scoreTotal) || null,
               scoreResist: (t.tests_resumen && t.tests_resumen.resist && t.tests_resumen.resist.scoreTotal) || null,
-              scoreEspecifico: (t.tests_resumen && t.tests_resumen.especif && t.tests_resumen.especif.scoreTotal) || null,
+              scoreEspecifico: (t.tests_resumen && t.tests_resumen.especifico && t.tests_resumen.especifico.scoreTotal) || null,
               frontalB64: leerFotoB64(t.fotos && t.fotos.frontal),
               lateralB64: leerFotoB64(t.fotos && t.fotos.lateral)
             }));

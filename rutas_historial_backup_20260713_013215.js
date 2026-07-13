@@ -47,7 +47,7 @@ function generarTomaSnapshot(id, fs) {
   try {
     const testsData = JSON.parse(fs.readFileSync('data/tests.json', 'utf8'));
     const registros = (testsData[id] && testsData[id].registros) || [];
-    ['fuerza', 'resist', 'especif'].forEach(tipo => {
+    ['fuerza', 'resist', 'especifico'].forEach(tipo => {
       const delTipo = registros.filter(r => r.tipo === tipo);
       if (delTipo.length) testsResumen[tipo] = delTipo[delTipo.length - 1];
     });
