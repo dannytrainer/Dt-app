@@ -624,11 +624,18 @@ app.get('/api/proyeccion/:id', (req, res) => {
     const fechaInicio = usuario.perfil && usuario.perfil.fecha_inicio;
     let nivel = req.query.nivel;
     let semanasHistorial = 4;
+
+    // Prioridad: nivel manual del entrenador (perfil.nivel_entrenamiento) > query override > inferido por antigüedad.
+    // "alto_rendimiento" NUNCA se infiere automáticamente — solo se activa si el entrenador lo elige a mano,
+    // porque es una decisión de objetivo (no de antigüedad ni de salud).
+    const nivelManual = usuario.perfil && usuario.perfil.nivel_entrenamiento;
+    if (!nivel && nivelManual) nivel = nivelManual;
+
     if (fechaInicio) {
       const dias = (Date.now() - new Date(fechaInicio).getTime()) / (1000 * 60 * 60 * 24);
       const meses = dias / 30.44;
       semanasHistorial = Math.max(1, Math.round(dias / 7));
-      if (!nivel) nivel = meses < 6 ? 'principiante' : meses < 24 ? 'intermedio' : 'avanzado';
+      if (!nivel) nivel = meses < 3 ? 'principiante' : meses < 24 ? 'intermedio' : 'avanzado';
     }
     if (!nivel) nivel = 'intermedio';
 
@@ -660,12 +667,12 @@ app.get('/api/proyeccion/:id', (req, res) => {
     });
 
     const base = resultados['3m'];
-    let estimuloGlobal = 0;
+    let estimuloGlobalTotal = 0;
     const alertas = [];
     Object.entries(base.musculos).forEach(([musculo, datos]) => {
-      estimuloGlobal += datos.estimulo;
+      estimuloGlobalTotal += datos.estimuloGlobal;
       if (datos.sobrecarga && datos.sobrecarga.alerta) {
-        alertas.push({ musculo, mensaje: datos.sobrecarga.mensaje });
+        alertas.push({ musculo, mensaje: datos.sobrecarga.mensaje, nivelAlerta: datos.sobrecarga.nivelAlerta });
       }
     });
 
@@ -686,13 +693,14 @@ app.get('/api/proyeccion/:id', (req, res) => {
       perimetros[perimetro] = {
         medidaActual: ultimaMedida[perimetro.toLowerCase()] ?? null,
         riesgo,
+        proyeccionAproximada: p3.proyeccionAproximada, // true = sin dato de RIR, se usó estímulo global como aproximación
         proy3: p3.proyeccion,
         proy6: p6 ? p6.proyeccion : null,
         proy12: p12 ? p12.proyeccion : null,
       };
     });
 
-    res.json({ nivel, semanasHistorial, fuenteEstimulo, estimuloGlobal: +estimuloGlobal.toFixed(1), alertas, perimetros });
+    res.json({ nivel, semanasHistorial, fuenteEstimulo, estimuloGlobal: +estimuloGlobalTotal.toFixed(1), alertas, perimetros });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

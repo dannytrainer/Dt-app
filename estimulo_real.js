@@ -8,6 +8,9 @@ const DIAS_VENTANA = 7; // solo reportes de los últimos 7 días cuentan como "e
 
 // Calcula estímulo semanal REAL (series efectivamente ejecutadas, desde reportes de chat)
 // en vez de PLANEADO (rutinas.json). Usa exactamente el mismo matching y coeficientes que estimulo.js.
+// NOTA: los reportes de chat no capturan RIR por serie individual, así que — por regla explícita
+// del entrenador — todo el estímulo real va a GLOBAL. EFECTIVO queda vacío para esta fuente,
+// hasta que se rediseñe qué reporta el cliente en el chat.
 function calcularEstimuloRealSemanal(clienteId, fechaReferencia = new Date()) {
   const enciclopedia = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/enciclopedia.json'), 'utf8'));
   const reportes = extraerReportesCliente(clienteId);
@@ -21,7 +24,7 @@ function calcularEstimuloRealSemanal(clienteId, fechaReferencia = new Date()) {
     return fechaReporte >= limite && fechaReporte <= fechaReferencia;
   });
 
-  const estimulo = {};
+  const estimuloGlobal = {};
   const noEncontrados = [];
 
   for (const reporte of reportesVentana) {
@@ -39,20 +42,21 @@ function calcularEstimuloRealSemanal(clienteId, fechaReferencia = new Date()) {
         (match.musculos_principales || []).forEach((m, i) => {
           const nombre = canonico(m);
           const coef = COEF_PRINCIPAL[i] || 0.5;
-          estimulo[nombre] = (estimulo[nombre] || 0) + seriesHechas * coef;
+          estimuloGlobal[nombre] = (estimuloGlobal[nombre] || 0) + seriesHechas * coef;
         });
         (match.musculos_secundarios || []).forEach((m, i) => {
           const nombre = canonico(m);
           const coef = COEF_SECUNDARIO[i] || 0.05;
-          estimulo[nombre] = (estimulo[nombre] || 0) + seriesHechas * coef;
+          estimuloGlobal[nombre] = (estimuloGlobal[nombre] || 0) + seriesHechas * coef;
         });
       }
     }
   }
 
-  Object.keys(estimulo).forEach(m => estimulo[m] = +estimulo[m].toFixed(1));
+  Object.keys(estimuloGlobal).forEach(m => estimuloGlobal[m] = +estimuloGlobal[m].toFixed(1));
   return {
-    estimulo,
+    estimuloGlobal,
+    estimuloEfectivo: {}, // sin dato de RIR en reportes de chat — ver nota arriba
     noEncontrados: [...new Set(noEncontrados)],
     reportesUsados: reportesVentana.length,
     tieneDatosReales: reportesVentana.length > 0,
@@ -77,7 +81,7 @@ function calcularSemanasHistorialReal(clienteId) {
 }
 
 // Punto único de entrada para proyeccion.js: usa estímulo REAL si hay reportes en los
-// últimos 7 días; si no, cae a PLANEADO (rutinas.json), para que nunca se quede sin datos.
+// últimos 7 días; si no, cae a PLANEADO (rutinas.json — que sí trae estimuloEfectivo por RIR).
 function calcularEstimuloConFallback(clienteId, fechaReferencia = new Date()) {
   const { calcularEstimuloSemanal } = require('./estimulo');
   const real = calcularEstimuloRealSemanal(clienteId, fechaReferencia);
@@ -96,11 +100,13 @@ if (require.main === module) {
   const real = calcularEstimuloRealSemanal(id);
   console.log('— Solo REAL (últimos 7 días) —');
   console.log('Reportes usados:', real.reportesUsados);
-  console.log('Estímulo:', real.estimulo);
+  console.log('Estímulo GLOBAL:', real.estimuloGlobal);
+  console.log('Estímulo EFECTIVO:', real.estimuloEfectivo, '(vacío: sin RIR en reportes de chat)');
   console.log('No encontrados:', real.noEncontrados);
 
   console.log('\n— Con FALLBACK —');
   const conFallback = calcularEstimuloConFallback(id);
   console.log('Fuente usada:', conFallback.fuente);
-  console.log('Estímulo:', conFallback.estimulo);
+  console.log('Estímulo GLOBAL:', conFallback.estimuloGlobal);
+  console.log('Estímulo EFECTIVO:', conFallback.estimuloEfectivo);
 }

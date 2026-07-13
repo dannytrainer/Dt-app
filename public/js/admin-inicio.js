@@ -576,6 +576,7 @@ const up=u.perfil||{};
 if(document.getElementById('cliente-fnac')) document.getElementById('cliente-fnac').value=up.fecha_nacimiento||'';
 if(document.getElementById('cliente-altura')) document.getElementById('cliente-altura').value=up.altura||'';
 if(document.getElementById('cliente-sexo')) document.getElementById('cliente-sexo').value=up.sexo||'M';
+if(document.getElementById('cliente-nivel-entrenamiento')) document.getElementById('cliente-nivel-entrenamiento').value=up.nivel_entrenamiento||'';
 if(document.getElementById('cliente-objetivo')) document.getElementById('cliente-objetivo').value=up.etiqueta||'perdida';
 if(document.getElementById('cliente-notas')) document.getElementById('cliente-notas').value=up.notas||'';
 if(document.getElementById('cliente-condiciones')) document.getElementById('cliente-condiciones').value=up.condiciones_medicas||'';
@@ -614,6 +615,7 @@ const perfilDatos={
   fecha_nacimiento:document.getElementById('cliente-fnac')?document.getElementById('cliente-fnac').value:'',
   altura:document.getElementById('cliente-altura')?document.getElementById('cliente-altura').value:'',
   sexo:document.getElementById('cliente-sexo')?document.getElementById('cliente-sexo').value:'M',
+  nivel_entrenamiento:document.getElementById('cliente-nivel-entrenamiento')?document.getElementById('cliente-nivel-entrenamiento').value:'',
   etiqueta:document.getElementById('cliente-objetivo')?document.getElementById('cliente-objetivo').value:'',
   notas:document.getElementById('cliente-notas')?document.getElementById('cliente-notas').value.trim():'',
   condiciones_medicas:document.getElementById('cliente-condiciones')?document.getElementById('cliente-condiciones').value.trim():'',

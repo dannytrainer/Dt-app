@@ -780,16 +780,6 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
             }).join('')}
           </div>` : ''}
           ` : '<div style="color:#555;font-size:11px;font-style:italic;padding:10px;">Sin datos de composición</div>'}
-          ${(tomasArr && tomasArr.filter(t => t && t.fecha).length >= 2) ? `
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin:10px 0 8px;">📈 EVOLUCIÓN DE RENDIMIENTO</div>
-          <div style="display:flex;gap:6px;margin-bottom:10px;">
-            <div id="${idUnicoGrafico}-btn-kg" onclick="window['${idUnicoGrafico}_cambiarVista']('kg')" style="flex:1;text-align:center;background:var(--rojo);border:1px solid var(--rojo);color:#fff;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Kg</div>
-            <div id="${idUnicoGrafico}-btn-pct" onclick="window['${idUnicoGrafico}_cambiarVista']('pct')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">%</div>
-            <div id="${idUnicoGrafico}-btn-tests" onclick="window['${idUnicoGrafico}_cambiarVista']('tests')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Rendimiento</div>
-          </div>
-          <div id="${idUnicoGrafico}-grafico"></div>
-          <div id="${idUnicoGrafico}-leyenda" style="display:flex;gap:10px;margin-top:6px;font-size:9px;color:#ccc;flex-wrap:wrap;"></div>
-          ` : ''}
         </div>
 
         <!-- Evolución Visual -->
@@ -858,6 +848,15 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
               <div id="${idUnico}-fecha" style="text-align:center;font-size:12px;color:#ccc;margin-bottom:6px;"></div>
               <input type="range" id="${idUnico}-slider" min="0" max="100" value="0" style="width:100%;accent-color:var(--rojo);margin-bottom:10px;">
               <div id="${idUnico}-barras"></div>
+
+              <div style="display:flex;gap:6px;margin-top:14px;margin-bottom:10px;">
+                <div id="${idUnico}-btn-kg" onclick="window['${idUnico}_cambiarVista']('kg')" style="flex:1;text-align:center;background:var(--rojo);border:1px solid var(--rojo);color:#fff;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Kg</div>
+                <div id="${idUnico}-btn-pct" onclick="window['${idUnico}_cambiarVista']('pct')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">%</div>
+                <div id="${idUnico}-btn-tests" onclick="window['${idUnico}_cambiarVista']('tests')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Rendimiento</div>
+              </div>
+              <div id="${idUnico}-grafico"></div>
+              <div id="${idUnico}-leyenda" style="display:flex;gap:10px;margin-top:6px;font-size:9px;color:#ccc;flex-wrap:wrap;"></div>
+
               <div style="margin-top:10px;background:#2a1a00;border:1px solid #ff9800;border-radius:6px;padding:8px 10px;font-size:10px;color:#ffb74d;line-height:1.5;">
                 ⚠️ Para un resultado óptimo: las fotos deben tomarse siempre en las mismas condiciones (misma distancia, ángulo, iluminación y pose).
               </div>

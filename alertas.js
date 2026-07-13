@@ -16,11 +16,11 @@ function guardar(data) {
 // Lee cuántas semanas seguidas lleva ese músculo sobre el umbral, actualiza el contador,
 // lo guarda, y devuelve el resultado (igual que evaluarSobrecarga, pero con memoria real).
 // ⚠️ NO llamar desde la UI ni desde proyectarCliente() — tiene side-effect de escritura.
-function evaluarYPersistir(clienteId, musculo, estimuloEfectivoSemanal) {
+function evaluarYPersistir(clienteId, musculo, estimuloEfectivoSemanal, nivel = 'principiante') {
   const data = leer();
   if (!data[clienteId]) data[clienteId] = {};
   const contadorPrevio = data[clienteId][musculo] || 0;
-  const resultado = evaluarSobrecarga(estimuloEfectivoSemanal, contadorPrevio);
+  const resultado = evaluarSobrecarga(estimuloEfectivoSemanal, contadorPrevio, nivel);
   data[clienteId][musculo] = resultado.semanasConsecutivas;
   guardar(data);
   return resultado;
@@ -30,12 +30,12 @@ function evaluarYPersistir(clienteId, musculo, estimuloEfectivoSemanal) {
 // Usa el contador YA persistido (de la última corrida semanal real) para calcular
 // el estado actual, sin incrementarlo ni guardarlo. Seguro de llamar tantas veces
 // como se quiera (cada carga de pantalla, cada proyección a 3/6/12 meses, etc.)
-function evaluarSoloLectura(clienteId, musculo, estimuloEfectivoSemanal) {
+function evaluarSoloLectura(clienteId, musculo, estimuloEfectivoSemanal, nivel = 'principiante') {
   const data = leer();
   const contadorPersistido = (data[clienteId] && data[clienteId][musculo]) || 0;
   // No incrementa: solo evalúa si el estímulo actual está sobre el umbral,
   // usando el contador que ya existe en disco como base de lectura.
-  return evaluarSobrecarga(estimuloEfectivoSemanal, Math.max(contadorPersistido - 1, 0));
+  return evaluarSobrecarga(estimuloEfectivoSemanal, Math.max(contadorPersistido - 1, 0), nivel);
 }
 
 module.exports = { evaluarYPersistir, evaluarSoloLectura, leer };

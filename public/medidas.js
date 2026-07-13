@@ -851,9 +851,18 @@ async function renderProyeccion(id) {
     </div>`;
 
     if (datos.alertas && datos.alertas.length) {
-      html += `<div style="background:${fondos.danger};border:1px solid ${colores.danger};border-radius:10px;padding:14px;margin-bottom:10px">
-        <div style="font-size:11px;color:${colores.danger};font-weight:700;text-transform:uppercase;margin-bottom:10px">⚠️ Recomendaciones</div>
-        ${datos.alertas.map(a => `<div style="font-size:12px;color:#ccc;padding:4px 0;border-bottom:1px solid #2a1010">• <b>${a.musculo}:</b> ${a.mensaje}</div>`).join('')}
+      // Color e ícono graduados por severidad — "observación" no debe verse como error,
+      // "riesgo" sí debe llamar la atención de verdad.
+      const colorPorNivelAlerta = { observacion: '#ffd54f', atencion: '#ff9800', riesgo: '#e31e24' };
+      const iconoPorNivelAlerta = { observacion: 'ℹ️', atencion: '⚠️', riesgo: '🔴' };
+
+      html += `<div style="background:#111;border:1px solid #2a2a2a;border-radius:10px;padding:14px;margin-bottom:10px">
+        <div style="font-size:11px;color:#aaa;font-weight:700;text-transform:uppercase;margin-bottom:10px">📋 Observaciones</div>
+        ${datos.alertas.map(a => {
+          const c = colorPorNivelAlerta[a.nivelAlerta] || colorPorNivelAlerta.atencion;
+          const icono = iconoPorNivelAlerta[a.nivelAlerta] || '⚠️';
+          return `<div style="font-size:12px;color:#ccc;padding:6px 0;border-bottom:1px solid #1a1a1a">${icono} <b style="color:${c}">${a.musculo}:</b> ${a.mensaje}</div>`;
+        }).join('')}
       </div>`;
     }
 
@@ -865,12 +874,16 @@ async function renderProyeccion(id) {
         ? `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">${label}</span><span style="font-size:13px;font-weight:700;color:${colores[riesgo]}">+${proy.cmMinFinal} a +${proy.cmMaxFinal} cm</span></div>`
         : `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">${label}</span><span style="font-size:12px;color:#555">Sin datos</span></div>`;
 
+      const notaAproximada = p.proyeccionAproximada
+        ? '<div style="font-size:10px;color:#ff9800;padding:4px 0;border-bottom:1px solid #151515">⚠️ Sin datos de RIR — se usó volumen total como aproximación</div>'
+        : '';
       html += `<div style="background:#111;border:1px solid ${colores[riesgo]};border-radius:10px;padding:14px;margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">
           <span style="font-size:12px;font-weight:700;color:#fff">📐 ${nombre}</span>
-          <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${fondos[riesgo]};color:${colores[riesgo]};font-weight:700">${riesgo === 'danger' ? 'Sobrecarga' : riesgo === 'warn' ? 'Moderado' : 'Progreso esperado'}</span>
+          <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${fondos[riesgo]};color:${colores[riesgo]};font-weight:700">${riesgo === 'danger' ? 'Alta carga' : riesgo === 'warn' ? 'Moderado' : 'Progreso esperado'}</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">Medida actual</span><span style="font-size:13px;font-weight:700;color:#fff">${medida}</span></div>
+        ${notaAproximada}
         ${fila('3 meses', p.proy3)}
         ${fila('6 meses', p.proy6)}
         ${fila('12 meses', p.proy12)}

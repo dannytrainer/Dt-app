@@ -85,7 +85,6 @@ body.modo-claro .nav-bar{background:var(--card)!important;border-top:1px solid v
 body.modo-claro .nav-btn{color:var(--texto-medio)!important}
 body.modo-claro .nav-btn.active{color:var(--rojo)!important}
 body.modo-claro #btn-tema{background:var(--gris)!important;border-color:var(--borde)!important}
-body.modo-claro .acc-seg-head{background:#ffffff!important;border-color:#ccc!important}body.modo-claro .acc-seg-head span{color:#111!important}
 button[onclick="abrirConfig()"]{background:transparent!important;border:none!important}
 body.modo-claro{--fondo:#f0f0f0;--card:#ffffff;--gris:#e0e0e0;--gris2:#d0d0d0;color:#111!important}
 body.modo-claro .card{border-color:var(--texto-suave)}

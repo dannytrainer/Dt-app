@@ -11,6 +11,7 @@ const TAU_SEMANAS = {                    // constante de saturación temporal po
   principiante: 52,
   intermedio: 26,
   avanzado: 13,
+  alto_rendimiento: 13, // mismo techo genético asumido que avanzado — sin literatura que indique diferencia
 };
 
 // ── PROBLEMA 1: escala estímulo → cm (raíz cuadrada, no lineal) ──
@@ -18,10 +19,14 @@ const TAU_SEMANAS = {                    // constante de saturación temporal po
 // Así, pasar el techo de zona óptima deja de dar más escala — se aplana, en vez de seguir premiando el exceso.
 // Para perímetros que agregan varios músculos, pasa estimuloReferencia y estimuloTecho ya escalados
 // (ej: referencia_perimetro = 15 × suma_pesos_musculos_del_perimetro).
-function calcularEscala(estimuloReal, estimuloReferencia = ESTIMULO_REFERENCIA, estimuloTecho = ESTIMULO_TECHO) {
+function calcularEscala(estimuloReal, estimuloReferencia = ESTIMULO_REFERENCIA, estimuloTecho = ESTIMULO_TECHO, sinCap = false) {
   if (estimuloReal <= 0) return 0;
+  const ratioCrudo = estimuloReal / estimuloReferencia;
+  // Alto rendimiento: sin cap en el techo de zona óptima — el volumen extra sí cuenta
+  // (rendimientos decrecientes por la raíz cuadrada, pero no se aplana artificialmente).
+  if (sinCap) return Math.sqrt(ratioCrudo);
   const techoRatio = estimuloTecho / estimuloReferencia;
-  const ratio = Math.min(estimuloReal / estimuloReferencia, techoRatio);
+  const ratio = Math.min(ratioCrudo, techoRatio);
   return Math.sqrt(ratio);
 }
 
@@ -64,7 +69,8 @@ function proyectarCrecimiento({
   estimuloTecho = ESTIMULO_TECHO,            // techo local (escala igual que la referencia)
   factorSexo = 1.0,      // 0.6 para mujeres (Excel: tablas calibradas para hombres, mujeres ganan al 50-70% de esa tasa)
 }) {
-  const escala = calcularEscala(estimuloReal, estimuloReferencia, estimuloTecho);
+  const sinCap = nivel === 'alto_rendimiento';
+  const escala = calcularEscala(estimuloReal, estimuloReferencia, estimuloTecho, sinCap);
   const gananciaMin = calcularGananciaEnTiempo(tablaMin12m * escala * factorSexo, semanasTranscurridas, nivel);
   const gananciaMax = calcularGananciaEnTiempo(tablaMax12m * escala * factorSexo, semanasTranscurridas, nivel);
 
@@ -80,24 +86,52 @@ function proyectarCrecimiento({
 }
 
 // ── Alerta de sobrecarga muscular (al entrenador) — SIN CAMBIOS, sigue por músculo individual ──
-function evaluarSobrecarga(estimuloEfectivoSemanal, historialSemanasSobreUmbral = 0) {
-  const indiceEficiencia = +(estimuloEfectivoSemanal / ESTIMULO_TECHO).toFixed(2);
+// Techo de "esto es alto" escala con el nivel de entrenamiento — alguien con más años
+// tolera más volumen antes de que sea señal de exceso. Alto rendimiento nunca alerta por
+// volumen (es una decisión de objetivo, no de salud, según definición del entrenador).
+const TECHO_POR_NIVEL = {
+  principiante: 20,
+  intermedio: 23,
+  avanzado: 26,
+  alto_rendimiento: Infinity,
+};
+
+function evaluarSobrecarga(estimuloEfectivoSemanal, historialSemanasSobreUmbral = 0, nivel = 'principiante') {
+  const techoNivel = TECHO_POR_NIVEL[nivel] || ESTIMULO_TECHO;
+  const indiceEficiencia = techoNivel === Infinity ? 0 : +(estimuloEfectivoSemanal / techoNivel).toFixed(2);
   const sobreUmbral = indiceEficiencia > 1.0;
   const semanasConsecutivas = sobreUmbral ? historialSemanasSobreUmbral + 1 : 0;
   const alerta = semanasConsecutivas >= 2;
+
+  const porcentajeSobre = alerta ? Math.round((indiceEficiencia - 1) * 100) : 0;
+
+  // Tramos graduados: la observación no acusa error, la de riesgo sí marca precaución real.
+  let nivelAlerta = null;
+  let mensaje = null;
+  if (alerta) {
+    if (porcentajeSobre < 25) {
+      nivelAlerta = 'observacion';
+      mensaje = `Tienes un ${porcentajeSobre}% por encima de la zona óptima habitual para tu nivel. Si es una zona priorizada intencionalmente, no requiere acción.`;
+    } else if (porcentajeSobre < 75) {
+      nivelAlerta = 'atencion';
+      mensaje = `${porcentajeSobre}% por encima del techo para tu nivel — vale la pena revisar si es intencional o redistribuir series.`;
+    } else {
+      nivelAlerta = 'riesgo';
+      mensaje = `${porcentajeSobre}% por encima del techo para tu nivel — considera el riesgo de fatiga articular/técnica si no es una priorización deliberada.`;
+    }
+  }
 
   return {
     indiceEficiencia,
     semanasConsecutivas,
     alerta,
-    mensaje: alerta
-      ? `Recibe ${estimuloEfectivoSemanal} pts/semana, ${Math.round((indiceEficiencia - 1) * 100)}% sobre el techo de zona óptima. Las ganancias adicionales son marginales — considera redistribuir series a un músculo con menor estímulo relativo.`
-      : null,
+    nivelAlerta,
+    mensaje,
   };
 }
 
 module.exports = {
-  ESTIMULO_REFERENCIA, ESTIMULO_TECHO, TAU_SEMANAS,
+  ESTIMULO_REFERENCIA, ESTIMULO_TECHO, TAU_SEMANAS, TECHO_POR_NIVEL,
   calcularEscala, calcularGananciaEnTiempo, calcularRangoEstimado,
   proyectarCrecimiento, evaluarSobrecarga,
 };
