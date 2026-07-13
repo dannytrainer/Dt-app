@@ -50,14 +50,8 @@ function calcularSaludMetabolica(medidas, altura) {
     resultado.icc = { valor: icc, estado: icc <= 0.85 ? 'Normal' : icc <= 0.95 ? 'Riesgo moderado' : 'Riesgo alto', nivel: icc <= 0.85 ? 'ok' : icc <= 0.95 ? 'warn' : 'danger' };
   }
   if (cintura && altura) {
-    const icaNum = parseFloat(cintura) / parseFloat(altura);
-    const ica = icaNum.toFixed(2);
-    let estadoIca, nivelIca;
-    if (icaNum < 0.40) { estadoIca = 'Posible bajo peso'; nivelIca = 'danger'; }
-    else if (icaNum <= 0.50) { estadoIca = 'Saludable'; nivelIca = 'ok'; }
-    else if (icaNum <= 0.57) { estadoIca = 'Precaución'; nivelIca = 'warn'; }
-    else { estadoIca = 'Riesgo alto'; nivelIca = 'danger'; }
-    resultado.ica = { valor: ica, estado: estadoIca, nivel: nivelIca };
+    const ica = (parseFloat(cintura) / parseFloat(altura)).toFixed(2);
+    resultado.ica = { valor: ica, estado: ica <= 0.5 ? 'Saludable' : ica <= 0.6 ? 'Precaución' : 'Riesgo alto', nivel: ica <= 0.5 ? 'ok' : ica <= 0.6 ? 'warn' : 'danger' };
   }
   return resultado;
 }
@@ -89,17 +83,9 @@ function calcularProporcionesFemenino(medidas) {
     const ratio = parseFloat((parseFloat(pantorrilla) / parseFloat(pierna)).toFixed(2));
     resultado.pantorrilla_muslo = { valor: ratio, ...evaluarZona(ratio) };
   }
-  function evaluarZonaBrazoHombro(ratio) {
-    if (ratio < 0.15) return { zona: 'malo-bajo', estado: 'Mejorar', nivel: 'danger' };
-    if (ratio < 0.20) return { zona: 'saludable-bajo', estado: 'Cerca del ideal', nivel: 'warn' };
-    if (ratio <= 0.30) return { zona: 'ideal', estado: 'Ideal', nivel: 'ok' };
-    if (ratio <= 0.35) return { zona: 'saludable-alto', estado: 'Cerca del ideal', nivel: 'warn' };
-    return { zona: 'malo-alto', estado: 'Mejorar', nivel: 'danger' };
-  }
-
   if (brazo && hombros) {
     const ratio = parseFloat((parseFloat(brazo) / parseFloat(hombros)).toFixed(2));
-    resultado.brazo_hombro = { valor: ratio, ...evaluarZonaBrazoHombro(ratio) };
+    resultado.brazo_hombro = { valor: ratio, ...evaluarZona(ratio) };
   }
 
   return resultado;

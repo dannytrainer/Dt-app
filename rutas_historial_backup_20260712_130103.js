@@ -40,7 +40,6 @@ function generarTomaSnapshot(id, fs) {
     ? calc.calcularProporcionesFemenino(medActual)
     : calc.calcularProporciones(medActual);
   const salud = calc.calcularSaludMetabolica(medActual, perfil.altura);
-  const grasaZona = calc.evaluarZonaGrasa(pctGrasa, perfil.sexo);
 
   // Resumen de tests: último registro de cada tipo
   let testsResumen = {};
@@ -78,7 +77,7 @@ function generarTomaSnapshot(id, fs) {
     peso: pesoActual,
     medidas: medActual,
     perfil: { sexo: perfil.sexo, edad: perfil.edad, altura: perfil.altura, objetivo: perfil.objetivo },
-    analisis_congelado: { pctGrasa, pctMagra, kgGrasa, kgMusculo, proporciones, salud, grasaZona },
+    analisis_congelado: { pctGrasa, pctMagra, kgGrasa, kgMusculo, proporciones, salud },
     tests_resumen: testsResumen,
     fotos
   };
@@ -189,8 +188,7 @@ app.get('/api/calculos/:id', (req, res) => {
       ? calc.calcularProporcionesFemenino(medActual)
       : calc.calcularProporciones(medActual);
     const salud = calc.calcularSaludMetabolica(medActual, perfil.altura);
-    const grasaZona = calc.evaluarZonaGrasa(pctGrasa, perfil.sexo);
-    res.json({ pctGrasa, pctMagra: pctGrasa ? Math.round((100-pctGrasa)*10)/10 : null, kgGrasa, kgMusculo, proporciones, salud, grasaZona });
+    res.json({ pctGrasa, pctMagra: pctGrasa ? Math.round((100-pctGrasa)*10)/10 : null, kgGrasa, kgMusculo, proporciones, salud });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 

@@ -54,8 +54,6 @@ function wrapAnalisisAccordions(id){
 let _historialTomasCache = {};
 let _historialSeleccion = [];
 
-let _historialPendienteCache = {};
-
 async function renderHistorialLista(id) {
   const cont = document.getElementById('historial-lista-' + id);
   if (!cont) return;
@@ -63,7 +61,6 @@ async function renderHistorialLista(id) {
     const hist = await fetch('/api/historial/' + id).then(r => r.json());
     const tomas = (hist.tomas || []).slice().reverse();
     _historialTomasCache[id] = tomas;
-    _historialPendienteCache[id] = hist.pendiente_eliminar || null;
     _historialSeleccion = [];
 
     if (!tomas.length) {
@@ -71,14 +68,7 @@ async function renderHistorialLista(id) {
       return;
     }
 
-    const banner = hist.pendiente_eliminar
-      ? `<div style="background:#2a1a00;border:1px solid #ff9800;border-radius:10px;padding:12px;margin-bottom:10px">
-          <div style="color:#ff9800;font-weight:700;font-size:12px;margin-bottom:4px">⚠️ Historial lleno (12/12)</div>
-          <div style="color:#ccc;font-size:11px">Hay una toma nueva esperando (${hist.pendiente_eliminar.fecha}). Abrí cualquier toma abajo y elegí cuál eliminar para liberar espacio.</div>
-        </div>`
-      : '';
-
-    cont.innerHTML = `${banner}<div id="historial-comparativa-${id}"></div><div id="historial-tarjetas-${id}"></div>`;
+    cont.innerHTML = `<div id="historial-comparativa-${id}"></div><div id="historial-tarjetas-${id}"></div>`;
     pintarTarjetasHistorial(id);
   } catch (e) {
     cont.innerHTML = '<div style="color:#e31e24;font-size:12px">Error cargando historial</div>';
@@ -127,39 +117,11 @@ function pintarTarjetasHistorial(id) {
             ${fFrontal ? `<img src="${fFrontal}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
             ${fLateral ? `<img src="${fLateral}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
           </div>` : ''}
-        ${_historialPendienteCache[id] ? `
-          <button onclick="event.stopPropagation();eliminarTomaPendiente('${id}', ${i})" style="width:100%;margin-top:10px;background:#2a0000;border:1px solid #e31e24;border-radius:8px;color:#e31e24;font-size:11px;font-weight:700;padding:8px;cursor:pointer">🗑️ Eliminar esta y usar la nueva</button>` : ''}
       </div>
     </div>`;
   });
 
   cont.innerHTML = html;
-}
-
-async function eliminarTomaPendiente(id, indiceVisual) {
-  const tomas = _historialTomasCache[id] || [];
-  const total = tomas.length;
-  // indiceVisual está en orden invertido (más reciente primero); el backend guarda en orden cronológico ascendente
-  const indiceReal = total - 1 - indiceVisual;
-  const toma = tomas[indiceVisual];
-  if (!confirm('¿Eliminar la toma de ' + toma.fecha + ' para dar espacio a la nueva? Esta acción no se puede deshacer.')) return;
-
-  try {
-    const res = await fetch('/api/historial/' + id + '/resolver-pendiente', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ indiceEliminar: indiceReal })
-    });
-    const data = await res.json();
-    if (data.ok) {
-      toast('✅ Toma actualizada');
-      renderHistorialLista(id);
-    } else {
-      toast('❌ ' + (data.error || 'Error al actualizar'), false);
-    }
-  } catch (e) {
-    toast('❌ Error de conexión', false);
-  }
 }
 
 function toggleSeleccionToma(id, i) {
@@ -232,17 +194,11 @@ function pintarComparativaHistorial(id, cont) {
     <div style="display:flex;gap:10px;margin-bottom:12px">
       <div style="flex:1;text-align:center">
         <div style="font-size:10px;color:#888;margin-bottom:4px">${tA.fecha}</div>
-        <div style="font-size:9px;color:#666;text-transform:uppercase;margin-bottom:2px">Frontal</div>
-        ${fA.frontal ? `<img src="${fA.frontal}" onclick="verFotoGrande(this.src)" style="width:100%;border-radius:8px;cursor:pointer;max-height:130px;object-fit:cover;margin-bottom:4px">` : '<div style="background:#1a1a1a;border-radius:8px;height:90px;display:flex;align-items:center;justify-content:center;color:#555;font-size:10px;margin-bottom:4px">Sin foto</div>'}
-        <div style="font-size:9px;color:#666;text-transform:uppercase;margin-bottom:2px">Lateral</div>
-        ${fA.lateral ? `<img src="${fA.lateral}" onclick="verFotoGrande(this.src)" style="width:100%;border-radius:8px;cursor:pointer;max-height:130px;object-fit:cover;margin-bottom:4px">` : '<div style="background:#1a1a1a;border-radius:8px;height:90px;display:flex;align-items:center;justify-content:center;color:#555;font-size:10px;margin-bottom:4px">Sin foto</div>'}
+        ${fA.frontal ? `<img src="${fA.frontal}" onclick="verFotoGrande(this.src)" style="width:100%;border-radius:8px;cursor:pointer;max-height:150px;object-fit:cover">` : '<div style="background:#1a1a1a;border-radius:8px;height:100px;display:flex;align-items:center;justify-content:center;color:#555;font-size:11px">Sin foto</div>'}
       </div>
       <div style="flex:1;text-align:center">
         <div style="font-size:10px;color:#888;margin-bottom:4px">${tB.fecha}</div>
-        <div style="font-size:9px;color:#666;text-transform:uppercase;margin-bottom:2px">Frontal</div>
-        ${fB.frontal ? `<img src="${fB.frontal}" onclick="verFotoGrande(this.src)" style="width:100%;border-radius:8px;cursor:pointer;max-height:130px;object-fit:cover;margin-bottom:4px">` : '<div style="background:#1a1a1a;border-radius:8px;height:90px;display:flex;align-items:center;justify-content:center;color:#555;font-size:10px;margin-bottom:4px">Sin foto</div>'}
-        <div style="font-size:9px;color:#666;text-transform:uppercase;margin-bottom:2px">Lateral</div>
-        ${fB.lateral ? `<img src="${fB.lateral}" onclick="verFotoGrande(this.src)" style="width:100%;border-radius:8px;cursor:pointer;max-height:130px;object-fit:cover;margin-bottom:4px">` : '<div style="background:#1a1a1a;border-radius:8px;height:90px;display:flex;align-items:center;justify-content:center;color:#555;font-size:10px;margin-bottom:4px">Sin foto</div>'}
+        ${fB.frontal ? `<img src="${fB.frontal}" onclick="verFotoGrande(this.src)" style="width:100%;border-radius:8px;cursor:pointer;max-height:150px;object-fit:cover">` : '<div style="background:#1a1a1a;border-radius:8px;height:100px;display:flex;align-items:center;justify-content:center;color:#555;font-size:11px">Sin foto</div>'}
       </div>
     </div>
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515;font-size:12px">
@@ -442,7 +398,7 @@ async function renderAnalisis(id) {
   if (calc.pctGrasa) {
     html += `<div style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;margin-bottom:10px">
       <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">📊 Composición corporal</div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">% Grasa (Jackson & Pollock)</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.pctGrasa}% ${calc.grasaZona ? badge(calc.grasaZona.nivel, calc.grasaZona.estado) : ''}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">% Grasa (Jackson & Pollock)</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.pctGrasa}%</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">% Masa magra</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.pctMagra}%</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">Kg de grasa</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.kgGrasa} kg</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="font-size:12px;color:#888">Kg músculo estimado</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.kgMusculo} kg</span></div>
@@ -450,13 +406,9 @@ async function renderAnalisis(id) {
   }
 
   if (calc.proporciones && Object.keys(calc.proporciones).length) {
-    const esFemenino = usuario.perfil && usuario.perfil.sexo === 'F';
-    const labels = esFemenino
-      ? {cintura_torax:'Cintura / Tórax',cintura_cadera:'Cintura / Cadera',pantorrilla_muslo:'Pantorrilla / Muslo',brazo_hombro:'Brazo / Hombro'}
-      : {hombros_cintura:'Hombros / cintura',pecho_cintura:'Pecho / cintura',brazo_cintura:'Brazo / cintura'};
-    const titulo = esFemenino ? '📐 Proporciones (Di Santo)' : '📐 Proporciones (Steve Reeves)';
+    const labels = {hombros_cintura:'Hombros / cintura',pecho_cintura:'Pecho / cintura',brazo_cintura:'Brazo / cintura'};
     html += `<div style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;margin-bottom:10px">
-      <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">${titulo}</div>
+      <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">📐 Proporciones (Steve Reeves)</div>
       ${Object.entries(calc.proporciones).map(([k,v])=>`
         <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #151515">
           <span style="font-size:12px;color:#888">${labels[k]||k}</span>
@@ -837,15 +789,8 @@ async function renderProyeccion(id) {
     const fondos = { ok: '#0a2a0a', warn: '#2a1a00', danger: '#2a0000' };
     const nivelLabel = { principiante: 'Principiante', intermedio: 'Intermedio', avanzado: 'Avanzado' };
 
-    const fuenteBadge = datos.fuenteEstimulo === 'real'
-      ? `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#0a2a0a;color:#4caf50">✅ Datos reales (${datos.semanasHistorial} sem)</span>`
-      : `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#2a1a00;color:#ff9800">📋 Rutina planeada, sin reportes recientes</span>`;
-
     let html = `<div style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">
-        <span style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase">🔮 Resumen de proyección</span>
-        ${fuenteBadge}
-      </div>
+      <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">🔮 Resumen de proyección</div>
       <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">Nivel</span><span style="font-size:13px;font-weight:700;color:#fff">${nivelLabel[datos.nivel] || datos.nivel}</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="font-size:12px;color:#888">Estímulo global semanal</span><span style="font-size:13px;font-weight:700;color:#fff">${datos.estimuloGlobal} pts</span></div>
     </div>`;

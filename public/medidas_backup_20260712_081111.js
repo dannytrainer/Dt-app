@@ -442,7 +442,7 @@ async function renderAnalisis(id) {
   if (calc.pctGrasa) {
     html += `<div style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;margin-bottom:10px">
       <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">📊 Composición corporal</div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">% Grasa (Jackson & Pollock)</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.pctGrasa}% ${calc.grasaZona ? badge(calc.grasaZona.nivel, calc.grasaZona.estado) : ''}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">% Grasa (Jackson & Pollock)</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.pctGrasa}%</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">% Masa magra</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.pctMagra}%</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">Kg de grasa</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.kgGrasa} kg</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="font-size:12px;color:#888">Kg músculo estimado</span><span style="font-size:13px;font-weight:700;color:#fff">${calc.kgMusculo} kg</span></div>
@@ -450,13 +450,9 @@ async function renderAnalisis(id) {
   }
 
   if (calc.proporciones && Object.keys(calc.proporciones).length) {
-    const esFemenino = usuario.perfil && usuario.perfil.sexo === 'F';
-    const labels = esFemenino
-      ? {cintura_torax:'Cintura / Tórax',cintura_cadera:'Cintura / Cadera',pantorrilla_muslo:'Pantorrilla / Muslo',brazo_hombro:'Brazo / Hombro'}
-      : {hombros_cintura:'Hombros / cintura',pecho_cintura:'Pecho / cintura',brazo_cintura:'Brazo / cintura'};
-    const titulo = esFemenino ? '📐 Proporciones (Di Santo)' : '📐 Proporciones (Steve Reeves)';
+    const labels = {hombros_cintura:'Hombros / cintura',pecho_cintura:'Pecho / cintura',brazo_cintura:'Brazo / cintura'};
     html += `<div style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;margin-bottom:10px">
-      <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">${titulo}</div>
+      <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">📐 Proporciones (Steve Reeves)</div>
       ${Object.entries(calc.proporciones).map(([k,v])=>`
         <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #151515">
           <span style="font-size:12px;color:#888">${labels[k]||k}</span>
@@ -837,15 +833,8 @@ async function renderProyeccion(id) {
     const fondos = { ok: '#0a2a0a', warn: '#2a1a00', danger: '#2a0000' };
     const nivelLabel = { principiante: 'Principiante', intermedio: 'Intermedio', avanzado: 'Avanzado' };
 
-    const fuenteBadge = datos.fuenteEstimulo === 'real'
-      ? `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#0a2a0a;color:#4caf50">✅ Datos reales (${datos.semanasHistorial} sem)</span>`
-      : `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#2a1a00;color:#ff9800">📋 Rutina planeada, sin reportes recientes</span>`;
-
     let html = `<div style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">
-        <span style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase">🔮 Resumen de proyección</span>
-        ${fuenteBadge}
-      </div>
+      <div style="font-size:11px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid #1a1a1a;padding-bottom:8px">🔮 Resumen de proyección</div>
       <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #151515"><span style="font-size:12px;color:#888">Nivel</span><span style="font-size:13px;font-weight:700;color:#fff">${nivelLabel[datos.nivel] || datos.nivel}</span></div>
       <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="font-size:12px;color:#888">Estímulo global semanal</span><span style="font-size:13px;font-weight:700;color:#fff">${datos.estimuloGlobal} pts</span></div>
     </div>`;

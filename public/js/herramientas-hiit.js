@@ -557,8 +557,26 @@ function hiitIniciarActual(){
     if(s<ci.series-1&&ci.descFinSerie>0) seq.push({tipo:'descFinSerie',nombre:'🔚 Descanso fin de serie',tiempo:ci.descFinSerie,serie:s+1});
   }
   if(ci.descFinCircuito>0) seq.push({tipo:'descFinCircuito',nombre:'🏁 Descanso final',tiempo:ci.descFinCircuito,serie:ci.series});
-  _hiitEjecutando={ci,seq,idx:0,resto:seq[0].tiempo,total:seq[0].tiempo,running:false,interval:null};
+  _hiitEjecutando={ci,seq,idx:0,resto:seq[0].tiempo,total:seq[0].tiempo,running:false,interval:null,_imgCache:{}};
+  hiitPrecargarImagenes(_hiitEjecutando);
   hiitMostrar('ejecutar');
+}
+
+function hiitPrecargarImagenes(e){
+  const nombres=[...new Set(e.seq.filter(function(b){return b.tipo==='ejercicio';}).map(function(b){return b.nombre;}))];
+  nombres.forEach(function(nombre){
+    if(e._imgCache[nombre]!==undefined) return;
+    e._imgCache[nombre]=null;
+    fetch('/api/enciclopedia/buscar-match/'+encodeURIComponent(nombre))
+      .then(function(r){return r.json();})
+      .then(function(res){
+        e._imgCache[nombre]=res.encontrado?res.ejercicio:false;
+        if(_hiitEjecutando===e){
+          hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+        }
+      })
+      .catch(function(){ e._imgCache[nombre]=false; });
+  });
 }
 
 function hiitRenderEjecucion(c){
@@ -596,6 +614,14 @@ function hiitRenderEjecucion(c){
         '<button onclick="hiitVerEjercicioEjecucion()" style="background:#111;color:#ccc;border:1px solid #333;border-radius:8px;padding:7px 14px;font-size:11px;cursor:pointer;margin-bottom:8px">📖 Ver completo</button>';
     }
   }
+  let sigImgHtml='';
+  if(siguiente && siguiente.tipo==='ejercicio' && e._imgCache){
+    const sigEntry=e._imgCache[siguiente.nombre];
+    if(sigEntry){
+      const sigImg=sigEntry.imagen_inicio||sigEntry.imagen||sigEntry.imagen_fin||sigEntry.imagen2||'';
+      if(sigImg) sigImgHtml='<img src="'+sigImg+'" style="width:40px;height:40px;border-radius:8px;object-fit:contain;background:#1a1a1a;vertical-align:middle;margin-right:8px">';
+    }
+  }
   c.innerHTML=`
   <div style="text-align:center;padding:10px 0">
     <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">Serie ${bloque.serie} de ${e.ci.series} · Bloque ${e.idx+1} de ${e.seq.length}</div>
@@ -605,7 +631,7 @@ function hiitRenderEjecucion(c){
     <div style="margin:12px auto;width:90%;height:8px;background:var(--gris2);border-radius:4px">
       <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;transition:width 1s linear"></div>
     </div>
-    ${siguiente?`<div style="font-size:22px;font-weight:700;margin-bottom:16px;padding:12px;background:var(--card);border-radius:10px;border-left:4px solid ${colores[siguiente.tipo]||'#444'};color:${colores[siguiente.tipo]||'#aaa'}">➡️ ${siguiente.nombre}<br><span style="font-size:16px;opacity:0.8">${fmtTimer(siguiente.tiempo)}</span></div>`:'<div style="font-size:22px;font-weight:700;color:#4caf50;margin-bottom:16px;padding:12px;background:var(--card);border-radius:10px">🏁 Último bloque</div>'}
+    ${siguiente?`<div style="font-size:22px;font-weight:700;margin-bottom:16px;padding:12px;background:var(--card);border-radius:10px;border-left:4px solid ${colores[siguiente.tipo]||'#444'};color:${colores[siguiente.tipo]||'#aaa'}">➡️ ${sigImgHtml}${siguiente.nombre}<br><span style="font-size:16px;opacity:0.8">${fmtTimer(siguiente.tiempo)}</span></div>`:'<div style="font-size:22px;font-weight:700;color:#4caf50;margin-bottom:16px;padding:12px;background:var(--card);border-radius:10px">🏁 Último bloque</div>'}
     <div style="display:flex;justify-content:center;gap:12px">
       <button onclick="hiitToggle()" style="background:${e.running?'#333':'#e31e24'};color:var(--texto);border:none;border-radius:50%;width:64px;height:64px;font-size:24px;cursor:pointer">${e.running?'⏸️':'▶️'}</button>
       <button onclick="hiitDetener()" style="background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:50%;width:64px;height:64px;font-size:20px;cursor:pointer">⏹️</button>

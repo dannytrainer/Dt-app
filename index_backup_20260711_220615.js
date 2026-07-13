@@ -632,22 +632,10 @@ app.get('/api/proyeccion/:id', (req, res) => {
     }
     if (!nivel) nivel = 'intermedio';
 
-    // Excel Especificaciones: tablas calibradas para hombres. Mujeres ganan al 50-70% de esa tasa (Gentil et al. 2020, Schoenfeld et al. 2016).
-    const factorSexo = (usuario.perfil && usuario.perfil.sexo === 'F') ? 0.6 : 1.0;
-
-    // Preferir semanas de EVIDENCIA REAL (reportes de chat) sobre semanas desde fecha_inicio,
-    // para que el rango de incertidumbre refleje cuánta adherencia real hay, no solo antigüedad.
-    const { calcularEstimuloConFallback } = require('./estimulo_real');
-    const estimuloInfo = calcularEstimuloConFallback(req.params.id);
-    const fuenteEstimulo = estimuloInfo.fuente;
-    if (fuenteEstimulo === 'real' && estimuloInfo.semanasHistorialReal) {
-      semanasHistorial = Math.max(1, estimuloInfo.semanasHistorialReal);
-    }
-
     const horizontes = { '3m': 13, '6m': 26, '12m': 52 };
     const resultados = {};
     for (const [clave, semanas] of Object.entries(horizontes)) {
-      resultados[clave] = proyectarCliente(req.params.id, nivel, semanas, semanasHistorial, factorSexo);
+      resultados[clave] = proyectarCliente(req.params.id, nivel, semanas, semanasHistorial);
     }
 
     const historial = cargarJSON('historial.json');
@@ -692,7 +680,7 @@ app.get('/api/proyeccion/:id', (req, res) => {
       };
     });
 
-    res.json({ nivel, semanasHistorial, fuenteEstimulo, estimuloGlobal: +estimuloGlobal.toFixed(1), alertas, perimetros });
+    res.json({ nivel, semanasHistorial, estimuloGlobal: +estimuloGlobal.toFixed(1), alertas, perimetros });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -1326,8 +1314,7 @@ function cargarPersonalizados(entId) {
 // ──────────────────────────────────────────────
 
 require("./sincronizar");
-const _modHistorial = require("./rutas_historial");
-_modHistorial(app, fs);
+require("./rutas_historial")(app, fs);
 // ── ENCICLOPEDIA ──
 app.get('/ejercicio/:id', (req, res) => {
   const oficiales = getEnciclopedia();
@@ -2196,38 +2183,6 @@ cron.schedule('0 2 * * *', () => {
     });
     if (cambio) guardarJSON('usuarios.json', usuarios);
   } catch(e) { registrarError('Cron limpieza desbloqueos:', e); console.error('Cron limpieza desbloqueos:', e); }
-});
-
-// ═══ GENERACIÓN AUTOMÁTICA DE TOMAS MENSUALES (Historial - Fase 1) ═══
-cron.schedule('0 2 * * *', () => {
-  try {
-    const usuarios = cargarJSON('usuarios.json', []);
-    const hoy = new Date();
-    const hoyStr = hoy.toISOString().split('T')[0];
-    const diaHoy = hoy.getDate();
-    const mesActual = hoyStr.slice(0, 7); // "YYYY-MM"
-
-    let historial = {};
-    try { historial = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'historial.json'), 'utf8')); } catch {}
-
-    usuarios.forEach(u => {
-      if (!u.dia_pago) return;
-      const diaPago = parseInt(u.dia_pago);
-      if (diaHoy !== diaPago) return;
-
-      const reg = historial[u.id] || {};
-      const tomas = reg.tomas || [];
-      const yaTieneTomaEsteMes = tomas.some(t => t.fecha && t.fecha.slice(0, 7) === mesActual);
-      if (yaTieneTomaEsteMes) return;
-
-      try {
-        _modHistorial.generarTomaSnapshot(u.id, fs);
-        console.log('✅ Toma mensual generada para', u.id);
-      } catch (e) {
-        registrarError('Cron toma mensual (' + u.id + '):', e);
-      }
-    });
-  } catch(e) { registrarError('Cron toma mensual:', e); console.error('Cron toma mensual:', e); }
 });
 
 

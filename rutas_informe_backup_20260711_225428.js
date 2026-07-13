@@ -130,7 +130,6 @@ module.exports = function(app, fs) {
       const historialCliente = historial[id] || historial[usuario.telefono] || {};
       const pesoArr  = historialCliente.peso || [];
       const medidasArr = historialCliente.medidas || [];
-      const tomasArr = historialCliente.tomas || [];
 
       // Ultimo peso registrado
       const ultimoPeso = pesoArr.length > 0 ? pesoArr[pesoArr.length - 1].valor : null;
@@ -463,7 +462,7 @@ module.exports = function(app, fs) {
       const html = generarHTMLCompleto({
         usuario, ultima, penultima, primera, medidas,
         testData, alimHtml, diasHtmlFinal, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso,
-        calculos, fotoAntesB64, fotoDespuesB64, iconB64, logoTrainerB64, registros, nombreEntrenador, cfg, tomasArr
+        calculos, fotoAntesB64, fotoDespuesB64, iconB64, logoTrainerB64, registros, nombreEntrenador, cfg
       });
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -480,7 +479,7 @@ module.exports = function(app, fs) {
 // ============================================================
 // Función generadora del HTML completo
 // ============================================================
-function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtmlFinal, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso, calculos, fotoAntesB64, fotoDespuesB64, iconB64, logoTrainerB64, registros, nombreEntrenador, cfg, tomasArr }) {
+function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, testData, alimHtml, diasHtmlFinal, fotoSrc, hoy, ultimoPeso, pesoMostrar, unidadPeso, calculos, fotoAntesB64, fotoDespuesB64, iconB64, logoTrainerB64, registros, nombreEntrenador, cfg }) {
   const perfil = usuario.perfil || {};
   const edad = perfil.edad || usuario.edad || null;
   const altura = perfil.altura || usuario.altura || null;
@@ -782,301 +781,21 @@ function generarHTMLCompleto({ usuario, ultima, penultima, primera, medidas, tes
           ` : '<div style="color:#555;font-size:11px;font-style:italic;padding:10px;">Sin datos de composición</div>'}
         </div>
 
-        <!-- Evolución Visual -->
+        <!-- Fotos comparativas -->
         <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;">🎞️ EVOLUCIÓN VISUAL</div>
-          ${(() => {
-            const tomasValidas = (tomasArr || []).filter(t => t && t.fecha);
-            if (tomasValidas.length < 2) {
-              // Fallback: mostrar solo condición actual estática (sin suficiente historial)
-              return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <div style="text-align:center;">
-                  <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Frontal</div>
-                  ${fotoAntesB64 ? `<img src="data:image/jpeg;base64,${fotoAntesB64}" style="width:100%;border-radius:6px;border:1px solid var(--gris-borde);max-height:200px;object-fit:cover;">`
-                  : `<div style="background:#1a1a1a;border:1px dashed #333;border-radius:6px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;"><span style="font-size:28px;">🏃</span><span style="font-size:10px;color:#555;">Sin foto</span></div>`}
-                </div>
-                <div style="text-align:center;">
-                  <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lateral</div>
-                  ${fotoDespuesB64 ? `<img src="data:image/jpeg;base64,${fotoDespuesB64}" style="width:100%;border-radius:6px;border:1px solid var(--rojo);max-height:200px;object-fit:cover;">`
-                  : `<div style="background:#1a1a1a;border:1px dashed var(--rojo);border-radius:6px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;"><span style="font-size:28px;">💪</span><span style="font-size:10px;color:#555;">Sin foto</span></div>`}
-                </div>
-              </div>
-              <div style="margin-top:8px;font-size:10px;color:#666;text-align:center;">Se necesitan al menos 2 tomas mensuales para activar la línea de tiempo.</div>`;
-            }
-
-            // Construir data URIs de fotos (leyendo desde disco al momento de generar el informe)
-            const fs2 = require('fs');
-            const path2 = require('path');
-            function leerFotoB64(rutaRelativa) {
-              if (!rutaRelativa) return null;
-              try {
-                const abs = path2.join(__dirname, rutaRelativa);
-                if (!fs2.existsSync(abs)) return null;
-                return fs2.readFileSync(abs).toString('base64');
-              } catch { return null; }
-            }
-
-            const esFemeninoInforme = perfil.sexo === 'F';
-            const tomasConDatos = tomasValidas.map(t => ({
-              fecha: t.fecha,
-              pctGrasa: (t.analisis_congelado && t.analisis_congelado.pctGrasa) || null,
-              pctMagra: (t.analisis_congelado && t.analisis_congelado.pctMagra) || null,
-              kgGrasa: (t.analisis_congelado && t.analisis_congelado.kgGrasa) || null,
-              kgMusculo: (t.analisis_congelado && t.analisis_congelado.kgMusculo) || null,
-              grasaZona: (t.analisis_congelado && t.analisis_congelado.grasaZona) || null,
-              proporciones: (t.analisis_congelado && t.analisis_congelado.proporciones) || {},
-              salud: (t.analisis_congelado && t.analisis_congelado.salud) || {},
-              scoreFuerza: (t.tests_resumen && t.tests_resumen.fuerza && t.tests_resumen.fuerza.scoreTotal) || null,
-              scoreResist: (t.tests_resumen && t.tests_resumen.resist && t.tests_resumen.resist.scoreTotal) || null,
-              scoreEspecifico: (t.tests_resumen && t.tests_resumen.especifico && t.tests_resumen.especifico.scoreTotal) || null,
-              frontalB64: leerFotoB64(t.fotos && t.fotos.frontal),
-              lateralB64: leerFotoB64(t.fotos && t.fotos.lateral)
-            }));
-
-            const idUnico = 'evol_' + Math.random().toString(36).slice(2,8);
-            const jsonTomas = JSON.stringify(tomasConDatos).replace(/</g, '\\u003c');
-
-            return `
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-                <div style="position:relative;height:200px;border-radius:6px;overflow:hidden;background:#1a1a1a;">
-                  <div id="${idUnico}-frontal-capas"></div>
-                </div>
-                <div style="position:relative;height:200px;border-radius:6px;overflow:hidden;background:#1a1a1a;">
-                  <div id="${idUnico}-lateral-capas"></div>
-                </div>
-              </div>
-              <div id="${idUnico}-fecha" style="text-align:center;font-size:12px;color:#ccc;margin-bottom:6px;"></div>
-              <input type="range" id="${idUnico}-slider" min="0" max="100" value="0" style="width:100%;accent-color:var(--rojo);margin-bottom:10px;">
-              <div id="${idUnico}-barras"></div>
-
-              <div style="display:flex;gap:6px;margin-top:14px;margin-bottom:10px;">
-                <div id="${idUnico}-btn-kg" onclick="window['${idUnico}_cambiarVista']('kg')" style="flex:1;text-align:center;background:var(--rojo);border:1px solid var(--rojo);color:#fff;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Kg</div>
-                <div id="${idUnico}-btn-pct" onclick="window['${idUnico}_cambiarVista']('pct')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">%</div>
-                <div id="${idUnico}-btn-tests" onclick="window['${idUnico}_cambiarVista']('tests')" style="flex:1;text-align:center;background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:9px;font-weight:700;padding:7px 4px;border-radius:6px;cursor:pointer;">Rendimiento</div>
-              </div>
-              <div id="${idUnico}-grafico"></div>
-              <div id="${idUnico}-leyenda" style="display:flex;gap:10px;margin-top:6px;font-size:9px;color:#ccc;flex-wrap:wrap;"></div>
-
-              <div style="margin-top:10px;background:#2a1a00;border:1px solid #ff9800;border-radius:6px;padding:8px 10px;font-size:10px;color:#ffb74d;line-height:1.5;">
-                ⚠️ Para un resultado óptimo: las fotos deben tomarse siempre en las mismas condiciones (misma distancia, ángulo, iluminación y pose).
-              </div>
-              <script>
-              (function(){
-                const tomas = ${jsonTomas};
-                const idBase = '${idUnico}';
-                const esFemenino = ${esFemeninoInforme ? 'true' : 'false'};
-
-                // Definición de barras: label, key en proporciones, escala min/max, centro ideal (min/max ideal)
-                const barrasConfig = esFemenino ? [
-                  { label: 'Cintura / Tórax', key: 'cintura_torax', min: 0.45, max: 0.90, idealMin: 0.65, idealMax: 0.70 },
-                  { label: 'Cintura / Cadera', key: 'cintura_cadera', min: 0.45, max: 0.90, idealMin: 0.65, idealMax: 0.70 },
-                  { label: 'Pantorrilla / Muslo', key: 'pantorrilla_muslo', min: 0.45, max: 0.90, idealMin: 0.65, idealMax: 0.70 }
-                ] : [
-                  { label: 'Hombros / Cintura', key: 'hombros_cintura', min: 0.9, max: 1.6, idealMin: 1.4, idealMax: 1.6 },
-                  { label: 'Pecho / Cintura', key: 'pecho_cintura', min: 0.7, max: 1.4, idealMin: 1.2, idealMax: 1.4 },
-                  { label: 'Brazo / Cintura', key: 'brazo_cintura', min: 0.25, max: 0.6, idealMin: 0.5, idealMax: 0.6 }
-                ];
-
-                function crearCapas(contId, campoFoto) {
-                  const cont = document.getElementById(contId);
-                  const conFoto = tomas.filter(t => t[campoFoto]);
-                  conFoto.forEach((t, i) => {
-                    const img = document.createElement('img');
-                    img.src = 'data:image/jpeg;base64,' + t[campoFoto];
-                    img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:' + (i === 0 ? 1 : 0) + ';transition:opacity 0.25s linear;';
-                    img.dataset.fecha = t.fecha;
-                    cont.appendChild(img);
-                  });
-                  if (!conFoto.length) {
-                    cont.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#555;font-size:10px;">Sin fotos</div>';
-                  }
-                  return conFoto;
-                }
-
-                const frontalTomas = crearCapas(idBase + '-frontal-capas', 'frontalB64');
-                const lateralTomas = crearCapas(idBase + '-lateral-capas', 'lateralB64');
-
-                const slider = document.getElementById(idBase + '-slider');
-                const totalPasos = Math.max(tomas.length - 1, 1);
-
-                function actualizarFotos(contId, tomasConFoto, fracGlobal) {
-                  if (!tomasConFoto.length) return;
-                  const imgs = document.getElementById(contId).querySelectorAll('img');
-                  const pos = fracGlobal * (tomasConFoto.length - 1);
-                  const base = Math.floor(pos);
-                  const frac = pos - base;
-                  imgs.forEach((img, i) => {
-                    if (i === base) img.style.opacity = 1 - frac;
-                    else if (i === base + 1) img.style.opacity = frac;
-                    else img.style.opacity = 0;
-                  });
-                }
-
-                function colorPorNivel(nivel) {
-                  if (nivel === 'ok') return '#4caf50';
-                  if (nivel === 'warn') return '#ff9800';
-                  return '#e31e24';
-                }
-
-                function barraConMarcador(label, valor, estado, nivel, min, max, idealMin, idealMax) {
-                  if (valor == null) return '';
-                  const pctValor = Math.max(0, Math.min(((valor - min) / (max - min)) * 100, 100));
-                  const pctIdealMin = Math.max(0, Math.min(((idealMin - min) / (max - min)) * 100, 100));
-                  const pctIdealMax = Math.max(0, Math.min(((idealMax - min) / (max - min)) * 100, 100));
-                  const color = colorPorNivel(nivel);
-                  return '<div style="margin-bottom:10px;">' +
-                    '<div style="display:flex;justify-content:space-between;font-size:11px;color:#ccc;margin-bottom:3px;"><span>' + label + '</span><span style="color:' + color + ';font-weight:700;">' + valor + ' · ' + estado + '</span></div>' +
-                    '<div style="position:relative;background:#1a1a1a;border-radius:5px;height:10px;overflow:hidden;">' +
-                      '<div style="position:absolute;left:' + pctIdealMin + '%;width:' + (pctIdealMax - pctIdealMin) + '%;height:100%;background:rgba(76,175,80,0.30);z-index:1;"></div>' +
-                      '<div style="position:absolute;left:0;width:' + pctValor + '%;height:100%;background:' + color + ';opacity:0.55;border-radius:5px;z-index:2;"></div>' +
-                      '<div style="position:absolute;left:calc(' + pctValor + '% - 2px);width:4px;height:100%;background:' + color + ';border-radius:2px;z-index:3;"></div>' +
-                    '</div>' +
-                    '<div style="display:flex;justify-content:space-between;font-size:9px;color:#555;margin-top:2px;"><span>' + min + '</span><span>' + max + '</span></div>' +
-                  '</div>';
-                }
-
-                function actualizarDatos(idxReal) {
-                  const t = tomas[idxReal];
-                  document.getElementById(idBase + '-fecha').textContent = t.fecha;
-
-                  let html = '';
-
-                  // % Grasa (con zona real ACE por sexo)
-                  if (t.pctGrasa != null && t.grasaZona) {
-                    const gz = t.grasaZona;
-                    html += barraConMarcador('% Grasa', t.pctGrasa, gz.estado, gz.nivel, gz.escalaMin, gz.escalaMax,
-                      esFemenino ? 21 : 14, esFemenino ? 24 : 17);
-                  }
-
-                  // Proporciones (Steve Reeves o Di Santo según sexo)
-                  barrasConfig.forEach(cfg => {
-                    const p = t.proporciones && t.proporciones[cfg.key];
-                    if (p) {
-                      html += barraConMarcador(cfg.label, p.valor, p.estado, p.nivel, cfg.min, cfg.max, cfg.idealMin, cfg.idealMax);
-                    }
-                  });
-
-                  // Índice Cintura/Altura (ICA) - sensible a composición corporal, aplica a ambos sexos
-                  if (t.salud && t.salud.ica) {
-                    const ica = t.salud.ica;
-                    html += barraConMarcador('Cintura / Altura', ica.valor, ica.estado, ica.nivel, 0.30, 0.65, 0.40, 0.50);
-                  }
-
-                  document.getElementById(idBase + '-barras').innerHTML = html || '<div style="color:#555;font-size:11px;text-align:center;">Sin datos suficientes para esta toma</div>';
-                }
-
-                slider.addEventListener('input', function(e){
-                  const val = parseInt(e.target.value);
-                  const fracGlobal = val / 100;
-                  actualizarFotos(idBase + '-frontal-capas', frontalTomas, fracGlobal);
-                  actualizarFotos(idBase + '-lateral-capas', lateralTomas, fracGlobal);
-                  const idxReal = Math.round(fracGlobal * totalPasos);
-                  actualizarDatos(idxReal);
-                });
-
-                actualizarDatos(0);
-
-                // ── Gráfico de evolución con botones ──
-                const datosGrafico = {
-                  kg: {
-                    series: [
-                      { nombre: 'Grasa (kg)', color: '#e31e24', valores: tomas.map(t => t.kgGrasa) },
-                      { nombre: 'Músculo (kg)', color: '#4caf50', valores: tomas.map(t => t.kgMusculo) }
-                    ]
-                  },
-                  pct: {
-                    series: [
-                      { nombre: 'Grasa (%)', color: '#e31e24', valores: tomas.map(t => t.pctGrasa) },
-                      { nombre: 'Masa magra (%)', color: '#4caf50', valores: tomas.map(t => t.pctMagra) }
-                    ]
-                  },
-                  tests: {
-                    series: [
-                      { nombre: 'Fuerza', color: '#e31e24', valores: tomas.map(t => t.scoreFuerza) },
-                      { nombre: 'Resistencia', color: '#2196f3', valores: tomas.map(t => t.scoreResist) },
-                      { nombre: 'Específico', color: '#9c27b0', valores: tomas.map(t => t.scoreEspecifico) }
-                    ]
-                  }
-                };
-
-                function dibujarGrafico(vista) {
-                  const d = datosGrafico[vista];
-                  const seriesConDatos = d.series.filter(s => s.valores.some(v => v != null));
-                  const cont = document.getElementById(idBase + '-grafico');
-                  const leyenda = document.getElementById(idBase + '-leyenda');
-
-                  if (!seriesConDatos.length) {
-                    cont.innerHTML = '<div style="color:#555;font-size:11px;text-align:center;padding:20px 0;">Sin datos suficientes</div>';
-                    leyenda.innerHTML = '';
-                    return;
-                  }
-
-                  const todosValores = seriesConDatos.flatMap(s => s.valores.filter(v => v != null));
-                  const minVal = Math.min(...todosValores) * 0.9;
-                  const maxVal = Math.max(...todosValores) * 1.1;
-
-                  const w = 320, h = 160, padL = 28, padB = 20, padT = 8, padR = 8;
-                  const plotW = w - padL - padR;
-                  const plotH = h - padT - padB;
-                  const n = tomas.length;
-
-                  function px(i) { return padL + (n > 1 ? (i / (n - 1)) * plotW : plotW / 2); }
-                  function py(v) { return padT + plotH - ((v - minVal) / (maxVal - minVal || 1)) * plotH; }
-
-                  let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;">';
-
-                  for (let i = 0; i <= 3; i++) {
-                    const val = minVal + (maxVal - minVal) * (i / 3);
-                    const yy = py(val);
-                    svg += '<line x1="' + padL + '" y1="' + yy + '" x2="' + (w - padR) + '" y2="' + yy + '" stroke="#1a1a1a" stroke-width="1"/>';
-                    svg += '<text x="' + (padL - 4) + '" y="' + (yy + 3) + '" font-size="7" fill="#555" text-anchor="end">' + Math.round(val) + '</text>';
-                  }
-
-                  seriesConDatos.forEach(function(s) {
-                    const pts = [];
-                    s.valores.forEach(function(v, i) { if (v != null) pts.push([px(i), py(v)]); });
-                    if (pts.length < 2) return;
-                    const linea = pts.map(function(p){ return p[0] + ',' + p[1]; }).join(' ');
-                    const area = px(0) + ',' + py(minVal) + ' ' + linea + ' ' + px(n-1) + ',' + py(minVal);
-                    svg += '<polygon points="' + area + '" fill="' + s.color + '" opacity="0.15"/>';
-                    svg += '<polyline points="' + linea + '" fill="none" stroke="' + s.color + '" stroke-width="2"/>';
-                    pts.forEach(function(p){ svg += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.5" fill="' + s.color + '"/>'; });
-                  });
-
-                  tomas.forEach(function(t, i) {
-                    const fechaCorta = t.fecha.slice(5);
-                    svg += '<text x="' + px(i) + '" y="' + (h - 4) + '" font-size="7" fill="#888" text-anchor="middle">' + fechaCorta + '</text>';
-                  });
-
-                  svg += '</svg>';
-                  cont.innerHTML = svg;
-
-                  leyenda.innerHTML = seriesConDatos.map(function(s) {
-                    return '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;border-radius:50%;background:' + s.color + ';display:inline-block;"></span>' + s.nombre + '</span>';
-                  }).join('');
-                }
-
-                window[idBase + '_cambiarVista'] = function(vista) {
-                  ['kg', 'pct', 'tests'].forEach(function(v) {
-                    const btn = document.getElementById(idBase + '-btn-' + v);
-                    if (v === vista) {
-                      btn.style.background = 'var(--rojo)';
-                      btn.style.borderColor = 'var(--rojo)';
-                      btn.style.color = '#fff';
-                    } else {
-                      btn.style.background = '#1a1a1a';
-                      btn.style.borderColor = '#333';
-                      btn.style.color = '#aaa';
-                    }
-                  });
-                  dibujarGrafico(vista);
-                };
-
-                dibujarGrafico('kg');
-              })();
-              </script>
-            `;
-          })()}
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--rojo);margin-bottom:8px;">📸 CONDICIÓN ACTUAL</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Frontal</div>
+              ${fotoAntesB64 ? `<img src="data:image/jpeg;base64,${fotoAntesB64}" style="width:100%;border-radius:6px;border:1px solid var(--gris-borde);max-height:200px;object-fit:cover;">`
+              : `<div style="background:#1a1a1a;border:1px dashed #333;border-radius:6px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;"><span style="font-size:28px;">🏃</span><span style="font-size:10px;color:#555;">Sin foto</span></div>`}
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lateral</div>
+              ${fotoDespuesB64 ? `<img src="data:image/jpeg;base64,${fotoDespuesB64}" style="width:100%;border-radius:6px;border:1px solid var(--rojo);max-height:200px;object-fit:cover;">`
+              : `<div style="background:#1a1a1a;border:1px dashed var(--rojo);border-radius:6px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;"><span style="font-size:28px;">💪</span><span style="font-size:10px;color:#555;">Sin foto</span></div>`}
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -50,14 +50,8 @@ function calcularSaludMetabolica(medidas, altura) {
     resultado.icc = { valor: icc, estado: icc <= 0.85 ? 'Normal' : icc <= 0.95 ? 'Riesgo moderado' : 'Riesgo alto', nivel: icc <= 0.85 ? 'ok' : icc <= 0.95 ? 'warn' : 'danger' };
   }
   if (cintura && altura) {
-    const icaNum = parseFloat(cintura) / parseFloat(altura);
-    const ica = icaNum.toFixed(2);
-    let estadoIca, nivelIca;
-    if (icaNum < 0.40) { estadoIca = 'Posible bajo peso'; nivelIca = 'danger'; }
-    else if (icaNum <= 0.50) { estadoIca = 'Saludable'; nivelIca = 'ok'; }
-    else if (icaNum <= 0.57) { estadoIca = 'Precaución'; nivelIca = 'warn'; }
-    else { estadoIca = 'Riesgo alto'; nivelIca = 'danger'; }
-    resultado.ica = { valor: ica, estado: estadoIca, nivel: nivelIca };
+    const ica = (parseFloat(cintura) / parseFloat(altura)).toFixed(2);
+    resultado.ica = { valor: ica, estado: ica <= 0.5 ? 'Saludable' : ica <= 0.6 ? 'Precaución' : 'Riesgo alto', nivel: ica <= 0.5 ? 'ok' : ica <= 0.6 ? 'warn' : 'danger' };
   }
   return resultado;
 }

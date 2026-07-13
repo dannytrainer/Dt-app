@@ -50,14 +50,8 @@ function calcularSaludMetabolica(medidas, altura) {
     resultado.icc = { valor: icc, estado: icc <= 0.85 ? 'Normal' : icc <= 0.95 ? 'Riesgo moderado' : 'Riesgo alto', nivel: icc <= 0.85 ? 'ok' : icc <= 0.95 ? 'warn' : 'danger' };
   }
   if (cintura && altura) {
-    const icaNum = parseFloat(cintura) / parseFloat(altura);
-    const ica = icaNum.toFixed(2);
-    let estadoIca, nivelIca;
-    if (icaNum < 0.40) { estadoIca = 'Posible bajo peso'; nivelIca = 'danger'; }
-    else if (icaNum <= 0.50) { estadoIca = 'Saludable'; nivelIca = 'ok'; }
-    else if (icaNum <= 0.57) { estadoIca = 'Precaución'; nivelIca = 'warn'; }
-    else { estadoIca = 'Riesgo alto'; nivelIca = 'danger'; }
-    resultado.ica = { valor: ica, estado: estadoIca, nivel: nivelIca };
+    const ica = (parseFloat(cintura) / parseFloat(altura)).toFixed(2);
+    resultado.ica = { valor: ica, estado: ica <= 0.5 ? 'Saludable' : ica <= 0.6 ? 'Precaución' : 'Riesgo alto', nivel: ica <= 0.5 ? 'ok' : ica <= 0.6 ? 'warn' : 'danger' };
   }
   return resultado;
 }
@@ -68,13 +62,13 @@ function calcularProporcionesFemenino(medidas) {
   const resultado = {};
 
   function evaluarZona(ratio) {
-    if (ratio < 0.45) return { zona: 'malo-bajo', estado: 'Mejorar', nivel: 'danger' };
-    if (ratio < 0.55) return { zona: 'malo-bajo', estado: 'Mejorar', nivel: 'danger' };
+    if (ratio < 0.45) return { zona: 'malo-bajo', estado: 'Bajo', nivel: 'danger' };
+    if (ratio < 0.55) return { zona: 'malo-bajo', estado: 'Bajo', nivel: 'danger' };
     if (ratio < 0.65) return { zona: 'saludable-bajo', estado: 'Cerca del ideal', nivel: 'warn' };
     if (ratio <= 0.70) return { zona: 'ideal', estado: 'Ideal', nivel: 'ok' };
     if (ratio <= 0.80) return { zona: 'saludable-alto', estado: 'Cerca del ideal', nivel: 'warn' };
-    if (ratio <= 0.90) return { zona: 'malo-alto', estado: 'Mejorar', nivel: 'danger' };
-    return { zona: 'malo-alto', estado: 'Mejorar', nivel: 'danger' };
+    if (ratio <= 0.90) return { zona: 'malo-alto', estado: 'Alto', nivel: 'danger' };
+    return { zona: 'malo-alto', estado: 'Alto', nivel: 'danger' };
   }
 
   if (cintura && pecho) {
@@ -89,48 +83,12 @@ function calcularProporcionesFemenino(medidas) {
     const ratio = parseFloat((parseFloat(pantorrilla) / parseFloat(pierna)).toFixed(2));
     resultado.pantorrilla_muslo = { valor: ratio, ...evaluarZona(ratio) };
   }
-  function evaluarZonaBrazoHombro(ratio) {
-    if (ratio < 0.15) return { zona: 'malo-bajo', estado: 'Mejorar', nivel: 'danger' };
-    if (ratio < 0.20) return { zona: 'saludable-bajo', estado: 'Cerca del ideal', nivel: 'warn' };
-    if (ratio <= 0.30) return { zona: 'ideal', estado: 'Ideal', nivel: 'ok' };
-    if (ratio <= 0.35) return { zona: 'saludable-alto', estado: 'Cerca del ideal', nivel: 'warn' };
-    return { zona: 'malo-alto', estado: 'Mejorar', nivel: 'danger' };
-  }
-
   if (brazo && hombros) {
     const ratio = parseFloat((parseFloat(brazo) / parseFloat(hombros)).toFixed(2));
-    resultado.brazo_hombro = { valor: ratio, ...evaluarZonaBrazoHombro(ratio) };
+    resultado.brazo_hombro = { valor: ratio, ...evaluarZona(ratio) };
   }
 
   return resultado;
 }
 
-
-function evaluarZonaGrasa(pct, sexo) {
-  if (pct == null) return null;
-  const p = parseFloat(pct);
-
-  if (sexo === 'F') {
-    if (p < 10)  return { zona: 'riesgo-bajo',  estado: 'Riesgo (muy bajo)', nivel: 'danger', escalaMin: 0,  escalaMax: 45 };
-    if (p < 14)  return { zona: 'esencial',     estado: 'Grasa esencial',   nivel: 'warn',   escalaMin: 0,  escalaMax: 45 };
-    if (p < 21)  return { zona: 'atletico',     estado: 'Atlético',         nivel: 'ok',     escalaMin: 0,  escalaMax: 45 };
-    if (p < 25)  return { zona: 'ideal',        estado: 'Ideal (Fitness)',  nivel: 'ok',     escalaMin: 0,  escalaMax: 45 };
-    if (p < 32)  return { zona: 'aceptable',    estado: 'Aceptable',        nivel: 'warn',   escalaMin: 0,  escalaMax: 45 };
-    return          { zona: 'riesgo-alto',  estado: 'Riesgo (muy alto)', nivel: 'danger', escalaMin: 0,  escalaMax: 45 };
-  } else {
-    if (p < 2)   return { zona: 'riesgo-bajo',  estado: 'Riesgo (muy bajo)', nivel: 'danger', escalaMin: 0,  escalaMax: 35 };
-    if (p < 6)   return { zona: 'esencial',     estado: 'Grasa esencial',   nivel: 'warn',   escalaMin: 0,  escalaMax: 35 };
-    if (p < 14)  return { zona: 'atletico',     estado: 'Atlético',         nivel: 'ok',     escalaMin: 0,  escalaMax: 35 };
-    if (p < 18)  return { zona: 'ideal',        estado: 'Ideal (Fitness)',  nivel: 'ok',     escalaMin: 0,  escalaMax: 35 };
-    if (p < 25)  return { zona: 'aceptable',    estado: 'Aceptable',        nivel: 'warn',   escalaMin: 0,  escalaMax: 35 };
-    return          { zona: 'riesgo-alto',  estado: 'Riesgo (muy alto)', nivel: 'danger', escalaMin: 0,  escalaMax: 35 };
-  }
-}
-
-// Distancia normalizada (0 a 1) al centro de una zona ideal, usada para comparar mejora/empeora
-// entre dos mediciones sin depender de si el valor subió o bajó en términos absolutos.
-function distanciaAlCentro(valor, centroIdeal, escalaMax) {
-  return Math.abs(valor - centroIdeal) / escalaMax;
-}
-
-module.exports = { calcularPorcentajeGrasa, calcularProporciones, calcularProporcionesFemenino, calcularSaludMetabolica, evaluarZonaGrasa, distanciaAlCentro };
+module.exports = { calcularPorcentajeGrasa, calcularProporciones, calcularProporcionesFemenino, calcularSaludMetabolica };
