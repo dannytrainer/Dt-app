@@ -124,8 +124,8 @@ function pintarTarjetasHistorial(id) {
           </div>` : ''}
         ${(fFrontal || fLateral) ? `
           <div style="display:flex;gap:8px;margin-top:8px">
-            ${fFrontal ? `<img src="${fFrontal}" onclick="verFotoGrande(this.src)" style="flex:1;min-width:0;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
-            ${fLateral ? `<img src="${fLateral}" onclick="verFotoGrande(this.src)" style="flex:1;min-width:0;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
+            ${fFrontal ? `<img src="${fFrontal}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
+            ${fLateral ? `<img src="${fLateral}" onclick="verFotoGrande(this.src)" style="flex:1;border-radius:8px;cursor:pointer;max-height:160px;object-fit:cover">` : ''}
           </div>` : ''}
         ${_historialPendienteCache[id] ? `
           <button onclick="event.stopPropagation();eliminarTomaPendiente('${id}', ${i})" style="width:100%;margin-top:10px;background:#2a0000;border:1px solid #e31e24;border-radius:8px;color:#e31e24;font-size:11px;font-weight:700;padding:8px;cursor:pointer">🗑️ Eliminar esta y usar la nueva</button>` : ''}
