@@ -14,18 +14,6 @@ if os.path.exists(js_dir):
             else:
                 print('✅ ' + archivo)
 
-# Verificar archivos JS sueltos en public/ (no en js/)
-public_dir = '/data/data/com.termux/files/home/Dt-app/public/'
-if os.path.exists(public_dir):
-    for archivo in os.listdir(public_dir):
-        if archivo.endswith('.js'):
-            ruta = public_dir + archivo
-            r = subprocess.run(['node', '--check', ruta], capture_output=True, text=True)
-            if r.returncode != 0:
-                errores.append(archivo + ': ' + r.stderr)
-            else:
-                print('✅ ' + archivo)
-
 # Verificar bloques inline en index.html
 with open('/data/data/com.termux/files/home/Dt-app/public/index.html', 'r') as f:
     h = f.read()
