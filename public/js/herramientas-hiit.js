@@ -27,6 +27,10 @@ let _hiitVistaCircuito = 'lista';    // vista actual del módulo circuitos
 let _hiitVistaIntervalo = 'lista';   // vista actual del módulo intervalos
 
 function renderHiit(c){
+  window._tcModoHiitCliente = false;
+  window._hiitContenedorId = 'hiit-contenido';
+  if (_hiitEjecutando) { clearInterval(_hiitEjecutando.interval); _hiitEjecutando = null; }
+  _hiitVistaCircuito = 'lista';
   c.innerHTML=`
   <div id="hiit-panel">
     <div style="display:flex;gap:8px;margin-bottom:14px">
@@ -53,7 +57,7 @@ function _hiitCambiarTab(tab) {
     btnI.style.color = tab==='intervalos' ? '#fff' : '#4a9eff';
     btnI.style.border = tab==='intervalos' ? '1px solid #4a9eff' : '1px solid #4a9eff';
   }
-  var c = document.getElementById('hiit-contenido');
+  var c = document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if (!c) return;
   if (tab === 'circuitos') {
     hiitMostrar(_hiitVistaCircuito);
@@ -64,7 +68,7 @@ function _hiitCambiarTab(tab) {
 
 function hiitMostrar(vista){
   _hiitVistaCircuito = vista;
-  const c=document.getElementById('hiit-contenido');
+  const c=document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if(!c)return;
   if(vista==='lista') hiitRenderLista(c);
   else if(vista==='nuevo'){_hiitActual=hiitNuevoCircuito();hiitRenderEditor(c);}
@@ -75,7 +79,7 @@ function hiitMostrar(vista){
 // ── INTERVALOS SIMPLES ───────────────────────────────────────────────────────
 function intervMostrar(vista) {
   _hiitVistaIntervalo = vista;
-  const c = document.getElementById('hiit-contenido');
+  const c = document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if (!c) return;
   if (vista==='lista')     intervRenderLista(c);
   else if (vista==='nuevo')   { _intervActual = intervNuevo(); intervRenderEditor(c); }
@@ -252,7 +256,7 @@ function intervToggle() {
     clearInterval(_hiitEjecutando.interval);
     _hiitEjecutando = null;
   }
-  var c = document.getElementById('hiit-contenido');
+  var c = document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if (ej.running) {
     clearInterval(ej.interval);
     ej.running = false;
@@ -336,7 +340,7 @@ function intervToggle() {
       }
     }
     if (_hiitTab === 'intervalos' && _hiitVistaIntervalo === 'ejecutar') {
-      var c2 = document.getElementById('hiit-contenido');
+      var c2 = document.getElementById(window._hiitContenedorId || 'hiit-contenido');
       if (c2) intervRenderFrame(c2);
     }
   }, 1000);
@@ -358,12 +362,13 @@ function hiitNuevoCircuito(){
 }
 
 function hiitRenderLista(c){
-  var btnNuevo = '<button onclick="hiitMostrar(\'nuevo\')" style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px">➕ Nuevo circuito</button>';
+  var modoCliente = window._tcModoHiitCliente === true;
+  var btnNuevo = modoCliente ? '' : '<button onclick="hiitMostrar(\'nuevo\')" style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px">➕ Nuevo circuito</button>';
   if(_hiitCircuitos.length===0){
     c.innerHTML=btnNuevo+`<div style="text-align:center;padding:40px 0;color:var(--texto-tenue)">
       <div style="font-size:40px;margin-bottom:12px">🔥</div>
-      <div style="font-size:14px">No tienes circuitos guardados</div>
-      <div style="font-size:12px;margin-top:6px">Toca ➕ para crear uno</div>
+      <div style="font-size:14px">${modoCliente ? 'Tu entrenador aún no te ha asignado circuitos' : 'No tienes circuitos guardados'}</div>
+      <div style="font-size:12px;margin-top:6px">${modoCliente ? '' : 'Toca ➕ para crear uno'}</div>
     </div>`;
     return;
   }
@@ -372,9 +377,10 @@ function hiitRenderLista(c){
     <div style="font-size:15px;font-weight:700;color:var(--texto);margin-bottom:4px">${ci.nombre}</div>
     <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">${ci.series} series · ${ci.bloques.length} bloques · Prep: ${ci.preparacion}s</div>
     <div style="display:flex;gap:8px">
-      <button onclick="_hiitActual=JSON.parse(JSON.stringify(_hiitCircuitos[${i}]));hiitMostrar('editor')" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>
+      ${modoCliente ? '' : `<button onclick="_hiitActual=JSON.parse(JSON.stringify(_hiitCircuitos[${i}]));hiitMostrar('editor')" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>`}
       <button onclick="hiitIniciar(${i})" style="flex:1;background:#e31e24;color:var(--texto);border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">▶️ Iniciar</button>
-      <button onclick="hiitEliminar(${i})" style="background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>
+      ${modoCliente ? '' : `<button onclick="hiitAbrirCompartir(${i})" style="background:var(--gris);color:#4a9eff;border:1px solid #4a9eff;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">👥</button>`}
+    ${modoCliente ? '' : `<button onclick="hiitEliminar(${i})" style="background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>`}
     </div>
   </div>`).join('');
 }
@@ -460,7 +466,7 @@ function hiitRenderEditor(c){
       <div style="font-size:16px;color:var(--texto-tenue);cursor:grab">☰</div>
       <div style="font-size:18px">${b.tipo==='ejercicio'?'💪':'😮‍💨'}</div>
       <div style="flex:1;position:relative">
-        <input id="hiit-bloque-nombre-${i}" value="${b.nombre}" ${b.tipo==='ejercicio'?`oninput="hiitAutoComplete(this,${i})"`:''} onchange="_hiitActual.bloques[${i}].nombre=this.value" style="width:100%;background:none;border:none;border-bottom:1px solid #333;color:var(--texto);font-size:12px;outline:none;padding:2px;box-sizing:border-box">
+        <input id="hiit-bloque-nombre-${i}" value="${b.nombre}" ${b.tipo==='ejercicio'?`oninput="hiitAutoComplete(this,${i})"`:''} onchange="_hiitActual.bloques[${i}].nombre=this.value" onfocus="if(/^Ejercicio( [0-9]+)?$/.test(this.value)){this.value='';}" style="width:100%;background:none;border:none;border-bottom:1px solid #333;color:var(--texto);font-size:12px;outline:none;padding:2px;box-sizing:border-box">
         ${b.tipo==='ejercicio'?`<div id="hiit-suggest-${i}" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--fondo);border:1px solid #444;border-radius:0 0 8px 8px;z-index:9999;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4)"></div>`:''}
       </div>
       ${b.tipo==='ejercicio'?`<button onclick="hiitVerEjercicio(${i})" style="background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:5px 7px;cursor:pointer;font-size:12px">👁️</button>`:''}
@@ -533,7 +539,7 @@ async function hiitEliminar(i){
   const id=_hiitCircuitos[i].id;
   await fetch('/api/hiit/'+id,{method:'DELETE'});
   await hiitCargar();
-  hiitRenderLista(document.getElementById('hiit-contenido'));
+  hiitRenderLista(document.getElementById(window._hiitContenedorId || 'hiit-contenido'));
   toast('🗑️ Eliminado');
 }
 
@@ -572,7 +578,7 @@ function hiitPrecargarImagenes(e){
       .then(function(res){
         e._imgCache[nombre]=res.encontrado?res.ejercicio:false;
         if(_hiitEjecutando===e){
-          hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+          hiitRenderEjecucion(document.getElementById(window._hiitContenedorId || 'hiit-contenido'));
         }
       })
       .catch(function(){ e._imgCache[nombre]=false; });
@@ -598,7 +604,7 @@ function hiitRenderEjecucion(c){
         .then(function(res){
           e._imgCache[key]=res.encontrado?res.ejercicio:false;
           if(_hiitEjecutando===e && e.seq[e.idx]===bloque){
-            hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+            hiitRenderEjecucion(document.getElementById(window._hiitContenedorId || 'hiit-contenido'));
           }
         })
         .catch(function(){ e._imgCache[key]=false; });
@@ -645,7 +651,7 @@ function hiitToggle(){
   if(e.running){
     clearInterval(e.interval);
     e.running=false;
-    hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+    hiitRenderEjecucion(document.getElementById(window._hiitContenedorId || 'hiit-contenido'));
   } else {
     e.running=true;
     hiitSonarBloque(e.seq[e.idx].tipo);
@@ -667,9 +673,9 @@ function hiitToggle(){
         e.total=sig.tiempo;
         hiitSonarBloque(sig.tipo);
       }
-      hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+      hiitRenderEjecucion(document.getElementById(window._hiitContenedorId || 'hiit-contenido'));
     },1000);
-    hiitRenderEjecucion(document.getElementById('hiit-contenido'));
+    hiitRenderEjecucion(document.getElementById(window._hiitContenedorId || 'hiit-contenido'));
   }
 }
 
@@ -840,3 +846,77 @@ function dtNotificar(titulo,cuerpo){
 
 
 
+
+
+// ── COMPARTIR CIRCUITO CON CLIENTES ─────────────────────────────────────────
+let _hiitCompartirIdx = null;
+let _hiitClientesCache = [];
+
+async function hiitAbrirCompartir(i) {
+  _hiitCompartirIdx = i;
+  const circuito = _hiitCircuitos[i];
+  const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
+  if (!_hiitClientesCache.length) {
+    try {
+      const r = await fetch('/api/usuarios?entrenador_id=' + encodeURIComponent(eid));
+      const todos = await r.json();
+      _hiitClientesCache = todos.filter(u => u.activo);
+    } catch(e) { _hiitClientesCache = []; }
+  }
+  const seleccionados = new Set(circuito.clientes || []);
+  const modal = document.createElement('div');
+  modal.id = 'modal-hiit-compartir';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = '<div style="background:#111;border:1px solid #333;border-radius:16px;padding:20px;max-width:360px;width:100%;max-height:80vh;display:flex;flex-direction:column">' +
+    '<div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px">👥 Compartir "' + circuito.nombre + '"</div>' +
+    '<div style="font-size:11px;color:var(--texto-secundario);margin-bottom:12px">Selecciona los clientes que podrán ver este circuito</div>' +
+    '<input id="hiit-compartir-buscar" placeholder="Buscar cliente..." oninput="hiitFiltrarClientesModal()" style="width:100%;background:var(--gris);color:#fff;border:1px solid #333;border-radius:8px;padding:10px;font-size:13px;margin-bottom:10px;box-sizing:border-box">' +
+    '<div id="hiit-compartir-lista" style="overflow-y:auto;flex:1;min-height:120px;max-height:300px;margin-bottom:14px"></div>' +
+    '<div style="display:flex;gap:8px">' +
+    '<button onclick="document.getElementById(\'modal-hiit-compartir\').remove()" style="flex:1;background:var(--gris);color:#888;border:1px solid #333;border-radius:10px;padding:12px;font-size:13px;cursor:pointer">Cancelar</button>' +
+    '<button onclick="hiitGuardarCompartir()" style="flex:2;background:#4a9eff;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">Asignar</button>' +
+    '</div></div>';
+  document.body.appendChild(modal);
+  window._hiitSeleccionCompartir = seleccionados;
+  hiitFiltrarClientesModal();
+}
+
+function hiitFiltrarClientesModal() {
+  const q = (document.getElementById('hiit-compartir-buscar')?.value || '').trim().toLowerCase();
+  const cont = document.getElementById('hiit-compartir-lista');
+  if (!cont) return;
+  const sel = window._hiitSeleccionCompartir;
+  const filtrados = _hiitClientesCache.filter(c => dtClienteCoincide(c, q));
+  if (!filtrados.length) {
+    cont.innerHTML = '<div style="text-align:center;padding:20px;color:var(--texto-secundario);font-size:12px">Sin clientes</div>';
+    return;
+  }
+  cont.innerHTML = filtrados.map(c => {
+    const marcado = sel.has(c.id);
+    return '<div onclick="hiitToggleClienteCompartir(\'' + c.id + '\')" style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #222;cursor:pointer">' +
+      '<div style="width:20px;height:20px;border-radius:6px;border:2px solid ' + (marcado?'#4a9eff':'#444') + ';background:' + (marcado?'#4a9eff':'transparent') + ';display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">' + (marcado?'✓':'') + '</div>' +
+      '<div style="font-size:13px;color:#fff">' + c.nombre + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function hiitToggleClienteCompartir(id) {
+  const sel = window._hiitSeleccionCompartir;
+  if (sel.has(id)) sel.delete(id); else sel.add(id);
+  hiitFiltrarClientesModal();
+}
+
+async function hiitGuardarCompartir() {
+  const circuito = _hiitCircuitos[_hiitCompartirIdx];
+  const clientes = Array.from(window._hiitSeleccionCompartir);
+  const r = await fetch('/api/hiit/' + circuito.id + '/asignar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({clientes})
+  });
+  const j = await r.json();
+  if (!j.ok) { toast('⚠️ Error al asignar', false); return; }
+  circuito.clientes = clientes;
+  document.getElementById('modal-hiit-compartir').remove();
+  toast('👥 Circuito compartido con ' + clientes.length + ' cliente(s)');
+}

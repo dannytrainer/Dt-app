@@ -935,8 +935,22 @@ app.delete('/api/festivos/:fecha', (req, res) => {
 });
 app.get('/api/hiit', (req, res) => {
   const eid = req.query.entrenador_id || null;
+  const cid = req.query.cliente_id || null;
   const data = cargarJSON('hiit.json');
+  if (cid) {
+    return res.json(data.filter(c => Array.isArray(c.clientes) && c.clientes.includes(cid)));
+  }
   res.json(data.filter(c => (c.entrenador_id || null) === eid));
+});
+
+app.post('/api/hiit/:id/asignar', (req, res) => {
+  const data = cargarJSON('hiit.json');
+  const idx = data.findIndex(c => String(c.id) === req.params.id);
+  if (idx < 0) return res.json({ok:false, error:'Circuito no encontrado'});
+  const clientes = Array.isArray(req.body.clientes) ? req.body.clientes : [];
+  data[idx].clientes = clientes;
+  guardarJSON('hiit.json', data);
+  res.json({ok:true, clientes});
 });
 app.post('/api/hiit', (req, res) => {
   const data = cargarJSON('hiit.json');

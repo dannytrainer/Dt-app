@@ -88,6 +88,12 @@ window.addEventListener('DOMContentLoaded', () => {
   } else {
     document.getElementById('pantalla-login').style.display = 'flex';
   }
+  // Precarga global de la enciclopedia de ejercicios (autocompletado HIIT y otros)
+  if (!window._encEjercicios || !window._encEjercicios.length) {
+    fetch('/api/enciclopedia').then(function(r){ return r.json(); }).then(function(data){
+      if (Array.isArray(data)) window._encEjercicios = data;
+    }).catch(function(){});
+  }
 });
 
 // ── GOOGLE AUTH FLOW ─────────────────────────────────────────

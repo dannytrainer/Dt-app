@@ -392,6 +392,7 @@ function tcRenderTools(cont) {
   html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;ruleta&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-ruleta.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Ruleta DT</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">Ejercicio aleatorio</div></div>';
   html += '<div onclick="tcEsPremium()?tcToolAbrirHerr(&apos;conversores&apos;):tcMostrarPremium()" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-calculadoras.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">Conversores</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">kg &middot; lb &middot; cm &middot; in</div></div>';
   html += '';
+  html += '<div onclick="tcToolAbrirHerr(&quot;hiit&quot;)" style="background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer"><div style="margin-bottom:8px"><img src="/images/icon-hiit.png" style="width:72px;height:72px;object-fit:contain"></div><div style="font-size:13px;font-weight:700;color:#fff">HIIT</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">Circuitos asignados</div></div>';
   html += '<div onclick="tcToolAbrirHerr(&quot;enciclopedia&quot;)" style="background:#111;border:1px solid #222;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer;grid-column:1/-1"><div style="margin-bottom:8px"><img src="/images/Enciclopedialogo.png" style="width:56px;height:56px;object-fit:contain;border-radius:12px"></div><div style="font-size:13px;font-weight:700;color:#fff">Enciclopedia</div><div style="font-size:10px;color:var(--texto-medio);margin-top:4px">Ejercicios &middot; T&eacute;cnica &middot; Nutrici&oacute;n</div></div>';
   html += '</div></div>';
   cont.innerHTML = html;
@@ -441,6 +442,7 @@ function tcToolAbrirHerr(nombre) {
     });
   }
   else if (nombre === 'ruleta') renderRuleta(c);
+  else if (nombre === 'hiit') tcAbrirHiit(c);
   else if (nombre === 'competencias') {
     renderCompetencias(c);
     // Ocultar botones de edicion del entrenador
@@ -1828,4 +1830,25 @@ function encAbrirFichaModal(id) {
     html += '</div></div>';
   }
   cont.innerHTML = html;
+}
+
+
+// ── HIIT PARA CLIENTE (reutiliza el sistema del entrenador, solo lectura) ───
+async function tcAbrirHiit(c) {
+  const cid = (_tcUsuario && _tcUsuario.id) || null;
+  if (!cid) { c.innerHTML = '<div style="text-align:center;padding:30px;color:var(--texto-secundario)">No se pudo identificar el cliente.</div>'; return; }
+  c.innerHTML = '<div style="text-align:center;padding:30px;color:var(--texto-secundario)">Cargando...</div>';
+  try {
+    const r = await fetch('/api/hiit?cliente_id=' + encodeURIComponent(cid));
+    const asignados = await r.json();
+    _hiitCircuitos = asignados;
+    c.id = 'tc-hiit-contenido';
+    window._tcModoHiitCliente = true;
+    window._hiitContenedorId = 'tc-hiit-contenido';
+    if (typeof _hiitEjecutando !== 'undefined' && _hiitEjecutando) { clearInterval(_hiitEjecutando.interval); _hiitEjecutando = null; }
+    if (typeof _hiitVistaCircuito !== 'undefined') _hiitVistaCircuito = 'lista';
+    hiitRenderLista(c);
+  } catch(e) {
+    c.innerHTML = '<div style="text-align:center;padding:30px;color:var(--texto-secundario)">Error al cargar circuitos.</div>';
+  }
 }

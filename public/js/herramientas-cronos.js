@@ -305,7 +305,7 @@ function cargarSelectEnviar(){
 }
 function _renderDrop(dropId,hiddenId,inputId,q){
   const drop=document.getElementById(dropId);
-  const f=_usuariosEnviar.filter(u=>u.nombre.toLowerCase().includes(q.toLowerCase()));
+  const f=_usuariosEnviar.filter(u=>dtClienteCoincide(u,q));
   drop.innerHTML=f.map(u=>`<div onclick="seleccionarEnviar('${dropId}','${hiddenId}','${inputId}','${u.nombre}','${u.id}')" style="padding:10px 12px;font-size:13px;color:var(--texto);cursor:pointer;border-bottom:1px solid #222">${u.nombre}</div>`).join('');
   drop.style.display=f.length?'block':'none';
 }
