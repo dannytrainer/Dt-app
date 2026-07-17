@@ -193,18 +193,6 @@ function encEditarFicha(id) {
   html += "</div>";
 
   html += "<div style=\"margin-bottom:12px\">";
-  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Imagen inicio</div>";
-  if (e.imagen_inicio || e.imagen) { html += "<img src=\"" + escHtml(e.imagen_inicio || e.imagen) + "\" style=\"width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #2a2a2a;margin-bottom:6px;display:block\">"; }
-  html += "<input type=\"file\" id=\"enc-edit-img-inicio\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;box-sizing:border-box\">";
-  html += "</div>";
-
-  html += "<div style=\"margin-bottom:12px\">";
-  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Imagen fin</div>";
-  if (e.imagen_fin) { html += "<img src=\"" + escHtml(e.imagen_fin) + "\" style=\"width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #2a2a2a;margin-bottom:6px;display:block\">"; }
-  html += "<input type=\"file\" id=\"enc-edit-img-fin\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;box-sizing:border-box\">";
-  html += "</div>";
-
-  html += "<div style=\"margin-bottom:12px\">";
   html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Pasos de ejecucion</div>";
   window._encEditPasosCount = (e.ejecucion||[]).length;
   (e.ejecucion||[]).forEach(function(paso, i) {
@@ -254,28 +242,6 @@ function encCrearOficial() {
   html += "</div>";
 
   html += "<div style=\"margin-bottom:12px\">";
-  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Nivel</div>";
-  html += "<select id=\"enc-new-nivel\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box\">";
-  html += "<option value=\"principiante\">Principiante</option><option value=\"intermedio\" selected>Intermedio</option><option value=\"avanzado\">Avanzado</option>";
-  html += "</select></div>";
-
-  html += "<div style=\"margin-bottom:12px\">";
-  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Equipamiento</div>";
-  html += "<select id=\"enc-new-equipamiento\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;box-sizing:border-box\">";
-  html += "<option value=\"barra\">Barra</option><option value=\"mancuerna\">Mancuerna</option><option value=\"maquina\">Maquina</option><option value=\"peso corporal\">Peso corporal</option><option value=\"cable\">Cable</option><option value=\"otro\">Otro</option>";
-  html += "</select></div>";
-
-  html += "<div style=\"margin-bottom:12px\">";
-  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Imagen inicio</div>";
-  html += "<input type=\"file\" id=\"enc-new-img-inicio\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;box-sizing:border-box\">";
-  html += "</div>";
-
-  html += "<div style=\"margin-bottom:12px\">";
-  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Imagen fin</div>";
-  html += "<input type=\"file\" id=\"enc-new-img-fin\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;box-sizing:border-box\">";
-  html += "</div>";
-
-  html += "<div style=\"margin-bottom:12px\">";
   html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Pasos de ejecuci&oacute;n</div>";
   html += "<div id=\"enc-new-pasos-wrap\"></div>";
   html += "</div>";
@@ -315,33 +281,13 @@ function encGuardarNuevoOficial() {
     i++;
   }
   var _ses = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
-  var nivel = document.getElementById("enc-new-nivel").value;
-  var equipamiento = document.getElementById("enc-new-equipamiento").value;
   fetch("/api/enciclopedia", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({nombre: nombre, grupo: grupo, musculos_principales: mp, musculos_secundarios: ms, ejecucion: pasos, nivel: nivel, equipamiento: equipamiento, entrenador_id: _ses.id})
+    body: JSON.stringify({nombre: nombre, grupo: grupo, musculos_principales: mp, musculos_secundarios: ms, ejecucion: pasos, entrenador_id: _ses.id})
   }).then(function(r){return r.json();}).then(function(resp){
     if (resp.error) { alert(resp.error); return; }
-    var nuevoId = resp.id;
-    var subidas = [];
-    var fInicio = document.getElementById("enc-new-img-inicio");
-    var fFin = document.getElementById("enc-new-img-fin");
-    if (fInicio && fInicio.files && fInicio.files[0]) {
-      var fd1 = new FormData();
-      fd1.append("foto", fInicio.files[0]);
-      fd1.append("entrenador_id", _ses.id);
-      subidas.push(fetch("/api/enciclopedia/" + nuevoId + "/foto/inicio", {method: "POST", body: fd1}));
-    }
-    if (fFin && fFin.files && fFin.files[0]) {
-      var fd2 = new FormData();
-      fd2.append("foto", fFin.files[0]);
-      fd2.append("entrenador_id", _ses.id);
-      subidas.push(fetch("/api/enciclopedia/" + nuevoId + "/foto/fin", {method: "POST", body: fd2}));
-    }
-    Promise.all(subidas).then(function(){
-      encCargarEjercicios();
-    });
+    encCargarEjercicios();
   });
 }
 
@@ -385,24 +331,7 @@ function encGuardarEdicionV2(id) {
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({nombre: e.nombre, grupo: e.grupo, ejecucion: e.ejecucion, musculos_principales: e.musculos_principales, musculos_secundarios: e.musculos_secundarios, entrenador_id: _sesEd.id})
   }).then(function(r){return r.json();}).then(function(){
-    var subidas = [];
-    var fInicio = document.getElementById("enc-edit-img-inicio");
-    var fFin = document.getElementById("enc-edit-img-fin");
-    if (fInicio && fInicio.files && fInicio.files[0]) {
-      var fd1 = new FormData();
-      fd1.append("foto", fInicio.files[0]);
-      fd1.append("entrenador_id", _sesEd.id);
-      subidas.push(fetch("/api/enciclopedia/" + id + "/foto/inicio", {method: "POST", body: fd1}));
-    }
-    if (fFin && fFin.files && fFin.files[0]) {
-      var fd2 = new FormData();
-      fd2.append("foto", fFin.files[0]);
-      fd2.append("entrenador_id", _sesEd.id);
-      subidas.push(fetch("/api/enciclopedia/" + id + "/foto/fin", {method: "POST", body: fd2}));
-    }
-    Promise.all(subidas).then(function(){
-      encAbrirFicha(id);
-    });
+    encAbrirFicha(id);
   });
 }
 
@@ -691,18 +620,6 @@ function encFiltrar() {
   }
 }
 
-function encEliminarOficial(id) {
-  if (!confirm("¿Eliminar este ejercicio de la enciclopedia oficial? Esta acción no se puede deshacer.")) return;
-  var _ses = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
-  fetch("/api/enciclopedia/" + id + "?entrenador_id=" + _ses.id, {
-    method: "DELETE"
-  }).then(function(r){return r.json();}).then(function(resp){
-    if (resp.error) { alert(resp.error); return; }
-    encCargarEjercicios();
-    encMostrarLista();
-  });
-}
-
 function encAbrirFicha(id) {
   var e = (window._encEjercicios||[]).find(function(x){return x.id===id;});
   if (!e) return;
@@ -714,7 +631,7 @@ function encAbrirFicha(id) {
   var html = "<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px\">";
   var volverFn = window._encDesdeRutina ? "window._encDesdeRutina=false;tcTab('rutina')" : window._encDesdeAdmin ? "window._encDesdeAdmin=false;if(window._encAdminVolver){window._encAdminVolver();}" : "encMostrarLista()";
   html += "<button onclick=\"" + volverFn + "\" style=\"background:#1a1a1a;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:14px\">&#8592;</button>";
-  html += "<span style=\"font-size:13px;color:#666;flex:1\">Ficha tecnica</span>"; var _sa=JSON.parse(localStorage.getItem("dt_sesion")||"{}"); if(_sa.email==="danielgaviriabotero@gmail.com"){html += "<button onclick='encEditarFicha(&quot;"+id+"&quot;)' style=\"background:#e31e24;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:12px;margin-right:6px\">✏️ Editar</button>"; html += "<button onclick='encEliminarOficial(&quot;"+id+"&quot;)' style=\"background:#1a1a1a;border:1px solid #e31e24;border-radius:8px;color:#e31e24;padding:6px 10px;cursor:pointer;font-size:12px\">🗑️ Eliminar</button>";}
+  html += "<span style=\"font-size:13px;color:#666;flex:1\">Ficha tecnica</span>"; var _sa=JSON.parse(localStorage.getItem("dt_sesion")||"{}"); if(_sa.email==="danielgaviriabotero@gmail.com"){html += "<button onclick='encEditarFicha(&quot;"+id+"&quot;)' style=\"background:#e31e24;border:none;border-radius:8px;color:#fff;padding:6px 10px;cursor:pointer;font-size:12px\">✏️ Editar</button>";}
   
   html += "</div>";
   if (e.video_youtube) {

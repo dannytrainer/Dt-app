@@ -677,7 +677,7 @@ app.get('/api/proyeccion/:id', (req, res) => {
     });
 
     const perimetros = {};
-    ['Brazo', 'Pecho', 'Pierna', 'Pantorrilla', 'Hombros', 'Cadera'].forEach(perimetro => {
+    ['Brazo', 'Pecho', 'Pierna', 'Pantorrilla', 'Hombros'].forEach(perimetro => {
       const p3 = base.perimetros[perimetro];
       if (!p3) return;
       const p6 = resultados['6m'].perimetros[perimetro];
@@ -1502,18 +1502,6 @@ app.post('/api/enciclopedia', (req, res) => {
   res.json(nuevo);
 });
 
-app.delete('/api/enciclopedia/:id', (req, res) => {
-  const entrenadorId = (req.body && req.body.entrenador_id) || req.query.entrenador_id;
-  if (!esSuperAdmin(entrenadorId)) return res.status(403).json({ error: 'Solo el administrador puede eliminar ejercicios de la enciclopedia oficial' });
-  const data = getEnciclopedia();
-  const idx = data.findIndex(e => e.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'No encontrado' });
-  data.splice(idx, 1);
-  guardarJSON('enciclopedia.json', data);
-  invalidarCacheEnciclopedia();
-  res.json({ ok: true });
-});
-
 app.post('/api/enciclopedia/:id/foto/:tipo', uploadFotoEjercicio.single('foto'), function(req, res) {
   try {
     var id = req.params.id;
@@ -1525,7 +1513,7 @@ app.post('/api/enciclopedia/:id/foto/:tipo', uploadFotoEjercicio.single('foto'),
     var data = getEnciclopedia();
     var idx = data.findIndex(function(e) { return e.id === id; });
     if (idx === -1) return res.status(404).json({ok: false});
-    if (tipo === 'inicio') { data[idx].imagen_inicio = ruta; data[idx].imagen = ruta; }
+    if (tipo === 'inicio') data[idx].imagen_inicio = ruta;
     else data[idx].imagen_fin = ruta;
     guardarJSON('enciclopedia.json', data);
     invalidarCacheEnciclopedia();

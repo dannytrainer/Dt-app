@@ -361,6 +361,19 @@ function hiitNuevoCircuito(){
   };
 }
 
+function hiitCalcularDuracion(ci){
+  const sumaBloques = (ci.bloques||[]).reduce((acc,b)=>acc+(parseInt(b.tiempo)||0),0);
+  const porSerie = sumaBloques + (parseInt(ci.descFinSerie)||0);
+  const total = (parseInt(ci.preparacion)||0) + porSerie*(parseInt(ci.series)||1) + (parseInt(ci.descFinCircuito)||0);
+  return total;
+}
+function hiitFormatearDuracion(segundos){
+  const m = Math.floor(segundos/60);
+  const s = segundos%60;
+  if (m===0) return s+'s';
+  if (s===0) return m+' min';
+  return m+' min '+s+'s';
+}
 function hiitRenderLista(c){
   var modoCliente = window._tcModoHiitCliente === true;
   var btnNuevo = modoCliente ? '' : '<button onclick="hiitMostrar(\'nuevo\')" style="width:100%;background:#0a1a0a;color:#4caf50;border:1px solid #4caf50;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px">➕ Nuevo circuito</button>';
@@ -375,7 +388,7 @@ function hiitRenderLista(c){
   c.innerHTML=btnNuevo+_hiitCircuitos.map((ci,i)=>`
   <div style="background:var(--card);border:1px solid #222;border-radius:12px;padding:14px;margin-bottom:10px">
     <div style="font-size:15px;font-weight:700;color:var(--texto);margin-bottom:4px">${ci.nombre}</div>
-    <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">${ci.series} series · ${ci.bloques.length} bloques · Prep: ${ci.preparacion}s</div>
+    <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:10px">${ci.series} series · ${ci.bloques.length} bloques · Prep: ${ci.preparacion}s · ⏱ ${hiitFormatearDuracion(hiitCalcularDuracion(ci))}</div>
     <div style="display:flex;gap:8px">
       ${modoCliente ? '' : `<button onclick="_hiitActual=JSON.parse(JSON.stringify(_hiitCircuitos[${i}]));hiitMostrar('editor')" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>`}
       <button onclick="hiitIniciar(${i})" style="flex:1;background:#e31e24;color:var(--texto);border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">▶️ Iniciar</button>
@@ -441,10 +454,16 @@ function hiitVerEjercicio(i) {
     });
 }
 
+function hiitActualizarTotalEditor(){
+  const el = document.getElementById('hiit-editor-total');
+  if (!el || !_hiitActual) return;
+  el.textContent = '⏱ Duración total: ' + hiitFormatearDuracion(hiitCalcularDuracion(_hiitActual));
+}
 function hiitRenderEditor(c){
   const ci=_hiitActual;
   let html=`
   <button onclick="hiitMostrar('lista')" style="background:var(--gris2);border:1px solid #333;border-radius:8px;color:var(--texto-medio);font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;margin-bottom:10px">← Volver</button>
+  <div id="hiit-editor-total" style="background:var(--card);border:1px solid #333;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13px;font-weight:700;color:#4a9eff;text-align:center">⏱ Duración total: ${hiitFormatearDuracion(hiitCalcularDuracion(ci))}</div>
   <div style="margin-bottom:12px">
     <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">Nombre del circuito</div>
     <input value="${ci.nombre}" onchange="_hiitActual.nombre=this.value" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:14px;font-weight:700">
@@ -452,11 +471,11 @@ function hiitRenderEditor(c){
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
     <div>
       <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">Series</div>
-      <input type="number" min="1" value="${ci.series}" onchange="_hiitActual.series=parseInt(this.value)||1" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+      <input type="number" min="1" value="${ci.series}" oninput="_hiitActual.series=parseInt(this.value)||1;hiitActualizarTotalEditor()" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
     </div>
     <div>
       <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">Preparación (s)</div>
-      <input type="number" min="0" value="${ci.preparacion}" onchange="_hiitActual.preparacion=parseInt(this.value)||0" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+      <input type="number" min="0" value="${ci.preparacion}" oninput="_hiitActual.preparacion=parseInt(this.value)||0;hiitActualizarTotalEditor()" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
     </div>
   </div>
   <div style="background:var(--card);border:1px solid #1e1e1e;border-radius:12px;padding:12px;margin-bottom:12px">
@@ -470,7 +489,7 @@ function hiitRenderEditor(c){
         ${b.tipo==='ejercicio'?`<div id="hiit-suggest-${i}" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--fondo);border:1px solid #444;border-radius:0 0 8px 8px;z-index:9999;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4)"></div>`:''}
       </div>
       ${b.tipo==='ejercicio'?`<button onclick="hiitVerEjercicio(${i})" style="background:#111;color:#ccc;border:1px solid #333;border-radius:6px;padding:5px 7px;cursor:pointer;font-size:12px">👁️</button>`:''}
-      <input type="number" min="1" value="${b.tiempo}" onchange="_hiitActual.bloques[${i}].tiempo=parseInt(this.value)||1" style="width:52px;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:6px;padding:4px;font-size:13px;text-align:center;font-family:monospace">
+      <input type="number" min="1" value="${b.tiempo}" oninput="_hiitActual.bloques[${i}].tiempo=parseInt(this.value)||1;hiitActualizarTotalEditor()" style="width:52px;background:var(--card);color:var(--texto);border:1px solid #333;border-radius:6px;padding:4px;font-size:13px;text-align:center;font-family:monospace">
       <span style="font-size:10px;color:var(--texto-tenue)">s</span>
       <button onclick="_hiitActual.bloques.splice(${i},1);hiitMostrar('editor')" style="background:none;border:none;color:var(--texto-tenue);font-size:16px;cursor:pointer">✖</button>
     </div>`).join('')}
@@ -482,11 +501,11 @@ function hiitRenderEditor(c){
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
     <div>
       <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">🔚 Desc. fin de serie (s)</div>
-      <input type="number" min="0" value="${ci.descFinSerie}" onchange="_hiitActual.descFinSerie=parseInt(this.value)||0" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+      <input type="number" min="0" value="${ci.descFinSerie}" oninput="_hiitActual.descFinSerie=parseInt(this.value)||0;hiitActualizarTotalEditor()" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
     </div>
     <div>
       <div style="font-size:11px;color:var(--texto-secundario);margin-bottom:4px">🏁 Desc. fin circuito (s)</div>
-      <input type="number" min="0" value="${ci.descFinCircuito}" onchange="_hiitActual.descFinCircuito=parseInt(this.value)||0" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
+      <input type="number" min="0" value="${ci.descFinCircuito}" oninput="_hiitActual.descFinCircuito=parseInt(this.value)||0;hiitActualizarTotalEditor()" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:10px;font-size:16px;text-align:center;font-family:monospace">
     </div>
   </div>
   <div style="display:flex;gap:8px">

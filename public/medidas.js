@@ -715,8 +715,33 @@ async function renderPerfil(id) {
         <select id="p-etiqueta" style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none">
           <option value="hipertrofia" ${perfil.etiqueta==='hipertrofia'?'selected':''}>💪 Hipertrofia</option>
           <option value="perdida" ${perfil.etiqueta==='perdida'?'selected':''}>🔥 Pérdida de grasa</option>
+          <option value="musculo" ${perfil.etiqueta==='musculo'?'selected':''}>💪 Ganar músculo</option>
+          <option value="rendimiento" ${perfil.etiqueta==='rendimiento'?'selected':''}>🏆 Rendimiento deportivo</option>
+          <option value="salud" ${perfil.etiqueta==='salud'?'selected':''}>❤️ Salud general</option>
           <option value="rehabilitacion" ${perfil.etiqueta==='rehabilitacion'?'selected':''}>🩺 Rehabilitación</option>
+          <option value="otro" ${perfil.etiqueta==='otro'?'selected':''}>Otro</option>
         </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div>
+          <div style="font-size:10px;color:#888;text-transform:uppercase;margin-bottom:5px">Fenotipo</div>
+          <select id="p-fenotipo-tipo" style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none">
+            <option value="" ${!(perfil.fenotipo&&perfil.fenotipo.tipo_base)?'selected':''}>Sin definir</option>
+            <option value="ectomorfo" ${perfil.fenotipo&&perfil.fenotipo.tipo_base==='ectomorfo'?'selected':''}>Ectomorfo</option>
+            <option value="mesomorfo" ${perfil.fenotipo&&perfil.fenotipo.tipo_base==='mesomorfo'?'selected':''}>Mesomorfo</option>
+            <option value="endomorfo" ${perfil.fenotipo&&perfil.fenotipo.tipo_base==='endomorfo'?'selected':''}>Endomorfo</option>
+            <option value="mixto" ${perfil.fenotipo&&perfil.fenotipo.tipo_base==='mixto'?'selected':''}>Mixto</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#888;text-transform:uppercase;margin-bottom:5px">Distribución de grasa</div>
+          <select id="p-fenotipo-distribucion" style="width:100%;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;font-size:14px;outline:none">
+            <option value="" ${!(perfil.fenotipo&&perfil.fenotipo.distribucion)?'selected':''}>Sin definir</option>
+            <option value="androide" ${perfil.fenotipo&&perfil.fenotipo.distribucion==='androide'?'selected':''}>Androide (abdomen)</option>
+            <option value="ginecoide" ${perfil.fenotipo&&perfil.fenotipo.distribucion==='ginecoide'?'selected':''}>Ginecoide (cadera/muslo)</option>
+            <option value="uniforme" ${perfil.fenotipo&&perfil.fenotipo.distribucion==='uniforme'?'selected':''}>Uniforme</option>
+          </select>
+        </div>
       </div>
       <div style="margin-bottom:12px">
         <div style="font-size:10px;color:#888;text-transform:uppercase;margin-bottom:5px">Unidades</div>
@@ -780,9 +805,13 @@ async function guardarPerfil(id) {
     altura: document.getElementById('p-altura').value,
     etiqueta: document.getElementById('p-etiqueta').value,
     notas: document.getElementById('p-notas').value,
+    fenotipo: {
+      tipo_base: document.getElementById('p-fenotipo-tipo') ? document.getElementById('p-fenotipo-tipo').value : '',
+      distribucion: document.getElementById('p-fenotipo-distribucion') ? document.getElementById('p-fenotipo-distribucion').value : '',
+    },
     unidades: window._perfilUnidad || 'kg'
   };
-  await fetch('/api/usuarios/'+id+'/perfil', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(datos)});
+  await fetch('/api/usuarios/'+id+'/perfil-admin', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(datos)});
   toast('✅ Perfil guardado');
 }
 

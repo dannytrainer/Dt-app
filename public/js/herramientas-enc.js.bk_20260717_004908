@@ -193,18 +193,6 @@ function encEditarFicha(id) {
   html += "</div>";
 
   html += "<div style=\"margin-bottom:12px\">";
-  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Imagen inicio</div>";
-  if (e.imagen_inicio || e.imagen) { html += "<img src=\"" + escHtml(e.imagen_inicio || e.imagen) + "\" style=\"width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #2a2a2a;margin-bottom:6px;display:block\">"; }
-  html += "<input type=\"file\" id=\"enc-edit-img-inicio\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;box-sizing:border-box\">";
-  html += "</div>";
-
-  html += "<div style=\"margin-bottom:12px\">";
-  html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Imagen fin</div>";
-  if (e.imagen_fin) { html += "<img src=\"" + escHtml(e.imagen_fin) + "\" style=\"width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #2a2a2a;margin-bottom:6px;display:block\">"; }
-  html += "<input type=\"file\" id=\"enc-edit-img-fin\" accept=\"image/*\" style=\"width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px;color:#fff;font-size:13px;box-sizing:border-box\">";
-  html += "</div>";
-
-  html += "<div style=\"margin-bottom:12px\">";
   html += "<div style=\"font-size:11px;color:#666;margin-bottom:4px;text-transform:uppercase\">Pasos de ejecucion</div>";
   window._encEditPasosCount = (e.ejecucion||[]).length;
   (e.ejecucion||[]).forEach(function(paso, i) {
@@ -385,24 +373,7 @@ function encGuardarEdicionV2(id) {
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({nombre: e.nombre, grupo: e.grupo, ejecucion: e.ejecucion, musculos_principales: e.musculos_principales, musculos_secundarios: e.musculos_secundarios, entrenador_id: _sesEd.id})
   }).then(function(r){return r.json();}).then(function(){
-    var subidas = [];
-    var fInicio = document.getElementById("enc-edit-img-inicio");
-    var fFin = document.getElementById("enc-edit-img-fin");
-    if (fInicio && fInicio.files && fInicio.files[0]) {
-      var fd1 = new FormData();
-      fd1.append("foto", fInicio.files[0]);
-      fd1.append("entrenador_id", _sesEd.id);
-      subidas.push(fetch("/api/enciclopedia/" + id + "/foto/inicio", {method: "POST", body: fd1}));
-    }
-    if (fFin && fFin.files && fFin.files[0]) {
-      var fd2 = new FormData();
-      fd2.append("foto", fFin.files[0]);
-      fd2.append("entrenador_id", _sesEd.id);
-      subidas.push(fetch("/api/enciclopedia/" + id + "/foto/fin", {method: "POST", body: fd2}));
-    }
-    Promise.all(subidas).then(function(){
-      encAbrirFicha(id);
-    });
+    encAbrirFicha(id);
   });
 }
 

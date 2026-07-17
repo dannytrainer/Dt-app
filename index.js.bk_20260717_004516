@@ -677,7 +677,7 @@ app.get('/api/proyeccion/:id', (req, res) => {
     });
 
     const perimetros = {};
-    ['Brazo', 'Pecho', 'Pierna', 'Pantorrilla', 'Hombros', 'Cadera'].forEach(perimetro => {
+    ['Brazo', 'Pecho', 'Pierna', 'Pantorrilla', 'Hombros'].forEach(perimetro => {
       const p3 = base.perimetros[perimetro];
       if (!p3) return;
       const p6 = resultados['6m'].perimetros[perimetro];
@@ -1503,7 +1503,7 @@ app.post('/api/enciclopedia', (req, res) => {
 });
 
 app.delete('/api/enciclopedia/:id', (req, res) => {
-  const entrenadorId = (req.body && req.body.entrenador_id) || req.query.entrenador_id;
+  const entrenadorId = req.body.entrenador_id || req.query.entrenador_id;
   if (!esSuperAdmin(entrenadorId)) return res.status(403).json({ error: 'Solo el administrador puede eliminar ejercicios de la enciclopedia oficial' });
   const data = getEnciclopedia();
   const idx = data.findIndex(e => e.id === req.params.id);

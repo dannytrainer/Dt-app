@@ -1469,7 +1469,7 @@ async function gestionarPushAdmin() {
 <div class="ig" id="msg-quincena1-box" style="display:none"><label>Mensaje primera quincena</label><textarea id="cliente-msg-q1" placeholder="Ej: Hola, mañana es tu primera quincena 👋" style="min-height:60px"></textarea></div>
 <div class="ig" id="msg-quincena2-box" style="display:none"><label>Mensaje segunda quincena</label><textarea id="cliente-msg-q2" placeholder="Ej: Hola, mañana vence tu segunda quincena 🙌" style="min-height:60px"></textarea></div>
 <div class="ig"><label>Fecha de nacimiento</label><input type="date" id="cliente-fnac"></div>
-<div class="ig"><label>Estatura (cm)</label><input type="number" id="cliente-altura" placeholder="Ej: 172"></div>
+
 <div class="ig"><label>Sexo</label><select id="cliente-sexo"><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
 <div class="ig"><label>Nivel de entrenamiento</label><select id="cliente-nivel-entrenamiento">
 <option value="">Automático (según antigüedad en la app)</option>
@@ -1478,10 +1478,11 @@ async function gestionarPushAdmin() {
 <option value="avanzado">Avanzado (2+ años)</option>
 <option value="alto_rendimiento">Alto rendimiento (sin límites de zona óptima — por objetivo, no por salud)</option>
 </select></div>
-<div class="ig"><label>Objetivo</label><select id="cliente-objetivo"><option value="perdida">Pérdida de grasa</option><option value="musculo">Ganar músculo</option><option value="hipertrofia">Hipertrofia</option><option value="rendimiento">Rendimiento deportivo</option><option value="salud">Salud general</option><option value="rehabilitacion">Rehabilitación</option><option value="otro">Otro</option></select></div>
-<div class="ig"><label>Observaciones / Lesiones</label><textarea id="cliente-notas" placeholder="Lesiones, limitaciones..." style="min-height:60px"></textarea></div>
-<div class="ig"><label>Condiciones médicas</label><textarea id="cliente-condiciones" placeholder="Celiaquía, tiroides, diabetes..." style="min-height:60px"></textarea></div>
-<div class="ig"><label>Preferencias alimentarias</label><textarea id="cliente-alimentacion" placeholder="Vegano, intolerancias, alergias..." style="min-height:60px"></textarea></div>
+
+
+
+<div class="ig"><label>Condiciones médicas y alimentación</label><textarea id="cliente-condiciones" placeholder="Celiaquía, tiroides, diabetes, veganismo, intolerancias, alergias..." style="min-height:80px"></textarea></div>
+
 <div style="display:flex;gap:8px;margin-top:8px">
 <button class="btn bg" style="flex:1" onclick="cerrarModal()">Cancelar</button>
 <button class="btn br" style="flex:1" onclick="guardarCliente()">Guardar</button>
@@ -1713,13 +1714,13 @@ async function gestionarPushAdmin() {
 <script src="js/app-notificaciones.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/admin-dragdrop.js"></script>
-  <script src="js/admin-config.js?v=1784090641"></script>
+  <script src="js/admin-config.js?v=1784317456"></script>
   <script src="js/tc-nutricion.js"></script>
   <script src="js/admin-recomendaciones.js"></script>
   <script src="js/admin-horarios.js"></script>
   <script src="js/app-utilidades.js"></script>
-  <script src="js/admin-clase-presencial.js?v=1784090641"></script>
-  <script src="js/admin-inicio.js?v=1784090641"></script>
+  <script src="js/admin-clase-presencial.js?v=1784317456"></script>
+  <script src="js/admin-inicio.js?v=1784317456"></script>
   <script src="js/herramientas-comp.js"></script>
   <script src="js/herramientas-timer.js"></script>
   <script src="js/herramientas-calc.js"></script>
@@ -1727,7 +1728,7 @@ async function gestionarPushAdmin() {
   <script src="js/herramientas-cronos.js"></script>
   <script src="js/herramientas-juegos.js"></script>
 <script src="/unidades.js"></script>
-<script src="/medidas.js?v=1784090641"></script>
+<script src="/medidas.js?v=1784317456"></script>
 <!-- MODAL TESTS -->
 <div class="modal" id="modal-tests" data-inerte="true">
 <div class="mc" style="padding-bottom:40px">

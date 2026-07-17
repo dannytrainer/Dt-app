@@ -395,10 +395,6 @@ function cpInyectarEstilos() {
   style.textContent += "body.modo-claro .cp-notas-generales{background:#f5f5f5!important;border-color:#ccc!important}";
   style.textContent += "body.modo-claro .cp-notas-generales .t{color:#666!important}";
   style.textContent += "body.modo-claro .cp-notas-generales .c{color:#333!important}";
-  style.textContent += "body.modo-claro .cp-menu-flotante{background:#fff!important;border-color:#ccc!important;box-shadow:0 8px 24px rgba(0,0,0,.15)!important}";
-  style.textContent += "body.modo-claro .cp-menu-flotante button{color:#111!important}";
-  style.textContent += "body.modo-claro .cp-menu-flotante button[onclick*='cpQuitarClienteDeClase']{color:#e31e24!important}";
-  style.textContent += "body.modo-claro .cp-descanso-badge{background:#fff8e1!important;border-color:#ffc107!important;color:#997404!important}";
   style.textContent += "body.modo-claro .cp-ex-block{background:#f5f5f5!important;border-color:#ddd!important}";
   style.textContent += "body.modo-claro .cp-ex-nombre{color:#111!important}";
   style.textContent += "body.modo-claro .cp-ex-meta{color:#666!important}";

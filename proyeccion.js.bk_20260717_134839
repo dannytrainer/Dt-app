@@ -8,7 +8,6 @@ const TABLAS_12M = {
   'Pierna':      { principiante: [4.0, 8.0], intermedio: [2.0, 5.0], avanzado: [1.0, 2.5] },
   'Pantorrilla': { principiante: [0.5, 1.5], intermedio: [0.5, 1.5], avanzado: [0.5, 1.5] },
   'Hombros':     { principiante: [3.0, 5.0], intermedio: [1.5, 3.0], avanzado: [0.8, 1.8] },
-  'Cadera':      { principiante: [3.0, 6.0], intermedio: [1.5, 3.5], avanzado: [0.8, 2.0] },
 };
 
 const MAPEO_MUSCULO_PERIMETRO = {
@@ -23,9 +22,9 @@ const MAPEO_MUSCULO_PERIMETRO = {
 
   'Cuádriceps':     { perimetro: 'Pierna', peso: 1.0 },
   'Isquiotibiales': { perimetro: 'Pierna', peso: 1.0 },
-  'Glúteos':        { perimetro: 'Cadera', peso: 1.0 },
+  'Glúteos':        { perimetro: 'Pierna', peso: 1.0 },
   'Aductores':      { perimetro: 'Pierna', peso: 0.5 },
-  'Cadera':         { perimetro: 'Cadera', peso: 1.0 },
+  'Cadera':         { perimetro: 'Pierna', peso: 0.2 },
 
   'Gemelos':        { perimetro: 'Pantorrilla', peso: 1.0 },
 };

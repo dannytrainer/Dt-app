@@ -574,13 +574,14 @@ document.getElementById('msg-quincena2-box').style.display=(u.tipo_pago==='quinc
 selEstado(u.estado_pago||'aldia');
 const up=u.perfil||{};
 if(document.getElementById('cliente-fnac')) document.getElementById('cliente-fnac').value=up.fecha_nacimiento||'';
-if(document.getElementById('cliente-altura')) document.getElementById('cliente-altura').value=up.altura||'';
+
 if(document.getElementById('cliente-sexo')) document.getElementById('cliente-sexo').value=up.sexo||'M';
 if(document.getElementById('cliente-nivel-entrenamiento')) document.getElementById('cliente-nivel-entrenamiento').value=up.nivel_entrenamiento||'';
-if(document.getElementById('cliente-objetivo')) document.getElementById('cliente-objetivo').value=up.etiqueta||'perdida';
-if(document.getElementById('cliente-notas')) document.getElementById('cliente-notas').value=up.notas||'';
+
+
+
 if(document.getElementById('cliente-condiciones')) document.getElementById('cliente-condiciones').value=up.condiciones_medicas||'';
-if(document.getElementById('cliente-alimentacion')) document.getElementById('cliente-alimentacion').value=up.preferencias_alimentarias||'';
+
 document.getElementById('modal-titulo').textContent='✏️ Editar cliente';
 document.getElementById('modal-cliente').classList.add('open');
 }
@@ -613,13 +614,9 @@ if(window._destinoWA==='grupo'){
 if(!datos.nombre||!datos.telefono){toast('Completa nombre y teléfono',false);return;}
 const perfilDatos={
   fecha_nacimiento:document.getElementById('cliente-fnac')?document.getElementById('cliente-fnac').value:'',
-  altura:document.getElementById('cliente-altura')?document.getElementById('cliente-altura').value:'',
   sexo:document.getElementById('cliente-sexo')?document.getElementById('cliente-sexo').value:'M',
   nivel_entrenamiento:document.getElementById('cliente-nivel-entrenamiento')?document.getElementById('cliente-nivel-entrenamiento').value:'',
-  etiqueta:document.getElementById('cliente-objetivo')?document.getElementById('cliente-objetivo').value:'',
-  notas:document.getElementById('cliente-notas')?document.getElementById('cliente-notas').value.trim():'',
-  condiciones_medicas:document.getElementById('cliente-condiciones')?document.getElementById('cliente-condiciones').value.trim():'',
-  preferencias_alimentarias:document.getElementById('cliente-alimentacion')?document.getElementById('cliente-alimentacion').value.trim():''
+  condiciones_medicas:document.getElementById('cliente-condiciones')?document.getElementById('cliente-condiciones').value.trim():''
 };
 if(id){
 await fetch('/api/usuarios/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(datos)});

@@ -677,7 +677,7 @@ app.get('/api/proyeccion/:id', (req, res) => {
     });
 
     const perimetros = {};
-    ['Brazo', 'Pecho', 'Pierna', 'Pantorrilla', 'Hombros', 'Cadera'].forEach(perimetro => {
+    ['Brazo', 'Pecho', 'Pierna', 'Pantorrilla', 'Hombros'].forEach(perimetro => {
       const p3 = base.perimetros[perimetro];
       if (!p3) return;
       const p6 = resultados['6m'].perimetros[perimetro];
