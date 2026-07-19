@@ -455,8 +455,8 @@ async function guardarTest(tipo) {
   const allScores = Object.values(datos).filter(v => typeof v === 'object' && v.score).map(v => v.score);
   datos.scoreTotal = allScores.length ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : 0;
 
+  await fetch('/api/tests/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
   window._testsHistorial.push(datos);
-  await fetch('/api/tests/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ registros: window._testsHistorial }) });
   if (tipo === 'fuerza') window._ultimoFuerza = datos;
   if (tipo === 'resist') window._ultimoResist = datos;
   if (tipo === 'especif') window._ultimoEspecif = datos;
@@ -519,63 +519,6 @@ async function generarTextoTest(tipo) {
   if (ult?.scoreTotal) msg += '\n📊 Score total: ' + ult.scoreTotal + '/100';
 
   return {texto: msg, telefono: usuario.telefono};
-}
-
-async function generarTextoTestDesdeServidor(id, tipo) {
-  const u = await fetch('/api/usuarios').then(r => r.json());
-  const usuario = u.find(x => x.id === id);
-  const histTests = await fetch('/api/tests/' + id).then(r => r.json());
-  const registros = histTests.registros || [];
-  const deEsteTipo = registros.filter(r => r.tipo === tipo);
-  const ult = deEsteTipo.slice(-1)[0];
-  if (!ult) return null;
-  const anterior = deEsteTipo.slice(-2, -1)[0];
-
-  const tipoLabel = { fuerza: '🏋️ Fuerza', resist: '💪🏻 Resistencia', especif: ' ⚡ Específico' };
-  let msg = tipoLabel[tipo] + ' *Test de ' + usuario.nombre + '*\n\n';
-
-  if (tipo === 'fuerza') {
-    const keys = ['pecho', 'espalda', 'biceps', 'triceps', 'femoral', 'cuad', 'gluteo'];
-    const names = ['Press pecho', 'Remo supino', 'Curl barra', 'Fondos lastrados', 'P.Muerto', 'Sentadilla', 'Empuje cadera'];
-    keys.forEach((k, i) => {
-      const v = ult[k];
-      if (v && v.rm) {
-        const s = getScore('fuerza', k, v.rm, window._testsSexo || (usuario.perfil||{}).sexo, ult.peso);
-        const antRM = anterior && anterior[k] ? anterior[k].rm : undefined;
-        msg += names[i] + ': ' + mostrarPesoCliente(v.rm) + ' ' + pesoClienteLabel() + ' RM ' + s.icon + cambioTexto(antRM, v.rm) + '\n';
-      }
-    });
-  }
-  if (tipo === 'resist') {
-    const keys = ['pushups', 'dominadas', 'fondos', 'sentadilla', 'plancha', 'burpees'];
-    const names = ['Push ups', 'Dominadas', 'Fondos', 'Sentadilla', 'Plancha', 'Burpees'];
-    const units = ['reps', 'reps', 'reps', 'reps', 'seg', 'reps'];
-    keys.forEach((k, i) => {
-      const v = ult[k];
-      if (v && v.valor !== undefined) {
-        const s = getScore('resist', k, v.valor, window._testsSexo || (usuario.perfil||{}).sexo, ult.peso);
-        const antVal = anterior && anterior[k] ? anterior[k].valor : undefined;
-        msg += names[i] + ': ' + v.valor + ' ' + units[i] + ' ' + s.icon + cambioTexto(antVal, v.valor) + '\n';
-      }
-    });
-  }
-  if (tipo === 'especif') {
-    const keys = ['cooper', 'leger', 'sitreach', 'hombro', 'saltoL', 'saltoV', 'vel30'];
-    const names = ['Cooper', 'Léger', 'Sit&Reach', 'Flex hombro', 'Salto largo', 'Salto vertical', 'Vel 30m'];
-    const units = ['m', 'nivel', 'cm', 'cm', 'cm', 'cm', 'seg'];
-    keys.forEach((k, i) => {
-      const v = ult[k];
-      if (v && v.valor !== undefined) {
-        const s = getScore('especif', k, v.valor, window._testsSexo || (usuario.perfil||{}).sexo, ult.peso);
-        const antVal = anterior && anterior[k] ? anterior[k].valor : undefined;
-        msg += names[i] + ': ' + v.valor + ' ' + units[i] + ' ' + s.icon + cambioTexto(antVal, v.valor) + '\n';
-      }
-    });
-  }
-
-  if (ult.scoreTotal) msg += '\n📊 Score total: ' + ult.scoreTotal + '/100';
-
-  return { texto: msg, telefono: usuario.telefono, fecha: ult.fecha };
 }
 
 async function enviarTest(tipo) {

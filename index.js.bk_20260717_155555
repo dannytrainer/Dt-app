@@ -614,107 +614,101 @@ app.get('/api/usuarios/:id', (req, res) => {
   res.json(u);
 });
 
-function calcularProyeccionCliente(clienteId, nivelQuery) {
-  const { proyectarCliente, MAPEO_MUSCULO_PERIMETRO } = require('./proyeccion');
-  const usuarios = cargarJSON('usuarios.json');
-  const usuario = usuarios.find(u => u.id === clienteId);
-  if (!usuario) { const err = new Error('No encontrado'); err.status = 404; throw err; }
-
-  const fechaInicio = usuario.perfil && usuario.perfil.fecha_inicio;
-  let nivel = nivelQuery;
-  let semanasHistorial = 4;
-
-  const nivelManual = usuario.perfil && usuario.perfil.nivel_entrenamiento;
-  if (!nivel && nivelManual) nivel = nivelManual;
-
-  if (fechaInicio) {
-    const dias = (Date.now() - new Date(fechaInicio).getTime()) / (1000 * 60 * 60 * 24);
-    const meses = dias / 30.44;
-    semanasHistorial = Math.max(1, Math.round(dias / 7));
-    if (!nivel) nivel = meses < 3 ? 'principiante' : meses < 24 ? 'intermedio' : 'avanzado';
-  }
-  if (!nivel) nivel = 'intermedio';
-
-  const factorSexo = (usuario.perfil && usuario.perfil.sexo === 'F') ? 0.6 : 1.0;
-
-  const { calcularEstimuloConFallback } = require('./estimulo_real');
-  const estimuloInfo = calcularEstimuloConFallback(clienteId);
-  const fuenteEstimulo = estimuloInfo.fuente;
-  if (fuenteEstimulo === 'real' && estimuloInfo.semanasHistorialReal) {
-    semanasHistorial = Math.max(1, estimuloInfo.semanasHistorialReal);
-  }
-
-  const horizontes = { '3m': 13, '6m': 26, '12m': 52 };
-  const resultados = {};
-  for (const [clave, semanas] of Object.entries(horizontes)) {
-    resultados[clave] = proyectarCliente(clienteId, nivel, semanas, semanasHistorial, factorSexo);
-  }
-
-  const historial = cargarJSON('historial.json');
-  const medidasCliente = (historial[clienteId] && historial[clienteId].medidas) || [];
-  const ultimaMedida = medidasCliente.length ? medidasCliente[medidasCliente.length - 1] : {};
-
-  const musculosPorPerimetro = {};
-  Object.entries(MAPEO_MUSCULO_PERIMETRO).forEach(([musculo, { perimetro }]) => {
-    (musculosPorPerimetro[perimetro] = musculosPorPerimetro[perimetro] || []).push(musculo);
-  });
-
-  const base = resultados['3m'];
-  let estimuloGlobalTotal = 0;
-  const alertas = [];
-  Object.entries(base.musculos).forEach(([musculo, datos]) => {
-    estimuloGlobalTotal += datos.estimuloGlobal;
-    if (datos.sobrecarga && datos.sobrecarga.alerta) {
-      alertas.push({ musculo, mensaje: datos.sobrecarga.mensaje, nivelAlerta: datos.sobrecarga.nivelAlerta });
-    }
-  });
-
-  const perimetros = {};
-  ['Brazo', 'Pecho', 'Pierna', 'Pantorrilla', 'Hombros', 'Cadera'].forEach(perimetro => {
-    const p3 = base.perimetros[perimetro];
-    if (!p3) return;
-    const p6 = resultados['6m'].perimetros[perimetro];
-    const p12 = resultados['12m'].perimetros[perimetro];
-
-    const musculosDelPerimetro = musculosPorPerimetro[perimetro] || [];
-    const tieneAlerta = musculosDelPerimetro.some(m => base.musculos[m] && base.musculos[m].sobrecarga.alerta);
-
-    let riesgo = 'ok';
-    if (tieneAlerta) riesgo = 'danger';
-    else if (p3.proyeccion && p3.proyeccion.escala < 0.7) riesgo = 'warn';
-
-    perimetros[perimetro] = {
-      medidaActual: ultimaMedida[perimetro.toLowerCase()] ?? null,
-      riesgo,
-      proyeccionAproximada: p3.proyeccionAproximada,
-      proy3: p3.proyeccion,
-      proy6: p6 ? p6.proyeccion : null,
-      proy12: p12 ? p12.proyeccion : null,
-    };
-  });
-
-  return { nivel, semanasHistorial, fuenteEstimulo, estimuloGlobal: +estimuloGlobalTotal.toFixed(1), alertas, perimetros };
-}
-
 app.get('/api/proyeccion/:id', (req, res) => {
   try {
-    const data = calcularProyeccionCliente(req.params.id, req.query.nivel);
-    res.json(data);
-  } catch (e) {
-    res.status(e.status || 500).json({ error: e.message });
-  }
-});
+    const { proyectarCliente, MAPEO_MUSCULO_PERIMETRO } = require('./proyeccion');
+    const usuarios = cargarJSON('usuarios.json');
+    const usuario = usuarios.find(u => u.id === req.params.id);
+    if (!usuario) return res.status(404).json({ error: 'No encontrado' });
 
-app.post('/api/proyeccion/:id/snapshot', (req, res) => {
-  try {
-    const data = calcularProyeccionCliente(req.params.id, req.query.nivel);
-    const { registrarSnapshot } = require('./proyecciones_historial');
-    Object.entries(data.perimetros).forEach(([nombrePerimetro, datosPerimetro]) => {
-      registrarSnapshot(req.params.id, nombrePerimetro, { nivel: data.nivel, fuenteEstimulo: data.fuenteEstimulo, ...datosPerimetro });
+    const fechaInicio = usuario.perfil && usuario.perfil.fecha_inicio;
+    let nivel = req.query.nivel;
+    let semanasHistorial = 4;
+
+    // Prioridad: nivel manual del entrenador (perfil.nivel_entrenamiento) > query override > inferido por antigüedad.
+    // "alto_rendimiento" NUNCA se infiere automáticamente — solo se activa si el entrenador lo elige a mano,
+    // porque es una decisión de objetivo (no de antigüedad ni de salud).
+    const nivelManual = usuario.perfil && usuario.perfil.nivel_entrenamiento;
+    if (!nivel && nivelManual) nivel = nivelManual;
+
+    if (fechaInicio) {
+      const dias = (Date.now() - new Date(fechaInicio).getTime()) / (1000 * 60 * 60 * 24);
+      const meses = dias / 30.44;
+      semanasHistorial = Math.max(1, Math.round(dias / 7));
+      if (!nivel) nivel = meses < 3 ? 'principiante' : meses < 24 ? 'intermedio' : 'avanzado';
+    }
+    if (!nivel) nivel = 'intermedio';
+
+    // Excel Especificaciones: tablas calibradas para hombres. Mujeres ganan al 50-70% de esa tasa (Gentil et al. 2020, Schoenfeld et al. 2016).
+    const factorSexo = (usuario.perfil && usuario.perfil.sexo === 'F') ? 0.6 : 1.0;
+
+    // Preferir semanas de EVIDENCIA REAL (reportes de chat) sobre semanas desde fecha_inicio,
+    // para que el rango de incertidumbre refleje cuánta adherencia real hay, no solo antigüedad.
+    const { calcularEstimuloConFallback } = require('./estimulo_real');
+    const estimuloInfo = calcularEstimuloConFallback(req.params.id);
+    const fuenteEstimulo = estimuloInfo.fuente;
+    if (fuenteEstimulo === 'real' && estimuloInfo.semanasHistorialReal) {
+      semanasHistorial = Math.max(1, estimuloInfo.semanasHistorialReal);
+    }
+
+    const horizontes = { '3m': 13, '6m': 26, '12m': 52 };
+    const resultados = {};
+    for (const [clave, semanas] of Object.entries(horizontes)) {
+      resultados[clave] = proyectarCliente(req.params.id, nivel, semanas, semanasHistorial, factorSexo);
+    }
+
+    const historial = cargarJSON('historial.json');
+    const medidasCliente = (historial[req.params.id] && historial[req.params.id].medidas) || [];
+    const ultimaMedida = medidasCliente.length ? medidasCliente[medidasCliente.length - 1] : {};
+
+    const musculosPorPerimetro = {};
+    Object.entries(MAPEO_MUSCULO_PERIMETRO).forEach(([musculo, { perimetro }]) => {
+      (musculosPorPerimetro[perimetro] = musculosPorPerimetro[perimetro] || []).push(musculo);
     });
-    res.json({ ok: true });
+
+    const base = resultados['3m'];
+    let estimuloGlobalTotal = 0;
+    const alertas = [];
+    Object.entries(base.musculos).forEach(([musculo, datos]) => {
+      estimuloGlobalTotal += datos.estimuloGlobal;
+      if (datos.sobrecarga && datos.sobrecarga.alerta) {
+        alertas.push({ musculo, mensaje: datos.sobrecarga.mensaje, nivelAlerta: datos.sobrecarga.nivelAlerta });
+      }
+    });
+
+    const perimetros = {};
+    ['Brazo', 'Pecho', 'Pierna', 'Pantorrilla', 'Hombros', 'Cadera'].forEach(perimetro => {
+      const p3 = base.perimetros[perimetro];
+      if (!p3) return;
+      const p6 = resultados['6m'].perimetros[perimetro];
+      const p12 = resultados['12m'].perimetros[perimetro];
+
+      const musculosDelPerimetro = musculosPorPerimetro[perimetro] || [];
+      const tieneAlerta = musculosDelPerimetro.some(m => base.musculos[m] && base.musculos[m].sobrecarga.alerta);
+
+      let riesgo = 'ok';
+      if (tieneAlerta) riesgo = 'danger';
+      else if (p3.proyeccion && p3.proyeccion.escala < 0.7) riesgo = 'warn';
+
+      perimetros[perimetro] = {
+        medidaActual: ultimaMedida[perimetro.toLowerCase()] ?? null,
+        riesgo,
+        proyeccionAproximada: p3.proyeccionAproximada, // true = sin dato de RIR, se usó estímulo global como aproximación
+        proy3: p3.proyeccion,
+        proy6: p6 ? p6.proyeccion : null,
+        proy12: p12 ? p12.proyeccion : null,
+      };
+    });
+
+    // D1: guarda snapshot del día para cada perímetro — base para comparar proyectado vs. medido real más adelante.
+    const { registrarSnapshot } = require('./proyecciones_historial');
+    Object.entries(perimetros).forEach(([nombrePerimetro, datosPerimetro]) => {
+      registrarSnapshot(req.params.id, nombrePerimetro, { nivel, fuenteEstimulo, ...datosPerimetro });
+    });
+
+    res.json({ nivel, semanasHistorial, fuenteEstimulo, estimuloGlobal: +estimuloGlobalTotal.toFixed(1), alertas, perimetros });
   } catch (e) {
-    res.status(e.status || 500).json({ error: e.message });
+    res.status(500).json({ error: e.message });
   }
 });
 app.post('/api/usuarios', (req, res) => {

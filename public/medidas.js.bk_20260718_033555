@@ -40,10 +40,6 @@ function wrapAnalisisAccordions(id){
       <span style="font-size:13px;font-weight:700">📜 Historial</span><span class="acc-seg-arrow" style="color:#e31e24;font-size:12px">▾</span>
     </div>
     <div class="acc-seg-body" style="display:none;margin-bottom:10px">
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <button onclick="guardarTomaCompleta('${id}')" class="btn br" style="flex:1;font-size:12px">💾 Guardar</button>
-        <button onclick="abrirCompartirTomaCompleta('${id}')" class="btn bg" style="flex:1;font-size:12px">📤 Compartir</button>
-      </div>
       <div id="historial-lista-${id}" style="background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:14px;color:#888;font-size:12px;text-align:center">
         Cargando historial...
       </div>
@@ -59,112 +55,6 @@ let _historialTomasCache = {};
 let _historialSeleccion = [];
 
 let _historialPendienteCache = {};
-
-async function guardarTomaCompleta(id) {
-  let guardoAlgo = false;
-
-  const camposMed = ['cintura','cadera','pecho','brazo','pierna','hombros','pantorrilla','triceps','subescapular','abdominal','suprailiaco'];
-  const hayMedidas = camposMed.some(c => { const el = document.getElementById('med-'+c); return el && el.value; });
-  if (hayMedidas) { await registrarMedidas(id); guardoAlgo = true; }
-
-  const elPeso = document.getElementById('m-peso-nuevo');
-  if (elPeso && elPeso.value) { await registrarPeso(id); guardoAlgo = true; }
-
-  const keysFuerza = ['pecho','espalda','biceps','triceps','femoral','cuad','gluteo'];
-  const hayFuerza = keysFuerza.some(k => { const el = document.getElementById('f-'+k+'-kg'); return el && el.value; });
-  if (hayFuerza) { await guardarTest('fuerza'); guardoAlgo = true; }
-
-  const keysResist = ['pushups','dominadas','fondos','sentadilla','plancha','burpees'];
-  const hayResist = keysResist.some(k => { const el = document.getElementById('r-'+k); return el && el.value; });
-  if (hayResist) { await guardarTest('resist'); guardoAlgo = true; }
-
-  const keysEspecif = ['cooper','leger','sitreach','hombro','saltoL','saltoV','vel30'];
-  const hayEspecif = keysEspecif.some(k => { const el = document.getElementById('e-'+k); return el && el.value; });
-  if (hayEspecif) { await guardarTest('especif'); guardoAlgo = true; }
-
-  if (!guardoAlgo) { toast('No hay datos nuevos para guardar', false); return; }
-
-  try { await fetch('/api/historial/'+id+'/generar-toma-test', {method:'POST'}); } catch(e) {}
-  try { await fetch('/api/proyeccion/'+id+'/snapshot', {method:'POST'}); } catch(e) {}
-
-  toast('✅ Toma guardada completa');
-  await renderHistorialLista(id);
-  if (typeof renderProyeccion === 'function') await renderProyeccion(id);
-}
-
-async function abrirCompartirTomaCompleta(id) {
-  const hist = await fetch('/api/historial/'+id).then(r=>r.json());
-  const testsData = await fetch('/api/tests/'+id).then(r=>r.json());
-  const registros = testsData.registros || [];
-  const hayProgreso = (hist.medidas && hist.medidas.length) || (hist.peso && hist.peso.length);
-  const hayFuerza = registros.some(r=>r.tipo==='fuerza');
-  const hayResist = registros.some(r=>r.tipo==='resist');
-  const hayEspecif = registros.some(r=>r.tipo==='especif');
-
-  if (!hayProgreso && !hayFuerza && !hayResist && !hayEspecif) {
-    toast('No hay datos guardados para compartir', false);
-    return;
-  }
-
-  let html = '<div style="font-weight:700;color:#e31e24;margin-bottom:12px">📤 ¿Qué querés compartir?</div>';
-  const opciones = [
-    {key:'progreso', label:'⚖️ Peso y medidas', disp:hayProgreso},
-    {key:'fuerza', label:'🏋️ Test de fuerza', disp:hayFuerza},
-    {key:'resist', label:'💪🏻 Test de resistencia', disp:hayResist},
-    {key:'especif', label:'⚡ Test específico', disp:hayEspecif},
-  ];
-  opciones.forEach(o => {
-    if (!o.disp) return;
-    html += `<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1a1a1a">
-      <input type="checkbox" id="chk-compartir-${o.key}" checked style="width:18px;height:18px">
-      <span style="font-size:13px">${o.label}</span>
-    </label>`;
-  });
-  html += `<div style="display:flex;gap:8px;margin-top:14px">
-    <button onclick="ejecutarCompartirTomaCompleta('${id}','whatsapp')" class="btn br" style="flex:1;font-size:12px">📲 WhatsApp</button>
-    <button onclick="ejecutarCompartirTomaCompleta('${id}','copiar')" class="btn bg" style="flex:1;font-size:12px">📋 Copiar</button>
-  </div>`;
-
-  document.getElementById('historial-contenido').innerHTML = html;
-  document.getElementById('modal-historial').classList.add('open');
-}
-
-async function ejecutarCompartirTomaCompleta(id, medio) {
-  const partes = [];
-  let telefono = null;
-
-  if (document.getElementById('chk-compartir-progreso')?.checked) {
-    const u = await fetch('/api/usuarios').then(r=>r.json());
-    const usuario = u.find(x=>x.id===id);
-    const r = await generarTextoProgreso(id, usuario.nombre);
-    partes.push(r.texto);
-    telefono = telefono || r.telefono;
-  }
-  for (const tipo of ['fuerza','resist','especif']) {
-    if (document.getElementById('chk-compartir-'+tipo)?.checked) {
-      const r = await generarTextoTestDesdeServidor(id, tipo);
-      if (r) { partes.push(r.texto); telefono = telefono || r.telefono; }
-    }
-  }
-
-  if (!partes.length) { toast('Selecciona al menos una opción', false); return; }
-  const textoFinal = partes.join('\n\n———\n\n');
-
-  document.getElementById('modal-historial').classList.remove('open');
-
-  if (medio === 'whatsapp') {
-    if (!telefono) { toast('⚠️ Cliente sin teléfono registrado', false); return; }
-    const tel = telefono.replace(/[^0-9]/g, '');
-    window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(textoFinal), '_blank');
-  } else {
-    try {
-      await navigator.clipboard.writeText(textoFinal);
-      toast('📋 Copiado al portapapeles');
-    } catch(e) {
-      toast('Error al copiar', false);
-    }
-  }
-}
 
 async function renderHistorialLista(id) {
   const cont = document.getElementById('historial-lista-' + id);
