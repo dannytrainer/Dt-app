@@ -488,51 +488,6 @@ async function renderPeso(id) {
   `;
 }
 
-function mostrarAyudaImagen(titulo, imgSrc, items){
-  const modal = document.createElement('div');
-  modal.id = 'modal-ayuda-generica';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
-  const lista = items.map((it,i) => `
-    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px">
-      <span style="background:#e31e24;color:#fff;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</span>
-      <span style="font-size:13px;color:#e0e0e0;line-height:1.4"><b>${it.label}:</b> ${it.desc}</span>
-    </div>`).join('');
-  modal.innerHTML = `
-    <div style="max-width:420px;width:100%;background:#111;border-radius:18px;padding:20px;max-height:88vh;overflow-y:auto;border:1px solid #2a2a2a">
-      <div style="font-size:17px;font-weight:900;color:#e31e24;margin-bottom:14px;text-align:center">${titulo}</div>
-      <img src="${imgSrc}" style="width:100%;border-radius:10px;margin-bottom:16px;background:#fff">
-      <div style="margin-bottom:16px">${lista}</div>
-      <button onclick="document.getElementById('modal-ayuda-generica').remove()" style="width:100%;padding:13px;border:none;border-radius:10px;background:#e31e24;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Entendido</button>
-    </div>`;
-  document.body.appendChild(modal);
-}
-
-function ayudaPerimetros(){
-  mostrarAyudaImagen('¿Dónde tomar los perímetros?', '/img/guia-medidas/perimetros.png', [
-    {label:'Hombros', desc:'rodeando la parte más ancha, sobre los deltoides.'},
-    {label:'Pecho', desc:'a la altura de los pezones, cinta horizontal.'},
-    {label:'Brazo', desc:'punto medio del bíceps.'},
-    {label:'Cintura', desc:'parte más angosta del torso, a la altura del ombligo.'},
-    {label:'Cadera', desc:'punto más ancho de los glúteos.'},
-    {label:'Muslo', desc:'punto medio entre cadera y rodilla.'},
-    {label:'Pantorrilla', desc:'punto más ancho de la pantorrilla.'}
-  ]);
-}
-
-function ayudaPliegues(){
-  mostrarAyudaImagen('¿Dónde tomar los pliegues?', '/img/guia-medidas/pliegues.png', [
-    {label:'Pecho', desc:'pliegue diagonal entre axila y pezón.'},
-    {label:'Subescapular', desc:'pliegue diagonal justo debajo del omóplato.'},
-    {label:'Bíceps', desc:'pliegue vertical al frente del brazo, punto medio.'},
-    {label:'Tríceps', desc:'pliegue vertical atrás del brazo, punto medio.'},
-    {label:'Ilíaco', desc:'pliegue diagonal arriba del hueso de la cadera.'},
-    {label:'Axilar', desc:'pliegue vertical en la línea media axilar.'},
-    {label:'Abdomen', desc:'pliegue vertical a ~2cm al lado del ombligo.'},
-    {label:'Pantorrilla', desc:'pliegue vertical en la parte interna de la pantorrilla.'},
-    {label:'Muslo', desc:'pliegue vertical en la parte frontal del muslo.'}
-  ]);
-}
-
 async function renderMedidas(id) {
   const hist = await fetch('/api/historial/'+id).then(r=>r.json());
   const medidas = hist.medidas || [];
@@ -557,11 +512,7 @@ async function renderMedidas(id) {
   let seccionActual = '';
   campos.forEach(c => {
     if (c.s) {
-      const fn = c.s.indexOf('Pliegues') === 0 ? 'ayudaPliegues' : 'ayudaPerimetros';
-      html += `<div style="display:flex;align-items:center;gap:6px;margin:12px 0 8px">
-        <span style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700">${c.s}</span>
-        <button onclick="${fn}()" style="background:#333;color:#fff;width:16px;height:16px;border-radius:50%;font-size:10px;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;line-height:1">?</button>
-      </div>`;
+      html += `<div style="font-size:10px;color:#e31e24;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:12px 0 8px">${c.s}</div>`;
       seccionActual = c.s;
     }
     const actual = medActual[c.k];
