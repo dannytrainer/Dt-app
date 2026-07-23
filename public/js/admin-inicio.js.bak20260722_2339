@@ -593,7 +593,7 @@ function cerrarModal(){document.getElementById('modal-cliente').classList.remove
 // MÓDULO ENTRENAMIENTO — Selección de entrenador responsable
 // ═══════════════════════════════
 function actualizarBarraEntrenador(){
-  const nombre = window._asignadoPorActual || '— sin asignar —';
+  const nombre = localStorage.getItem('dt_ultimo_entrenador') || '— sin asignar —';
   const el = document.getElementById('barra-entrenador-nombre');
   if(el) el.textContent = nombre;
 }
@@ -607,25 +607,24 @@ async function abrirModalEntrenador(modo){
   const nuevoBox = document.getElementById('modal-entrenador-nuevo-box');
   const titulo = document.getElementById('modal-entrenador-titulo');
   const btnConfirmar = document.getElementById('btn-confirmar-entrenador');
-  const listaBorrar = document.getElementById('lista-entrenadores-borrar');
   if(modo==='añadir'){
     titulo.textContent = 'Añadir entrenador';
     selectBox.style.display='none';
     nuevoBox.style.display='block';
     btnConfirmar.textContent='Añadir';
     document.getElementById('input-nuevo-entrenador').value='';
-    if(listaBorrar){
-      listaBorrar.innerHTML = staff.map(s=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;color:var(--texto-medio)"><span>${s.nombre}</span><button onclick="eliminarEntrenador('${s.nombre.replace(/'/g,"\\'")}')" style="background:none;border:none;color:#e31e24;font-size:14px;cursor:pointer;padding:2px 8px">🗑️</button></div>`).join('');
-    }
   } else {
     titulo.textContent = 'Entrenador responsable';
     selectBox.style.display='block';
     nuevoBox.style.display='none';
     btnConfirmar.textContent='Guardar';
-    if(listaBorrar) listaBorrar.innerHTML = '';
     const sel = document.getElementById('select-entrenador');
-    const actual = window._asignadoPorActual || '';
+    const actual = localStorage.getItem('dt_ultimo_entrenador') || '';
     sel.innerHTML = staff.map(s=>`<option value="${s.nombre}" ${s.nombre===actual?'selected':''}>${s.nombre}</option>`).join('') || '<option value="">Sin entrenadores registrados</option>';
+    const listaBorrar = document.getElementById('lista-entrenadores-borrar');
+    if(listaBorrar){
+      listaBorrar.innerHTML = staff.map(s=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;color:var(--texto-medio)"><span>${s.nombre}</span><button onclick="eliminarEntrenador('${s.nombre.replace(/'/g,"\\'")}')" style="background:none;border:none;color:#e31e24;font-size:14px;cursor:pointer;padding:2px 8px">🗑️</button></div>`).join('');
+    }
   }
   document.getElementById('modal-entrenador').classList.add('open');
 }
@@ -670,8 +669,8 @@ async function confirmarSolicitudEntrenamiento(){
 async function eliminarEntrenador(nombre){
   if(!confirm('¿Eliminar a '+nombre+' de la lista de entrenadores?')) return;
   await fetch('/api/entrenamiento/staff/'+encodeURIComponent(nombre), {method:'DELETE'});
-  if(window._asignadoPorActual === nombre){
-    window._asignadoPorActual = '';
+  if(localStorage.getItem('dt_ultimo_entrenador') === nombre){
+    localStorage.removeItem('dt_ultimo_entrenador');
     actualizarBarraEntrenador();
   }
   toast('🗑️ Entrenador eliminado');
@@ -690,7 +689,7 @@ async function confirmarModalEntrenador(){
   } else {
     const sel = document.getElementById('select-entrenador');
     if(!sel.value){ toast('Selecciona un entrenador', false); return; }
-    window._asignadoPorActual = sel.value;
+    localStorage.setItem('dt_ultimo_entrenador', sel.value);
     actualizarBarraEntrenador();
     toast('✅ Entrenador actualizado');
     cerrarModalEntrenador();
@@ -816,7 +815,6 @@ if(tabInicial==='alimentacion'){
 }
 const res=await fetch('/api/rutinas/'+id);
 rutinaActual=await res.json();
-window._asignadoPorActual = rutinaActual._asignado_por || '';
 diaSeleccionado='lunes';
 renderDiasTabs();renderRutinaForm();renderMoverDia();
 switchRutinaTab(tabInicial||'entrenamiento');
@@ -1031,7 +1029,7 @@ function togglePresencial(){
   }
 }
 async function guardarRutina(){
-const _asignadoPor = window._asignadoPorActual || '';
+const _asignadoPor = localStorage.getItem('dt_ultimo_entrenador') || '';
 if(!_asignadoPor){
   toast('Selecciona el entrenador responsable antes de guardar.', false);
   abrirModalEntrenador('cambiar');

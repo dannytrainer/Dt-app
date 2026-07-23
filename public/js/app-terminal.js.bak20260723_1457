@@ -5,7 +5,6 @@ let _tcDia = '';
 let _tcUsuario = null;
 
 function tcEsPremium() {
-  if (typeof appModoDesarrollo === 'function' && appModoDesarrollo()) return true;
   return _tcUsuario && _tcUsuario.premium === true;
 }
 
@@ -57,7 +56,6 @@ async function iniciarTerminalCliente() {
       fetch('/api/alimentacion/' + id).then(r=>r.json()).catch(()=>null)
     ]);
     _tcUsuario = usuRes;
-    if (usuRes && usuRes.app_flags) window._appFlags = usuRes.app_flags;
     _tcRutina = rutRes;
     _tcAlim = aliRes;
     if (_tcUsuario && _tcRutina) {
@@ -91,7 +89,7 @@ async function iniciarTerminalCliente() {
   }
 
   // Verificar vencimiento premium
-  if (!(typeof appModoDesarrollo === 'function' && appModoDesarrollo()) && _tcUsuario && _tcUsuario.premium && _tcUsuario.premium_hasta) {
+  if (_tcUsuario && _tcUsuario.premium && _tcUsuario.premium_hasta) {
     const hoy = new Date().toISOString().split('T')[0];
     if (_tcUsuario.premium_hasta < hoy) {
       _tcUsuario.premium = false;
@@ -329,7 +327,7 @@ function tcVerDia(dia) {
   const cont = document.getElementById('tc-dia-contenido');
 
   const diaActualHoy = DIAS_ES[new Date().getDay()];
-  if (dia !== diaActualHoy && !tcEsPremium()) {
+  if (dia !== diaActualHoy) {
     const u = _tcUsuario || {};
     const fecha = new Date().toISOString().split('T')[0];
     const desbloqueado = u.dias_desbloqueados && u.dias_desbloqueados[dia] && u.dias_desbloqueados[dia].includes(fecha);

@@ -329,7 +329,7 @@ function tcVerDia(dia) {
   const cont = document.getElementById('tc-dia-contenido');
 
   const diaActualHoy = DIAS_ES[new Date().getDay()];
-  if (dia !== diaActualHoy && !tcEsPremium()) {
+  if (dia !== diaActualHoy) {
     const u = _tcUsuario || {};
     const fecha = new Date().toISOString().split('T')[0];
     const desbloqueado = u.dias_desbloqueados && u.dias_desbloqueados[dia] && u.dias_desbloqueados[dia].includes(fecha);

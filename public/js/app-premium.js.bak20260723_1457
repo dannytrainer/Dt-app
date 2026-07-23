@@ -9,18 +9,12 @@ async function cargarConfigEntrenador() {
   try {
     const cfg = await fetch('/api/config?entrenador_id=' + eid).then(r=>r.json());
     _entConfig = cfg;
-    window._appFlags = cfg.app_flags || window._appFlags || {};
     const hoy = new Date().toISOString().split('T')[0];
     _entConfig._esPremium = cfg.premium_entrenador && cfg.premium_entrenador_hasta && cfg.premium_entrenador_hasta >= hoy;
   } catch(e) { _entConfig = { _esPremium: false }; }
 }
 
-function appModoDesarrollo() {
-  return !!(window._appFlags && (window._appFlags.modo_desarrollo || window._appFlags.premium_global));
-}
-
 function entEsPremium() {
-  if (appModoDesarrollo()) return true;
   if (!_entConfig) return false;
   const hoy = new Date().toISOString().split('T')[0];
   return _entConfig.premium_entrenador && _entConfig.premium_entrenador_hasta && _entConfig.premium_entrenador_hasta >= hoy;

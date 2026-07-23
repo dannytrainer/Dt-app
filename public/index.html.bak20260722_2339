@@ -139,7 +139,7 @@ body.modo-claro,body.modo-claro #app-entrenador,body.modo-claro #app-cliente,bod
 .ig input:focus,.ig select:focus,.ig textarea:focus{border-color:var(--rojo)}
 .ig textarea{min-height:80px;resize:vertical}
 .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-end;width:100vw}
-.modal.modo-perfil{background:#080808;top:344px;bottom:60px;z-index:150;align-items:flex-start;overflow-y:auto}.modal.modo-perfil .mc{max-height:none;overflow-y:visible;width:100%}.en-perfil .modal.open{background:#080808;top:344px;bottom:60px;z-index:150;align-items:flex-start;overflow-y:auto}.en-perfil .modal.open .mc{max-height:none;overflow-y:visible;width:100%}
+.modal.modo-perfil{background:#080808;top:290px;bottom:60px;z-index:150;align-items:flex-start;overflow-y:auto}.modal.modo-perfil .mc{max-height:none;overflow-y:visible;width:100%}.en-perfil .modal.open{background:#080808;top:290px;bottom:60px;z-index:150;align-items:flex-start;overflow-y:auto}.en-perfil .modal.open .mc{max-height:none;overflow-y:visible;width:100%}
 .modal.open{display:flex}
 .mc{background:var(--card);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:100%;max-height:92vh;overflow-y:auto;border-top:2px solid rgba(227,30,36,0.6);box-sizing:border-box;box-shadow:0 -20px 60px rgba(0,0,0,0.5)}
 .mt{font-size:17px;font-weight:800;color:var(--texto);margin-bottom:18px}
@@ -1537,8 +1537,8 @@ async function gestionarPushAdmin() {
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="mt" id="modal-entrenador-titulo">Entrenador responsable</div><button class="btn bg" style="padding:6px 14px" onclick="cerrarModalEntrenador()">✕</button></div>
 <div id="modal-entrenador-select-box" style="margin-bottom:14px">
   <select id="select-entrenador" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:14px;outline:none"></select>
+  <div id="lista-entrenadores-borrar" style="margin-top:10px"></div>
 </div>
-<div id="lista-entrenadores-borrar" style="margin-bottom:14px"></div>
 <div id="modal-entrenador-nuevo-box" style="display:none;margin-bottom:14px">
   <input type="text" id="input-nuevo-entrenador" placeholder="Nombre del entrenador" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;padding:10px;color:var(--texto-suave);font-size:14px;outline:none">
 </div>
@@ -1775,13 +1775,13 @@ async function gestionarPushAdmin() {
 <script src="js/app-notificaciones.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/admin-dragdrop.js"></script>
-  <script src="js/admin-config.js?v=1784838844"></script>
+  <script src="js/admin-config.js?v=1784780961"></script>
   <script src="js/tc-nutricion.js"></script>
   <script src="js/admin-recomendaciones.js"></script>
   <script src="js/admin-horarios.js"></script>
   <script src="js/app-utilidades.js"></script>
-  <script src="js/admin-clase-presencial.js?v=1784838844"></script>
-  <script src="js/admin-inicio.js?v=1784838844"></script>
+  <script src="js/admin-clase-presencial.js?v=1784780961"></script>
+  <script src="js/admin-inicio.js?v=1784780961"></script>
   <script src="js/herramientas-comp.js"></script>
   <script src="js/herramientas-timer.js"></script>
   <script src="js/herramientas-calc.js"></script>
@@ -1789,7 +1789,7 @@ async function gestionarPushAdmin() {
   <script src="js/herramientas-cronos.js"></script>
   <script src="js/herramientas-juegos.js"></script>
 <script src="/unidades.js"></script>
-<script src="/medidas.js?v=1784838844"></script>
+<script src="/medidas.js?v=1784780961"></script>
 <!-- MODAL TESTS -->
 <div class="modal" id="modal-tests" data-inerte="true">
 <div class="mc" style="padding-bottom:40px">
@@ -2551,18 +2551,12 @@ async function cargarConfigEntrenador() {
   try {
     const cfg = await fetch('/api/config?entrenador_id=' + eid).then(r=>r.json());
     _entConfig = cfg;
-    window._appFlags = cfg.app_flags || window._appFlags || {};
     const hoy = new Date().toISOString().split('T')[0];
     _entConfig._esPremium = cfg.premium_entrenador && cfg.premium_entrenador_hasta && cfg.premium_entrenador_hasta >= hoy;
   } catch(e) { _entConfig = { _esPremium: false }; }
 }
 
-function appModoDesarrollo() {
-  return !!(window._appFlags && (window._appFlags.modo_desarrollo || window._appFlags.premium_global));
-}
-
 function entEsPremium() {
-  if (appModoDesarrollo()) return true;
   if (!_entConfig) return false;
   const hoy = new Date().toISOString().split('T')[0];
   return _entConfig.premium_entrenador && _entConfig.premium_entrenador_hasta && _entConfig.premium_entrenador_hasta >= hoy;

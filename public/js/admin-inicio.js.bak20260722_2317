@@ -369,7 +369,6 @@ async function abrirPerfilCliente(id){
     <div style="flex:1;font-size:15px;font-weight:700;color:var(--texto)">${u.nombre}</div>
     <label class="toggle"><input type="checkbox" ${u.activo?'checked':''} onchange="toggleActivo('${u.id}',this.checked)"><span class="slider"></span></label>
   </div>
-  <button onclick="abrirModalMotivo('${u.id}')" style="width:100%;background:var(--rojo);border:none;border-radius:8px;padding:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px">🏋️ Solicitar entrenamiento</button>
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
     ${avatarHTML(u)}
     <div>
@@ -593,7 +592,7 @@ function cerrarModal(){document.getElementById('modal-cliente').classList.remove
 // MÓDULO ENTRENAMIENTO — Selección de entrenador responsable
 // ═══════════════════════════════
 function actualizarBarraEntrenador(){
-  const nombre = window._asignadoPorActual || '— sin asignar —';
+  const nombre = localStorage.getItem('dt_ultimo_entrenador') || '— sin asignar —';
   const el = document.getElementById('barra-entrenador-nombre');
   if(el) el.textContent = nombre;
 }
@@ -607,24 +606,19 @@ async function abrirModalEntrenador(modo){
   const nuevoBox = document.getElementById('modal-entrenador-nuevo-box');
   const titulo = document.getElementById('modal-entrenador-titulo');
   const btnConfirmar = document.getElementById('btn-confirmar-entrenador');
-  const listaBorrar = document.getElementById('lista-entrenadores-borrar');
   if(modo==='añadir'){
     titulo.textContent = 'Añadir entrenador';
     selectBox.style.display='none';
     nuevoBox.style.display='block';
     btnConfirmar.textContent='Añadir';
     document.getElementById('input-nuevo-entrenador').value='';
-    if(listaBorrar){
-      listaBorrar.innerHTML = staff.map(s=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px;color:var(--texto-medio)"><span>${s.nombre}</span><button onclick="eliminarEntrenador('${s.nombre.replace(/'/g,"\\'")}')" style="background:none;border:none;color:#e31e24;font-size:14px;cursor:pointer;padding:2px 8px">🗑️</button></div>`).join('');
-    }
   } else {
     titulo.textContent = 'Entrenador responsable';
     selectBox.style.display='block';
     nuevoBox.style.display='none';
     btnConfirmar.textContent='Guardar';
-    if(listaBorrar) listaBorrar.innerHTML = '';
     const sel = document.getElementById('select-entrenador');
-    const actual = window._asignadoPorActual || '';
+    const actual = localStorage.getItem('dt_ultimo_entrenador') || '';
     sel.innerHTML = staff.map(s=>`<option value="${s.nombre}" ${s.nombre===actual?'selected':''}>${s.nombre}</option>`).join('') || '<option value="">Sin entrenadores registrados</option>';
   }
   document.getElementById('modal-entrenador').classList.add('open');
@@ -632,51 +626,6 @@ async function abrirModalEntrenador(modo){
 
 function cerrarModalEntrenador(){
   document.getElementById('modal-entrenador').classList.remove('open');
-}
-
-let _clienteIdMotivoActual = null;
-const MOTIVOS_LABELS = {
-  primera_rutina: 'Primera rutina',
-  renovacion: 'Renovación',
-  cambio_lesion: 'Cambio por lesión',
-  cambio_objetivo: 'Cambio de objetivo',
-  otro: 'Otro'
-};
-
-function abrirModalMotivo(id){
-  _clienteIdMotivoActual = id;
-  document.getElementById('select-motivo-solicitud').value = 'primera_rutina';
-  document.getElementById('modal-motivo-solicitud').classList.add('open');
-}
-
-function cerrarModalMotivo(){
-  document.getElementById('modal-motivo-solicitud').classList.remove('open');
-}
-
-async function confirmarSolicitudEntrenamiento(){
-  const motivo = document.getElementById('select-motivo-solicitud').value;
-  const motivo_label = MOTIVOS_LABELS[motivo] || motivo;
-  const id = _clienteIdMotivoActual;
-  if(!id) return;
-  const resp = await fetch('/api/entrenamiento/solicitudes/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({motivo,motivo_label})});
-  const data = await resp.json();
-  if(!data.ok){ toast(data.error||'Error al solicitar', false); return; }
-  toast('✅ Solicitud enviada');
-  cerrarModalMotivo();
-  if(typeof actualizarContadorSolicitudesEnt === 'function') actualizarContadorSolicitudesEnt();
-}
-
-
-async function eliminarEntrenador(nombre){
-  if(!confirm('¿Eliminar a '+nombre+' de la lista de entrenadores?')) return;
-  await fetch('/api/entrenamiento/staff/'+encodeURIComponent(nombre), {method:'DELETE'});
-  if(window._asignadoPorActual === nombre){
-    window._asignadoPorActual = '';
-    actualizarBarraEntrenador();
-  }
-  toast('🗑️ Entrenador eliminado');
-  abrirModalEntrenador(_modoModalEntrenador);
-  if(document.getElementById('stats-ent-lista')) await cargarEstadisticasEntrenadores();
 }
 
 async function confirmarModalEntrenador(){
@@ -690,7 +639,7 @@ async function confirmarModalEntrenador(){
   } else {
     const sel = document.getElementById('select-entrenador');
     if(!sel.value){ toast('Selecciona un entrenador', false); return; }
-    window._asignadoPorActual = sel.value;
+    localStorage.setItem('dt_ultimo_entrenador', sel.value);
     actualizarBarraEntrenador();
     toast('✅ Entrenador actualizado');
     cerrarModalEntrenador();
@@ -816,7 +765,6 @@ if(tabInicial==='alimentacion'){
 }
 const res=await fetch('/api/rutinas/'+id);
 rutinaActual=await res.json();
-window._asignadoPorActual = rutinaActual._asignado_por || '';
 diaSeleccionado='lunes';
 renderDiasTabs();renderRutinaForm();renderMoverDia();
 switchRutinaTab(tabInicial||'entrenamiento');
@@ -1031,7 +979,7 @@ function togglePresencial(){
   }
 }
 async function guardarRutina(){
-const _asignadoPor = window._asignadoPorActual || '';
+const _asignadoPor = localStorage.getItem('dt_ultimo_entrenador') || '';
 if(!_asignadoPor){
   toast('Selecciona el entrenador responsable antes de guardar.', false);
   abrirModalEntrenador('cambiar');

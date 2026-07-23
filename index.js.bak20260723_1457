@@ -1,11 +1,4 @@
 const multer = require('multer');
-
-// ═══ APP_FLAGS — control global de features (dev/demo/futuro) ═══
-const APP_FLAGS = {
-  modo_desarrollo: true,
-  premium_global: true
-};
-
 const storage = multer.diskStorage({
   destination:(req,file,cb)=>cb(null,'./public/'),
   filename:(req,file,cb)=>{
@@ -618,7 +611,7 @@ app.get('/api/usuarios/:id', (req, res) => {
   const usuarios = cargarJSON('usuarios.json');
   const u = usuarios.find(x => x.id === req.params.id);
   if (!u) return res.status(404).json({ error: 'No encontrado' });
-  res.json({ ...u, app_flags: APP_FLAGS });
+  res.json(u);
 });
 
 function calcularProyeccionCliente(clienteId, nivelQuery) {
@@ -1181,7 +1174,6 @@ app.get('/api/config', (req, res) => {
   const cuentas = cargarJSON('cuentas.json', {entrenadores:[]});
   const ent = cuentas.entrenadores.find(e => e.id === eid);
   if (ent && ent.codigo_vinculacion) cfg.codigo_vinculacion = ent.codigo_vinculacion;
-  cfg.app_flags = APP_FLAGS;
   res.json(cfg);
 });
 app.post('/api/config', (req, res) => {
@@ -1689,7 +1681,7 @@ app.post('/api/enciclopedia/personalizados', (req, res) => {
   const plan = config.plan || 'free';
   const data = cargarPersonalizados(eid);
   if (!data.ejercicios) data.ejercicios = [];
-  if (!APP_FLAGS.modo_desarrollo && plan === 'free' && data.ejercicios.length >= 10)
+  if (plan === 'free' && data.ejercicios.length >= 10)
     return res.status(403).json({ error: 'Límite del plan Free alcanzado (10 ejercicios)' });
   const nuevo = { ...req.body, id: 'custom-' + Date.now(), es_personalizado: true };
   data.ejercicios.push(nuevo);
