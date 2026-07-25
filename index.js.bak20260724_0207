@@ -9,7 +9,7 @@ const APP_FLAGS = {
 const storage = multer.diskStorage({
   destination:(req,file,cb)=>cb(null,'./public/'),
   filename:(req,file,cb)=>{
-    const eid=req.body&&req.body.entrenador_id?req.body.entrenador_id:null;
+    const eid=req.body&&req.body.entrenador_id?req.body.entrenador_id:'ent_001';
     cb(null,'logo_'+eid+'.png');
   }
 });
@@ -527,7 +527,13 @@ cron.schedule('* * * * *', async () => {
           const mensajeCli = usuario.estado_pago === 'proximo' ? (usuario.msg_proximo || 'Tu plan vence en 3 días.') : (usuario.msg_pago || 'El día de hoy se venció tu plan de entrenamiento.');
           webpush.sendNotification(subCliCobro, JSON.stringify({ titulo: tituloCli, mensaje: mensajeCli })).catch(e => registrarError('webpush', e));
         }
-        // (push al entrenador ya se envió arriba, antes de este punto — se removió el duplicado)
+        // Push al entrenador
+        const subEntCobro = pushSuscripciones[usuario.entrenador_id];
+        if (subEntCobro) {
+          const tituloEnt = usuario.estado_pago === 'proximo' ? '⚠️ Pago próximo' : '🔴 Pago vencido';
+          const mensajeEnt = usuario.estado_pago === 'proximo' ? (usuario.nombre || 'Un cliente') + ' vence en 3 días.' : (usuario.nombre || 'Un cliente') + ' tiene pago vencido.';
+          webpush.sendNotification(subEntCobro, JSON.stringify({ titulo: tituloEnt, mensaje: mensajeEnt })).catch(e => registrarError('webpush', e));
+        }
       }
     }
 
@@ -951,11 +957,9 @@ app.post('/api/rutinas/:id', (req, res) => {
   rutinaGuardada._asignado_por = body._asignado_por;
   rutinaGuardada._fecha_asignacion = new Date().toISOString();
 
+  // Si el cliente tenía una solicitud activa, heredar motivo y limpiar la solicitud
   const usuarios = cargarJSON('usuarios.json');
   const idxU = usuarios.findIndex(u => String(u.id) === String(req.params.id));
-  if (idxU !== -1) {
-    rutinaGuardada.entrenador_id = usuarios[idxU].entrenador_id || null;
-  }
   if (idxU !== -1 && usuarios[idxU].solicitud_entrenamiento && usuarios[idxU].solicitud_entrenamiento.activa) {
     rutinaGuardada._motivo_solicitud = usuarios[idxU].solicitud_entrenamiento.motivo || '';
     rutinaGuardada._motivo_label = usuarios[idxU].solicitud_entrenamiento.motivo_label || '';
@@ -998,7 +1002,6 @@ app.post('/api/entrenamiento/solicitudes/:id', (req, res) => {
 
 app.get('/api/entrenamiento/solicitudes', (req, res) => {
   const entrenador_id = req.query.entrenador_id;
-  console.log('[DEBUG SOLICITUDES] entrenador_id recibido:', JSON.stringify(entrenador_id));
   let usuarios = cargarJSON('usuarios.json');
   if (entrenador_id) usuarios = usuarios.filter(u => u.entrenador_id === entrenador_id);
   const ahora = Date.now();
@@ -1027,43 +1030,37 @@ app.get('/api/entrenamiento/solicitudes', (req, res) => {
 });
 
 app.get('/api/entrenamiento/staff', (req, res) => {
-  const entrenador_id = req.query.entrenador_id;
-  const staff = cargarJSON('staff_entrenadores.json', []);
-  if (!entrenador_id) return res.json(staff.filter(s => !s.entrenador_id));
-  res.json(staff.filter(s => s.entrenador_id === entrenador_id));
+  res.json(cargarJSON('staff_entrenadores.json', []));
 });
 
 app.post('/api/entrenamiento/staff', (req, res) => {
-  const { nombre, entrenador_id } = req.body || {};
+  const { nombre } = req.body || {};
   if (!nombre || !nombre.trim()) return res.status(400).json({ ok:false, error:'Falta el nombre' });
   const staff = cargarJSON('staff_entrenadores.json', []);
-  if (staff.some(s => s.nombre.toLowerCase() === nombre.trim().toLowerCase() && s.entrenador_id === (entrenador_id || null))) {
+  if (staff.some(s => s.nombre.toLowerCase() === nombre.trim().toLowerCase())) {
     return res.json({ ok:true, ya_existia:true });
   }
-  staff.push({ nombre: nombre.trim(), entrenador_id: entrenador_id || null });
+  staff.push({ nombre: nombre.trim() });
   guardarJSON('staff_entrenadores.json', staff);
   res.json({ ok:true });
 });
 
 app.delete('/api/entrenamiento/staff/:nombre', (req, res) => {
   const nombre = decodeURIComponent(req.params.nombre);
-  const entrenador_id = req.query.entrenador_id || null;
   let staff = cargarJSON('staff_entrenadores.json', []);
-  staff = staff.filter(s => !(s.nombre === nombre && s.entrenador_id === entrenador_id));
+  staff = staff.filter(s => s.nombre !== nombre);
   guardarJSON('staff_entrenadores.json', staff);
   res.json({ ok:true });
 });
 
 app.get('/api/entrenamiento/estadisticas', (req, res) => {
-  const entrenador_id = req.query.entrenador_id;
-  const mesQuery = req.query.mes;
+  const mesQuery = req.query.mes; // formato 'YYYY-MM', opcional
   const ahora = new Date();
   const mesActual = mesQuery || (ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0'));
   const rutinas = cargarJSON('rutinas.json');
   const conteo = {};
   Object.values(rutinas).forEach(r => {
     if (!r || !r._asignado_por || !r._fecha_asignacion) return;
-    if (entrenador_id && r.entrenador_id !== entrenador_id) return;
     const mesRutina = r._fecha_asignacion.slice(0, 7);
     if (mesRutina !== mesActual) return;
     conteo[r._asignado_por] = (conteo[r._asignado_por] || 0) + 1;
@@ -1073,7 +1070,6 @@ app.get('/api/entrenamiento/estadisticas', (req, res) => {
     .sort((a, b) => b.total - a.total);
   res.json({ mes: mesActual, entrenadores: resultado });
 });
-
 app.get('/api/festivos', (req, res) => res.json(cargarJSON('festivos.json')));
 app.post('/api/festivos', (req, res) => {
   const festivos = cargarJSON('festivos.json');

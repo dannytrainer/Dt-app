@@ -138,7 +138,7 @@ async function renderTests(id) {
 
   let histTests = { registros: [] };
   try { histTests = await fetch('/api/tests/' + id).then(r => r.json()); } catch {}
-  window._testsHistorial = (histTests.registros || []).filter(r => r && r.fecha && r.tipo);
+  window._testsHistorial = histTests.registros || [];
   window._testsPeso = pesoCorporal;
   window._testsSexo = sexo;
   window._testsId = id;
@@ -455,7 +455,6 @@ async function guardarTest(tipo) {
   const allScores = Object.values(datos).filter(v => typeof v === 'object' && v.score).map(v => v.score);
   datos.scoreTotal = allScores.length ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : 0;
 
-  window._testsHistorial = window._testsHistorial.filter(r => r && r.fecha && r.tipo);
   window._testsHistorial.push(datos);
   await fetch('/api/tests/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ registros: window._testsHistorial }) });
   if (tipo === 'fuerza') window._ultimoFuerza = datos;

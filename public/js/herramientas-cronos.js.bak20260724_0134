@@ -569,7 +569,7 @@ async function abrirRutinaDesdeSolicitud(id, nombre){
 }
 
 async function cargarEstadisticasEntrenadores(){
-  const data = await fetch('/api/entrenamiento/estadisticas?entrenador_id='+(obtenerEidActual()||'')).then(r=>r.json());
+  const data = await fetch('/api/entrenamiento/estadisticas').then(r=>r.json());
   const label = document.getElementById('stats-ent-mes-label');
   if(label) label.textContent = 'Estadísticas '+data.mes;
   const lista = document.getElementById('stats-ent-lista');
@@ -623,23 +623,6 @@ async function cargarResumenEntrenamiento(){
     let html = '';
 
     const perfilU = usuario.perfil || {};
-
-    // Fila compacta de contexto rápido
-    const chips = [];
-    if(usuario.solicitud_entrenamiento && usuario.solicitud_entrenamiento.motivo_label){
-      chips.push({label:'📋 '+usuario.solicitud_entrenamiento.motivo_label, color:'#e31e24'});
-    }
-    if(perfilU.objetivo) chips.push({label:'🎯 '+perfilU.objetivo, color:'#888'});
-    else if(perfilU.etiqueta) chips.push({label:'🎯 '+perfilU.etiqueta, color:'#888'});
-    if(perfilU.nivel_entrenamiento) chips.push({label:'📶 '+perfilU.nivel_entrenamiento, color:'#888'});
-    if(perfilU.edad) chips.push({label:'🎂 '+perfilU.edad+' años', color:'#888'});
-    const fechasRutina = Object.keys(hist).length ? null : null;
-    if(chips.length){
-      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' +
-        chips.map(c=>`<span style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:5px 10px;font-size:11px;color:${c.color==='#e31e24'?'#e31e24':'var(--texto-suave)'};font-weight:${c.color==='#e31e24'?'700':'400'}">${c.label}</span>`).join('') +
-        '</div>';
-    }
-
     const condMed = (perfilU.condiciones_medicas||'').trim();
     const notasU = (perfilU.notas||'').trim();
     if(condMed || notasU){

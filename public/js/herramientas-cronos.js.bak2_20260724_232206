@@ -569,7 +569,7 @@ async function abrirRutinaDesdeSolicitud(id, nombre){
 }
 
 async function cargarEstadisticasEntrenadores(){
-  const data = await fetch('/api/entrenamiento/estadisticas?entrenador_id='+(obtenerEidActual()||'')).then(r=>r.json());
+  const data = await fetch('/api/entrenamiento/estadisticas?entrenador_id='+(_eid||'')).then(r=>r.json());
   const label = document.getElementById('stats-ent-mes-label');
   if(label) label.textContent = 'Estadísticas '+data.mes;
   const lista = document.getElementById('stats-ent-lista');

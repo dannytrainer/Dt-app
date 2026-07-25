@@ -569,7 +569,7 @@ async function abrirRutinaDesdeSolicitud(id, nombre){
 }
 
 async function cargarEstadisticasEntrenadores(){
-  const data = await fetch('/api/entrenamiento/estadisticas?entrenador_id='+(obtenerEidActual()||'')).then(r=>r.json());
+  const data = await fetch('/api/entrenamiento/estadisticas').then(r=>r.json());
   const label = document.getElementById('stats-ent-mes-label');
   if(label) label.textContent = 'Estadísticas '+data.mes;
   const lista = document.getElementById('stats-ent-lista');
@@ -615,43 +615,11 @@ async function cargarResumenEntrenamiento(){
   if(!id || !cont) return;
   cont.innerHTML = '<div style="text-align:center;padding:16px;color:#666;font-size:12px">Cargando...</div>';
   try{
-    const [hist, tests, usuario] = await Promise.all([
+    const [hist, tests] = await Promise.all([
       fetch('/api/historial/'+id).then(r=>r.json()).catch(()=>({})),
-      fetch('/api/tests/'+id).then(r=>r.json()).catch(()=>({})),
-      fetch('/api/usuarios/'+id).then(r=>r.json()).catch(()=>({}))
+      fetch('/api/tests/'+id).then(r=>r.json()).catch(()=>({}))
     ]);
     let html = '';
-
-    const perfilU = usuario.perfil || {};
-
-    // Fila compacta de contexto rápido
-    const chips = [];
-    if(usuario.solicitud_entrenamiento && usuario.solicitud_entrenamiento.motivo_label){
-      chips.push({label:'📋 '+usuario.solicitud_entrenamiento.motivo_label, color:'#e31e24'});
-    }
-    if(perfilU.objetivo) chips.push({label:'🎯 '+perfilU.objetivo, color:'#888'});
-    else if(perfilU.etiqueta) chips.push({label:'🎯 '+perfilU.etiqueta, color:'#888'});
-    if(perfilU.nivel_entrenamiento) chips.push({label:'📶 '+perfilU.nivel_entrenamiento, color:'#888'});
-    if(perfilU.edad) chips.push({label:'🎂 '+perfilU.edad+' años', color:'#888'});
-    const fechasRutina = Object.keys(hist).length ? null : null;
-    if(chips.length){
-      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' +
-        chips.map(c=>`<span style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:5px 10px;font-size:11px;color:${c.color==='#e31e24'?'#e31e24':'var(--texto-suave)'};font-weight:${c.color==='#e31e24'?'700':'400'}">${c.label}</span>`).join('') +
-        '</div>';
-    }
-
-    const condMed = (perfilU.condiciones_medicas||'').trim();
-    const notasU = (perfilU.notas||'').trim();
-    if(condMed || notasU){
-      let notasHtml = '';
-      if(condMed){
-        notasHtml += `<div style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:10px 12px;margin-bottom:${notasU?'8px':'0'}"><div style="font-size:9px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:4px">⚠️ Condición médica</div><div style="font-size:13px;color:#fff">${condMed}</div></div>`;
-      }
-      if(notasU){
-        notasHtml += `<div style="background:#1a1a1a;border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;margin-bottom:4px">📝 Notas</div><div style="font-size:13px;color:var(--texto-suave)">${notasU}</div></div>`;
-      }
-      html += _tarjetaResumenEnt('⚠️','Atención', '', notasHtml);
-    }
 
     const medidas = hist.medidas || [];
     const ultima = medidas[medidas.length-1];

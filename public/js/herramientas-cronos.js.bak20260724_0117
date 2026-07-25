@@ -569,7 +569,7 @@ async function abrirRutinaDesdeSolicitud(id, nombre){
 }
 
 async function cargarEstadisticasEntrenadores(){
-  const data = await fetch('/api/entrenamiento/estadisticas?entrenador_id='+(obtenerEidActual()||'')).then(r=>r.json());
+  const data = await fetch('/api/entrenamiento/estadisticas').then(r=>r.json());
   const label = document.getElementById('stats-ent-mes-label');
   if(label) label.textContent = 'Estadísticas '+data.mes;
   const lista = document.getElementById('stats-ent-lista');
@@ -577,133 +577,12 @@ async function cargarEstadisticasEntrenadores(){
     lista.innerHTML = '<div style="color:#666">Sin rutinas asignadas este mes</div>';
     return;
   }
-  lista.innerHTML = data.entrenadores.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;background:#1a1a1a;border-radius:8px;padding:8px 12px;margin-bottom:6px"><span style="color:var(--texto-suave)">${e.nombre}</span><span style="font-weight:900;color:#e31e24;font-size:14px">${e.total}</span></div>`).join('');
+  lista.innerHTML = data.entrenadores.map(e=>`<div>${e.nombre} ............ ${e.total}</div>`).join('');
 }
 
 async function promptAnadirEntrenador(){
   abrirModalEntrenador('añadir');
 }
-
-// ═══════════════════════════════
-// Resumen del cliente (Modo Entrenamiento)
-// ═══════════════════════════════
-let _resumenEntVisible = false;
-let _resumenEntCargado = false;
-
-function toggleResumenEntrenamiento(){
-  _resumenEntVisible = !_resumenEntVisible;
-  const cont = document.getElementById('contenido-resumen-ent');
-  const icono = document.getElementById('icono-resumen-ent');
-  if(!cont) return;
-  cont.style.display = _resumenEntVisible ? 'block' : 'none';
-  if(icono) icono.textContent = _resumenEntVisible ? '▲' : '▼';
-  if(_resumenEntVisible && !_resumenEntCargado){
-    cargarResumenEntrenamiento();
-  }
-}
-
-function _tarjetaResumenEnt(icono, titulo, fecha, innerHtml){
-  return `<div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:10px">
-    <div style="font-size:10px;color:#e31e24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">${icono} ${titulo}${fecha?(' — '+fecha):''}</div>
-    ${innerHtml}
-  </div>`;
-}
-
-async function cargarResumenEntrenamiento(){
-  const id = document.getElementById('rutina-cliente-id').value;
-  const cont = document.getElementById('contenido-resumen-ent');
-  if(!id || !cont) return;
-  cont.innerHTML = '<div style="text-align:center;padding:16px;color:#666;font-size:12px">Cargando...</div>';
-  try{
-    const [hist, tests, usuario] = await Promise.all([
-      fetch('/api/historial/'+id).then(r=>r.json()).catch(()=>({})),
-      fetch('/api/tests/'+id).then(r=>r.json()).catch(()=>({})),
-      fetch('/api/usuarios/'+id).then(r=>r.json()).catch(()=>({}))
-    ]);
-    let html = '';
-
-    const perfilU = usuario.perfil || {};
-
-    // Fila compacta de contexto rápido
-    const chips = [];
-    if(usuario.solicitud_entrenamiento && usuario.solicitud_entrenamiento.motivo_label){
-      chips.push({label:'📋 '+usuario.solicitud_entrenamiento.motivo_label, color:'#e31e24'});
-    }
-    if(perfilU.objetivo) chips.push({label:'🎯 '+perfilU.objetivo, color:'#888'});
-    else if(perfilU.etiqueta) chips.push({label:'🎯 '+perfilU.etiqueta, color:'#888'});
-    if(perfilU.nivel_entrenamiento) chips.push({label:'📶 '+perfilU.nivel_entrenamiento, color:'#888'});
-    if(perfilU.edad) chips.push({label:'🎂 '+perfilU.edad+' años', color:'#888'});
-    const fechasRutina = Object.keys(hist).length ? null : null;
-    if(chips.length){
-      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' +
-        chips.map(c=>`<span style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:5px 10px;font-size:11px;color:${c.color==='#e31e24'?'#e31e24':'var(--texto-suave)'};font-weight:${c.color==='#e31e24'?'700':'400'}">${c.label}</span>`).join('') +
-        '</div>';
-    }
-
-    const condMed = (perfilU.condiciones_medicas||'').trim();
-    const notasU = (perfilU.notas||'').trim();
-    if(condMed || notasU){
-      let notasHtml = '';
-      if(condMed){
-        notasHtml += `<div style="background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:10px 12px;margin-bottom:${notasU?'8px':'0'}"><div style="font-size:9px;color:#e31e24;font-weight:700;text-transform:uppercase;margin-bottom:4px">⚠️ Condición médica</div><div style="font-size:13px;color:#fff">${condMed}</div></div>`;
-      }
-      if(notasU){
-        notasHtml += `<div style="background:#1a1a1a;border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:var(--texto-medio);font-weight:700;text-transform:uppercase;margin-bottom:4px">📝 Notas</div><div style="font-size:13px;color:var(--texto-suave)">${notasU}</div></div>`;
-      }
-      html += _tarjetaResumenEnt('⚠️','Atención', '', notasHtml);
-    }
-
-    const medidas = hist.medidas || [];
-    const ultima = medidas[medidas.length-1];
-    const pesos = hist.peso || [];
-    const ultimoPeso = pesos[pesos.length-1];
-
-    if(ultimoPeso){
-      html += _tarjetaResumenEnt('⚖️','Peso corporal', ultimoPeso.fecha,
-        `<div style="background:#1a1a1a;border-radius:8px;padding:10px 12px;text-align:center"><div style="font-size:22px;font-weight:900;color:#fff">${ultimoPeso.valor}<span style="font-size:12px;color:var(--texto-medio)"> kg</span></div></div>`);
-    }
-
-    if(ultima){
-      let medidasHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
-      [['Cintura','cintura'],['Cadera','cadera'],['Pecho','pecho'],['Brazo','brazo'],['Pierna','pierna'],['Hombros','hombros']].forEach(c=>{
-        if(ultima[c[1]]) medidasHtml += `<div style="background:#1a1a1a;border-radius:8px;padding:8px 12px"><div style="font-size:18px;font-weight:900;color:#fff">${ultima[c[1]]}<span style="font-size:10px;color:var(--texto-medio)"> cm</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">${c[0]}</div></div>`;
-      });
-      medidasHtml += '</div>';
-      if(ultima.analisis){
-        medidasHtml += `<div style="display:flex;gap:8px">
-          <div style="flex:1;background:#1a0000;border:1px solid #e31e24;border-radius:8px;padding:8px;text-align:center"><div style="font-size:20px;font-weight:900;color:#e31e24">${ultima.analisis.pctGrasa}%</div><div style="font-size:9px;color:var(--texto-medio)">% Grasa</div></div>
-          <div style="flex:1;background:#0a1a0a;border:1px solid #4caf50;border-radius:8px;padding:8px;text-align:center"><div style="font-size:20px;font-weight:900;color:#4caf50">${ultima.analisis.kgMusculo} kg</div><div style="font-size:9px;color:var(--texto-medio)">Músculo</div></div>
-        </div>`;
-      }
-      html += _tarjetaResumenEnt('📏','Medidas', ultima.fecha, medidasHtml);
-    }
-
-    const registros = tests.registros || [];
-    const lastFuerza = registros.slice().reverse().find(r=>r.tipo==='fuerza');
-    if(lastFuerza){
-      let fHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
-      [['Pecho','pecho'],['Espalda','espalda'],['Femoral','femoral'],['Cuádriceps','cuad']].forEach(c=>{
-        if(lastFuerza[c[1]]){
-          const sc = lastFuerza[c[1]].score||0;
-          const col = sc>=80?'#4caf50':sc>=60?'#ff9800':'#e31e24';
-          fHtml += `<div style="background:#1a1a1a;border-radius:8px;padding:8px 12px"><div style="font-size:16px;font-weight:900;color:#fff">${lastFuerza[c[1]].kg}kg <span style="font-size:11px;color:var(--texto-medio)">x${lastFuerza[c[1]].reps}</span></div><div style="font-size:10px;color:${col};font-weight:700">${sc}pts</div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">${c[0]}</div></div>`;
-        }
-      });
-      fHtml += '</div>';
-      html += _tarjetaResumenEnt('💪','Fuerza', lastFuerza.fecha, fHtml);
-    }
-
-    if(!html){
-      html = '<div style="text-align:center;padding:16px;color:#666;font-size:12px">Sin datos de progreso registrados</div>';
-    }
-
-    cont.innerHTML = html;
-    _resumenEntCargado = true;
-  }catch(e){
-    cont.innerHTML = '<div style="text-align:center;padding:16px;color:#666;font-size:12px">Error al cargar el resumen</div>';
-  }
-}
-
 
 
 function filtrarRutinas(){

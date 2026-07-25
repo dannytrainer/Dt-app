@@ -1514,7 +1514,7 @@ async function gestionarPushAdmin() {
 </div>
 
 <!-- MODAL RUTINA -->
-<div class="modal" id="modal-motivo-solicitud" style="bottom:60px;z-index:400">
+<div class="modal" id="modal-motivo-solicitud" style="bottom:60px">
 <div class="mc" style="max-width:320px">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="mt">Solicitar entrenamiento</div><button class="btn bg" style="padding:6px 14px" onclick="cerrarModalMotivo()">✕</button></div>
 <div style="margin-bottom:14px">
@@ -1563,13 +1563,6 @@ async function gestionarPushAdmin() {
     <div id="barra-entrenador-nombre" style="font-size:13px;font-weight:700;color:var(--texto)">—</div>
   </div>
   <button onclick="abrirModalEntrenador('cambiar')" style="background:var(--rojo);border:none;border-radius:8px;padding:7px 14px;color:#fff;font-size:11px;font-weight:700;cursor:pointer">Cambiar</button>
-</div>
-<div style="margin-bottom:10px">
-  <button onclick="toggleResumenEntrenamiento()" id="btn-toggle-resumen-ent" style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:9px 12px;color:var(--texto-medio);font-size:11px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-    <span>📊 Ver resumen del cliente</span>
-    <span id="icono-resumen-ent">▼</span>
-  </button>
-  <div id="contenido-resumen-ent" style="display:none;margin-top:8px"></div>
 </div>
 <div class="dtab" id="dias-tabs"></div>
 <div id="mover-dia-panel" style="margin-bottom:10px"></div>
@@ -1782,21 +1775,21 @@ async function gestionarPushAdmin() {
 <script src="js/app-notificaciones.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/admin-dragdrop.js"></script>
-  <script src="js/admin-config.js?v=1784954196"></script>
+  <script src="js/admin-config.js?v=1784871953"></script>
   <script src="js/tc-nutricion.js"></script>
   <script src="js/admin-recomendaciones.js"></script>
   <script src="js/admin-horarios.js"></script>
   <script src="js/app-utilidades.js"></script>
-  <script src="js/admin-clase-presencial.js?v=1784954196"></script>
-  <script src="js/admin-inicio.js?v=1784954196"></script>
+  <script src="js/admin-clase-presencial.js?v=1784871953"></script>
+  <script src="js/admin-inicio.js?v=1784871953"></script>
   <script src="js/herramientas-comp.js"></script>
   <script src="js/herramientas-timer.js"></script>
   <script src="js/herramientas-calc.js"></script>
   <script src="js/herramientas-hiit.js?v=5"></script>
-  <script src="js/herramientas-cronos.js?v=1784953380"></script>
+  <script src="js/herramientas-cronos.js"></script>
   <script src="js/herramientas-juegos.js"></script>
 <script src="/unidades.js"></script>
-<script src="/medidas.js?v=1784954196"></script>
+<script src="/medidas.js?v=1784871953"></script>
 <!-- MODAL TESTS -->
 <div class="modal" id="modal-tests" data-inerte="true">
 <div class="mc" style="padding-bottom:40px">

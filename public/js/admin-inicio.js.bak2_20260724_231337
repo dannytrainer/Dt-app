@@ -1,17 +1,3 @@
-
-function obtenerEidActual(){
-  const _ses=JSON.parse(localStorage.getItem('dt_sesion')||'{}');
-  const _gd=JSON.parse(localStorage.getItem('dt_google_data')||'{}');
-  let eid=_ses.id;
-  if(!eid){
-    const _rol=localStorage.getItem('dt_rol')||'entrenador';
-    const _roles=_ses.roles||_gd.roles||[];
-    const _re=_roles.find(x=>x.rol===_rol);
-    if(_re&&_re.id) eid=_re.id;
-  }
-  if(!eid && window._entrenadorId) eid=window._entrenadorId;
-  return eid||null;
-}
 // ── TICKER EDITOR ──
 let _tickerTaps = 0, _tickerTimer = null;
 function tickerTap() {
@@ -616,7 +602,7 @@ let _modoModalEntrenador = 'cambiar';
 
 async function abrirModalEntrenador(modo){
   _modoModalEntrenador = modo;
-  const staff = await fetch('/api/entrenamiento/staff?entrenador_id='+(obtenerEidActual()||'')).then(r=>r.json());
+  const staff = await fetch('/api/entrenamiento/staff?entrenador_id='+(_eid||'')).then(r=>r.json());
   const selectBox = document.getElementById('modal-entrenador-select-box');
   const nuevoBox = document.getElementById('modal-entrenador-nuevo-box');
   const titulo = document.getElementById('modal-entrenador-titulo');
@@ -683,7 +669,7 @@ async function confirmarSolicitudEntrenamiento(){
 
 async function eliminarEntrenador(nombre){
   if(!confirm('¿Eliminar a '+nombre+' de la lista de entrenadores?')) return;
-  await fetch('/api/entrenamiento/staff/'+encodeURIComponent(nombre)+'?entrenador_id='+(obtenerEidActual()||''), {method:'DELETE'});
+  await fetch('/api/entrenamiento/staff/'+encodeURIComponent(nombre)+'?entrenador_id='+(_eid||''), {method:'DELETE'});
   if(window._asignadoPorActual === nombre){
     window._asignadoPorActual = '';
     actualizarBarraEntrenador();
@@ -697,7 +683,7 @@ async function confirmarModalEntrenador(){
   if(_modoModalEntrenador==='añadir'){
     const nombre = document.getElementById('input-nuevo-entrenador').value.trim();
     if(!nombre){ toast('Escribe un nombre', false); return; }
-    await fetch('/api/entrenamiento/staff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,entrenador_id:obtenerEidActual()})});
+    await fetch('/api/entrenamiento/staff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,entrenador_id:_eid})});
     toast('✅ Entrenador añadido');
     cerrarModalEntrenador();
     if(document.getElementById('stats-ent-lista')) await cargarEstadisticasEntrenadores();
