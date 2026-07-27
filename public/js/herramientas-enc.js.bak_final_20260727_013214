@@ -782,7 +782,7 @@ function encAbrirFicha(id) {
     var tcApp = document.getElementById('terminal-cliente-app');
     var enModoCliente = tcApp && tcApp.style.display === 'flex';
     var uid = (typeof _tcUsuario !== 'undefined' && _tcUsuario && _tcUsuario.id) || null;
-    if (!uid || !enModoCliente) { var c0=document.getElementById('enc-progreso-peso'); if(c0) c0.innerHTML='<div style="color:red;font-size:11px">DEBUG enc: uid=' + uid + ' enModoCliente=' + enModoCliente + '</div>'; return; }
+    if (!uid || !enModoCliente) { var c0=document.getElementById('enc-progreso-peso'); if(c0) c0.innerHTML='<div style="color:red;font-size:11px">DEBUG enc: uid=' + uid + ' enModoCliente=' + enModoCliente + ' tcApp=' + (tcApp?tcApp.style.display:'no-existe') + '</div>'; return; }
     fetch('/api/historial-pesos/' + uid + '/' + encId).then(function(r){return r.json();}).then(function(res){
       var cont2 = document.getElementById('enc-progreso-peso');
       if (!cont2) return;
@@ -795,6 +795,6 @@ function encAbrirFicha(id) {
       h += '<div style="flex:1;text-align:center;border-left:1px solid #2a2a2a"><div style="font-size:20px;font-weight:900;color:#e31e24">' + (res.rm_estimado ? Math.round(res.rm_estimado) : '-') + '<span style="font-size:11px;color:var(--texto-medio)"> kg</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">RM estimado</div></div>';
       h += '</div>';
       cont2.innerHTML = h;
-    }).catch(function(err){ var c1=document.getElementById('enc-progreso-peso'); if(c1) c1.innerHTML = '<div style="color:yellow;font-size:11px">DEBUG error: ' + err + '</div>'; });
+    }).catch(function(err){ var c1=document.getElementById('enc-progreso-peso'); if(c1) c1.innerHTML = '<div style="color:yellow;font-size:11px">DEBUG error fetch: ' + err + '</div>'; });
   })(e.id);
 }
