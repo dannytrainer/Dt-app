@@ -990,7 +990,6 @@ function obtenerLunesDeSemana(fecha) {
 }
 
 app.post("/api/historial-pesos/:clienteId/:enciclopediaId", (req, res) => {
-  console.log("### HISTORIAL-PESOS POST recibido:", req.params, req.body);
   const { peso, reps, unidad } = req.body || {};
   if (peso === undefined || peso === null || peso === "") {
     return res.status(400).json({ ok:false, error:"Falta el peso" });

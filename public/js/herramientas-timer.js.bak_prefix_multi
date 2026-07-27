@@ -12,11 +12,10 @@ function fmtTimer(seg){
 }
 
 function renderTemporizadores(c){
-  window._timerContApp=c;
   c.innerHTML=`
   <div style="display:flex;gap:8px;margin-bottom:14px">
-    <button onclick="_timerTab='individual';renderTemporizadores(window._timerContApp)" style="flex:1;background:${_timerTab==='individual'?'#e31e24':'#1a1a1a'};color:var(--texto);border:1px solid ${_timerTab==='individual'?'#e31e24':'#333'};border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">Individual</button>
-    <button onclick="_timerTab='multi';renderTemporizadores(window._timerContApp)" style="flex:1;background:${_timerTab==='multi'?'#e31e24':'#1a1a1a'};color:var(--texto);border:1px solid ${_timerTab==='multi'?'#e31e24':'#333'};border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">Múltiple</button>
+    <button onclick="_timerTab='individual';renderTemporizadores(document.getElementById('temporizadores-contenido'))" style="flex:1;background:${_timerTab==='individual'?'#e31e24':'#1a1a1a'};color:var(--texto);border:1px solid ${_timerTab==='individual'?'#e31e24':'#333'};border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">Individual</button>
+    <button onclick="_timerTab='multi';renderTemporizadores(document.getElementById('temporizadores-contenido'))" style="flex:1;background:${_timerTab==='multi'?'#e31e24':'#1a1a1a'};color:var(--texto);border:1px solid ${_timerTab==='multi'?'#e31e24':'#333'};border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">Múltiple</button>
   </div>
   <div id="timer-individual-panel" style="display:${_timerTab==='individual'?'block':'none'}"></div>
   <div id="timer-multi-panel" style="display:${_timerTab==='multi'?'block':'none'}"></div>`;

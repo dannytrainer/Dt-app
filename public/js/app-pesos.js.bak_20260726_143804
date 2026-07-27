@@ -92,24 +92,6 @@ function tcGuardarPesos() {
     if (pesos.some(function(p){ return p !== ''; })) {
       data.pesos = pesos;
       localStorage.setItem(key, JSON.stringify(data));
-
-      if (ej.enciclopedia_id) {
-        var pesosNum = pesos.filter(function(p){ return p !== ''; }).map(function(p){ return parseFloat(p); });
-        if (pesosNum.length > 0) {
-          var pesoMax = Math.max.apply(null, pesosNum);
-          var idxMax = pesos.indexOf(String(pesoMax));
-          var repsStr = (ej.reps || '').toString().split('-')[0];
-          var repsNum = parseInt(repsStr) || 0;
-          var clienteId = (_tcUsuario && _tcUsuario.id) || null;
-          if (clienteId) {
-            fetch('/api/historial-pesos/' + clienteId + '/' + ej.enciclopedia_id, {
-              method: 'POST',
-              headers: {'Content-Type':'application/json'},
-              body: JSON.stringify({ peso: pesoMax, reps: repsNum, unidad: data.unidad || 'kg' })
-            }).catch(function(){});
-          }
-        }
-      }
     }
   });
 }

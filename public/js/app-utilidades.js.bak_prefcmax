@@ -462,10 +462,10 @@ function tcToolAbrirHerr(nombre) {
 function tcRenderConversores(c) {
   var edad = 0;
   var fnac = null;
-  if(_tcUsuario) {
-    fnac = (_tcUsuario.perfil && _tcUsuario.perfil.fecha_nacimiento) || _tcUsuario.fecha_nacimiento || null;
-    if(!fnac && _tcUsuario.perfil && _tcUsuario.perfil.edad) {
-      edad = parseInt(_tcUsuario.perfil.edad) || 0;
+  if(window._tcUsuario) {
+    fnac = (window._tcUsuario.perfil && window._tcUsuario.perfil.fecha_nacimiento) || window._tcUsuario.fecha_nacimiento || null;
+    if(!fnac && window._tcUsuario.perfil && window._tcUsuario.perfil.edad) {
+      edad = parseInt(window._tcUsuario.perfil.edad) || 0;
     }
   }
   // Sin fecha: frecuencia cardíaca mostrará mensaje de aviso
@@ -1435,28 +1435,7 @@ function encAbrirFicha(id) {
     });
     html += "</div></div>";
   }
-  html += '<div id="enc-progreso-peso" style="margin-bottom:16px"></div>';
   cont.innerHTML = html;
-
-  (function(encId){
-    var tcApp = document.getElementById('terminal-cliente-app');
-    var enModoCliente = tcApp && tcApp.style.display === 'flex';
-    var uid = (typeof _tcUsuario !== 'undefined' && _tcUsuario && _tcUsuario.id) || null;
-    if (!uid || !enModoCliente) { var c0=document.getElementById('enc-progreso-peso'); if(c0) c0.innerHTML='<div style="color:red;font-size:11px">DEBUG utilidades-A: uid=' + uid + ' enModoCliente=' + enModoCliente + '</div>'; return; }
-    fetch('/api/historial-pesos/' + uid + '/' + encId).then(function(r){return r.json();}).then(function(res){
-      var cont2 = document.getElementById('enc-progreso-peso');
-      if (!cont2) return;
-      var semanas = res.semanas || [];
-      if (semanas.length === 0) { cont2.innerHTML = ''; return; }
-      var ultima = semanas[semanas.length - 1];
-      var h = '<div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">\uD83D\uDCC8 Tu progreso</div>';
-      h += '<div style="background:#1a1a1a;border-radius:10px;padding:12px;display:flex;gap:10px">';
-      h += '<div style="flex:1;text-align:center"><div style="font-size:20px;font-weight:900;color:#fff">' + ultima.peso + '<span style="font-size:11px;color:var(--texto-medio)"> ' + ultima.unidad + '</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Ultimo peso</div></div>';
-      h += '<div style="flex:1;text-align:center;border-left:1px solid #2a2a2a"><div style="font-size:20px;font-weight:900;color:#e31e24">' + (res.rm_estimado ? Math.round(res.rm_estimado) : '-') + '<span style="font-size:11px;color:var(--texto-medio)"> kg</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">RM estimado</div></div>';
-      h += '</div>';
-      cont2.innerHTML = h;
-    }).catch(function(){});
-  })(e.id);
 }
 
 function entCerrarTerminos() {
@@ -1694,7 +1673,7 @@ function tcAbrirConfig() {
   if (uid) {
     fetch('/api/admin/' + uid + '?entrenador_id=' + (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null)).then(function(r){ return r.json(); }).then(function(d) {
       var box = document.getElementById('tc-config-pago-ent');
-      var usr = _tcUsuario || {};
+      var usr = window._tcUsuario || {};
       var estado = usr.estado_pago || 'aldia';
       var color = estado==='aldia'?'#4caf50':estado==='proximo'?'#ff9800':'#f44336';
       var label = estado==='aldia'?'&#9989; Al día':estado==='proximo'?'&#9888; Próximo':'&#10060; Vencido';
@@ -1850,28 +1829,7 @@ function encAbrirFichaModal(id) {
     });
     html += '</div></div>';
   }
-  html += '<div id="enc-progreso-peso" style="margin-bottom:16px"></div>';
   cont.innerHTML = html;
-
-  (function(encId){
-    var tcApp = document.getElementById('terminal-cliente-app');
-    var enModoCliente = tcApp && tcApp.style.display === 'flex';
-    var uid = (typeof _tcUsuario !== 'undefined' && _tcUsuario && _tcUsuario.id) || null;
-    if (!uid || !enModoCliente) { var c0=document.getElementById('enc-progreso-peso'); if(c0) c0.innerHTML='<div style="color:red;font-size:11px">DEBUG utilidades-B: uid=' + uid + ' enModoCliente=' + enModoCliente + '</div>'; return; }
-    fetch('/api/historial-pesos/' + uid + '/' + encId).then(function(r){return r.json();}).then(function(res){
-      var cont2 = document.getElementById('enc-progreso-peso');
-      if (!cont2) return;
-      var semanas = res.semanas || [];
-      if (semanas.length === 0) { cont2.innerHTML = ''; return; }
-      var ultima = semanas[semanas.length - 1];
-      var h = '<div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">\uD83D\uDCC8 Tu progreso</div>';
-      h += '<div style="background:#1a1a1a;border-radius:10px;padding:12px;display:flex;gap:10px">';
-      h += '<div style="flex:1;text-align:center"><div style="font-size:20px;font-weight:900;color:#fff">' + ultima.peso + '<span style="font-size:11px;color:var(--texto-medio)"> ' + ultima.unidad + '</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Ultimo peso</div></div>';
-      h += '<div style="flex:1;text-align:center;border-left:1px solid #2a2a2a"><div style="font-size:20px;font-weight:900;color:#e31e24">' + (res.rm_estimado ? Math.round(res.rm_estimado) : '-') + '<span style="font-size:11px;color:var(--texto-medio)"> kg</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">RM estimado</div></div>';
-      h += '</div>';
-      cont2.innerHTML = h;
-    }).catch(function(){});
-  })(e.id);
 }
 
 

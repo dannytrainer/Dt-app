@@ -1266,15 +1266,13 @@ function encAbrirFichaModal(id) {
   cont.innerHTML = html;
 
   (function(encId){
-    var tcApp = document.getElementById('terminal-cliente-app');
-    var enModoCliente = tcApp && tcApp.style.display === 'flex';
     var uid = (typeof _tcUsuario !== 'undefined' && _tcUsuario && _tcUsuario.id) || null;
-    if (!uid || !enModoCliente) return;
+    if (!uid) { var c0=document.getElementById('enc-progreso-peso'); if(c0) c0.innerHTML='<div style="color:red;font-size:12px">DEBUG: no hay uid</div>'; return; }
     fetch('/api/historial-pesos/' + uid + '/' + encId).then(function(r){return r.json();}).then(function(res){
       var cont2 = document.getElementById('enc-progreso-peso');
       if (!cont2) return;
       var semanas = res.semanas || [];
-      if (semanas.length === 0) { cont2.innerHTML = ''; return; }
+      if (semanas.length === 0) { cont2.innerHTML = '<div style="color:orange;font-size:12px">DEBUG: uid=' + uid + ' encId=' + encId + ' semanas vacio. res=' + JSON.stringify(res) + '</div>'; return; }
       var ultima = semanas[semanas.length - 1];
       var h = '<div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">\uD83D\uDCC8 Tu progreso</div>';
       h += '<div style="background:#1a1a1a;border-radius:10px;padding:12px;display:flex;gap:10px">';

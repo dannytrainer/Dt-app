@@ -1442,7 +1442,7 @@ function encAbrirFicha(id) {
     var tcApp = document.getElementById('terminal-cliente-app');
     var enModoCliente = tcApp && tcApp.style.display === 'flex';
     var uid = (typeof _tcUsuario !== 'undefined' && _tcUsuario && _tcUsuario.id) || null;
-    if (!uid || !enModoCliente) { var c0=document.getElementById('enc-progreso-peso'); if(c0) c0.innerHTML='<div style="color:red;font-size:11px">DEBUG utilidades-A: uid=' + uid + ' enModoCliente=' + enModoCliente + '</div>'; return; }
+    if (!uid || !enModoCliente) return;
     fetch('/api/historial-pesos/' + uid + '/' + encId).then(function(r){return r.json();}).then(function(res){
       var cont2 = document.getElementById('enc-progreso-peso');
       if (!cont2) return;
@@ -1857,7 +1857,7 @@ function encAbrirFichaModal(id) {
     var tcApp = document.getElementById('terminal-cliente-app');
     var enModoCliente = tcApp && tcApp.style.display === 'flex';
     var uid = (typeof _tcUsuario !== 'undefined' && _tcUsuario && _tcUsuario.id) || null;
-    if (!uid || !enModoCliente) { var c0=document.getElementById('enc-progreso-peso'); if(c0) c0.innerHTML='<div style="color:red;font-size:11px">DEBUG utilidades-B: uid=' + uid + ' enModoCliente=' + enModoCliente + '</div>'; return; }
+    if (!uid || !enModoCliente) return;
     fetch('/api/historial-pesos/' + uid + '/' + encId).then(function(r){return r.json();}).then(function(res){
       var cont2 = document.getElementById('enc-progreso-peso');
       if (!cont2) return;

@@ -978,66 +978,6 @@ app.post('/api/rutinas/:id', (req, res) => {
 });
 
 // ═══════════════════════════════
-// HISTORIAL DE PESO POR EJERCICIO
-// ═══════════════════════════════
-
-function obtenerLunesDeSemana(fecha) {
-  const d = new Date(fecha);
-  const dia = d.getDay();
-  const diff = d.getDate() - dia + (dia === 0 ? -6 : 1);
-  const lunes = new Date(d.setDate(diff));
-  return lunes.toISOString().slice(0, 10);
-}
-
-app.post("/api/historial-pesos/:clienteId/:enciclopediaId", (req, res) => {
-  console.log("### HISTORIAL-PESOS POST recibido:", req.params, req.body);
-  const { peso, reps, unidad } = req.body || {};
-  if (peso === undefined || peso === null || peso === "") {
-    return res.status(400).json({ ok:false, error:"Falta el peso" });
-  }
-  const { clienteId, enciclopediaId } = req.params;
-  const historial = cargarJSON("historial_pesos.json", {});
-
-  if (!historial[clienteId]) historial[clienteId] = {};
-  if (!historial[clienteId][enciclopediaId]) historial[clienteId][enciclopediaId] = [];
-
-  const semanaInicio = obtenerLunesDeSemana(new Date());
-  const registros = historial[clienteId][enciclopediaId];
-  const idxSemana = registros.findIndex(r => r.semana_inicio === semanaInicio);
-
-  const pesoNum = parseFloat(peso);
-  const repsNum = parseInt(reps) || 0;
-
-  if (idxSemana === -1) {
-    registros.push({ semana_inicio: semanaInicio, peso: pesoNum, reps: repsNum, unidad: unidad || "kg" });
-  } else if (pesoNum > registros[idxSemana].peso) {
-    registros[idxSemana] = { semana_inicio: semanaInicio, peso: pesoNum, reps: repsNum, unidad: unidad || "kg" };
-  }
-
-  const limiteFecha = new Date();
-  limiteFecha.setDate(limiteFecha.getDate() - 26 * 7);
-  historial[clienteId][enciclopediaId] = registros.filter(r => new Date(r.semana_inicio) >= limiteFecha);
-
-  guardarJSON("historial_pesos.json", historial);
-  res.json({ ok:true });
-});
-
-app.get("/api/historial-pesos/:clienteId/:enciclopediaId", (req, res) => {
-  const { clienteId, enciclopediaId } = req.params;
-  const historial = cargarJSON("historial_pesos.json", {});
-  const registros = (historial[clienteId] && historial[clienteId][enciclopediaId]) || [];
-  const ordenados = [...registros].sort((a, b) => new Date(a.semana_inicio) - new Date(b.semana_inicio));
-
-  let rm_estimado = null;
-  if (ordenados.length > 0) {
-    const ultima = ordenados[ordenados.length - 1];
-    rm_estimado = Math.round(ultima.peso * (1 + ultima.reps / 30) * 10) / 10;
-  }
-
-  res.json({ semanas: ordenados, rm_estimado });
-});
-
-// ═══════════════════════════════
 // MÓDULO ENTRENAMIENTO — Solicitudes / Staff / Estadísticas
 // ═══════════════════════════════
 app.post('/api/entrenamiento/solicitudes/:id', (req, res) => {
@@ -2049,7 +1989,7 @@ app.get('/api/superadmin/entrenadores', (req, res) => {
   res.json(resultado);
 });
 
-require('./rutas_informe')(app, fs, APP_FLAGS);
+require('./rutas_informe')(app, fs);
 
 app.get('/api/informe/:id/descargar', async (req, res) => {
   try {

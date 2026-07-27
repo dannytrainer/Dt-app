@@ -1,5 +1,4 @@
 function renderEnciclopedia(c) {
-  window._encContApp = c;
   const _sesEnc = JSON.parse(localStorage.getItem('dt_sesion')||'{}');
   const _esAdminEnc = _sesEnc.email === 'danielgaviriabotero@gmail.com';
   c.innerHTML = '<div style="padding:10px"><div style="position:relative;margin-bottom:10px"><input id="enc-buscar" type="text" placeholder="Buscar ejercicio..." style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:10px;color:#fff;font-size:14px;outline:none" oninput="encFiltrar()"></div>' + (_esAdminEnc ? '<button onclick="encCrearOficial()" style="width:100%;background:#1a1a1a;border:1px solid #e31e24;border-radius:10px;color:#e31e24;padding:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px">➕ Crear ejercicio (admin)</button>' : '') + '<div id="enc-contenido"></div></div>';
@@ -42,7 +41,7 @@ function encMostrarGrupos() {
   window._encFiltros = {grupo:null, equipamiento:null, nivel:null, texto:"", esPersonalizado:false};
   var bi = document.getElementById("enc-buscar");
   if (bi) bi.value = "";
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido"));
+  var cont = document.getElementById("enc-contenido");
   if (!cont) return;
   var html = "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px\">";
   window._encGrupos.forEach(function(g) {
@@ -96,7 +95,7 @@ function encSeleccionarGrupo(grupo) {
 }
 
 function encMostrarLista() {
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido"));
+  var cont = document.getElementById("enc-contenido");
   if (!cont) return;
   var grupo = window._encGrupos.find(function(g){return g.id===window._encFiltros.grupo;});
   var titulo = window._encFiltros.esPersonalizado ? "&#11088; Mis Personalizados" : (grupo ? grupo.icon+" "+grupo.nombre : "Todos");
@@ -161,7 +160,7 @@ function encBuscar() {
 function encEditarFicha(id) {
   var e = (window._encEjercicios||[]).find(function(x){return x.id===id;});
   if (!e) return;
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido"));
+  var cont = document.getElementById("enc-contenido");
   if (!cont) return;
   function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -226,7 +225,7 @@ function encEditarFicha(id) {
 
 
 function encCrearOficial() {
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido"));
+  var cont = document.getElementById("enc-contenido");
   if (!cont) return;
 
   var html = "<div style=\"padding:10px\">";
@@ -353,13 +352,13 @@ function encEliminarPasoEdit(i) {
 
 function encAgregarPasoEdit() {
   var i = window._encEditPasosCount || 0;
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido")).querySelector("#enc-edit-wrap-" + (i-1));
+  var cont = document.getElementById("enc-contenido").querySelector("#enc-edit-wrap-" + (i-1));
   var div = document.createElement("div");
   div.id = "enc-edit-wrap-" + i;
   div.style.cssText = "display:flex;gap:6px;margin-bottom:6px;align-items:flex-start";
   div.innerHTML = "<div style=\"width:22px;height:22px;background:#e31e24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:6px\">" + (i+1) + "</div><textarea id=\"enc-edit-paso-" + i + "\" rows=\"2\" style=\"flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px;color:#fff;font-size:13px;outline:none;resize:none\"></textarea><button onclick=\"encEliminarPasoEdit(" + i + ")\" style=\"background:#3a0000;border:1px solid #e31e24;border-radius:8px;color:#e31e24;padding:6px 8px;cursor:pointer;font-size:12px;flex-shrink:0;margin-top:4px\">&#128465;</button>";
   if (cont) cont.parentNode.insertBefore(div, cont.nextSibling);
-  else (window._encContApp && window._encContApp.querySelector("#enc-contenido")).appendChild(div);
+  else document.getElementById("enc-contenido").appendChild(div);
   window._encEditPasosCount = i + 1;
 }
 
@@ -435,7 +434,7 @@ function encAgregarPersonalizado() {
 }
 
 function encGestionPersonalizados() {
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido"));
+  var cont = document.getElementById("enc-contenido");
   if (!cont) return;
   var personalizados = (window._encEjercicios||[]).filter(function(e){return e.es_personalizado;});
   var html = "<div style=\"padding:4px\">";
@@ -482,7 +481,7 @@ function encFormEditarPersonalizado(id) {
 }
 
 function encFormPersonalizado(e) {
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido"));
+  var cont = document.getElementById("enc-contenido");
   if (!cont) return;
   var esNuevo = !e;
   var grupos = ["pecho","espalda","hombros","brazos","piernas","gluteos","core","cardio"];
@@ -622,7 +621,7 @@ function encEliminarPersonalizado(id) {
 
 
 function encAbrirGlosario() {
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido"));
+  var cont = document.getElementById("enc-contenido");
   if (!cont) return;
   cont.innerHTML = "<div style=\"text-align:center;padding:20px;color:#666\">Cargando...</div>";
   fetch("/api/glosario").then(function(r){return r.json();}).then(function(data){
@@ -632,7 +631,7 @@ function encAbrirGlosario() {
 }
 
 function encMostrarGlosario(cat) {
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido"));
+  var cont = document.getElementById("enc-contenido");
   if (!cont) return;
   var cats = [
     {id:null,label:"Todos",col:"#fff"},
@@ -707,7 +706,7 @@ function encEliminarOficial(id) {
 function encAbrirFicha(id) {
   var e = (window._encEjercicios||[]).find(function(x){return x.id===id;});
   if (!e) return;
-  var cont = (window._encContApp && window._encContApp.querySelector("#enc-contenido"));
+  var cont = document.getElementById("enc-contenido");
   if (!cont) return;
   var gr = window._encGrupos.find(function(g){return g.id===e.grupo;});
   var nc = e.nivel==="principiante"?"#64b5f6":e.nivel==="avanzado"?"#e31e24":"#4caf50";
@@ -775,26 +774,5 @@ function encAbrirFicha(id) {
     });
     html += "</div></div>";
   }
-  html += '<div id="enc-progreso-peso" style="margin-bottom:16px"></div>';
   cont.innerHTML = html;
-
-  (function(encId){
-    var tcApp = document.getElementById('terminal-cliente-app');
-    var enModoCliente = tcApp && tcApp.style.display === 'flex';
-    var uid = (typeof _tcUsuario !== 'undefined' && _tcUsuario && _tcUsuario.id) || null;
-    if (!uid || !enModoCliente) { var c0=document.getElementById('enc-progreso-peso'); if(c0) c0.innerHTML='<div style="color:red;font-size:11px">DEBUG enc: uid=' + uid + ' enModoCliente=' + enModoCliente + ' tcApp=' + (tcApp?tcApp.style.display:'no-existe') + '</div>'; return; }
-    fetch('/api/historial-pesos/' + uid + '/' + encId).then(function(r){return r.json();}).then(function(res){
-      var cont2 = document.getElementById('enc-progreso-peso');
-      if (!cont2) return;
-      var semanas = res.semanas || [];
-      if (semanas.length === 0) { cont2.innerHTML = '<div style="color:orange;font-size:11px">DEBUG vacio: uid=' + uid + ' encId=' + encId + '</div>'; return; }
-      var ultima = semanas[semanas.length - 1];
-      var h = '<div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">\uD83D\uDCC8 Tu progreso</div>';
-      h += '<div style="background:#1a1a1a;border-radius:10px;padding:12px;display:flex;gap:10px">';
-      h += '<div style="flex:1;text-align:center"><div style="font-size:20px;font-weight:900;color:#fff">' + ultima.peso + '<span style="font-size:11px;color:var(--texto-medio)"> ' + ultima.unidad + '</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Ultimo peso</div></div>';
-      h += '<div style="flex:1;text-align:center;border-left:1px solid #2a2a2a"><div style="font-size:20px;font-weight:900;color:#e31e24">' + (res.rm_estimado ? Math.round(res.rm_estimado) : '-') + '<span style="font-size:11px;color:var(--texto-medio)"> kg</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">RM estimado</div></div>';
-      h += '</div>';
-      cont2.innerHTML = h;
-    }).catch(function(err){ var c1=document.getElementById('enc-progreso-peso'); if(c1) c1.innerHTML = '<div style="color:yellow;font-size:11px">DEBUG error fetch: ' + err + '</div>'; });
-  })(e.id);
 }
