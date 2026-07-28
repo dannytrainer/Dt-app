@@ -244,7 +244,8 @@ app.get('/api/tests/:id', (req, res) => {
 app.post('/api/tests/:id', (req, res) => {
   let h = {};
   try { h = JSON.parse(fs.readFileSync('data/tests.json', 'utf8')); } catch {}
-  h[req.params.id] = req.body;
+  if (!h[req.params.id]) h[req.params.id] = { registros: [] };
+  h[req.params.id].registros.push(req.body);
   fs.writeFileSync('data/tests.json', JSON.stringify(h, null, 2));
   res.json({ ok: true });
 });
