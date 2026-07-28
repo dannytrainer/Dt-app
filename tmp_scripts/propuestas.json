@@ -1,0 +1,452 @@
+[
+  {
+    "clienteNombre": "Mafe",
+    "dia": "martes",
+    "ejercicio": "Peso muerto individual ",
+    "enc_nombre": "G05 Peso muerto",
+    "enc_grupo": "gluteos",
+    "enc_id": "barbell-dead-lifts",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "martes",
+    "ejercicio": "Prensa ",
+    "enc_nombre": "L26 Prensa de pierna",
+    "enc_grupo": "piernas",
+    "enc_id": "leg-press",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "martes",
+    "ejercicio": "Pantorrilla ",
+    "enc_nombre": "L55 Pantorrilla en hack",
+    "enc_grupo": "piernas",
+    "enc_id": "por-ubicar-285",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "miercoles",
+    "ejercicio": "Push ups",
+    "enc_nombre": "B004 Push ups cerradas",
+    "enc_grupo": "brazos",
+    "enc_id": "close-triceps-pushup",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "miercoles",
+    "ejercicio": "Dominadas",
+    "enc_nombre": "E06 Dominadas laterales",
+    "enc_grupo": "espalda",
+    "enc_id": "wide-grip-chin-up",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "jueves",
+    "ejercicio": "Empuje de cadera ",
+    "enc_nombre": "G04 Empuje de cadera  con Banda",
+    "enc_grupo": "gluteos",
+    "enc_id": "empuje-banda",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "jueves",
+    "ejercicio": "Sentadilla sumo",
+    "enc_nombre": "G15 Sentadilla sumo con mancuerna",
+    "enc_grupo": "gluteos",
+    "enc_id": "pile-squat-with-dumbbell",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "jueves",
+    "ejercicio": "Patada de glúteo en polea ",
+    "enc_nombre": "G09 Patada de glúteo con polea",
+    "enc_grupo": "gluteos",
+    "enc_id": "one-legged-cable-kickback",
+    "score": 0.75
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "jueves",
+    "ejercicio": "Abd cadera polea ",
+    "enc_nombre": "G14 Aducción de cadera en polea",
+    "enc_grupo": "gluteos",
+    "enc_id": "hip-adduction",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "jueves",
+    "ejercicio": "Pantorrilla sentado",
+    "enc_nombre": "L53 Pantorrilla sentado Máquina",
+    "enc_grupo": "piernas",
+    "enc_id": "seated-calf-raise-using-machine",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "sabado",
+    "ejercicio": " Sentadilla Hack en máquina ",
+    "enc_nombre": "L21 Sentadilla en hack máquina",
+    "enc_grupo": "piernas",
+    "enc_id": "hack-squat-machine",
+    "score": 1
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "sabado",
+    "ejercicio": "Extensión rodilla ",
+    "enc_nombre": "L29 Extensión de rodilla",
+    "enc_grupo": "piernas",
+    "enc_id": "leg-extensions",
+    "score": 1
+  },
+  {
+    "clienteNombre": "Mafe",
+    "dia": "sabado",
+    "ejercicio": "Pantorrilla en máquina ",
+    "enc_nombre": "L50 Pantorrilla de pie Máquina",
+    "enc_grupo": "piernas",
+    "enc_id": "standing-calf-raises-using-machine",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "martes",
+    "ejercicio": "Sentadilla ",
+    "enc_nombre": "L10 Sentadilla overhead",
+    "enc_grupo": "piernas",
+    "enc_id": "overhead-squat-with-barbell",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "martes",
+    "ejercicio": "Extensión rodilla ",
+    "enc_nombre": "L29 Extensión de rodilla",
+    "enc_grupo": "piernas",
+    "enc_id": "leg-extensions",
+    "score": 1
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "miercoles",
+    "ejercicio": "Press hombro+ abd hombro ",
+    "enc_nombre": "H01 Press de hombro mancuerna",
+    "enc_grupo": "hombros",
+    "enc_id": "dumbbell-shoulder-press",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "miercoles",
+    "ejercicio": "Remo en barra ",
+    "enc_nombre": "E11 Remo con Barra",
+    "enc_grupo": "espalda",
+    "enc_id": "bent-over-row-with-barbell",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "miercoles",
+    "ejercicio": "Curl bíceps",
+    "enc_nombre": "B086 Curl de bíceps concentrado",
+    "enc_grupo": "brazos",
+    "enc_id": "concentration-curls-with-dumbbell",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "jueves",
+    "ejercicio": "Sentadilla sumo ",
+    "enc_nombre": "G15 Sentadilla sumo con mancuerna",
+    "enc_grupo": "gluteos",
+    "enc_id": "pile-squat-with-dumbbell",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "jueves",
+    "ejercicio": "Empuje de cadera ",
+    "enc_nombre": "G04 Empuje de cadera  con Banda",
+    "enc_grupo": "gluteos",
+    "enc_id": "empuje-banda",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "jueves",
+    "ejercicio": "Step ascenso ",
+    "enc_nombre": "L39 Step ascenso con barra",
+    "enc_grupo": "piernas",
+    "enc_id": "step-ups-with-barbell",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "jueves",
+    "ejercicio": "Abd cadera polea ",
+    "enc_nombre": "G14 Aducción de cadera en polea",
+    "enc_grupo": "gluteos",
+    "enc_id": "hip-adduction",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Manuela Gaviria",
+    "dia": "jueves",
+    "ejercicio": "Pantorrilla ",
+    "enc_nombre": "L55 Pantorrilla en hack",
+    "enc_grupo": "piernas",
+    "enc_id": "por-ubicar-285",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "lunes",
+    "ejercicio": "Sentadilla",
+    "enc_nombre": "L10 Sentadilla overhead",
+    "enc_grupo": "piernas",
+    "enc_id": "overhead-squat-with-barbell",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "lunes",
+    "ejercicio": "Extensión rodilla",
+    "enc_nombre": "L29 Extensión de rodilla",
+    "enc_grupo": "piernas",
+    "enc_id": "leg-extensions",
+    "score": 1
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "lunes",
+    "ejercicio": "Curl femoral ",
+    "enc_nombre": "L42 Curl femoral acostado",
+    "enc_grupo": "piernas",
+    "enc_id": "lying-leg-curl-machine",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "martes",
+    "ejercicio": "Plancha isométrica",
+    "enc_nombre": "C10 Plancha",
+    "enc_grupo": "core",
+    "enc_id": "por-ubicar-109",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "jueves",
+    "ejercicio": "Sentadilla ",
+    "enc_nombre": "L10 Sentadilla overhead",
+    "enc_grupo": "piernas",
+    "enc_id": "overhead-squat-with-barbell",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "jueves",
+    "ejercicio": "Empuje de cadera",
+    "enc_nombre": "G04 Empuje de cadera  con Banda",
+    "enc_grupo": "gluteos",
+    "enc_id": "empuje-banda",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "jueves",
+    "ejercicio": "Curl femoral ",
+    "enc_nombre": "L42 Curl femoral acostado",
+    "enc_grupo": "piernas",
+    "enc_id": "lying-leg-curl-machine",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "viernes",
+    "ejercicio": "Remo barra",
+    "enc_nombre": "E11 Remo con Barra",
+    "enc_grupo": "espalda",
+    "enc_id": "bent-over-row-with-barbell",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "viernes",
+    "ejercicio": "Jalon",
+    "enc_nombre": "E08 Jalón cerrado",
+    "enc_grupo": "espalda",
+    "enc_id": "underhand-pull-down",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Natalia Sepúlveda",
+    "dia": "viernes",
+    "ejercicio": "Curl de bíceps martillo",
+    "enc_nombre": "B076 Curl Bíceps Martillo con Mancuerna",
+    "enc_grupo": "brazos",
+    "enc_id": "biceps-hammer-curl-with-dumbbell",
+    "score": 0.6
+  },
+  {
+    "clienteNombre": "Anlly",
+    "dia": "lunes",
+    "ejercicio": "Sentadilla",
+    "enc_nombre": "L10 Sentadilla overhead",
+    "enc_grupo": "piernas",
+    "enc_id": "overhead-squat-with-barbell",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Anlly",
+    "dia": "lunes",
+    "ejercicio": "Curl femoral ",
+    "enc_nombre": "L42 Curl femoral acostado",
+    "enc_grupo": "piernas",
+    "enc_id": "lying-leg-curl-machine",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Anlly",
+    "dia": "jueves",
+    "ejercicio": "Prensa",
+    "enc_nombre": "L26 Prensa de pierna",
+    "enc_grupo": "piernas",
+    "enc_id": "leg-press",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "ent_1781719792562",
+    "dia": "lunes",
+    "ejercicio": "press banca",
+    "enc_nombre": "P07 Press de banca unilateral",
+    "enc_grupo": "pecho",
+    "enc_id": "one-arm-bench-press",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "lunes",
+    "ejercicio": "Elevaciones laterales",
+    "enc_nombre": "H13 Elevaciones laterales con Mancuerna",
+    "enc_grupo": "hombros",
+    "enc_id": "lateral-dumbbell-raises",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "lunes",
+    "ejercicio": "Press de pecho plano ",
+    "enc_nombre": "P01 Press de pecho",
+    "enc_grupo": "pecho",
+    "enc_id": "bench-press",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "lunes",
+    "ejercicio": "Copa",
+    "enc_nombre": "B016 Copa de pie",
+    "enc_grupo": "brazos",
+    "enc_id": "standing-triceps-extension-2",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "sabado",
+    "ejercicio": "Sentadilla",
+    "enc_nombre": "L10 Sentadilla overhead",
+    "enc_grupo": "piernas",
+    "enc_id": "overhead-squat-with-barbell",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "sabado",
+    "ejercicio": "Zancada",
+    "enc_nombre": "L33 Zancada barra",
+    "enc_grupo": "piernas",
+    "enc_id": "barbell-lunges",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "sabado",
+    "ejercicio": "Empuje de cadera ",
+    "enc_nombre": "G04 Empuje de cadera  con Banda",
+    "enc_grupo": "gluteos",
+    "enc_id": "empuje-banda",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "domingo",
+    "ejercicio": "Curl de bíceps martillo",
+    "enc_nombre": "B076 Curl Bíceps Martillo con Mancuerna",
+    "enc_grupo": "brazos",
+    "enc_id": "biceps-hammer-curl-with-dumbbell",
+    "score": 0.6
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "domingo",
+    "ejercicio": "Extensión lumbar",
+    "enc_nombre": "C20 Extensión lumbar en fitball",
+    "enc_grupo": "core",
+    "enc_id": "back-extension-stability-ball",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "domingo",
+    "ejercicio": "Jalón cerrado gironda",
+    "enc_nombre": "E08 Jalón cerrado",
+    "enc_grupo": "espalda",
+    "enc_id": "underhand-pull-down",
+    "score": 0.6666666666666666
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "domingo",
+    "ejercicio": "Bíceps con barra ",
+    "enc_nombre": "B050 Curl de Bíceps con Barra",
+    "enc_grupo": "brazos",
+    "enc_id": "biceps-curls-with-barbell",
+    "score": 0.75
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "martes",
+    "ejercicio": "Empuje de cadera ",
+    "enc_nombre": "G04 Empuje de cadera  con Banda",
+    "enc_grupo": "gluteos",
+    "enc_id": "empuje-banda",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "martes",
+    "ejercicio": "Sentadilla",
+    "enc_nombre": "L10 Sentadilla overhead",
+    "enc_grupo": "piernas",
+    "enc_id": "overhead-squat-with-barbell",
+    "score": 0.5
+  },
+  {
+    "clienteNombre": "Morza",
+    "dia": "martes",
+    "ejercicio": "Zancada ",
+    "enc_nombre": "L33 Zancada barra",
+    "enc_grupo": "piernas",
+    "enc_id": "barbell-lunges",
+    "score": 0.5
+  }
+]
