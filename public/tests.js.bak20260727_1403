@@ -173,8 +173,6 @@ function showTTab(t) {
     if (sec) sec.style.display = x === t ? 'block' : 'none';
     if (btn) { btn.className = 'btn ' + (x === t ? 'br' : 'bg'); btn.style.cssText = 'flex:1;font-size:11px;padding:8px 4px;white-space:nowrap'; }
   });
-  if (window._ttabActual === t) return;
-  window._ttabActual = t;
   if (t === 'fuerza') renderFuerza();
   if (t === 'resist') renderResist();
   if (t === 'especif') renderEspecif();
@@ -440,13 +438,9 @@ async function guardarTest(tipo) {
   if (tipo === 'fuerza') {
     const keys = ['pecho', 'espalda', 'biceps', 'triceps', 'femoral', 'cuad', 'gluteo'];
     keys.forEach(k => {
-      const kgInput = document.getElementById('f-' + k + '-kg')?.value;
-      const repsInput = document.getElementById('f-' + k + '-reps')?.value;
-      const prev = window._ultimoFuerza?.[k];
-      const kg = kgInput ? inputAPesoCliente(kgInput) : (prev?.kg ?? null);
-      const reps = repsInput ? parseFloat(repsInput) : (prev?.reps ?? null);
+      const kg = (function(v){return v?inputAPesoCliente(v):v;})(document.getElementById('f-' + k + '-kg')?.value);
+      const reps = document.getElementById('f-' + k + '-reps')?.value;
       if (kg && reps) { const rm = epley(kg, reps); datos[k] = { kg: parseFloat(kg), reps: parseFloat(reps), rm, score: getScore('fuerza', k, rm, sexo, peso).score }; }
-      else if (kgInput || repsInput) { toast('⚠️ Falta ' + (kgInput ? 'reps' : 'peso') + ' en ' + k + ', no se guardó ese ejercicio'); }
     });
   }
   if (tipo === 'resist') {
@@ -461,22 +455,13 @@ async function guardarTest(tipo) {
   const allScores = Object.values(datos).filter(v => typeof v === 'object' && v.score).map(v => v.score);
   datos.scoreTotal = allScores.length ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : 0;
 
-  const historialAnterior = window._testsHistorial.filter(r => r && r.fecha && r.tipo);
-  const nuevoHistorial = [...historialAnterior, datos];
-  try {
-    const resp = await fetch('/api/tests/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ registros: nuevoHistorial }) });
-    if (!resp.ok) throw new Error('Servidor respondio ' + resp.status);
-    const check = await resp.json().catch(() => null);
-    if (!check || check.ok !== true) throw new Error('Respuesta inesperada del servidor');
-    window._testsHistorial = nuevoHistorial;
-    if (tipo === 'fuerza') window._ultimoFuerza = datos;
-    if (tipo === 'resist') window._ultimoResist = datos;
-    if (tipo === 'especif') window._ultimoEspecif = datos;
-    toast('✅ Test guardado');
-  } catch (err) {
-    toast('❌ ERROR al guardar, no se aplico el cambio: ' + err.message);
-    console.error('Error guardando test:', err);
-  }
+  window._testsHistorial = window._testsHistorial.filter(r => r && r.fecha && r.tipo);
+  window._testsHistorial.push(datos);
+  await fetch('/api/tests/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ registros: window._testsHistorial }) });
+  if (tipo === 'fuerza') window._ultimoFuerza = datos;
+  if (tipo === 'resist') window._ultimoResist = datos;
+  if (tipo === 'especif') window._ultimoEspecif = datos;
+  toast('✅ Test guardado');
 }
 
 async function generarTextoTest(tipo) {

@@ -2463,10 +2463,8 @@ app.get('/api/tests/:id', (req, res) => {
 app.post('/api/tests/:id', (req, res) => {
   const data = cargarJSON('tests.json', {});
   const id = req.params.id.replace('cli_','');
-  console.log('DEBUG POST /api/tests - param original:', req.params.id, '- id usado:', id, '- registros recibidos:', (req.body.registros||[]).length);
   data[id] = req.body;
   guardarJSON('tests.json', data);
-  console.log('DEBUG guardado OK para clave:', id);
   res.json({ok:true});
 });
 

@@ -1271,7 +1271,7 @@ function encAbrirFichaModal(id) {
     var uid = (typeof _tcUsuario !== 'undefined' && _tcUsuario && _tcUsuario.id) || null;
     if (!uid || !enModoCliente) return;
     fetch('/api/historial-pesos/' + uid + '/' + encId).then(function(r){return r.json();}).then(function(res){
-      var cont2 = cont.querySelector('#enc-progreso-peso');
+      var cont2 = document.getElementById('enc-progreso-peso');
       if (!cont2) return;
       var semanas = res.semanas || [];
       if (semanas.length === 0) { cont2.innerHTML = ''; return; }
