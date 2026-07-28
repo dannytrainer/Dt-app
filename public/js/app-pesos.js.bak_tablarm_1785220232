@@ -122,16 +122,3 @@ function tcLimpiarRutinaHoy() {
   alert('✅ Listo, recarga la rutina');
 }
 
-
-
-function toggleTablaRM(el) {
-  var t = el.nextElementSibling;
-  if (!t) return;
-  if (t.style.display === 'none' || t.style.display === '') {
-    t.style.display = 'flex';
-    el.textContent = 'Ocultar tabla ▴';
-  } else {
-    t.style.display = 'none';
-    el.textContent = 'Ver tabla completa ▾';
-  }
-}

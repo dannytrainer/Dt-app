@@ -1277,39 +1277,11 @@ function encAbrirFichaModal(id) {
       if (semanas.length === 0) { cont2.innerHTML = ''; return; }
       var ultima = semanas[semanas.length - 1];
       var h = '<div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">\uD83D\uDCC8 Tu progreso</div>';
-      h += '<div style="background:var(--gris);border-radius:10px;padding:12px;display:flex;gap:10px">';
-      h += '<div style="flex:1;text-align:center"><div style="font-size:20px;font-weight:900;color:var(--texto)">' + ultima.peso + '<span style="font-size:11px;color:var(--texto-medio)"> ' + ultima.unidad + '</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Ultimo peso</div></div>';
-      h += '<div style="flex:1;text-align:center;border-left:1px solid var(--borde)"><div style="font-size:20px;font-weight:900;color:#e31e24">' + (res.rm_estimado ? Math.round(res.rm_estimado) : '-') + '<span style="font-size:11px;color:var(--texto-medio)"> kg</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">RM estimado</div></div>';
+      h += '<div style="background:#1a1a1a;border-radius:10px;padding:12px;display:flex;gap:10px">';
+      h += '<div style="flex:1;text-align:center"><div style="font-size:20px;font-weight:900;color:#fff">' + ultima.peso + '<span style="font-size:11px;color:var(--texto-medio)"> ' + ultima.unidad + '</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">Ultimo peso</div></div>';
+      h += '<div style="flex:1;text-align:center;border-left:1px solid #2a2a2a"><div style="font-size:20px;font-weight:900;color:#e31e24">' + (res.rm_estimado ? Math.round(res.rm_estimado) : '-') + '<span style="font-size:11px;color:var(--texto-medio)"> kg</span></div><div style="font-size:9px;color:var(--texto-medio);text-transform:uppercase">RM estimado</div></div>';
       h += '</div>';
-      if (res.rm_estimado) {
-        var repsObjetivo = [1,2,3,4,5,6,7,8,10,12,15];
-        var tablaHtml = '<div style="display:none;flex-wrap:wrap;gap:6px;margin-top:8px">';
-        repsObjetivo.forEach(function(rep){
-          var pesoRep = rep === 1 ? res.rm_estimado : (res.rm_estimado / (1 + rep/30));
-          tablaHtml += '<div style="background:var(--gris);border:1px solid var(--borde);border-radius:6px;padding:6px 8px;text-align:center;min-width:44px"><div style="font-size:13px;font-weight:800;color:var(--texto)">' + Math.round(pesoRep) + '</div><div style="font-size:8px;color:var(--texto-medio);text-transform:uppercase">' + rep + 'RM</div></div>';
-        });
-        tablaHtml += '</div>';
-        h += '<div onclick="toggleTablaRM(this)" style="font-size:11px;color:var(--texto-medio);text-align:center;cursor:pointer;padding:6px 4px;margin-top:4px">Ver tabla completa ▾</div>';
-        h += tablaHtml;
-      }
-      if (semanas.length > 1) {
-        var maxPeso = Math.max.apply(null, semanas.map(function(s){ return s.peso; }));
-        var anchoBarra = 26;
-        h += '<div style="margin-top:10px;overflow-x:auto;-webkit-overflow-scrolling:touch" id="enc-progreso-scroll"><div style="display:flex;align-items:flex-end;gap:6px;min-width:' + (semanas.length * (anchoBarra+6)) + 'px;height:100px;padding:6px 2px 2px 2px">';
-        semanas.forEach(function(sem){
-          var alturaPx = maxPeso > 0 ? Math.max(4, Math.round((sem.peso / maxPeso) * 60)) : 4;
-          var fechaCorta = (sem.semana_inicio || '').slice(5).replace('-', '/');
-          h += '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;width:' + anchoBarra + 'px">';
-          h += '<div style="font-size:9px;color:var(--texto);font-weight:700">' + sem.peso + '</div>';
-          h += '<div style="width:16px;height:' + alturaPx + 'px;background:#e31e24;border-radius:3px 3px 0 0"></div>';
-          h += '<div style="font-size:8px;color:var(--texto-medio)">' + fechaCorta + '</div>';
-          h += '</div>';
-        });
-        h += '</div></div>';
-      }
       cont2.innerHTML = h;
-      var _scrollCont = cont2.querySelector('#enc-progreso-scroll');
-      if (_scrollCont) { _scrollCont.scrollLeft = _scrollCont.scrollWidth; }
     }).catch(function(){});
   })(e.id);
 }
