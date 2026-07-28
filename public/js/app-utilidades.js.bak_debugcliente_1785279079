@@ -1535,8 +1535,6 @@ function entVerTerminosCompletos() {
 }
 
 function tcAbrirConfig() {
-  try {
-
   if (document.getElementById('tc-config-panel')) { document.getElementById('tc-config-panel').remove(); return; }
   var tema = localStorage.getItem('dt_tema') === 'claro';
   var sonidos = localStorage.getItem('tc-sonidos') !== 'off';
@@ -1727,10 +1725,6 @@ function tcAbrirConfig() {
       var precio = (d && d.precio) ? d.precio + ' ' + (d.moneda||'') : '';
       box.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">Pago al entrenador</div><div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--texto-medio)">' + precio + '</span><span style="font-size:12px;font-weight:700;color:' + color + '">' + label + '</span></div>';
     }).catch(function(){});
-  }
-
-  } catch(err) {
-    alert('ERROR en tcAbrirConfig: ' + err.message + '\n' + err.stack);
   }
 }
 
@@ -1952,57 +1946,4 @@ function tcLeerPasos(pasos, btnRef) {
     window.speechSynthesis.speak(u);
   }
   leerSiguiente();
-}
-
-// ── SELECTOR DE VOZ TTS ─────────────────────────────
-function tcElegirVoz() {
-  var voces = speechSynthesis.getVoices();
-  var esVoces = voces.filter(function(v){ return v.lang.indexOf('es') === 0; });
-  if (esVoces.length === 0) return null;
-  var guardada = localStorage.getItem('tc-voz-elegida');
-  if (guardada) {
-    var v = esVoces.find(function(v){ return v.name === guardada; });
-    if (v) return v;
-  }
-  var voz = esVoces.find(function(v){ return v.lang === 'es-ES' && v.localService; });
-  if (voz) return voz;
-  voz = esVoces.find(function(v){ return v.localService; });
-  if (voz) return voz;
-  voz = esVoces.find(function(v){ return v.lang === 'es-ES'; });
-  if (voz) return voz;
-  return esVoces[0];
-}
-
-function tcPoblarSelectVoces() {
-  var sel = document.getElementById('tc-select-voz');
-  if (!sel) return;
-  var voces = speechSynthesis.getVoices();
-  var esVoces = voces.filter(function(v){ return v.lang.indexOf('es') === 0; });
-  if (esVoces.length === 0) { sel.innerHTML = '<option value="">Sin voces en español disponibles</option>'; return; }
-  var guardada = localStorage.getItem('tc-voz-elegida');
-  var actual = tcElegirVoz();
-  sel.innerHTML = esVoces.map(function(v){
-    var sel_ = (guardada ? v.name === guardada : (actual && v.name === actual.name)) ? ' selected' : '';
-    return '<option value="' + v.name + '"' + sel_ + '>' + v.name + ' (' + v.lang + ')</option>';
-  }).join('');
-}
-
-function tcGuardarVozElegida(nombre) {
-  localStorage.setItem('tc-voz-elegida', nombre);
-  tcProbarVoz();
-}
-
-function tcProbarVoz() {
-  var voz = tcElegirVoz();
-  var u = new SpeechSynthesisUtterance('Hola, así sonará la lectura de tus ejercicios.');
-  u.lang = 'es-ES';
-  u.rate = 0.8;
-  if (voz) u.voice = voz;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(u);
-}
-
-if ('speechSynthesis' in window) {
-  speechSynthesis.onvoiceschanged = tcPoblarSelectVoces;
-  setTimeout(tcPoblarSelectVoces, 300);
 }

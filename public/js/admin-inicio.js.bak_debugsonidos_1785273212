@@ -1110,24 +1110,20 @@ function showHerramientaNav(nombre){
 }
 
 function showHerramienta(nombre){
-  try {
-    document.getElementById('herramienta-panel').style.display='block';
-    const st=document.querySelector('#page-logs .st');
-    if(st){st.style.display='none';if(st.nextElementSibling)st.nextElementSibling.style.display='none';}
-    const c=document.getElementById('herramienta-contenido');
-    if(nombre==='enciclopedia') renderEnciclopedia(c);
-    else if(nombre==='cronometros') renderCronometros(c);
-    else if(nombre==='temporizadores') renderTemporizadores(c);
-    else if(nombre==='hiit') renderHiit(c);
-    else if(nombre==='calculadoras') renderCalculadoras(c);
-    else if(nombre==='sonidos') renderSonidos(c);
-    else if(nombre==='competencias') renderCompetencias(c);
-    else if(nombre==='ruleta') renderRuleta(c);
-    else if(nombre==='juegos') renderJuegos(c);
-    else c.innerHTML='<p style="color:var(--texto-secundario);text-align:center;padding:40px">🚧 Próximamente: '+nombre+'</p>';
-  } catch(err) {
-    alert('ERROR en showHerramienta: ' + err.message + '\n' + err.stack);
-  }
+  document.getElementById('herramienta-panel').style.display='block';
+  const st=document.querySelector('#page-logs .st');
+  if(st){st.style.display='none';if(st.nextElementSibling)st.nextElementSibling.style.display='none';}
+  const c=document.getElementById('herramienta-contenido');
+  if(nombre==='enciclopedia') renderEnciclopedia(c);
+  else if(nombre==='cronometros') renderCronometros(c);
+  else if(nombre==='temporizadores') renderTemporizadores(c);
+  else if(nombre==='hiit') renderHiit(c);
+  else if(nombre==='calculadoras') renderCalculadoras(c);
+  else if(nombre==='sonidos') renderSonidos(c);
+  else if(nombre==='competencias') renderCompetencias(c);
+  else if(nombre==='ruleta') renderRuleta(c);
+  else if(nombre==='juegos') renderJuegos(c);
+  else c.innerHTML='<p style="color:var(--texto-secundario);text-align:center;padding:40px">🚧 Próximamente: '+nombre+'</p>';
 }
 
 
@@ -1246,7 +1242,7 @@ function encAbrirFichaModal(id) {
   }
   if ((e.ejecucion||[]).length > 0) {
     window._tcPasosLectura = e.ejecucion;
-    html += '<div style="margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase">Ejecucion</div><button id="btn-leer-tts2" onclick="tcLeerPasos(window._tcPasosLectura,this)" style="background:var(--gris);border:1px solid var(--borde);border-radius:20px;color:var(--texto);font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer">🔊 Escuchar pasos</button></div>';
+    html += '<div style="margin-bottom:16px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:11px;color:#e31e24;font-weight:700;letter-spacing:1px;text-transform:uppercase">Ejecucion</div><button id="btn-leer-tts2" onclick="tcLeerPasos(window._tcPasosLectura,\'btn-leer-tts2\')" style="background:var(--gris);border:1px solid var(--borde);border-radius:20px;color:var(--texto);font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer">🔊 Escuchar pasos</button></div>';
     e.ejecucion.forEach(function(paso,i){
       html += '<div style="display:flex;gap:10px;margin-bottom:10px"><div style="width:24px;height:24px;background:#e31e24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px">' + (i+1) + '</div><div style="font-size:13px;color:var(--texto-suave);line-height:1.5">' + paso + '</div></div>';
     });

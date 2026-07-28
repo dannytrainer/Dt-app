@@ -2,8 +2,6 @@ const DIAS=['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
 let rutinaActual={},diaSeleccionado='lunes';
 
 function showPage(p){
-  try {
-
 const hPanel=document.getElementById('herramienta-panel');
 if(hPanel&&hPanel.style.display!=='none'){
   hPanel.style.display='none';
@@ -21,11 +19,10 @@ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
 document.querySelectorAll('.modal.modo-perfil').forEach(m=>{m.classList.remove('open');m.classList.remove('modo-perfil');});
 document.body.classList.remove('en-perfil');
 document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
-var pageEl = document.getElementById('page-'+p);
-if (pageEl) { pageEl.classList.add('active'); } else { document.getElementById('page-inicio').classList.add('active'); p = 'inicio'; }
+document.getElementById('page-'+p).classList.add('active');
 const nav=document.getElementById('nav-principal');
 if(p==='inicio'){nav.style.display='flex';}
-else{nav.style.display='flex';const navIdx=['inicio','clientes','rutinas','logs'].indexOf(p);const navBtns=document.querySelectorAll('.nav button');if(navIdx>=0&&navBtns[navIdx])navBtns[navIdx].classList.add('active');}
+else{nav.style.display='flex';const navIdx=['inicio','clientes','rutinas','logs'].indexOf(p);if(navIdx>=0)document.querySelectorAll('.nav button')[navIdx].classList.add('active');}
 document.getElementById('fab-btn').style.display=p==='clientes'?'flex':'none';
 if(p==='inicio'){cargarInicio();cargarTicker();cargarHorarios().then(()=>setTimeout(renderMiniCal,300));}
 if(p==='clientes'){cargarClientes();cargarEstadoPausaGlobal();}
@@ -44,10 +41,6 @@ if(p==='enviar'){cargarSelectEnviar();cargarPanelCobros();}
 if(p==='clase-presencial'){cpInitPagina();}
 if(p==='admin'){cargarAdmin();setTimeout(cargarCobroAutoEstado,500);}
 if(p==='horarios')initHorarios();
-
-  } catch(err) {
-    alert('ERROR en showPage: ' + err.message + '\n' + err.stack);
-  }
 }
 function toast(msg,ok=true){
 const t=document.getElementById('toast');

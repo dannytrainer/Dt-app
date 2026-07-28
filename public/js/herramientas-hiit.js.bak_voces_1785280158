@@ -66,23 +66,11 @@ function _hiitCambiarTab(tab) {
   }
 }
 
-function _tcHiitReconstruirSkeleton(c) {
-  c.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--texto-secundario);margin-bottom:8px">\ud83d\udd25 Circuitos</div><div id="tc-hiit-circuitos"></div><div style="font-size:13px;font-weight:700;color:var(--texto-secundario);margin:16px 0 8px">\u23f1\ufe0f Intervalos</div><div id="tc-hiit-intervalos"></div>';
-}
-
 function hiitMostrar(vista){
   _hiitVistaCircuito = vista;
   const c=document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if(!c)return;
-  if(vista==='lista'){
-    if (window._tcModoHiitCliente) {
-      if (!document.getElementById('tc-hiit-circuitos')) _tcHiitReconstruirSkeleton(c);
-      hiitRenderLista(document.getElementById('tc-hiit-circuitos'));
-      intervRenderLista(document.getElementById('tc-hiit-intervalos'));
-    } else {
-      hiitRenderLista(c);
-    }
-  }
+  if(vista==='lista') hiitRenderLista(c);
   else if(vista==='nuevo'){_hiitActual=hiitNuevoCircuito();hiitRenderEditor(c);}
   else if(vista==='editor') hiitRenderEditor(c);
   else if(vista==='ejecutar') hiitRenderEjecucion(c);
@@ -93,15 +81,7 @@ function intervMostrar(vista) {
   _hiitVistaIntervalo = vista;
   const c = document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if (!c) return;
-  if (vista==='lista'){
-    if (window._tcModoHiitCliente) {
-      if (!document.getElementById('tc-hiit-intervalos')) _tcHiitReconstruirSkeleton(c);
-      hiitRenderLista(document.getElementById('tc-hiit-circuitos'));
-      intervRenderLista(document.getElementById('tc-hiit-intervalos'));
-    } else {
-      intervRenderLista(c);
-    }
-  }
+  if (vista==='lista')     intervRenderLista(c);
   else if (vista==='nuevo')   { _intervActual = intervNuevo(); intervRenderEditor(c); }
   else if (vista==='editor')  intervRenderEditor(c);
   else if (vista==='ejecutar') intervRenderEjecucion(c);
@@ -852,19 +832,12 @@ function renderSonidos(c){
   });
   html+='</div>';
   html+='<div style="margin-top:16px;background:var(--card);border:1px solid #1e1e1e;border-radius:12px;padding:14px">';
-  html+='<div style="font-size:14px;font-weight:700;color:#e31e24;margin-bottom:10px">🗣️ Voz de lectura</div>';
-  html+='<p style="font-size:12px;color:var(--texto-secundario);margin-bottom:12px">Elige la voz para "Escuchar pasos" en los ejercicios.</p>';
-  html+='<select id="tc-select-voz" onchange="tcGuardarVozElegida(this.value)" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:9px;font-size:13px;margin-bottom:10px"><option value="">Cargando voces...</option></select>';
-  html+='<button onclick="tcProbarVoz()" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;color:var(--texto);padding:10px;font-size:13px;font-weight:700;cursor:pointer">🔊 Probar voz</button>';
-  html+='</div>';
-  html+='<div style="margin-top:16px;background:var(--card);border:1px solid #1e1e1e;border-radius:12px;padding:14px">';
   html+='<div style="font-size:14px;font-weight:700;color:#e31e24;margin-bottom:10px">🔔 Notificaciones del sistema</div>';
   html+='<p style="font-size:12px;color:var(--texto-secundario);margin-bottom:12px">Permite recibir avisos cuando un temporizador termina, incluso si la app está en segundo plano.</p>';
   html+='<button onclick="dtPedirNotificaciones()" id="btn-notif" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">🔔 Activar notificaciones</button>';
   html+='</div>';
   c.innerHTML=html;
   dtActualizarBtnNotif();
-  setTimeout(tcPoblarSelectVoces, 200);
 }
 
 function dtActualizarBtnNotif(){

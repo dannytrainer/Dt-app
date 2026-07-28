@@ -66,23 +66,11 @@ function _hiitCambiarTab(tab) {
   }
 }
 
-function _tcHiitReconstruirSkeleton(c) {
-  c.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--texto-secundario);margin-bottom:8px">\ud83d\udd25 Circuitos</div><div id="tc-hiit-circuitos"></div><div style="font-size:13px;font-weight:700;color:var(--texto-secundario);margin:16px 0 8px">\u23f1\ufe0f Intervalos</div><div id="tc-hiit-intervalos"></div>';
-}
-
 function hiitMostrar(vista){
   _hiitVistaCircuito = vista;
   const c=document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if(!c)return;
-  if(vista==='lista'){
-    if (window._tcModoHiitCliente) {
-      if (!document.getElementById('tc-hiit-circuitos')) _tcHiitReconstruirSkeleton(c);
-      hiitRenderLista(document.getElementById('tc-hiit-circuitos'));
-      intervRenderLista(document.getElementById('tc-hiit-intervalos'));
-    } else {
-      hiitRenderLista(c);
-    }
-  }
+  if(vista==='lista') hiitRenderLista(c);
   else if(vista==='nuevo'){_hiitActual=hiitNuevoCircuito();hiitRenderEditor(c);}
   else if(vista==='editor') hiitRenderEditor(c);
   else if(vista==='ejecutar') hiitRenderEjecucion(c);
@@ -93,15 +81,7 @@ function intervMostrar(vista) {
   _hiitVistaIntervalo = vista;
   const c = document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if (!c) return;
-  if (vista==='lista'){
-    if (window._tcModoHiitCliente) {
-      if (!document.getElementById('tc-hiit-intervalos')) _tcHiitReconstruirSkeleton(c);
-      hiitRenderLista(document.getElementById('tc-hiit-circuitos'));
-      intervRenderLista(document.getElementById('tc-hiit-intervalos'));
-    } else {
-      intervRenderLista(c);
-    }
-  }
+  if (vista==='lista')     intervRenderLista(c);
   else if (vista==='nuevo')   { _intervActual = intervNuevo(); intervRenderEditor(c); }
   else if (vista==='editor')  intervRenderEditor(c);
   else if (vista==='ejecutar') intervRenderEjecucion(c);
@@ -122,11 +102,9 @@ function intervNuevo() {
 }
 
 function intervRenderLista(c) {
-  var modoCliente = window._tcModoHiitCliente === true;
-  var btnNuevo = modoCliente ? '' : '<button onclick="intervMostrar(\'nuevo\')" style="width:100%;background:#0a0a1a;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px">➕ Nuevo intervalo</button>';
   var html = '';
   if (!_intervCircuitos.length) {
-    html = '<div style="text-align:center;padding:40px;color:var(--texto-secundario)">' + (modoCliente ? 'Tu entrenador aún no te ha asignado intervalos' : 'Sin intervalos aún.<br>Crea el primero 👆') + '</div>';
+    html = '<div style="text-align:center;padding:40px;color:var(--texto-secundario)">Sin intervalos aún.<br>Crea el primero 👆</div>';
   } else {
     html = _intervCircuitos.map(function(iv, i) {
       var total = iv.preparacion + (iv.trabajo + iv.descanso) * iv.rondas + iv.finalizacion;
@@ -141,14 +119,15 @@ function intervRenderLista(c) {
         '</div>' +
         '<div style="display:flex;gap:6px">' +
         '<button onclick="_intervActual=JSON.parse(JSON.stringify(_intervCircuitos[' + i + ']));intervMostrar(\'ejecutar\')" style="flex:2;background:#e31e24;color:var(--texto);border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">▶️ Iniciar</button>' +
-        (modoCliente ? '' : '<button onclick="_intervActual=JSON.parse(JSON.stringify(_intervCircuitos[' + i + ']));intervMostrar(\'editor\')" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>') +
-        (modoCliente ? '' : '<button onclick="hiitAbrirCompartir(' + i + ',\'intervalo\')" style="background:var(--gris);color:#4a9eff;border:1px solid #4a9eff;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">👥</button>') +
-        (modoCliente ? '' : '<button onclick="intervEliminar(' + i + ')" style="flex:1;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>') +
+        '<button onclick="_intervActual=JSON.parse(JSON.stringify(_intervCircuitos[' + i + ']));intervMostrar(\'editor\')" style="flex:1;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">✏️ Editar</button>' +
+        '<button onclick="intervEliminar(' + i + ')" style="flex:1;background:var(--gris);color:#e31e24;border:1px solid #e31e24;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🗑️</button>' +
         '</div>' +
         '</div>';
     }).join('');
   }
-  c.innerHTML = btnNuevo + html;
+  c.innerHTML =
+    '<button onclick="intervMostrar(\'nuevo\')" style="width:100%;background:#0a0a1a;color:#e31e24;border:1px solid #e31e24;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px">➕ Nuevo intervalo</button>' +
+    html;
 }
 
 function intervRenderEditor(c) {
@@ -852,19 +831,12 @@ function renderSonidos(c){
   });
   html+='</div>';
   html+='<div style="margin-top:16px;background:var(--card);border:1px solid #1e1e1e;border-radius:12px;padding:14px">';
-  html+='<div style="font-size:14px;font-weight:700;color:#e31e24;margin-bottom:10px">🗣️ Voz de lectura</div>';
-  html+='<p style="font-size:12px;color:var(--texto-secundario);margin-bottom:12px">Elige la voz para "Escuchar pasos" en los ejercicios.</p>';
-  html+='<select id="tc-select-voz" onchange="tcGuardarVozElegida(this.value)" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:9px;font-size:13px;margin-bottom:10px"><option value="">Cargando voces...</option></select>';
-  html+='<button onclick="tcProbarVoz()" style="width:100%;background:var(--gris);border:1px solid #333;border-radius:8px;color:var(--texto);padding:10px;font-size:13px;font-weight:700;cursor:pointer">🔊 Probar voz</button>';
-  html+='</div>';
-  html+='<div style="margin-top:16px;background:var(--card);border:1px solid #1e1e1e;border-radius:12px;padding:14px">';
   html+='<div style="font-size:14px;font-weight:700;color:#e31e24;margin-bottom:10px">🔔 Notificaciones del sistema</div>';
   html+='<p style="font-size:12px;color:var(--texto-secundario);margin-bottom:12px">Permite recibir avisos cuando un temporizador termina, incluso si la app está en segundo plano.</p>';
   html+='<button onclick="dtPedirNotificaciones()" id="btn-notif" style="width:100%;background:var(--gris);color:var(--texto);border:1px solid #333;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">🔔 Activar notificaciones</button>';
   html+='</div>';
   c.innerHTML=html;
   dtActualizarBtnNotif();
-  setTimeout(tcPoblarSelectVoces, 200);
 }
 
 function dtActualizarBtnNotif(){
@@ -899,10 +871,9 @@ function dtNotificar(titulo,cuerpo){
 let _hiitCompartirIdx = null;
 let _hiitClientesCache = [];
 
-async function hiitAbrirCompartir(i, tipo) {
+async function hiitAbrirCompartir(i) {
   _hiitCompartirIdx = i;
-  window._hiitCompartirTipo = tipo || 'circuito';
-  const circuito = (window._hiitCompartirTipo === 'intervalo') ? _intervCircuitos[i] : _hiitCircuitos[i];
+  const circuito = _hiitCircuitos[i];
   const eid = (JSON.parse(localStorage.getItem('dt_sesion')||'{}').id||null);
   if (!_hiitClientesCache.length) {
     try {
@@ -955,7 +926,7 @@ function hiitToggleClienteCompartir(id) {
 }
 
 async function hiitGuardarCompartir() {
-  const circuito = (window._hiitCompartirTipo === 'intervalo') ? _intervCircuitos[_hiitCompartirIdx] : _hiitCircuitos[_hiitCompartirIdx];
+  const circuito = _hiitCircuitos[_hiitCompartirIdx];
   const clientes = Array.from(window._hiitSeleccionCompartir);
   const r = await fetch('/api/hiit/' + circuito.id + '/asignar', {
     method: 'POST',

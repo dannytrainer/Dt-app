@@ -1535,8 +1535,6 @@ function entVerTerminosCompletos() {
 }
 
 function tcAbrirConfig() {
-  try {
-
   if (document.getElementById('tc-config-panel')) { document.getElementById('tc-config-panel').remove(); return; }
   var tema = localStorage.getItem('dt_tema') === 'claro';
   var sonidos = localStorage.getItem('tc-sonidos') !== 'off';
@@ -1619,30 +1617,6 @@ function tcAbrirConfig() {
   seccion('&#127912; Personalización');
   fila('Tema', tema?'Modo claro':'Modo oscuro', tema?'&#9728; Claro':'&#127769; Oscuro', tema?'#e31e24':'#1a1a1a', 'tc-cfg-tema-btn', tcToggleTema);
   fila('Sonidos', 'Beeps y alertas', sonidos?'&#128276; On':'&#128277; Off', sonidos?'#e31e24':'#1a1a1a', 'tc-cfg-sonido-btn', tcToggleSonidos);
-
-  var dSonidosAv = document.createElement('div');
-  dSonidosAv.style.cssText = 'background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer';
-  dSonidosAv.onclick = function(){
-    document.getElementById('tc-config-panel').remove();
-    var cEl = document.createElement('div');
-    cEl.id = 'tc-sonidos-panel';
-    cEl.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:var(--fondo);z-index:99999;overflow-y:auto;display:flex;flex-direction:column';
-    var hdr = document.createElement('div');
-    hdr.style.cssText = 'background:var(--card);border-bottom:2px solid #e31e24;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0';
-    var bv = document.createElement('button');
-    bv.innerHTML = '&#8592; Volver';
-    bv.style.cssText = 'background:transparent;border:1px solid #e31e24;border-radius:8px;color:#e31e24;font-size:13px;font-weight:700;padding:6px 12px;cursor:pointer';
-    bv.onclick = function(){ document.getElementById('tc-sonidos-panel').remove(); tcAbrirConfig(); };
-    hdr.appendChild(bv);
-    cEl.appendChild(hdr);
-    var bod = document.createElement('div');
-    bod.style.cssText = 'padding:16px';
-    cEl.appendChild(bod);
-    document.body.appendChild(cEl);
-    renderSonidos(bod);
-  };
-  dSonidosAv.innerHTML = '<div><div style="font-size:13px;font-weight:700;color:var(--texto)">Configurar sonidos</div><div style="font-size:11px;color:var(--texto-medio);margin-top:2px">Cronos &middot; Timers &middot; HIIT</div></div><span style="color:#555;font-size:18px">&#8250;</span>';
-  body.appendChild(dSonidosAv);
 
   seccion('&#128279; Entrenador');
 
@@ -1727,10 +1701,6 @@ function tcAbrirConfig() {
       var precio = (d && d.precio) ? d.precio + ' ' + (d.moneda||'') : '';
       box.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px">Pago al entrenador</div><div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--texto-medio)">' + precio + '</span><span style="font-size:12px;font-weight:700;color:' + color + '">' + label + '</span></div>';
     }).catch(function(){});
-  }
-
-  } catch(err) {
-    alert('ERROR en tcAbrirConfig: ' + err.message + '\n' + err.stack);
   }
 }
 
@@ -1952,57 +1922,4 @@ function tcLeerPasos(pasos, btnRef) {
     window.speechSynthesis.speak(u);
   }
   leerSiguiente();
-}
-
-// ── SELECTOR DE VOZ TTS ─────────────────────────────
-function tcElegirVoz() {
-  var voces = speechSynthesis.getVoices();
-  var esVoces = voces.filter(function(v){ return v.lang.indexOf('es') === 0; });
-  if (esVoces.length === 0) return null;
-  var guardada = localStorage.getItem('tc-voz-elegida');
-  if (guardada) {
-    var v = esVoces.find(function(v){ return v.name === guardada; });
-    if (v) return v;
-  }
-  var voz = esVoces.find(function(v){ return v.lang === 'es-ES' && v.localService; });
-  if (voz) return voz;
-  voz = esVoces.find(function(v){ return v.localService; });
-  if (voz) return voz;
-  voz = esVoces.find(function(v){ return v.lang === 'es-ES'; });
-  if (voz) return voz;
-  return esVoces[0];
-}
-
-function tcPoblarSelectVoces() {
-  var sel = document.getElementById('tc-select-voz');
-  if (!sel) return;
-  var voces = speechSynthesis.getVoices();
-  var esVoces = voces.filter(function(v){ return v.lang.indexOf('es') === 0; });
-  if (esVoces.length === 0) { sel.innerHTML = '<option value="">Sin voces en español disponibles</option>'; return; }
-  var guardada = localStorage.getItem('tc-voz-elegida');
-  var actual = tcElegirVoz();
-  sel.innerHTML = esVoces.map(function(v){
-    var sel_ = (guardada ? v.name === guardada : (actual && v.name === actual.name)) ? ' selected' : '';
-    return '<option value="' + v.name + '"' + sel_ + '>' + v.name + ' (' + v.lang + ')</option>';
-  }).join('');
-}
-
-function tcGuardarVozElegida(nombre) {
-  localStorage.setItem('tc-voz-elegida', nombre);
-  tcProbarVoz();
-}
-
-function tcProbarVoz() {
-  var voz = tcElegirVoz();
-  var u = new SpeechSynthesisUtterance('Hola, así sonará la lectura de tus ejercicios.');
-  u.lang = 'es-ES';
-  u.rate = 0.8;
-  if (voz) u.voice = voz;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(u);
-}
-
-if ('speechSynthesis' in window) {
-  speechSynthesis.onvoiceschanged = tcPoblarSelectVoces;
-  setTimeout(tcPoblarSelectVoces, 300);
 }

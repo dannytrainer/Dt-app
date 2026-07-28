@@ -5,5 +5,3 @@ sed -i "s|js/admin-clase-presencial.js?v=[0-9]*\"|js/admin-clase-presencial.js?v
 sed -i "s|js/admin-inicio.js?v=[0-9]*\"|js/admin-inicio.js?v=$TS\"|; s|js/admin-inicio.js\"|js/admin-inicio.js?v=$TS\"|" ~/Dt-app/public/index.html
 sed -i "s|js/admin-config.js?v=[0-9]*\"|js/admin-config.js?v=$TS\"|; s|js/admin-config.js\"|js/admin-config.js?v=$TS\"|" ~/Dt-app/public/index.html
 echo "🔄 Versión de cache actualizada: $TS"
-sed -i "s|js/herramientas-hiit.js?v=[0-9]*\"|js/herramientas-hiit.js?v=$TS\"|; s|js/herramientas-hiit.js\"|js/herramientas-hiit.js?v=$TS\"|" ~/Dt-app/public/index.html
-sed -i "s|js/app-utilidades.js?v=[0-9]*\"|js/app-utilidades.js?v=$TS\"|; s|js/app-utilidades.js\"|js/app-utilidades.js?v=$TS\"|" ~/Dt-app/public/index.html

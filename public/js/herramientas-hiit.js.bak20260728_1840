@@ -66,22 +66,13 @@ function _hiitCambiarTab(tab) {
   }
 }
 
-function _tcHiitReconstruirSkeleton(c) {
-  c.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--texto-secundario);margin-bottom:8px">\ud83d\udd25 Circuitos</div><div id="tc-hiit-circuitos"></div><div style="font-size:13px;font-weight:700;color:var(--texto-secundario);margin:16px 0 8px">\u23f1\ufe0f Intervalos</div><div id="tc-hiit-intervalos"></div>';
-}
-
 function hiitMostrar(vista){
   _hiitVistaCircuito = vista;
   const c=document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if(!c)return;
   if(vista==='lista'){
-    if (window._tcModoHiitCliente) {
-      if (!document.getElementById('tc-hiit-circuitos')) _tcHiitReconstruirSkeleton(c);
-      hiitRenderLista(document.getElementById('tc-hiit-circuitos'));
-      intervRenderLista(document.getElementById('tc-hiit-intervalos'));
-    } else {
-      hiitRenderLista(c);
-    }
+    const sub = window._tcModoHiitCliente ? document.getElementById('tc-hiit-circuitos') : null;
+    hiitRenderLista(sub || c);
   }
   else if(vista==='nuevo'){_hiitActual=hiitNuevoCircuito();hiitRenderEditor(c);}
   else if(vista==='editor') hiitRenderEditor(c);
@@ -94,13 +85,8 @@ function intervMostrar(vista) {
   const c = document.getElementById(window._hiitContenedorId || 'hiit-contenido');
   if (!c) return;
   if (vista==='lista'){
-    if (window._tcModoHiitCliente) {
-      if (!document.getElementById('tc-hiit-intervalos')) _tcHiitReconstruirSkeleton(c);
-      hiitRenderLista(document.getElementById('tc-hiit-circuitos'));
-      intervRenderLista(document.getElementById('tc-hiit-intervalos'));
-    } else {
-      intervRenderLista(c);
-    }
+    const sub = window._tcModoHiitCliente ? document.getElementById('tc-hiit-intervalos') : null;
+    intervRenderLista(sub || c);
   }
   else if (vista==='nuevo')   { _intervActual = intervNuevo(); intervRenderEditor(c); }
   else if (vista==='editor')  intervRenderEditor(c);
